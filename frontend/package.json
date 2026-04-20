@@ -1,0 +1,9 @@
+{
+  "name": "@forkcast/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"start frontend dev\""
+  },
+  "license": "ISC"
+}
