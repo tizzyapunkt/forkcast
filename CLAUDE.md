@@ -42,10 +42,6 @@ Always write tests before implementation:
 
 Don't introduce infrastructure, patterns, or abstractions until there's a concrete need. No speculative tooling.
 
-### Project Progress
-
-Feature work and task history are tracked in `PLAN.md` at the repo root — check there for what's in progress, the backlog, and what's already done.
-
 ### Monorepo Structure
 
 - `backend/` — `@forkcast/backend`

@@ -53,4 +53,3 @@
 - [x] 8.1 `pnpm --filter @forkcast/backend test` green
 - [x] 8.2 `pnpm --filter @forkcast/frontend test` green
 - [ ] 8.3 `pnpm dev` and manual smoke test: log a fresh ingredient via Search; close and reopen drawer, switch to Recent, confirm it appears at the top; type a partial/typoed query and confirm fuzzy match; pick it and log a full entry; verify the daily log reflects the new entry — **deferred to user**: cannot run interactive browser smoke tests from this session
-- [x] 8.4 Update `PLAN.md`: move this work from TODO/Backlog into DONE with a one-line summary referencing key files
