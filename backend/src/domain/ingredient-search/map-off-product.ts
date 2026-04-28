@@ -1,4 +1,4 @@
-import type { IngredientSearchResult } from './types.js';
+import type { IngredientSearchResult } from './types.ts';
 
 interface OffNutriments {
   'energy-kcal_100g'?: number;
@@ -10,12 +10,12 @@ interface OffNutriments {
 interface OffProduct {
   code?: string;
   product_name?: string;
-  product_name_en?: string;
+  product_name_de?: string;
   nutriments?: OffNutriments;
 }
 
 export function mapOffProduct(product: OffProduct): IngredientSearchResult | null {
-  const name = product.product_name || product.product_name_en;
+  const name = product.product_name || product.product_name_de;
   if (!name) return null;
 
   const n = product.nutriments ?? {};

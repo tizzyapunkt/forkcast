@@ -1,4 +1,4 @@
-import type { LogEntryRepository } from './log-entry.repository.js';
+import type { LogEntryRepository } from './log-entry.repository.ts';
 import type {
   DailyLog,
   DayTotals,
@@ -7,7 +7,7 @@ import type {
   MealSlot,
   QuickIngredientEntry,
   SlotSummary,
-} from './types.js';
+} from './types.ts';
 
 const ALL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 

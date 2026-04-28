@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
-import { editLogEntry } from '../../domain/meal-log/edit-log-entry.use-case.js';
-import { removeLogEntry } from '../../domain/meal-log/remove-log-entry.use-case.js';
-import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.js';
+import { editLogEntry } from '../../domain/meal-log/edit-log-entry.use-case.ts';
+import { removeLogEntry } from '../../domain/meal-log/remove-log-entry.use-case.ts';
+import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.ts';
 
 export function makeEditLogEntryHandler(repo: LogEntryRepository) {
   return async (c: Context) => {

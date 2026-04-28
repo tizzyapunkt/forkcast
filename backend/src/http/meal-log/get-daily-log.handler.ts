@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
-import { getDailyLog } from '../../domain/meal-log/get-daily-log.use-case.js';
-import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.js';
+import { getDailyLog } from '../../domain/meal-log/get-daily-log.use-case.ts';
+import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.ts';
 
 export function makeGetDailyLogHandler(repo: LogEntryRepository) {
   return async (c: Context) => {

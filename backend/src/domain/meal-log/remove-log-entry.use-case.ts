@@ -1,4 +1,4 @@
-import type { LogEntryRepository } from './log-entry.repository.js';
+import type { LogEntryRepository } from './log-entry.repository.ts';
 
 export async function removeLogEntry(repo: LogEntryRepository, entryId: string): Promise<void> {
   const entry = await repo.findById(entryId);

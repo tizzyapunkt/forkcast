@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
-import { logIngredient } from '../../domain/meal-log/log-ingredient.use-case.js';
-import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.js';
+import { logIngredient } from '../../domain/meal-log/log-ingredient.use-case.ts';
+import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.ts';
 
 export function makeLogIngredientHandler(repo: LogEntryRepository) {
   return async (c: Context) => {

@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
-import { setNutritionGoal } from '../../domain/nutrition/set-nutrition-goal.use-case.js';
-import { getNutritionGoal } from '../../domain/nutrition/get-nutrition-goal.use-case.js';
-import type { NutritionGoalRepository } from '../../domain/nutrition/nutrition-goal.repository.js';
+import { setNutritionGoal } from '../../domain/nutrition/set-nutrition-goal.use-case.ts';
+import { getNutritionGoal } from '../../domain/nutrition/get-nutrition-goal.use-case.ts';
+import type { NutritionGoalRepository } from '../../domain/nutrition/nutrition-goal.repository.ts';
 
 export function makeSetNutritionGoalHandler(repo: NutritionGoalRepository) {
   return async (c: Context) => {

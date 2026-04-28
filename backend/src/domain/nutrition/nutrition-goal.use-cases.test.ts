@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { setNutritionGoal } from './set-nutrition-goal.use-case.js';
-import { getNutritionGoal } from './get-nutrition-goal.use-case.js';
-import type { NutritionGoalRepository } from './nutrition-goal.repository.js';
-import type { DailyGoal } from './types.js';
+import { setNutritionGoal } from './set-nutrition-goal.use-case.ts';
+import { getNutritionGoal } from './get-nutrition-goal.use-case.ts';
+import type { NutritionGoalRepository } from './nutrition-goal.repository.ts';
+import type { DailyGoal } from './types.ts';
 
 const goal = { calories: 2000, protein: 150, carbs: 200, fat: 70 };
 

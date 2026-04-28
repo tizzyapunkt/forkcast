@@ -1,4 +1,4 @@
-import type { MacrosPer100, MeasurementUnit } from '../meal-log/types.js';
+import type { MacrosPer100, MeasurementUnit } from '../meal-log/types.ts';
 
 export interface IngredientSearchResult {
   offId: string;

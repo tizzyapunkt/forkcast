@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.js';
+import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 
 export function makeSearchIngredientsByNameHandler(service: IngredientSearchService) {
   return async (c: Context) => {

@@ -1,4 +1,4 @@
-import type { IngredientSearchResult } from './types.js';
+import type { IngredientSearchResult } from './types.ts';
 
 export interface IngredientSearchService {
   searchByName(query: string): Promise<IngredientSearchResult[]>;

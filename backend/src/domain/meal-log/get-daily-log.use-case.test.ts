@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getDailyLog } from './get-daily-log.use-case.js';
-import type { LogEntryRepository } from './log-entry.repository.js';
-import type { LogEntry, MacrosPer100, MealSlot } from './types.js';
+import { getDailyLog } from './get-daily-log.use-case.ts';
+import type { LogEntryRepository } from './log-entry.repository.ts';
+import type { LogEntry, MacrosPer100, MealSlot } from './types.ts';
 
 let idCounter = 0;
 
@@ -31,6 +31,7 @@ function makeQuickEntry(
 function makeRepo(entries: LogEntry[]): LogEntryRepository {
   return {
     save: vi.fn<(entry: LogEntry) => Promise<void>>(),
+    findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue(entries),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>().mockResolvedValue(entries),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
     update: vi.fn<(entry: LogEntry) => Promise<void>>().mockResolvedValue(undefined),

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { editLogEntry } from './edit-log-entry.use-case.js';
-import { removeLogEntry } from './remove-log-entry.use-case.js';
-import type { LogEntryRepository } from './log-entry.repository.js';
-import type { LogEntry } from './types.js';
+import { editLogEntry } from './edit-log-entry.use-case.ts';
+import { removeLogEntry } from './remove-log-entry.use-case.ts';
+import type { LogEntryRepository } from './log-entry.repository.ts';
+import type { LogEntry } from './types.ts';
 
 function makeFullEntry(overrides: Partial<LogEntry> = {}): LogEntry {
   return {
@@ -35,6 +35,7 @@ function makeQuickEntry(overrides: Partial<LogEntry> = {}): LogEntry {
 function makeRepo(entry: LogEntry): LogEntryRepository {
   return {
     save: vi.fn<(e: LogEntry) => Promise<void>>(),
+    findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([entry]),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>(),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(entry),
     update: vi.fn<(e: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
@@ -45,6 +46,7 @@ function makeRepo(entry: LogEntry): LogEntryRepository {
 function makeEmptyRepo(): LogEntryRepository {
   return {
     save: vi.fn<(e: LogEntry) => Promise<void>>(),
+    findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([]),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>(),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
     update: vi.fn<(e: LogEntry) => Promise<void>>(),

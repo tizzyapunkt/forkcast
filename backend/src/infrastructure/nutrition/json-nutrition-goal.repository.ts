@@ -1,10 +1,15 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import type { DailyGoal } from '../../domain/nutrition/types.js';
-import type { NutritionGoalRepository } from '../../domain/nutrition/nutrition-goal.repository.js';
+import { dirname } from 'node:path';
+import type { DailyGoal } from '../../domain/nutrition/types.ts';
+import type { NutritionGoalRepository } from '../../domain/nutrition/nutrition-goal.repository.ts';
 
 export class JsonNutritionGoalRepository implements NutritionGoalRepository {
   constructor(private readonly filePath: string) {}
+
+  async init(): Promise<void> {
+    await mkdir(dirname(this.filePath), { recursive: true });
+  }
 
   async save(goal: DailyGoal): Promise<void> {
     await writeFile(this.filePath, JSON.stringify(goal, null, 2), 'utf-8');

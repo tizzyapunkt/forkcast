@@ -5,6 +5,11 @@
   "license": "ISC",
   "scripts": {
     "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "oxlint",
+    "format": "oxfmt",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -17,7 +22,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
-      "husky"
+      "husky",
+      "msw"
     ]
   }
 }

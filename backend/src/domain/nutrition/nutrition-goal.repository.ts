@@ -1,4 +1,4 @@
-import type { DailyGoal } from './types.js';
+import type { DailyGoal } from './types.ts';
 
 export interface NutritionGoalRepository {
   save(goal: DailyGoal): Promise<void>;

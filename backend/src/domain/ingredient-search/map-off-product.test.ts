@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapOffProduct } from './map-off-product.js';
+import { mapOffProduct } from './map-off-product.ts';
 
 const baseProduct = {
   code: '1234567890',
@@ -39,14 +39,14 @@ describe('mapOffProduct', () => {
     expect(result!.macrosPerUnit.fat).toBe(0);
   });
 
-  it('falls back to product_name_en when product_name is absent', () => {
+  it('falls back to product_name_de when product_name is absent', () => {
     const result = mapOffProduct({
       code: 'abc',
-      product_name_en: 'Oat Milk',
+      product_name_de: 'Hafermilch',
       nutriments: { 'energy-kcal_100g': 45, proteins_100g: 1, carbohydrates_100g: 6.5, fat_100g: 1.5 },
     });
 
-    expect(result!.name).toBe('Oat Milk');
+    expect(result!.name).toBe('Hafermilch');
   });
 
   it('returns null when the product has no name', () => {

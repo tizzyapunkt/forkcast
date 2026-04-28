@@ -1,15 +1,24 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import type { LogEntry } from '../../domain/meal-log/types.js';
-import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.js';
+import { dirname } from 'node:path';
+import type { LogEntry } from '../../domain/meal-log/types.ts';
+import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.ts';
 
 export class JsonLogEntryRepository implements LogEntryRepository {
   constructor(private readonly filePath: string) {}
+
+  async init(): Promise<void> {
+    await mkdir(dirname(this.filePath), { recursive: true });
+  }
 
   async save(entry: LogEntry): Promise<void> {
     const entries = await this.readAll();
     entries.push(entry);
     await writeFile(this.filePath, JSON.stringify(entries, null, 2), 'utf-8');
+  }
+
+  async findAll(): Promise<LogEntry[]> {
+    return this.readAll();
   }
 
   async findByDate(date: string): Promise<LogEntry[]> {

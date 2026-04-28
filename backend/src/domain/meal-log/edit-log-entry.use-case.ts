@@ -1,5 +1,5 @@
-import type { LogEntryRepository } from './log-entry.repository.js';
-import type { LogEntry } from './types.js';
+import type { LogEntryRepository } from './log-entry.repository.ts';
+import type { LogEntry } from './types.ts';
 
 export type EditLogEntryCommand =
   | { entryId: string; type: 'full'; amount: number }

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 300 100% 99%;
+    --foreground: 0 0% 20%;
+    --card: 240 100% 98%;
+    --card-foreground: 0 0% 20%;
+    --popover: 240 100% 98%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 244 36% 44%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 33% 94%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 240 33% 94%;
+    --muted-foreground: 0 0% 36%;
+    --accent: 249 72% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 9% 78%;
+    --input: 240 9% 78%;
+    --ring: 249 72% 65%;
+    --radius: 0.5rem;
+    --text-100: #333333;
+    --text-200: #5c5c5c;
+    --text-300: #8a8a8a;
+    --bg-100: #f5f5ff;
+    --bg-200: #ebebf5;
+    --bg-300: #c2c2cc;
+    --focus: #7a67e6;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+}

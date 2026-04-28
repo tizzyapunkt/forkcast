@@ -66,3 +66,10 @@ export interface DailyLog {
   slots: SlotSummary[];
   totals: DayTotals;
 }
+
+export interface RecentlyUsedIngredient {
+  name: string;
+  unit: MeasurementUnit;
+  macrosPerUnit: MacrosPer100;
+  lastUsedAt: string; // ISO datetime, max(loggedAt) across collapsed entries
+}

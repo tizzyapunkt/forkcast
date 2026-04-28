@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { logIngredient } from './log-ingredient.use-case.js';
-import type { LogEntryRepository } from './log-entry.repository.js';
-import type { LogEntry } from './types.js';
+import { logIngredient } from './log-ingredient.use-case.ts';
+import type { LogEntryRepository } from './log-entry.repository.ts';
+import type { LogEntry } from './types.ts';
 
 const makeRepo = (): LogEntryRepository => ({
   save: vi.fn<(entry: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
+  findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([]),
   findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>().mockResolvedValue([]),
   findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
   update: vi.fn<(entry: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
