@@ -110,4 +110,109 @@ describe('InMemoryBlsService', () => {
     expect(result.macrosPerUnit.calories).toBeCloseTo(0.4);
     expect(result.macrosPerUnit.protein).toBeCloseTo(0.0084);
   });
+
+  describe('relevance ranking', () => {
+    const EXACT: BlsEntry = {
+      id: 'EXACT',
+      name_de: 'Hähnchenbrust',
+      name_en: '',
+      calories100: 100,
+      protein100: 20,
+      carbs100: 0,
+      fat100: 2,
+    };
+    const WHOLE_WORD: BlsEntry = {
+      id: 'WHOLE',
+      name_de: 'Hähnchenbrust, gegart',
+      name_en: '',
+      calories100: 100,
+      protein100: 20,
+      carbs100: 0,
+      fat100: 2,
+    };
+    const TOKEN_START: BlsEntry = {
+      id: 'TOKEN',
+      name_de: 'Mit Hähnchenbrustkeule paniert und allerlei',
+      name_en: '',
+      calories100: 100,
+      protein100: 20,
+      carbs100: 0,
+      fat100: 2,
+    };
+    const SUBSTRING: BlsEntry = {
+      id: 'SUB',
+      name_de: 'Suppenhähnchenbrustragout',
+      name_en: '',
+      calories100: 100,
+      protein100: 20,
+      carbs100: 0,
+      fat100: 2,
+    };
+
+    it('exact match ranks first, then whole-word, then token-start, then substring', async () => {
+      const rankSvc = makeService([SUBSTRING, TOKEN_START, WHOLE_WORD, EXACT]);
+      await rankSvc.init();
+      const results = await rankSvc.searchByName('Hähnchenbrust');
+      expect(results.map((r) => r.id)).toEqual(['EXACT', 'WHOLE', 'TOKEN', 'SUB']);
+    });
+
+    it('shorter name_de wins as tiebreaker within the same tier', async () => {
+      const SHORT: BlsEntry = {
+        ...WHOLE_WORD,
+        id: 'SHORT',
+        name_de: 'Hähnchenbrust, roh',
+      };
+      const LONG: BlsEntry = {
+        ...WHOLE_WORD,
+        id: 'LONG',
+        name_de: 'Hähnchenbrust, gegart und mit Beilagen serviert',
+      };
+      const tieSvc = makeService([LONG, SHORT]);
+      await tieSvc.init();
+      const results = await tieSvc.searchByName('Hähnchenbrust');
+      expect(results.map((r) => r.id)).toEqual(['SHORT', 'LONG']);
+    });
+
+    it('20-result cap selects the highest-scoring entries', async () => {
+      const fillers: BlsEntry[] = Array.from({ length: 25 }, (_, i) => ({
+        id: `FILL${i}`,
+        name_de: `Suppenhähnchenbrustvariante ${i}`,
+        name_en: '',
+        calories100: 50,
+        protein100: 0,
+        carbs100: 0,
+        fat100: 0,
+      }));
+      const capSvc = makeService([...fillers, EXACT]);
+      await capSvc.init();
+      const results = await capSvc.searchByName('Hähnchenbrust');
+      expect(results).toHaveLength(20);
+      expect(results[0].id).toBe('EXACT');
+    });
+
+    it('German match ranks before English-only match', async () => {
+      const DE_ONLY: BlsEntry = {
+        id: 'DE',
+        name_de: 'Karotte, roh',
+        name_en: '',
+        calories100: 40,
+        protein100: 0,
+        carbs100: 6,
+        fat100: 0,
+      };
+      const EN_ONLY: BlsEntry = {
+        id: 'EN',
+        name_de: 'Möhrensuppe',
+        name_en: 'Carrot soup',
+        calories100: 40,
+        protein100: 0,
+        carbs100: 6,
+        fat100: 0,
+      };
+      const langSvc = makeService([EN_ONLY, DE_ONLY]);
+      await langSvc.init();
+      const results = await langSvc.searchByName('karotte');
+      expect(results[0].id).toBe('DE');
+    });
+  });
 });

@@ -4,6 +4,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search/type
 import type { BlsEntry, BlsIndexedEntry } from '../../domain/bls/types.ts';
 import { mapBlsEntry } from '../../domain/bls/map-bls-entry.ts';
 import { fold } from '../../domain/ingredient-search/fold.ts';
+import { scoreBlsMatch } from '../../domain/ingredient-search/score-bls-match.ts';
 
 export class InMemoryBlsService implements IngredientSearchService {
   private entries: BlsIndexedEntry[] = [];
@@ -24,11 +25,19 @@ export class InMemoryBlsService implements IngredientSearchService {
     const trimmed = query.trim();
     if (trimmed.length < 2) return [];
     const q = fold(trimmed);
-    return this.entries
-      .filter((e) => e.name_de_folded.includes(q) || e.name_en_folded.includes(q))
-      .sort((a, b) => a.name_de.localeCompare(b.name_de))
-      .slice(0, 20)
-      .map(mapBlsEntry);
+    const scored: { entry: BlsIndexedEntry; score: number }[] = [];
+    for (const entry of this.entries) {
+      const score = scoreBlsMatch(entry, q);
+      if (score > 0) scored.push({ entry, score });
+    }
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.entry.name_de.length !== b.entry.name_de.length) {
+        return a.entry.name_de.length - b.entry.name_de.length;
+      }
+      return a.entry.name_de.localeCompare(b.entry.name_de);
+    });
+    return scored.slice(0, 20).map((s) => mapBlsEntry(s.entry));
   }
 
   async searchByBarcode(_barcode: string): Promise<IngredientSearchResult | null> {
