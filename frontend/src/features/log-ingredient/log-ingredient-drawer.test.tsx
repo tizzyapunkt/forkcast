@@ -209,3 +209,85 @@ describe('Recent tab', () => {
     expect(screen.queryByPlaceholderText(/search ingredients/i)).not.toBeInTheDocument();
   });
 });
+
+describe('Recipes tab', () => {
+  const sampleRecipe = {
+    id: 'rec-1',
+    name: 'Oats Bowl',
+    yield: 1,
+    ingredients: [
+      {
+        name: 'Oats',
+        unit: 'g' as const,
+        macrosPerUnit: { calories: 3.7, protein: 0.13, carbs: 0.66, fat: 0.07 },
+        amount: 80,
+      },
+    ],
+    steps: [],
+    createdAt: '',
+    updatedAt: '',
+  };
+
+  it('shows tabs in order Search → Recent → Recipes → Quick', async () => {
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    const dialog = screen.getByRole('dialog');
+    const tabs = dialog.querySelectorAll('button');
+    const tabLabels = Array.from(tabs)
+      .map((b) => b.textContent?.trim() ?? '')
+      .filter((t) => ['Search', 'Recent', 'Recipes', 'Quick'].includes(t));
+    expect(tabLabels).toEqual(['Search', 'Recent', 'Recipes', 'Quick']);
+  });
+
+  it('logs the recipe via POST /log-recipe with the chosen portions when picking from the Recipes tab', async () => {
+    let posted: Record<string, unknown> | undefined;
+    server.use(
+      http.get('/api/recipes', () => HttpResponse.json([sampleRecipe])),
+      http.post('/api/log-recipe', async ({ request }) => {
+        posted = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json([], { status: 201 });
+      }),
+      http.get('/api/daily-log/:date', () => HttpResponse.json(makeDailyLog())),
+    );
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: /^recipes$/i }));
+    await userEvent.click(await screen.findByText('Oats Bowl'));
+
+    const portionsInput = await screen.findByLabelText(/portions/i);
+    await userEvent.clear(portionsInput);
+    await userEvent.type(portionsInput, '2');
+    await userEvent.click(screen.getByRole('button', { name: /^log$/i }));
+
+    await waitFor(() => expect(posted).toBeDefined());
+    expect(posted).toMatchObject({
+      recipeId: 'rec-1',
+      portions: 2,
+      date: '2026-04-21',
+      slot: 'lunch',
+    });
+  });
+
+  it('Back from the recipe-confirm returns to the Recipes tab', async () => {
+    server.use(http.get('/api/recipes', () => HttpResponse.json([sampleRecipe])));
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: /^recipes$/i }));
+    await userEvent.click(await screen.findByText('Oats Bowl'));
+    await userEvent.click(screen.getByRole('button', { name: /^back$/i }));
+
+    expect(await screen.findByText('Oats Bowl')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/filter recipes/i)).toBeInTheDocument();
+  });
+});

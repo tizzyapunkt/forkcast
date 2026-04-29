@@ -35,6 +35,7 @@ function makeQuickEntry(overrides: Partial<LogEntry> = {}): LogEntry {
 function makeRepo(entry: LogEntry): LogEntryRepository {
   return {
     save: vi.fn<(e: LogEntry) => Promise<void>>(),
+    saveMany: vi.fn<(e: LogEntry[]) => Promise<void>>(),
     findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([entry]),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>(),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(entry),
@@ -46,6 +47,7 @@ function makeRepo(entry: LogEntry): LogEntryRepository {
 function makeEmptyRepo(): LogEntryRepository {
   return {
     save: vi.fn<(e: LogEntry) => Promise<void>>(),
+    saveMany: vi.fn<(e: LogEntry[]) => Promise<void>>(),
     findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([]),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>(),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
@@ -106,6 +108,14 @@ describe('editLogEntry', () => {
     await expect(editLogEntry(makeEmptyRepo(), { entryId: 'missing', type: 'full', amount: 100 })).rejects.toThrow(
       'Log entry not found: missing',
     );
+  });
+
+  it('preserves recipeId when editing a recipe-sourced full entry', async () => {
+    const repo = makeRepo(makeFullEntry({ recipeId: 'rec-42' }));
+
+    const updated = await editLogEntry(repo, { entryId: 'entry-1', type: 'full', amount: 150 });
+
+    expect(updated.recipeId).toBe('rec-42');
   });
 });
 

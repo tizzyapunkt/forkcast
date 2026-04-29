@@ -42,6 +42,7 @@ export interface LogEntry {
   slot: MealSlot;
   ingredient: IngredientEntry;
   loggedAt: string; // ISO datetime string
+  recipeId?: string; // present when this entry was produced by logging a recipe
 }
 
 /**

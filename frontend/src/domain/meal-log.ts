@@ -34,6 +34,7 @@ export interface LogEntry {
   slot: MealSlot;
   ingredient: IngredientEntry;
   loggedAt: string;
+  recipeId?: string;
 }
 
 export interface DayTotals {

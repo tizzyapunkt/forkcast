@@ -19,6 +19,21 @@ describe('App', () => {
     expect(header?.className).toMatch(/sticky/);
   });
 
+  it('renders the bottom navigation with Log, Recipes, and Settings tabs', () => {
+    renderWithProviders(<App />);
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(nav).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /log/i, current: 'page' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /recipes/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument();
+  });
+
+  it('does not render a settings gear in the header', () => {
+    renderWithProviders(<App />);
+    const header = screen.getByRole('heading', { name: /forkcast/i }).closest('header');
+    expect(header?.querySelector('button[aria-label="Settings"]')).toBeNull();
+  });
+
   it('shows the daily kcal/macro summary in the log view', async () => {
     server.use(
       http.get('/api/daily-log/:date', () =>

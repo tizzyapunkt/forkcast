@@ -5,6 +5,7 @@ import type { LogEntry } from './types.ts';
 
 const makeRepo = (): LogEntryRepository => ({
   save: vi.fn<(entry: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
+  saveMany: vi.fn<(entries: LogEntry[]) => Promise<void>>().mockResolvedValue(undefined),
   findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue([]),
   findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>().mockResolvedValue([]),
   findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),

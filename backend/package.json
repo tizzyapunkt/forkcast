@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "oxfmt --config ../.oxfmtrc.json src",
-    "lint": "oxlint --config ../oxlintrc.json src",
+    "lint": "oxlint --config ../.oxlintrc.json src",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

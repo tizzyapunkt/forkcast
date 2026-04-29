@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import type { MealSlot } from '../../domain/meal-log';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
+import type { Recipe } from '../../domain/recipes';
 import { useScrollLock } from '../../hooks/use-scroll-lock';
 import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
 import { RecentPanel } from './recent-panel';
+import { RecipePanel } from './recipe-panel';
 import { FullEntryConfirm } from './full-entry-confirm';
+import { RecipeConfirm } from './recipe-confirm';
 
-type Tab = 'search' | 'recent' | 'quick';
-type Step = 'search' | 'confirm';
+type Tab = 'search' | 'recent' | 'recipes' | 'quick';
+type Step =
+  | { kind: 'search' }
+  | { kind: 'confirm'; result: IngredientSearchResult }
+  | { kind: 'recipe-confirm'; recipe: Recipe };
 
 interface LogIngredientDrawerProps {
   open: boolean;
@@ -19,8 +25,7 @@ interface LogIngredientDrawerProps {
 
 export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredientDrawerProps) {
   const [tab, setTab] = useState<Tab>('search');
-  const [step, setStep] = useState<Step>('search');
-  const [selected, setSelected] = useState<IngredientSearchResult | null>(null);
+  const [step, setStep] = useState<Step>({ kind: 'search' });
 
   useScrollLock(open && slot !== null);
 
@@ -28,26 +33,29 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
 
   function handleClose() {
     setTab('search');
-    setStep('search');
-    setSelected(null);
+    setStep({ kind: 'search' });
     onClose();
   }
 
   function handleSelect(result: IngredientSearchResult) {
-    setSelected(result);
-    setStep('confirm');
+    setStep({ kind: 'confirm', result });
+  }
+
+  function handleRecipeSelect(recipe: Recipe) {
+    setStep({ kind: 'recipe-confirm', recipe });
   }
 
   function handleBack() {
-    setStep('search');
-    setSelected(null);
+    setStep({ kind: 'search' });
   }
 
   function handleTabChange(next: Tab) {
     setTab(next);
-    setStep('search');
-    setSelected(null);
+    setStep({ kind: 'search' });
   }
+
+  const headerSuffix =
+    step.kind === 'confirm' ? ` — ${step.result.name}` : step.kind === 'recipe-confirm' ? ` — ${step.recipe.name}` : '';
 
   return (
     <>
@@ -62,7 +70,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <h2 className="min-w-0 truncate text-sm font-semibold">
             Add to {slot}
-            {step === 'confirm' && selected ? ` — ${selected.name}` : ''}
+            {headerSuffix}
           </h2>
           <button
             type="button"
@@ -87,6 +95,12 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
             Recent
           </button>
           <button
+            onClick={() => handleTabChange('recipes')}
+            className={`pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+          >
+            Recipes
+          </button>
+          <button
             onClick={() => handleTabChange('quick')}
             className={`pb-2 ${tab === 'quick' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
           >
@@ -96,12 +110,16 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
 
         {tab === 'quick' && <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />}
 
-        {tab === 'search' && step === 'search' && <SearchPanel onSelect={handleSelect} />}
+        {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} />}
+        {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleSelect} />}
+        {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 
-        {tab === 'recent' && step === 'search' && <RecentPanel onSelect={handleSelect} />}
+        {step.kind === 'confirm' && (
+          <FullEntryConfirm result={step.result} date={date} slot={slot} onSuccess={handleClose} onBack={handleBack} />
+        )}
 
-        {step === 'confirm' && selected && (
-          <FullEntryConfirm result={selected} date={date} slot={slot} onSuccess={handleClose} onBack={handleBack} />
+        {step.kind === 'recipe-confirm' && (
+          <RecipeConfirm recipe={step.recipe} date={date} slot={slot} onSuccess={handleClose} onBack={handleBack} />
         )}
       </div>
     </>

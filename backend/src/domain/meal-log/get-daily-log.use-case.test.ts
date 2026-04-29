@@ -31,6 +31,7 @@ function makeQuickEntry(
 function makeRepo(entries: LogEntry[]): LogEntryRepository {
   return {
     save: vi.fn<(entry: LogEntry) => Promise<void>>(),
+    saveMany: vi.fn<(entries: LogEntry[]) => Promise<void>>(),
     findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue(entries),
     findByDate: vi.fn<(date: string) => Promise<LogEntry[]>>().mockResolvedValue(entries),
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
