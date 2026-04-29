@@ -10,7 +10,7 @@ function Consumer({ q }: { q: string }) {
   return (
     <ul>
       {data?.map((r) => (
-        <li key={r.offId}>{r.name}</li>
+        <li key={`${r.source}:${r.id}`}>{r.name}</li>
       ))}
     </ul>
   );
@@ -22,7 +22,8 @@ describe('useSearchIngredients', () => {
       http.get('/api/search-ingredients', () =>
         HttpResponse.json([
           {
-            offId: '1',
+            id: '1',
+            source: 'BLS',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },

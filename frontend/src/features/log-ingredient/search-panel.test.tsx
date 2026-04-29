@@ -17,14 +17,16 @@ vi.mock('./barcode-scanner', () => ({
 }));
 
 const oats: IngredientSearchResult = {
-  offId: '1',
+  id: '1',
+  source: 'BLS',
   name: 'Oats',
   unit: 'g',
   macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
 };
 
 const scannedProduct: IngredientSearchResult = {
-  offId: '4006381333931',
+  id: '4006381333931',
+  source: 'OFF',
   name: 'Milka Chocolate',
   unit: 'g',
   macrosPerUnit: { calories: 5.35, protein: 0.05, carbs: 0.59, fat: 0.3 },
@@ -57,6 +59,45 @@ describe('SearchPanel', () => {
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'oa');
     expect(await screen.findByText(/3\.89 kcal/)).toBeInTheDocument();
+  });
+
+  it('renders a source badge for each result', async () => {
+    const blsResult: IngredientSearchResult = { ...oats, source: 'BLS' };
+    const offResult: IngredientSearchResult = {
+      id: 'off-1',
+      source: 'OFF',
+      name: 'Packaged Oats',
+      unit: 'g',
+      macrosPerUnit: { calories: 3.6, protein: 0.13, carbs: 0.6, fat: 0.06 },
+    };
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([blsResult, offResult])));
+    renderWithProviders(<SearchPanel onSelect={() => {}} />);
+    await userEvent.type(screen.getByRole('searchbox'), 'oa');
+    await screen.findByText('Oats');
+    expect(screen.getByText('BLS')).toBeInTheDocument();
+    expect(screen.getByText('OFF')).toBeInTheDocument();
+  });
+
+  it('renders two rows without key collision when OFF and BLS share the same id', async () => {
+    const blsResult: IngredientSearchResult = {
+      id: 'same',
+      source: 'BLS',
+      name: 'BLS Food',
+      unit: 'g',
+      macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
+    };
+    const offResult: IngredientSearchResult = {
+      id: 'same',
+      source: 'OFF',
+      name: 'OFF Food',
+      unit: 'g',
+      macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
+    };
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([blsResult, offResult])));
+    renderWithProviders(<SearchPanel onSelect={() => {}} />);
+    await userEvent.type(screen.getByRole('searchbox'), 'fo');
+    expect(await screen.findByText('BLS Food')).toBeInTheDocument();
+    expect(screen.getByText('OFF Food')).toBeInTheDocument();
   });
 
   it('calls onSelect with the result when a row is clicked', async () => {

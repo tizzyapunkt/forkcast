@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "format": "oxfmt --config ../.oxfmtrc.json src",
     "lint": "oxlint --config ../.oxlintrc.json src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:bls": "node --experimental-transform-types scripts/build-bls-data.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",

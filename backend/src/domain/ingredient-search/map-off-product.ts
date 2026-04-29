@@ -23,7 +23,8 @@ export function mapOffProduct(product: OffProduct): IngredientSearchResult | nul
   if (calories100 === undefined || calories100 === null) return null;
 
   return {
-    offId: product.code ?? '',
+    id: product.code ?? '',
+    source: 'OFF',
     name,
     unit: 'g',
     macrosPerUnit: {

@@ -38,3 +38,11 @@ The API speaks the domain language — operations describe business intent (`/pl
 No speculative infrastructure or abstractions. Things get added when there's a concrete reason.
 
 **Current baseline:** JSON file for persistence, no containerization. Both will be upgraded when the need arises.
+
+## Data
+
+The BLS 4.0 (2025) food composition dataset (`BLS_4_0_Daten_2025_DE.csv`) is pre-baked into `backend/data/bls.json` at build time. To regenerate it after a new BLS release, run:
+
+```bash
+pnpm --filter @forkcast/backend build:bls
+```

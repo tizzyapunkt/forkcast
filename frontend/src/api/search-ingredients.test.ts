@@ -8,7 +8,8 @@ describe('searchIngredients', () => {
       http.get('/api/search-ingredients', () =>
         HttpResponse.json([
           {
-            offId: '123',
+            id: '123',
+            source: 'BLS',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -46,7 +47,8 @@ describe('searchBarcode', () => {
     server.use(
       http.get('/api/search-ingredients/barcode/:barcode', () =>
         HttpResponse.json({
-          offId: '456',
+          id: '456',
+          source: 'OFF',
           name: 'Banana',
           unit: 'g',
           macrosPerUnit: { calories: 0.89, protein: 0.01, carbs: 0.23, fat: 0.003 },

@@ -7,7 +7,8 @@ import { FullEntryConfirm } from './full-entry-confirm';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 
 const chicken: IngredientSearchResult = {
-  offId: '2',
+  id: '2',
+  source: 'OFF' as const,
   name: 'Chicken breast',
   unit: 'g',
   macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 },

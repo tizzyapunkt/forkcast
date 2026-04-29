@@ -17,7 +17,8 @@ describe('mapOffProduct', () => {
     const result = mapOffProduct(baseProduct);
 
     expect(result).not.toBeNull();
-    expect(result!.offId).toBe('1234567890');
+    expect(result!.id).toBe('1234567890');
+    expect(result!.source).toBe('OFF');
     expect(result!.name).toBe('Chicken Breast');
     expect(result!.unit).toBe('g');
     expect(result!.macrosPerUnit.calories).toBeCloseTo(1.65);

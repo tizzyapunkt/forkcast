@@ -90,6 +90,7 @@ describe('RecentPanel', () => {
     expect(arg.name).toBe('Oats');
     expect(arg.unit).toBe('g');
     expect(arg.macrosPerUnit).toEqual(oats.macrosPerUnit);
-    expect(arg.offId).toMatch(/^recent:/);
+    expect(arg.id).toMatch(/^recent:/);
+    expect(arg.source).toBe('RECENT');
   });
 });

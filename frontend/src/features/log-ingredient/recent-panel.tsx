@@ -10,7 +10,8 @@ interface RecentPanelProps {
 
 function toSearchResult(recent: RecentlyUsedIngredient): IngredientSearchResult {
   return {
-    offId: `recent:${recent.name.toLowerCase()}|${recent.unit}`,
+    id: `recent:${recent.name.toLowerCase()}|${recent.unit}`,
+    source: 'RECENT',
     name: recent.name,
     unit: recent.unit,
     macrosPerUnit: recent.macrosPerUnit,

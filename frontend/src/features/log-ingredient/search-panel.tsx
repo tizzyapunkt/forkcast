@@ -118,13 +118,16 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
       {results && results.length > 0 && (
         <ul className="w-full min-w-0 divide-y">
           {results.map((result) => (
-            <li key={result.offId} className="min-w-0">
+            <li key={`${result.source}:${result.id}`} className="min-w-0">
               <button
                 onClick={() => onSelect(result)}
                 className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">
+                <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
+                    {result.source}
+                  </span>
                   {result.macrosPerUnit.calories} kcal / {result.unit}
                 </span>
               </button>
