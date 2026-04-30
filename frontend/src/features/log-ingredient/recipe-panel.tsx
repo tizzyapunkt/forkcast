@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import Fuse from 'fuse.js';
 import { useRecipes } from '../../queries/use-recipes';
 import type { Recipe } from '../../domain/recipes';
+import { de } from '../../i18n/de';
 
 interface Props {
   onSelect: (recipe: Recipe) => void;
@@ -31,20 +32,18 @@ export function RecipePanel({ onSelect }: Props) {
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Filter recipes…"
+        placeholder={de.recipePanel.placeholder}
         className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-sm"
       />
 
-      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{de.recipePanel.loading}</p>}
 
       {!isLoading && (recipes?.length ?? 0) === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No recipes yet — create one from the Recipes tab in the bottom navigation.
-        </p>
+        <p className="text-sm text-muted-foreground">{de.recipePanel.empty}</p>
       )}
 
       {!isLoading && (recipes?.length ?? 0) > 0 && filtered.length === 0 && (
-        <p className="text-sm text-muted-foreground">No matches for &ldquo;{trimmed}&rdquo;</p>
+        <p className="text-sm text-muted-foreground">{de.recipePanel.noMatches(trimmed)}</p>
       )}
 
       {filtered.length > 0 && (
@@ -57,7 +56,7 @@ export function RecipePanel({ onSelect }: Props) {
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recipe.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {recipe.ingredients.length} ing · serves {recipe.yield}
+                  {de.recipePanel.meta(recipe.ingredients.length, recipe.yield)}
                 </span>
               </button>
             </li>

@@ -113,26 +113,26 @@ describe('SearchPanel', () => {
     server.use(http.get('/api/search-ingredients', () => HttpResponse.json([])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'zz');
-    expect(await screen.findByText(/no results/i)).toBeInTheDocument();
+    expect(await screen.findByText(/keine treffer für/i)).toBeInTheDocument();
   });
 
   describe('barcode scanning', () => {
     it('shows a scan barcode button in the default text mode', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      expect(screen.getByRole('button', { name: /scan barcode/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /barcode scannen/i })).toBeInTheDocument();
     });
 
     it('clicking scan barcode shows the scanner and hides the search input', async () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('button', { name: /scan barcode/i }));
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
       expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
     });
 
     it('cancelling the scanner returns to the text search input', async () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('button', { name: /scan barcode/i }));
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
+      await userEvent.click(screen.getByRole('button', { name: /abbrechen/i }));
       expect(screen.getByRole('searchbox')).toBeInTheDocument();
     });
 
@@ -140,9 +140,9 @@ describe('SearchPanel', () => {
       server.use(http.get('/api/search-ingredients/barcode/:barcode', () => HttpResponse.json(scannedProduct)));
       const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
       renderWithProviders(<SearchPanel onSelect={onSelect} />);
-      await userEvent.click(screen.getByRole('button', { name: /scan barcode/i }));
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
       await userEvent.click(screen.getByRole('button', { name: /trigger-detect/i }));
-      expect(await screen.findByText(/looking up/i)).toBeInTheDocument();
+      expect(await screen.findByText(/barcode wird gesucht/i)).toBeInTheDocument();
       // Wait for onSelect to be called after the query resolves
       await vi.waitFor(() => expect(onSelect).toHaveBeenCalledWith(scannedProduct));
     });
@@ -150,18 +150,18 @@ describe('SearchPanel', () => {
     it('shows "Product not found" when barcode lookup returns 404', async () => {
       // default MSW handler returns 404 for barcode lookup
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('button', { name: /scan barcode/i }));
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
       await userEvent.click(screen.getByRole('button', { name: /trigger-detect/i }));
-      expect(await screen.findByText(/product not found/i)).toBeInTheDocument();
+      expect(await screen.findByText(/produkt nicht gefunden/i)).toBeInTheDocument();
     });
 
     it('clicking "Try again" after not-found re-shows the scanner', async () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('button', { name: /scan barcode/i }));
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
       await userEvent.click(screen.getByRole('button', { name: /trigger-detect/i }));
-      await screen.findByText(/product not found/i);
-      await userEvent.click(screen.getByRole('button', { name: /try again/i }));
-      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+      await screen.findByText(/produkt nicht gefunden/i);
+      await userEvent.click(screen.getByRole('button', { name: /erneut versuchen/i }));
+      expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
     });
   });
 });

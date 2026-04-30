@@ -5,9 +5,12 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 const schema = z.object({
-  amount: z.coerce.number({ invalid_type_error: 'Amount must be a number' }).positive('Amount must be greater than 0'),
+  amount: z.coerce
+    .number({ invalid_type_error: de.fullEntry.validation.amountNumber })
+    .positive(de.fullEntry.validation.amountPositive),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -71,23 +74,25 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: Full
       <div className="rounded-md bg-muted/50 p-3 space-y-1.5">
         <p className="font-medium">{result.name}</p>
         <p className="text-xs text-muted-foreground">
-          per {result.unit} — {m.calories} kcal · {m.protein}g P · {m.carbs}g C · {m.fat}g F
+          {de.fullEntry.perUnit(result.unit, m.calories, m.protein, m.carbs, m.fat)}
         </p>
         {amount !== null && (
           <p className="text-xs">
-            <span className="text-muted-foreground">
-              {amount} {result.unit} total —{' '}
-            </span>
-            <MacroChip value={m.calories * amount} label="kcal" unit="" /> ·{' '}
-            <MacroChip value={m.protein * amount} label="protein" /> ·{' '}
-            <MacroChip value={m.carbs * amount} label="carbs" /> · <MacroChip value={m.fat * amount} label="fat" />
+            <span className="text-muted-foreground">{de.fullEntry.totalIntro(amount, result.unit)}</span>
+            <MacroChip value={m.calories * amount} label={de.fullEntry.macroKcal} unit="" />
+            {' · '}
+            <MacroChip value={m.protein * amount} label={de.fullEntry.macroProtein} />
+            {' · '}
+            <MacroChip value={m.carbs * amount} label={de.fullEntry.macroCarbs} />
+            {' · '}
+            <MacroChip value={m.fat * amount} label={de.fullEntry.macroFat} />
           </p>
         )}
       </div>
 
       <div className="space-y-1">
         <label htmlFor="amount" className="text-sm font-medium">
-          Amount ({result.unit})
+          {de.fullEntry.amount(result.unit)}
         </label>
         <input
           id="amount"
@@ -95,7 +100,7 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: Full
           step="1"
           {...register('amount')}
           className="w-full rounded-md border px-3 py-2 text-sm"
-          placeholder="e.g. 100"
+          placeholder={de.fullEntry.amountPlaceholder}
           autoFocus
         />
         {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
@@ -103,14 +108,14 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: Full
 
       <div className="flex gap-2">
         <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
-          Back
+          {de.fullEntry.back}
         </button>
         <button
           type="submit"
           disabled={isPending}
           className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {isPending ? 'Saving…' : 'Log'}
+          {isPending ? de.fullEntry.saving : de.fullEntry.log}
         </button>
       </div>
     </form>

@@ -41,7 +41,7 @@ describe('BarcodeScanner', () => {
   it('renders a video element and a cancel button', () => {
     makeMockReader();
     renderWithProviders(<BarcodeScanner onDetect={() => {}} onCancel={() => {}} />);
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
     expect(document.querySelector('video')).toBeInTheDocument();
   });
 
@@ -69,7 +69,7 @@ describe('BarcodeScanner', () => {
     makeMockReader();
     const onCancel = vi.fn<() => void>();
     renderWithProviders(<BarcodeScanner onDetect={() => {}} onCancel={onCancel} />);
-    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await userEvent.click(screen.getByRole('button', { name: /abbrechen/i }));
     expect(onCancel).toHaveBeenCalled();
   });
 
@@ -81,7 +81,7 @@ describe('BarcodeScanner', () => {
     };
     vi.mocked(BrowserMultiFormatReader).mockImplementation(() => reader as never);
     renderWithProviders(<BarcodeScanner onDetect={() => {}} onCancel={() => {}} />);
-    expect(await screen.findByRole('alert')).toHaveTextContent(/camera access/i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/kamerazugriff/i);
   });
 
   it('shows an error when the callback receives a non-NotFoundException error', async () => {

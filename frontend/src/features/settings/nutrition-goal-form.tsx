@@ -5,21 +5,30 @@ import { z } from 'zod';
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useSetNutritionGoal } from '../../queries/use-set-nutrition-goal';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 const schema = z.object({
-  calories: z.coerce.number({ invalid_type_error: 'Calories must be a number' }).positive('Calories must be positive'),
-  protein: z.coerce.number({ invalid_type_error: 'Protein must be a number' }).nonnegative('Protein must be ≥ 0'),
-  carbs: z.coerce.number({ invalid_type_error: 'Carbs must be a number' }).nonnegative('Carbs must be ≥ 0'),
-  fat: z.coerce.number({ invalid_type_error: 'Fat must be a number' }).nonnegative('Fat must be ≥ 0'),
+  calories: z.coerce
+    .number({ invalid_type_error: de.nutritionGoal.validation.caloriesNumber })
+    .positive(de.nutritionGoal.validation.caloriesPositive),
+  protein: z.coerce
+    .number({ invalid_type_error: de.nutritionGoal.validation.proteinNumber })
+    .nonnegative(de.nutritionGoal.validation.proteinNonneg),
+  carbs: z.coerce
+    .number({ invalid_type_error: de.nutritionGoal.validation.carbsNumber })
+    .nonnegative(de.nutritionGoal.validation.carbsNonneg),
+  fat: z.coerce
+    .number({ invalid_type_error: de.nutritionGoal.validation.fatNumber })
+    .nonnegative(de.nutritionGoal.validation.fatNonneg),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 const FIELDS = [
-  { key: 'calories' as const, label: 'Calories (kcal)' },
-  { key: 'protein' as const, label: 'Protein (g)' },
-  { key: 'carbs' as const, label: 'Carbs (g)' },
-  { key: 'fat' as const, label: 'Fat (g)' },
+  { key: 'calories' as const, label: de.nutritionGoal.calories },
+  { key: 'protein' as const, label: de.nutritionGoal.protein },
+  { key: 'carbs' as const, label: de.nutritionGoal.carbs },
+  { key: 'fat' as const, label: de.nutritionGoal.fat },
 ];
 
 export function NutritionGoalForm() {
@@ -47,12 +56,12 @@ export function NutritionGoalForm() {
     });
   }
 
-  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">Loading…</div>;
+  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{de.nutritionGoal.loading}</div>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
       {error && <ErrorBanner error={error} />}
-      {saved && <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">Saved</p>}
+      {saved && <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.nutritionGoal.saved}</p>}
 
       {FIELDS.map(({ key, label }) => (
         <div key={key} className="space-y-1">
@@ -76,7 +85,7 @@ export function NutritionGoalForm() {
         disabled={isPending}
         className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
       >
-        {isPending ? 'Saving…' : 'Save goal'}
+        {isPending ? de.nutritionGoal.saving : de.nutritionGoal.save}
       </button>
     </form>
   );

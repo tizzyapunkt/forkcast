@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
+import { de } from '../../i18n/de';
 
 interface Props {
   initial?: Recipe;
@@ -23,15 +24,15 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
     e.preventDefault();
     setValidationError(null);
     if (name.trim().length === 0) {
-      setValidationError('Name is required');
+      setValidationError(de.recipeForm.nameRequired);
       return;
     }
     if (!Number.isFinite(recipeYield) || recipeYield < 1) {
-      setValidationError('Yield must be at least 1');
+      setValidationError(de.recipeForm.yieldMin);
       return;
     }
     if (ingredients.length === 0) {
-      setValidationError('Add at least one ingredient');
+      setValidationError(de.recipeForm.minOneIngredient);
       return;
     }
     const trimmedSteps = steps.map((s) => s.trim()).filter((s) => s.length > 0);
@@ -64,20 +65,20 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
 
       <div className="space-y-1">
         <label htmlFor="recipe-name" className="text-sm font-medium">
-          Name
+          {de.recipeForm.name}
         </label>
         <input
           id="recipe-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-md border px-3 py-2 text-sm"
-          placeholder="Bolognese"
+          placeholder={de.recipeForm.namePlaceholder}
         />
       </div>
 
       <div className="space-y-1">
         <label htmlFor="recipe-yield" className="text-sm font-medium">
-          Yield (servings)
+          {de.recipeForm.yield}
         </label>
         <input
           id="recipe-yield"
@@ -94,20 +95,20 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Steps</h3>
+          <h3 className="text-sm font-medium">{de.recipeForm.steps}</h3>
           <button type="button" onClick={addStep} className="rounded-md border px-3 py-1 text-xs">
-            + Add step
+            {de.recipeForm.addStep}
           </button>
         </div>
         {steps.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No steps yet (optional).</p>
+          <p className="text-sm text-muted-foreground">{de.recipeForm.noStepsOptional}</p>
         ) : (
           <ol className="space-y-2">
             {steps.map((s, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="pt-2 text-xs text-muted-foreground">{idx + 1}.</span>
                 <textarea
-                  aria-label={`Step ${idx + 1}`}
+                  aria-label={de.recipeForm.stepAria(idx + 1)}
                   value={s}
                   onChange={(e) => updateStep(idx, e.target.value)}
                   className="min-h-[3rem] flex-1 rounded-md border px-3 py-2 text-sm"
@@ -115,7 +116,7 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
                 <div className="flex flex-col gap-1">
                   <button
                     type="button"
-                    aria-label={`Move step ${idx + 1} up`}
+                    aria-label={de.recipeForm.moveStepUp(idx + 1)}
                     onClick={() => moveStep(idx, -1)}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
@@ -123,7 +124,7 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
                   </button>
                   <button
                     type="button"
-                    aria-label={`Move step ${idx + 1} down`}
+                    aria-label={de.recipeForm.moveStepDown(idx + 1)}
                     onClick={() => moveStep(idx, 1)}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
@@ -131,7 +132,7 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
                   </button>
                   <button
                     type="button"
-                    aria-label={`Remove step ${idx + 1}`}
+                    aria-label={de.recipeForm.removeStep(idx + 1)}
                     onClick={() => removeStep(idx)}
                     className="text-xs text-muted-foreground hover:text-destructive"
                   >
@@ -146,14 +147,14 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
 
       <div className="flex gap-2">
         <button type="button" onClick={onCancel} className="flex-1 rounded-md border px-4 py-2 text-sm">
-          Cancel
+          {de.recipeForm.cancel}
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
           className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {isSubmitting ? 'Saving…' : submitLabel}
+          {isSubmitting ? de.recipeForm.saving : submitLabel}
         </button>
       </div>
     </form>

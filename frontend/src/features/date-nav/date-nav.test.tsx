@@ -25,20 +25,20 @@ describe('DateNav', () => {
 
   it('Prev moves to the previous day', async () => {
     renderWithProviders(<Harness />);
-    await userEvent.click(screen.getByRole('button', { name: /prev/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Vorheriger Tag/i }));
     expect(screen.getByTestId('active-date')).toHaveTextContent('2026-04-19');
   });
 
   it('Next moves to the next day', async () => {
     renderWithProviders(<Harness />);
-    await userEvent.click(screen.getByRole('button', { name: /next/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Nächster Tag/i }));
     expect(screen.getByTestId('active-date')).toHaveTextContent('2026-04-21');
   });
 
   it('Today jumps back to today from a past date', async () => {
     renderWithProviders(<Harness />);
-    await userEvent.click(screen.getByRole('button', { name: /prev/i }));
-    await userEvent.click(screen.getByRole('button', { name: /today/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Vorheriger Tag/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Heute/i }));
     // The active-date after Today is the real today — just check it's not yesterday
     expect(screen.getByTestId('active-date')).not.toHaveTextContent('2026-04-19');
   });
@@ -57,7 +57,7 @@ describe('DailyLogScreen with date navigation', () => {
     renderWithProviders(<Harness />);
     // Wait for initial load
     await screen.findByTestId('active-date');
-    await userEvent.click(screen.getByRole('button', { name: /next/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Nächster Tag/i }));
     // After navigation a new date is active; we don't directly test re-fetch here
     // (the DailyLogScreen integration is covered in daily-log-screen.test.tsx)
     expect(screen.getByTestId('active-date')).toHaveTextContent('2026-04-21');

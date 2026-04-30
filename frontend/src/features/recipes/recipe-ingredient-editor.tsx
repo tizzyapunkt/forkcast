@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
+import { de } from '../../i18n/de';
 
 interface Props {
   ingredients: RecipeIngredient[];
@@ -22,26 +23,26 @@ export function RecipeIngredientEditor({ ingredients, onChange }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Ingredients</h3>
+        <h3 className="text-sm font-medium">{de.recipeIngredientEditor.title}</h3>
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
           className="rounded-md border px-3 py-1 text-xs"
-          aria-label="Add ingredient"
+          aria-label={de.recipeIngredientEditor.addAria}
         >
-          + Add
+          {de.recipeIngredientEditor.add}
         </button>
       </div>
 
       {ingredients.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No ingredients yet.</p>
+        <p className="text-sm text-muted-foreground">{de.recipeIngredientEditor.empty}</p>
       ) : (
         <ul className="divide-y">
           {ingredients.map((ing, idx) => (
             <li key={`${ing.name}|${ing.unit}|${idx}`} className="flex items-center gap-2 py-2 text-sm">
               <span className="min-w-0 flex-1 truncate font-medium">{ing.name}</span>
               <input
-                aria-label={`Amount for ${ing.name}`}
+                aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
                 type="number"
                 step="1"
                 defaultValue={ing.amount}
@@ -52,7 +53,7 @@ export function RecipeIngredientEditor({ ingredients, onChange }: Props) {
               <button
                 type="button"
                 onClick={() => handleRemove(idx)}
-                aria-label={`Remove ${ing.name}`}
+                aria-label={de.recipeIngredientEditor.remove(ing.name)}
                 className="text-muted-foreground hover:text-destructive"
               >
                 ✕

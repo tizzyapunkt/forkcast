@@ -4,6 +4,7 @@ import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
 import { RecipeForm } from './recipe-form';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 interface Props {
   id: string;
@@ -18,7 +19,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  if (isLoading) return <p className="p-4 text-sm text-muted-foreground">Loading…</p>;
+  if (isLoading) return <p className="p-4 text-sm text-muted-foreground">{de.recipes.loading}</p>;
   if (error) return <ErrorBanner error={error} />;
   if (!recipe) return null;
 
@@ -26,7 +27,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
     return (
       <RecipeForm
         initial={recipe}
-        submitLabel="Save"
+        submitLabel={de.recipes.save}
         isSubmitting={updateMutation.isPending}
         error={updateMutation.error}
         onCancel={() => setEditing(false)}
@@ -47,38 +48,36 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onBack}
-          aria-label="Back to recipes"
+          aria-label={de.recipes.backAria}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Back
+          ← {de.recipes.back}
         </button>
         <div className="flex gap-2">
           <button
             onClick={() => setEditing(true)}
             className="rounded-md border px-3 py-1 text-sm"
-            aria-label="Edit recipe"
+            aria-label={de.recipes.editAria}
           >
-            Edit
+            {de.recipes.edit}
           </button>
           <button
             onClick={() => setConfirmDelete(true)}
             className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
-            aria-label="Delete recipe"
+            aria-label={de.recipes.deleteAria}
           >
-            Delete
+            {de.recipes.delete}
           </button>
         </div>
       </div>
 
       <div>
         <h2 className="text-lg font-semibold">{recipe.name}</h2>
-        <p className="text-xs text-muted-foreground">
-          Yields {recipe.yield} portion{recipe.yield === 1 ? '' : 's'}
-        </p>
+        <p className="text-xs text-muted-foreground">{de.recipes.yields(recipe.yield)}</p>
       </div>
 
       <section>
-        <h3 className="mb-2 text-sm font-medium">Ingredients</h3>
+        <h3 className="mb-2 text-sm font-medium">{de.recipes.ingredients}</h3>
         <ul className="divide-y">
           {recipe.ingredients.map((ing, idx) => (
             <li key={`${ing.name}|${idx}`} className="flex items-center justify-between py-2 text-sm">
@@ -92,9 +91,9 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-medium">Steps</h3>
+        <h3 className="mb-2 text-sm font-medium">{de.recipes.steps}</h3>
         {recipe.steps.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No steps recorded.</p>
+          <p className="text-sm text-muted-foreground">{de.recipes.noSteps}</p>
         ) : (
           <ol className="list-decimal space-y-2 pl-5 text-sm">
             {recipe.steps.map((s, idx) => (
@@ -106,11 +105,11 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
 
       {confirmDelete && (
         <div className="rounded-md border border-destructive bg-destructive/5 p-3">
-          <p className="mb-2 text-sm">Delete &ldquo;{recipe.name}&rdquo;?</p>
+          <p className="mb-2 text-sm">{de.recipes.deleteConfirm(recipe.name)}</p>
           {deleteMutation.error && <ErrorBanner error={deleteMutation.error} />}
           <div className="flex gap-2">
             <button onClick={() => setConfirmDelete(false)} className="flex-1 rounded-md border px-3 py-2 text-sm">
-              Cancel
+              {de.recipeForm.cancel}
             </button>
             <button
               onClick={() =>
@@ -121,7 +120,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
               disabled={deleteMutation.isPending}
               className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {deleteMutation.isPending ? de.recipes.deleting : de.recipes.deleteBtn}
             </button>
           </div>
         </div>

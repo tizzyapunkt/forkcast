@@ -21,7 +21,7 @@ describe('FullEntryConfirm', () => {
       { queryClient: createTestQueryClient() },
     );
     expect(screen.getByText('Chicken breast')).toBeInTheDocument();
-    expect(screen.getByText(/per g/i)).toBeInTheDocument();
+    expect(screen.getByText(/pro g/i)).toBeInTheDocument();
   });
 
   it('requires amount > 0', async () => {
@@ -29,8 +29,8 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
-    await userEvent.click(screen.getByRole('button', { name: /log/i }));
-    expect(await screen.findByText(/amount must be/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+    expect(await screen.findByText(/menge muss/i)).toBeInTheDocument();
   });
 
   it('submits a full entry with the correct shape and calls onSuccess', async () => {
@@ -50,8 +50,8 @@ describe('FullEntryConfirm', () => {
       { queryClient: createTestQueryClient() },
     );
 
-    await userEvent.type(screen.getByLabelText(/amount/i), '200');
-    await userEvent.click(screen.getByRole('button', { name: /log/i }));
+    await userEvent.type(screen.getByLabelText(/menge/i), '200');
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     const ing = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
@@ -66,7 +66,7 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
-    await userEvent.type(screen.getByLabelText(/amount/i), '200');
+    await userEvent.type(screen.getByLabelText(/menge/i), '200');
     // 1.65 * 200 = 330 kcal, 0.31 * 200 = 62g protein
     // Values are split across spans, so we look for them individually
     expect(await screen.findByText('330')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('FullEntryConfirm', () => {
       { queryClient: createTestQueryClient() },
     );
     // no amount typed — should not see a "total" line
-    expect(screen.queryByText(/total/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/gesamt/i)).not.toBeInTheDocument();
   });
 
   it('calls onBack when back button is clicked', async () => {
@@ -88,7 +88,7 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={onBack} />,
       { queryClient: createTestQueryClient() },
     );
-    await userEvent.click(screen.getByRole('button', { name: /back/i }));
+    await userEvent.click(screen.getByRole('button', { name: /zurück/i }));
     expect(onBack).toHaveBeenCalled();
   });
 });

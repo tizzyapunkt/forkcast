@@ -1,4 +1,5 @@
 import { BookOpen, ListChecks, Settings } from 'lucide-react';
+import { de } from '../../i18n/de';
 
 export type AppView = 'log' | 'recipes' | 'settings';
 
@@ -14,16 +15,16 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { view: 'log', label: 'Log', Icon: ListChecks },
-  { view: 'recipes', label: 'Recipes', Icon: BookOpen },
-  { view: 'settings', label: 'Settings', Icon: Settings },
+  { view: 'log', label: de.nav.log, Icon: ListChecks },
+  { view: 'recipes', label: de.nav.recipes, Icon: BookOpen },
+  { view: 'settings', label: de.nav.settings, Icon: Settings },
 ];
 
 export function BottomNav({ active, onChange }: Props) {
   return (
     <nav
       role="navigation"
-      aria-label="Primary"
+      aria-label={de.nav.primary}
       className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-background"
     >
       {TABS.map(({ view, label, Icon }) => {

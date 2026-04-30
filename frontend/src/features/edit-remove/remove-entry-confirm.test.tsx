@@ -14,7 +14,7 @@ describe('RemoveEntryConfirm', () => {
     renderWithProviders(<RemoveEntryConfirm entry={entry} onConfirm={onConfirm} onCancel={() => {}} />, {
       queryClient: createTestQueryClient(),
     });
-    await userEvent.click(screen.getByRole('button', { name: /remove/i }));
+    await userEvent.click(screen.getByRole('button', { name: /entfernen/i }));
     await waitFor(() => expect(onConfirm).toHaveBeenCalled());
   });
 
@@ -30,7 +30,7 @@ describe('RemoveEntryConfirm', () => {
     renderWithProviders(<RemoveEntryConfirm entry={makeLogEntry()} onConfirm={() => {}} onCancel={onCancel} />, {
       queryClient: createTestQueryClient(),
     });
-    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await userEvent.click(screen.getByRole('button', { name: /abbrechen/i }));
     expect(onCancel).toHaveBeenCalled();
     expect(deleted).toBe(false);
   });

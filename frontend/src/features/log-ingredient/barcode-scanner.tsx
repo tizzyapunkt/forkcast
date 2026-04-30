@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import type { IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, NotFoundException } from '@zxing/library';
+import { de } from '../../i18n/de';
 
 export interface BarcodeScannerProps {
   onDetect: (barcode: string) => void;
@@ -60,8 +61,8 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
       {error ? (
         <div role="alert" className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
           {error.toLowerCase().includes('notallowed') || error.toLowerCase().includes('permission')
-            ? 'Camera access was denied. Please allow camera access in your browser settings.'
-            : 'Unable to access camera.'}
+            ? de.barcodeScanner.cameraDenied
+            : de.barcodeScanner.cameraUnavailable}
         </div>
       ) : (
         <div className="relative overflow-hidden rounded-lg bg-black aspect-[4/3]">
@@ -70,7 +71,7 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
         </div>
       )}
       <button type="button" onClick={onCancel} className="w-full rounded-md border px-3 py-2 text-sm">
-        Cancel
+        {de.barcodeScanner.cancel}
       </button>
     </div>
   );

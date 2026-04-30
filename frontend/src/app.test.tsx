@@ -19,19 +19,19 @@ describe('App', () => {
     expect(header?.className).toMatch(/sticky/);
   });
 
-  it('renders the bottom navigation with Log, Recipes, and Settings tabs', () => {
+  it('renders the bottom navigation with Tagebuch, Rezepte, and Einstellungen tabs', () => {
     renderWithProviders(<App />);
-    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const nav = screen.getByRole('navigation', { name: /Hauptnavigation/i });
     expect(nav).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /log/i, current: 'page' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /recipes/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Tagebuch/i, current: 'page' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Rezepte/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Einstellungen/i })).toBeInTheDocument();
   });
 
   it('does not render a settings gear in the header', () => {
     renderWithProviders(<App />);
     const header = screen.getByRole('heading', { name: /forkcast/i }).closest('header');
-    expect(header?.querySelector('button[aria-label="Settings"]')).toBeNull();
+    expect(header?.querySelector('button[aria-label="Einstellungen"]')).toBeNull();
   });
 
   it('shows the daily kcal/macro summary in the log view', async () => {
@@ -60,7 +60,7 @@ describe('App', () => {
     renderWithProviders(<App />);
     await screen.findByText(/1500\s*\/\s*2000\s*kcal/i);
 
-    await userEvent.click(screen.getByRole('button', { name: /settings/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Einstellungen/i }));
 
     expect(screen.queryByText(/kcal offen/)).not.toBeInTheDocument();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();

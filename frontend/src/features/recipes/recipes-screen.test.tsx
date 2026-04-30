@@ -9,8 +9,8 @@ describe('RecipesScreen', () => {
   it('shows the empty state when there are no recipes', async () => {
     server.use(http.get('/api/recipes', () => HttpResponse.json([])));
     renderWithProviders(<RecipesScreen />);
-    expect(await screen.findByText(/no recipes yet/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /new recipe/i })).toBeInTheDocument();
+    expect(await screen.findByText(/noch keine rezepte/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /neues rezept/i })).toBeInTheDocument();
   });
 
   it('renders existing recipes alphabetically (server-sorted)', async () => {
@@ -61,9 +61,9 @@ describe('RecipesScreen', () => {
   it('opens the create form when the "New recipe" button is tapped', async () => {
     server.use(http.get('/api/recipes', () => HttpResponse.json([])));
     renderWithProviders(<RecipesScreen />);
-    await screen.findByText(/no recipes yet/i);
-    await userEvent.click(screen.getByRole('button', { name: /new recipe/i }));
+    await screen.findByText(/noch keine rezepte/i);
+    await userEvent.click(screen.getByRole('button', { name: /neues rezept/i }));
     await waitFor(() => expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument());
-    expect(screen.getByLabelText(/yield/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/ergibt/i)).toBeInTheDocument();
   });
 });

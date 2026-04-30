@@ -12,7 +12,7 @@ function render(date = '2026-04-20') {
 describe('DailyLogScreen', () => {
   it('renders all 4 slot headings even when log is empty', async () => {
     render();
-    for (const slot of ['Breakfast', 'Lunch', 'Dinner', 'Snack']) {
+    for (const slot of ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack']) {
       expect(await screen.findByText(slot)).toBeInTheDocument();
     }
   });

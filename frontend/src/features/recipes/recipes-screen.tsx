@@ -5,6 +5,7 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { RecipeForm } from './recipe-form';
 import { RecipeDetail } from './recipe-detail';
+import { de } from '../../i18n/de';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'detail'; id: string };
 
@@ -16,7 +17,7 @@ export function RecipesScreen() {
   if (view.mode === 'create') {
     return (
       <RecipeForm
-        submitLabel="Create"
+        submitLabel={de.recipes.create}
         isSubmitting={addMutation.isPending}
         error={addMutation.error}
         onCancel={() => setView({ mode: 'list' })}
@@ -38,13 +39,13 @@ export function RecipesScreen() {
   return (
     <div className="space-y-3 p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">Recipes</h2>
+        <h2 className="text-base font-semibold">{de.recipes.screenTitle}</h2>
         <button
           onClick={() => setView({ mode: 'create' })}
           className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
-          aria-label="New recipe"
+          aria-label={de.recipes.newRecipeAria}
         >
-          + New recipe
+          + {de.recipes.newRecipe}
         </button>
       </div>
 
@@ -52,7 +53,7 @@ export function RecipesScreen() {
       {isLoading && <ListSkeleton rows={4} />}
 
       {!isLoading && recipes && recipes.length === 0 && (
-        <p className="text-sm text-muted-foreground">No recipes yet — create one to get started.</p>
+        <p className="text-sm text-muted-foreground">{de.recipes.empty}</p>
       )}
 
       {recipes && recipes.length > 0 && (
@@ -65,8 +66,7 @@ export function RecipesScreen() {
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recipe.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {recipe.ingredients.length} ingredient{recipe.ingredients.length === 1 ? '' : 's'} · serves{' '}
-                  {recipe.yield}
+                  {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
                 </span>
               </button>
             </li>

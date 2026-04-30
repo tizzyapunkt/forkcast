@@ -4,6 +4,7 @@ import { useRecipes } from '../../queries/use-recipes';
 import { EditEntryDrawer } from '../edit-remove/edit-entry-drawer';
 import { RemoveEntryConfirm } from '../edit-remove/remove-entry-confirm';
 import { InlineAmountInput } from './inline-amount-input';
+import { de } from '../../i18n/de';
 
 interface EntryRowProps {
   entry: LogEntry;
@@ -29,7 +30,7 @@ export function EntryRow({ entry }: EntryRowProps) {
           <span className="font-medium">{label}</span>
           {recipeName && (
             <span className="text-[10px] uppercase tracking-wide text-muted-foreground" data-testid="recipe-hint">
-              from {recipeName}
+              {de.entryRow.fromRecipe(recipeName)}
             </span>
           )}
           {ingredient.type === 'full' && (
@@ -37,19 +38,22 @@ export function EntryRow({ entry }: EntryRowProps) {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="shrink-0 text-muted-foreground">{calories} kcal</span>
+          <span className="shrink-0 text-muted-foreground">
+            {calories}
+            {de.dailyLog.kcalSuffix}
+          </span>
           {ingredient.type === 'quick' && (
             <button
               onClick={() => setEditing(true)}
-              aria-label="Edit entry"
+              aria-label={de.entryRow.editAria}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Edit
+              {de.entryRow.edit}
             </button>
           )}
           <button
             onClick={() => setRemoving(true)}
-            aria-label="Remove entry"
+            aria-label={de.entryRow.removeAria}
             className="text-xs text-muted-foreground hover:text-destructive"
           >
             ✕

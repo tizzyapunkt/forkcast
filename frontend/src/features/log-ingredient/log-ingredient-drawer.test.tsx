@@ -12,7 +12,7 @@ function makeEmptySlot(slot: SlotSummary['slot']): SlotSummary {
 }
 
 async function openDrawer() {
-  await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Hinzufügen' }));
   return screen.findByRole('dialog');
 }
 
@@ -24,7 +24,7 @@ const oats: RecentlyUsedIngredient = {
 };
 
 describe('SlotCard Add button → drawer', () => {
-  it('opens the log-ingredient drawer when Add is clicked', async () => {
+  it('opens the log-ingredient drawer when Hinzufügen is clicked', async () => {
     renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
       queryClient: createTestQueryClient(),
     });
@@ -47,10 +47,10 @@ describe('SlotCard Add button → drawer', () => {
     });
 
     await openDrawer();
-    await userEvent.click(screen.getByRole('button', { name: /quick/i }));
-    await userEvent.type(screen.getByLabelText(/label/i), 'Steak');
-    await userEvent.type(screen.getByLabelText(/calories/i), '500');
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+    await userEvent.click(screen.getByRole('button', { name: /schnell/i }));
+    await userEvent.type(screen.getByLabelText(/bezeichnung/i), 'Steak');
+    await userEvent.type(screen.getByLabelText(/kalorien/i), '500');
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     expect((posted as Record<string, unknown>)['slot']).toBe('dinner');
@@ -78,10 +78,10 @@ describe('SlotCard Add button → drawer', () => {
     renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, { queryClient });
 
     await openDrawer();
-    await userEvent.click(screen.getByRole('button', { name: /quick/i }));
-    await userEvent.type(screen.getByLabelText(/label/i), 'Coffee');
-    await userEvent.type(screen.getByLabelText(/calories/i), '5');
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+    await userEvent.click(screen.getByRole('button', { name: /schnell/i }));
+    await userEvent.type(screen.getByLabelText(/bezeichnung/i), 'Coffee');
+    await userEvent.type(screen.getByLabelText(/kalorien/i), '5');
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
 
     await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: ['daily-log', '2026-04-21'] }));
   });
@@ -121,7 +121,7 @@ describe('Recent tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recent$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
 
     expect(await screen.findByText('Oats')).toBeInTheDocument();
     expect(calls).toBe(1);
@@ -141,12 +141,12 @@ describe('Recent tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recent$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await screen.findByText('Oats');
     expect(calls).toBe(1);
 
-    await userEvent.click(screen.getByRole('button', { name: /^search$/i }));
-    await userEvent.click(screen.getByRole('button', { name: /^recent$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^suche$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     expect(await screen.findByText('Oats')).toBeInTheDocument();
 
     expect(calls).toBe(1);
@@ -171,11 +171,11 @@ describe('Recent tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recent$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await userEvent.click(await screen.findByText('Oats'));
 
-    await userEvent.type(screen.getByLabelText(/amount/i), '50');
-    await userEvent.click(screen.getByRole('button', { name: /^log$/i }));
+    await userEvent.type(screen.getByLabelText(/menge/i), '50');
+    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     const ingredient = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
@@ -196,17 +196,17 @@ describe('Recent tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recent$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await userEvent.click(await screen.findByText('Oats'));
 
     // Confirm step is showing
-    expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/menge/i)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: /^back$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zurück$/i }));
 
     // Back on the Recent tab list, NOT the Search panel
     expect(await screen.findByText('Oats')).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText(/search ingredients/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/zutaten suchen/i)).not.toBeInTheDocument();
   });
 });
 
@@ -228,7 +228,7 @@ describe('Recipes tab', () => {
     updatedAt: '',
   };
 
-  it('shows tabs in order Search → Recent → Recipes → Quick', async () => {
+  it('shows tabs in order Suche → Zuletzt → Rezepte → Schnell', async () => {
     renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
       queryClient: createTestQueryClient(),
     });
@@ -238,8 +238,8 @@ describe('Recipes tab', () => {
     const tabs = dialog.querySelectorAll('button');
     const tabLabels = Array.from(tabs)
       .map((b) => b.textContent?.trim() ?? '')
-      .filter((t) => ['Search', 'Recent', 'Recipes', 'Quick'].includes(t));
-    expect(tabLabels).toEqual(['Search', 'Recent', 'Recipes', 'Quick']);
+      .filter((t) => ['Suche', 'Zuletzt', 'Rezepte', 'Schnell'].includes(t));
+    expect(tabLabels).toEqual(['Suche', 'Zuletzt', 'Rezepte', 'Schnell']);
   });
 
   it('logs the recipe via POST /log-recipe with the chosen portions when picking from the Recipes tab', async () => {
@@ -258,13 +258,13 @@ describe('Recipes tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recipes$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^rezepte$/i }));
     await userEvent.click(await screen.findByText('Oats Bowl'));
 
-    const portionsInput = await screen.findByLabelText(/portions/i);
+    const portionsInput = await screen.findByLabelText(/zu erfassende portionen/i);
     await userEvent.clear(portionsInput);
     await userEvent.type(portionsInput, '2');
-    await userEvent.click(screen.getByRole('button', { name: /^log$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     expect(posted).toMatchObject({
@@ -283,11 +283,11 @@ describe('Recipes tab', () => {
     });
     await openDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: /^recipes$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^rezepte$/i }));
     await userEvent.click(await screen.findByText('Oats Bowl'));
-    await userEvent.click(screen.getByRole('button', { name: /^back$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^zurück$/i }));
 
     expect(await screen.findByText('Oats Bowl')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/filter recipes/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/rezepte filtern/i)).toBeInTheDocument();
   });
 });

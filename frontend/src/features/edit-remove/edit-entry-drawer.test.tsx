@@ -19,8 +19,8 @@ describe('EditEntryDrawer — quick entry', () => {
     renderWithProviders(<EditEntryDrawer entry={entry} onClose={() => {}} />, {
       queryClient: createTestQueryClient(),
     });
-    expect((screen.getByLabelText(/calories/i) as HTMLInputElement).value).toBe('300');
-    expect((screen.getByLabelText(/protein/i) as HTMLInputElement).value).toBe('10');
+    expect((screen.getByLabelText(/kalorien/i) as HTMLInputElement).value).toBe('300');
+    expect((screen.getByLabelText(/eiweiß/i) as HTMLInputElement).value).toBe('10');
   });
 
   it('PATCHes with type:quick payload and calls onClose', async () => {
@@ -37,10 +37,10 @@ describe('EditEntryDrawer — quick entry', () => {
       queryClient: createTestQueryClient(),
     });
 
-    const cal = screen.getByLabelText(/calories/i);
+    const cal = screen.getByLabelText(/kalorien/i);
     await userEvent.clear(cal);
     await userEvent.type(cal, '400');
-    await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    await userEvent.click(screen.getByRole('button', { name: /änderungen speichern/i }));
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect((patched as Record<string, unknown>)['type']).toBe('quick');
@@ -55,10 +55,10 @@ describe('EditEntryDrawer — quick entry', () => {
       queryClient: createTestQueryClient(),
     });
 
-    const cal = screen.getByLabelText(/calories/i);
+    const cal = screen.getByLabelText(/kalorien/i);
     await userEvent.clear(cal);
     await userEvent.type(cal, '400');
-    await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    await userEvent.click(screen.getByRole('button', { name: /änderungen speichern/i }));
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();

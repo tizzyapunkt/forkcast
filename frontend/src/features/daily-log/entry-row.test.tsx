@@ -51,7 +51,7 @@ describe('EntryRow recipe hint', () => {
 
     renderWithProviders(<EntryRow entry={recipeEntry} />);
 
-    expect(await screen.findByTestId('recipe-hint')).toHaveTextContent(/from bolognese/i);
+    expect(await screen.findByTestId('recipe-hint')).toHaveTextContent(/aus bolognese/i);
   });
 
   it('shows no hint when the recipe does not resolve (deleted)', async () => {

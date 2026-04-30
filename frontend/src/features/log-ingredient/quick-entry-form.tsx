@@ -4,10 +4,13 @@ import { z } from 'zod';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 const schema = z.object({
-  label: z.string().min(1, 'Label is required'),
-  calories: z.coerce.number({ invalid_type_error: 'Calories is required' }).positive('Calories is required'),
+  label: z.string().min(1, de.quickEntry.validation.labelRequired),
+  calories: z.coerce
+    .number({ invalid_type_error: de.quickEntry.validation.caloriesRequired })
+    .positive(de.quickEntry.validation.caloriesRequired),
   protein: z.coerce
     .number()
     .nonnegative()
@@ -75,20 +78,20 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
 
       <div className="space-y-1">
         <label htmlFor="label" className="text-sm font-medium">
-          Label
+          {de.quickEntry.label}
         </label>
         <input
           id="label"
           {...register('label')}
           className="w-full rounded-md border px-3 py-2 text-sm"
-          placeholder="e.g. Coffee, Banana…"
+          placeholder={de.quickEntry.labelPlaceholder}
         />
         {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
       </div>
 
       <div className="space-y-1">
         <label htmlFor="calories" className="text-sm font-medium">
-          Calories (kcal)
+          {de.quickEntry.calories}
         </label>
         <input
           id="calories"
@@ -103,8 +106,8 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
       <div className="grid grid-cols-3 gap-2">
         {(['protein', 'carbs', 'fat'] as const).map((macro) => (
           <div key={macro} className="space-y-1">
-            <label htmlFor={macro} className="text-xs font-medium capitalize text-muted-foreground">
-              {macro} (g)
+            <label htmlFor={macro} className="text-xs font-medium text-muted-foreground">
+              {de.editEntry.macroLabel(de.macros[macro])}
             </label>
             <input
               id={macro}
@@ -123,7 +126,11 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
         disabled={isPending}
         className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
       >
-        {isPending ? 'Saving…' : mode === 'edit' ? 'Save changes' : 'Add entry'}
+        {isPending
+          ? de.quickEntry.saving
+          : mode === 'edit'
+            ? de.quickEntry.saveChanges
+            : de.quickEntry.addEntry}
       </button>
     </form>
   );
