@@ -14,9 +14,9 @@ function render(onSuccess = () => {}) {
 describe('QuickEntryForm', () => {
   it('shows validation errors when submitting empty form', async () => {
     render();
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
-    expect(await screen.findByText(/label is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/calories is required/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
+    expect(await screen.findByText(/bezeichnung ist erforderlich/i)).toBeInTheDocument();
+    expect(screen.getByText(/kalorien sind erforderlich/i)).toBeInTheDocument();
   });
 
   it('submits quick entry with required fields and calls onSuccess', async () => {
@@ -41,9 +41,9 @@ describe('QuickEntryForm', () => {
       queryClient: createTestQueryClient(),
     });
 
-    await userEvent.type(screen.getByLabelText(/label/i), 'Oats');
-    await userEvent.type(screen.getByLabelText(/calories/i), '300');
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+    await userEvent.type(screen.getByLabelText(/bezeichnung/i), 'Oats');
+    await userEvent.type(screen.getByLabelText(/kalorien/i), '300');
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect((posted as Record<string, unknown>)['slot']).toBe('breakfast');
@@ -68,10 +68,10 @@ describe('QuickEntryForm', () => {
       queryClient: createTestQueryClient(),
     });
 
-    await userEvent.type(screen.getByLabelText(/label/i), 'Rice');
-    await userEvent.type(screen.getByLabelText(/calories/i), '200');
-    await userEvent.type(screen.getByLabelText(/protein/i), '4');
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+    await userEvent.type(screen.getByLabelText(/bezeichnung/i), 'Rice');
+    await userEvent.type(screen.getByLabelText(/kalorien/i), '200');
+    await userEvent.type(screen.getByLabelText(/eiweiß/i), '4');
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     const ing = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
@@ -81,10 +81,10 @@ describe('QuickEntryForm', () => {
   it('stays open and shows error banner on backend failure', async () => {
     server.use(http.post('/api/log-ingredient', () => HttpResponse.json({ error: 'Server error' }, { status: 500 })));
     render();
-    await userEvent.type(screen.getByLabelText(/label/i), 'Fail');
-    await userEvent.type(screen.getByLabelText(/calories/i), '100');
-    await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+    await userEvent.type(screen.getByLabelText(/bezeichnung/i), 'Fail');
+    await userEvent.type(screen.getByLabelText(/kalorien/i), '100');
+    await userEvent.click(screen.getByRole('button', { name: /eintrag hinzufügen/i }));
     expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByLabelText(/label/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/bezeichnung/i)).toBeInTheDocument();
   });
 });

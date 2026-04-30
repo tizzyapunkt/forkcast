@@ -12,6 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'forkcast',
         short_name: 'forkcast',
+        description: 'Wochenplanung und Ernährungstagebuch',
         display: 'standalone',
         background_color: '#fff9ff',
         theme_color: '#4e489a',

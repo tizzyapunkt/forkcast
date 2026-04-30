@@ -3,6 +3,7 @@ import type { MealSlot } from '../../domain/meal-log';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { Recipe } from '../../domain/recipes';
 import { useScrollLock } from '../../hooks/use-scroll-lock';
+import { de, slotLabelsDe } from '../../i18n/de';
 import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
 import { RecentPanel } from './recent-panel';
@@ -54,8 +55,14 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
     setStep({ kind: 'search' });
   }
 
+  const slotLabel = slotLabelsDe[slot];
+
   const headerSuffix =
-    step.kind === 'confirm' ? ` — ${step.result.name}` : step.kind === 'recipe-confirm' ? ` — ${step.recipe.name}` : '';
+    step.kind === 'confirm'
+      ? ` — ${step.result.name}`
+      : step.kind === 'recipe-confirm'
+        ? ` — ${step.recipe.name}`
+        : '';
 
   const drawerHeight = tab === 'quick' ? 'h-[55dvh]' : 'h-[82dvh]';
 
@@ -65,14 +72,14 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Log ingredient"
+        aria-label={de.logIngredient.dialogAria}
         className={`fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden rounded-t-xl bg-background shadow-lg transition-[height] duration-200 ${drawerHeight}`}
       >
         <div className="shrink-0">
           <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted" />
           <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
             <h2 className="min-w-0 truncate text-sm font-semibold">
-              Add to {slot}
+              {de.logIngredient.addToSlot(slotLabel)}
               {headerSuffix}
             </h2>
             <button
@@ -80,7 +87,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
               onClick={handleClose}
               className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
             >
-              Cancel
+              {de.logIngredient.cancel}
             </button>
           </div>
 
@@ -89,25 +96,25 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
               onClick={() => handleTabChange('search')}
               className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
             >
-              Search
+              {de.logIngredient.search}
             </button>
             <button
               onClick={() => handleTabChange('recent')}
               className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
             >
-              Recent
+              {de.logIngredient.recent}
             </button>
             <button
               onClick={() => handleTabChange('recipes')}
               className={`pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
             >
-              Recipes
+              {de.logIngredient.recipesTab}
             </button>
             <button
               onClick={() => handleTabChange('quick')}
               className={`pb-2 ${tab === 'quick' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
             >
-              Quick
+              {de.logIngredient.quick}
             </button>
           </div>
         </div>

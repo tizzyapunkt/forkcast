@@ -1,9 +1,11 @@
+import { de } from '../../i18n/de';
+
 interface ErrorBannerProps {
   error: unknown;
 }
 
 export function ErrorBanner({ error }: ErrorBannerProps) {
-  const message = error instanceof Error ? error.message : 'Something went wrong';
+  const message = error instanceof Error ? error.message : de.errors.generic;
   return (
     <div
       role="alert"

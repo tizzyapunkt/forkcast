@@ -3,6 +3,7 @@ import Fuse from 'fuse.js';
 import { useRecentlyUsedIngredients } from '../../queries/use-recently-used-ingredients';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecentlyUsedIngredient } from '../../domain/meal-log';
+import { de } from '../../i18n/de';
 
 interface RecentPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -42,20 +43,18 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Filter recents…"
+        placeholder={de.recentPanel.placeholder}
         className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-sm"
       />
 
-      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{de.recentPanel.loading}</p>}
 
       {!isLoading && (recents?.length ?? 0) === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No ingredients yet — log one from Search and it&rsquo;ll show up here.
-        </p>
+        <p className="text-sm text-muted-foreground">{de.recentPanel.empty}</p>
       )}
 
       {!isLoading && (recents?.length ?? 0) > 0 && filtered.length === 0 && (
-        <p className="text-sm text-muted-foreground">No matches for &ldquo;{trimmed}&rdquo;</p>
+        <p className="text-sm text-muted-foreground">{de.recentPanel.noMatches(trimmed)}</p>
       )}
 
       {filtered.length > 0 && (
@@ -68,7 +67,7 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recent.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {recent.macrosPerUnit.calories} kcal / {recent.unit}
+                  {de.recentPanel.kcalPer(recent.macrosPerUnit.calories, recent.unit)}
                 </span>
               </button>
             </li>

@@ -5,11 +5,12 @@ import type { Recipe } from '../../domain/recipes';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 const schema = z.object({
   portions: z.coerce
-    .number({ invalid_type_error: 'Portions must be a number' })
-    .positive('Portions must be greater than 0'),
+    .number({ invalid_type_error: de.recipeConfirm.validation.portionsNumber })
+    .positive(de.recipeConfirm.validation.portionsPositive),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -63,20 +64,16 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
       <div className="rounded-md bg-muted/50 p-3 space-y-1.5">
         <p className="font-medium">{recipe.name}</p>
         <p className="text-xs text-muted-foreground">
-          Recipe yields {recipe.yield} portion{recipe.yield === 1 ? '' : 's'} · {recipe.ingredients.length} ingredient
-          {recipe.ingredients.length === 1 ? '' : 's'}
+          {de.recipeConfirm.summaryLine(recipe.yield, recipe.ingredients.length)}
         </p>
         {totals && (
-          <p className="text-xs text-muted-foreground">
-            Total: <span className="font-medium text-foreground">{Math.round(totals.calories)} kcal</span> ·{' '}
-            {Math.round(totals.protein)}g P · {Math.round(totals.carbs)}g C · {Math.round(totals.fat)}g F
-          </p>
+          <p className="text-xs text-muted-foreground">{de.recipeConfirm.totalLine(totals.calories, totals.protein, totals.carbs, totals.fat)}</p>
         )}
       </div>
 
       <div className="space-y-1">
         <label htmlFor="portions" className="text-sm font-medium">
-          Portions to log
+          {de.recipeConfirm.portionsLabel}
         </label>
         <input
           id="portions"
@@ -92,7 +89,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
 
       {totals && portions !== null && (
         <div className="rounded-md border p-3 text-xs">
-          <p className="mb-1 font-medium">Will log {recipe.ingredients.length} ingredient(s):</p>
+          <p className="mb-1 font-medium">{de.recipeConfirm.willLogHeading(recipe.ingredients.length)}</p>
           <ul className="space-y-0.5 text-muted-foreground">
             {recipe.ingredients.map((ing, i) => (
               <li key={i}>
@@ -105,14 +102,14 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
 
       <div className="flex gap-2">
         <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
-          Back
+          {de.recipeConfirm.back}
         </button>
         <button
           type="submit"
           disabled={isPending}
           className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {isPending ? 'Logging…' : 'Log'}
+          {isPending ? de.recipeConfirm.logging : de.recipeConfirm.log}
         </button>
       </div>
     </form>

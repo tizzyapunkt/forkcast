@@ -20,16 +20,16 @@ describe('NutritionGoalForm', () => {
     );
     renderWithProviders(<NutritionGoalForm />, { queryClient: createTestQueryClient() });
     // wait for load to complete — all fields should be blank / zero
-    await screen.findByRole('button', { name: /save/i });
-    const calInput = screen.getByLabelText(/calories/i) as HTMLInputElement;
+    await screen.findByRole('button', { name: /ziel speichern/i });
+    const calInput = screen.getByLabelText(/kalorien/i) as HTMLInputElement;
     expect(calInput.value).toBe('');
   });
 
   it('blocks submission when calories is missing', async () => {
     renderWithProviders(<NutritionGoalForm />, { queryClient: createTestQueryClient() });
-    await screen.findByRole('button', { name: /save/i });
-    await userEvent.click(screen.getByRole('button', { name: /save/i }));
-    expect(await screen.findByText(/calories/i)).toBeInTheDocument();
+    await screen.findByRole('button', { name: /ziel speichern/i });
+    await userEvent.click(screen.getByRole('button', { name: /ziel speichern/i }));
+    expect(await screen.findByText(/kalorien müssen/i)).toBeInTheDocument();
   });
 
   it('PUTs the goal and shows a saved confirmation', async () => {
@@ -44,12 +44,12 @@ describe('NutritionGoalForm', () => {
     renderWithProviders(<NutritionGoalForm />, { queryClient });
     await screen.findByDisplayValue('2000');
 
-    const cal = screen.getByLabelText(/calories/i);
+    const cal = screen.getByLabelText(/kalorien/i);
     await userEvent.clear(cal);
     await userEvent.type(cal, '1800');
-    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+    await userEvent.click(screen.getByRole('button', { name: /ziel speichern/i }));
 
-    expect(await screen.findByText(/saved/i)).toBeInTheDocument();
+    expect(await screen.findByText(/gespeichert/i)).toBeInTheDocument();
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['nutrition-goal'] });
   });
 
@@ -58,11 +58,11 @@ describe('NutritionGoalForm', () => {
     renderWithProviders(<NutritionGoalForm />, { queryClient: createTestQueryClient() });
     await screen.findByDisplayValue('2000');
 
-    const protein = screen.getByLabelText(/protein/i);
+    const protein = screen.getByLabelText(/eiweiß/i);
     await userEvent.clear(protein);
     await userEvent.type(protein, '-10');
-    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+    await userEvent.click(screen.getByRole('button', { name: /ziel speichern/i }));
 
-    expect(await screen.findByText(/must be/i)).toBeInTheDocument();
+    expect(await screen.findByText(/≥ 0/i)).toBeInTheDocument();
   });
 });

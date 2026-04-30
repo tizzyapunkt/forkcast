@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FullIngredientEntry, LogEntry } from '../../domain/meal-log';
+import { de } from '../../i18n/de';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 
 const DEBOUNCE_MS = 500;
@@ -39,7 +40,7 @@ export function InlineAmountInput({ entry }: InlineAmountInputProps) {
         step={1}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        aria-label={`Amount for ${name}`}
+        aria-label={de.recipeIngredientEditor.amountFor(name)}
         className="w-16 rounded border border-transparent bg-transparent px-1 py-0.5 text-right text-xs text-muted-foreground hover:border-border focus:border-ring focus:text-foreground focus:outline-none"
       />
       <span className="text-muted-foreground">{unit}</span>

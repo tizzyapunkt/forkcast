@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search-ingredients';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { BarcodeScanner } from './barcode-scanner';
+import { de } from '../../i18n/de';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -67,7 +68,7 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
   if (scanState.mode === 'barcode-loading') {
     return (
       <div className="flex flex-col gap-3 p-4">
-        <p className="text-sm text-muted-foreground">Looking up barcode…</p>
+        <p className="text-sm text-muted-foreground">{de.searchPanel.lookingUp}</p>
       </div>
     );
   }
@@ -75,13 +76,13 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
   if (scanState.mode === 'barcode-not-found') {
     return (
       <div className="flex flex-col gap-3 p-4">
-        <p className="text-sm text-destructive">Product not found</p>
+        <p className="text-sm text-destructive">{de.searchPanel.notFound}</p>
         <button
           type="button"
           onClick={() => setScanState({ mode: 'scanning' })}
           className="w-full rounded-md border px-3 py-2 text-sm"
         >
-          Try again
+          {de.searchPanel.tryAgain}
         </button>
       </div>
     );
@@ -96,12 +97,12 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search ingredients…"
+          placeholder={de.searchPanel.placeholder}
           className="min-w-0 flex-1 appearance-none rounded-md border px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
         />
         <button
           type="button"
-          aria-label="Scan barcode"
+          aria-label={de.searchPanel.scanBarcode}
           onClick={() => setScanState({ mode: 'scanning' })}
           className="shrink-0 rounded-md border px-3 py-2 text-sm"
         >
@@ -109,10 +110,10 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
         </button>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">Searching…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}
 
       {hasQuery && !isLoading && results?.length === 0 && (
-        <p className="text-sm text-muted-foreground">No results for "{debouncedQuery}"</p>
+        <p className="text-sm text-muted-foreground">{de.searchPanel.noResults(debouncedQuery)}</p>
       )}
 
       {results && results.length > 0 && (
@@ -128,7 +129,7 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
                   <span className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
                     {result.source}
                   </span>
-                  {result.macrosPerUnit.calories} kcal / {result.unit}
+                  {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
                 </span>
               </button>
             </li>

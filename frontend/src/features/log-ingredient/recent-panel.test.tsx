@@ -75,7 +75,7 @@ describe('RecentPanel', () => {
     await userEvent.type(screen.getByRole('searchbox'), 'zzzqqq');
 
     expect(screen.queryByText('Oats')).not.toBeInTheDocument();
-    expect(screen.getByText(/no matches/i)).toBeInTheDocument();
+    expect(screen.getByText(/keine treffer für/i)).toBeInTheDocument();
   });
 
   it('calls onSelect with an IngredientSearchResult shape when a row is clicked', async () => {

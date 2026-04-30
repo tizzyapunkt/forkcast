@@ -5,9 +5,10 @@ import type { LogEntry, QuickIngredientEntry } from '../../domain/meal-log';
 import { useScrollLock } from '../../hooks/use-scroll-lock';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { de } from '../../i18n/de';
 
 const quickSchema = z.object({
-  calories: z.coerce.number().positive('Calories must be positive'),
+  calories: z.coerce.number().positive(de.editEntry.validation.caloriesPositive),
   protein: z.coerce.number().nonnegative().optional(),
   carbs: z.coerce.number().nonnegative().optional(),
   fat: z.coerce.number().nonnegative().optional(),
@@ -60,14 +61,14 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Edit entry"
+        aria-label={de.editEntry.dialogAria}
         className="fixed inset-x-0 bottom-0 z-50 rounded-t-xl bg-background shadow-lg"
       >
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted" />
         <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          <h2 className="text-sm font-semibold">Edit entry</h2>
+          <h2 className="text-sm font-semibold">{de.editEntry.title}</h2>
           <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">
-            Cancel
+            {de.editEntry.cancel}
           </button>
         </div>
 
@@ -77,7 +78,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
 
           <div className="space-y-1">
             <label htmlFor="edit-calories" className="text-sm font-medium">
-              Calories (kcal)
+              {de.editEntry.caloriesLabel}
             </label>
             <input
               id="edit-calories"
@@ -91,8 +92,8 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
           <div className="grid grid-cols-3 gap-2">
             {(['protein', 'carbs', 'fat'] as const).map((macro) => (
               <div key={macro} className="space-y-1">
-                <label htmlFor={`edit-${macro}`} className="text-xs font-medium capitalize text-muted-foreground">
-                  {macro} (g)
+                <label htmlFor={`edit-${macro}`} className="text-xs font-medium text-muted-foreground">
+                  {de.editEntry.macroLabel(de.macros[macro])}
                 </label>
                 <input
                   id={`edit-${macro}`}
@@ -111,7 +112,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
             disabled={isPending}
             className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            {isPending ? 'Saving…' : 'Save changes'}
+            {isPending ? de.editEntry.saving : de.editEntry.save}
           </button>
         </form>
       </div>
