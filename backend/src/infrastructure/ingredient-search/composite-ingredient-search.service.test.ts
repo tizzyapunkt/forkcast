@@ -33,32 +33,54 @@ function makeMockService(
 }
 
 describe('CompositeIngredientSearchService', () => {
-  it('merges results: BLS hits come before OFF hits', async () => {
+  it('defaults to BLS-only when sources is omitted', async () => {
     const bls = makeMockService([blsResult]);
     const off = makeMockService([offResult]);
-    const svc = new CompositeIngredientSearchService(off, bls);
-
-    const results = await svc.searchByName('food');
-    expect(results[0].source).toBe('BLS');
-    expect(results[1].source).toBe('OFF');
-  });
-
-  it('still returns BLS hits when OFF rejects', async () => {
-    const bls = makeMockService([blsResult]);
-    const off = makeMockService('reject');
     const svc = new CompositeIngredientSearchService(off, bls);
 
     const results = await svc.searchByName('food');
     expect(results).toHaveLength(1);
     expect(results[0].source).toBe('BLS');
+    expect(off.searchByName).not.toHaveBeenCalled();
   });
 
-  it('still returns OFF hits when BLS rejects', async () => {
+  it('merges results: BLS hits come before OFF hits when both sources requested', async () => {
+    const bls = makeMockService([blsResult]);
+    const off = makeMockService([offResult]);
+    const svc = new CompositeIngredientSearchService(off, bls);
+
+    const results = await svc.searchByName('food', new Set(['BLS', 'OFF']));
+    expect(results[0].source).toBe('BLS');
+    expect(results[1].source).toBe('OFF');
+  });
+
+  it('skips OFF when only BLS is in sources', async () => {
+    const bls = makeMockService([blsResult]);
+    const off = makeMockService([offResult]);
+    const svc = new CompositeIngredientSearchService(off, bls);
+
+    const results = await svc.searchByName('food', new Set(['BLS']));
+    expect(results).toHaveLength(1);
+    expect(results[0].source).toBe('BLS');
+    expect(off.searchByName).not.toHaveBeenCalled();
+  });
+
+  it('still returns BLS hits when OFF rejects (both sources requested)', async () => {
+    const bls = makeMockService([blsResult]);
+    const off = makeMockService('reject');
+    const svc = new CompositeIngredientSearchService(off, bls);
+
+    const results = await svc.searchByName('food', new Set(['BLS', 'OFF']));
+    expect(results).toHaveLength(1);
+    expect(results[0].source).toBe('BLS');
+  });
+
+  it('still returns OFF hits when BLS rejects (both sources requested)', async () => {
     const bls = makeMockService('reject');
     const off = makeMockService([offResult]);
     const svc = new CompositeIngredientSearchService(off, bls);
 
-    const results = await svc.searchByName('food');
+    const results = await svc.searchByName('food', new Set(['BLS', 'OFF']));
     expect(results).toHaveLength(1);
     expect(results[0].source).toBe('OFF');
   });
@@ -68,7 +90,7 @@ describe('CompositeIngredientSearchService', () => {
     const off = makeMockService([]);
     const svc = new CompositeIngredientSearchService(off, bls);
 
-    expect(await svc.searchByName('nomatch')).toHaveLength(0);
+    expect(await svc.searchByName('nomatch', new Set(['BLS', 'OFF']))).toHaveLength(0);
   });
 
   it('delegates barcode lookup to OFF only', async () => {

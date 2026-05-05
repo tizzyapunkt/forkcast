@@ -1,8 +1,12 @@
 import { fetchJson, ApiError } from './client';
 import type { IngredientSearchResult } from '../domain/ingredient-search';
 
-export function searchIngredients(q: string): Promise<IngredientSearchResult[]> {
-  return fetchJson<IngredientSearchResult[]>(`/api/search-ingredients?q=${encodeURIComponent(q)}`);
+export function searchIngredients(q: string, sources?: Array<'BLS' | 'OFF'>): Promise<IngredientSearchResult[]> {
+  let url = `/api/search-ingredients?q=${encodeURIComponent(q)}`;
+  if (sources && sources.length > 0) {
+    url += `&sources=${sources.map((s) => s.toLowerCase()).join(',')}`;
+  }
+  return fetchJson<IngredientSearchResult[]>(url);
 }
 
 export async function searchBarcode(barcode: string): Promise<IngredientSearchResult | null> {

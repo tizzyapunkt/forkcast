@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { searchIngredients, searchBarcode } from '../api/search-ingredients';
 import { queryKeys } from './keys';
 
-export function useSearchIngredients(q: string) {
+export function useSearchIngredients(q: string, sources?: Array<'BLS' | 'OFF'>) {
   return useQuery({
-    queryKey: queryKeys.ingredientSearch(q),
-    queryFn: () => searchIngredients(q),
+    queryKey: queryKeys.ingredientSearch(q, sources),
+    queryFn: () => searchIngredients(q, sources),
     enabled: q.trim().length >= 2,
     staleTime: 5 * 60_000,
   });

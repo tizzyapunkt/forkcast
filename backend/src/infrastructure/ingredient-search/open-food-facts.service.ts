@@ -18,7 +18,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export class OpenFoodFactsService implements IngredientSearchService {
-  async searchByName(query: string): Promise<IngredientSearchResult[]> {
+  async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
     const q = `${query} lang:de`;
     const url = `${SEARCH_BASE_URL}/search?q=${encodeURIComponent(q)}&langs=de&page_size=20&fields=code,product_name,product_name_de,nutriments`;
     const data = await fetchJson<{ hits?: unknown[] }>(url);

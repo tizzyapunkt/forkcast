@@ -42,7 +42,7 @@ describe('RecentPanel', () => {
   it('shows an empty state when there is no history', async () => {
     server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([])));
     renderWithProviders(<RecentPanel onSelect={() => {}} />);
-    expect(await screen.findByText(/no ingredients yet/i)).toBeInTheDocument();
+    expect(await screen.findByText(/noch keine zutaten/i)).toBeInTheDocument();
   });
 
   it('filters fuzzily on search input', async () => {

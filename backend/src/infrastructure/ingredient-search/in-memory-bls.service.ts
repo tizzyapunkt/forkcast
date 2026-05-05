@@ -21,7 +21,7 @@ export class InMemoryBlsService implements IngredientSearchService {
     }));
   }
 
-  async searchByName(query: string): Promise<IngredientSearchResult[]> {
+  async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
     const trimmed = query.trim();
     if (trimmed.length < 2) return [];
     const q = fold(trimmed);

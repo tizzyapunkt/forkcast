@@ -105,6 +105,12 @@ describe('InMemoryBlsService', () => {
     expect(await svc.searchByBarcode('1234567890')).toBeNull();
   });
 
+  it('ignores the sources param and still returns results', async () => {
+    const results = await svc.searchByName('karotte', new Set(['OFF']));
+    expect(results).toHaveLength(1);
+    expect(results[0].source).toBe('BLS');
+  });
+
   it('macrosPerUnit are per-gram (divided by 100)', async () => {
     const [result] = await svc.searchByName('karotte');
     expect(result.macrosPerUnit.calories).toBeCloseTo(0.4);

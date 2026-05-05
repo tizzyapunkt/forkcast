@@ -1,5 +1,10 @@
-import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
+import type {
+  IngredientSearchService,
+  IngredientSource,
+} from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
+
+const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['BLS']);
 
 export class CompositeIngredientSearchService implements IngredientSearchService {
   constructor(
@@ -7,23 +12,37 @@ export class CompositeIngredientSearchService implements IngredientSearchService
     private readonly bls: IngredientSearchService,
   ) {}
 
-  async searchByName(query: string): Promise<IngredientSearchResult[]> {
-    const [blsOutcome, offOutcome] = await Promise.allSettled([
-      this.bls.searchByName(query),
-      this.off.searchByName(query),
-    ]);
+  async searchByName(
+    query: string,
+    sources: Set<IngredientSource> = DEFAULT_SOURCES,
+  ): Promise<IngredientSearchResult[]> {
+    const tasks: Promise<IngredientSearchResult[]>[] = [];
+    const order: IngredientSource[] = [];
 
-    const blsHits = blsOutcome.status === 'fulfilled' ? blsOutcome.value : [];
-    const offHits = offOutcome.status === 'fulfilled' ? offOutcome.value : [];
-
-    if (blsOutcome.status === 'rejected') {
-      console.error('BLS search failed:', blsOutcome.reason);
+    if (sources.has('BLS')) {
+      tasks.push(this.bls.searchByName(query));
+      order.push('BLS');
     }
-    if (offOutcome.status === 'rejected') {
-      console.error('OFF search failed:', offOutcome.reason);
+    if (sources.has('OFF')) {
+      tasks.push(this.off.searchByName(query));
+      order.push('OFF');
     }
 
-    return [...blsHits, ...offHits];
+    const outcomes = await Promise.allSettled(tasks);
+
+    const bySource = new Map<IngredientSource, IngredientSearchResult[]>();
+    for (let i = 0; i < order.length; i++) {
+      const outcome = outcomes[i]!;
+      const src = order[i]!;
+      if (outcome.status === 'fulfilled') {
+        bySource.set(src, outcome.value);
+      } else {
+        console.error(`${src} search failed:`, outcome.reason);
+        bySource.set(src, []);
+      }
+    }
+
+    return [...(bySource.get('BLS') ?? []), ...(bySource.get('OFF') ?? [])];
   }
 
   async searchByBarcode(barcode: string): Promise<IngredientSearchResult | null> {

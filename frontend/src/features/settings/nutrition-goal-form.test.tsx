@@ -26,6 +26,9 @@ describe('NutritionGoalForm', () => {
   });
 
   it('blocks submission when calories is missing', async () => {
+    server.use(
+      http.get('/api/nutrition-goal', () => HttpResponse.json({ error: 'No nutrition goal set' }, { status: 404 })),
+    );
     renderWithProviders(<NutritionGoalForm />, { queryClient: createTestQueryClient() });
     await screen.findByRole('button', { name: /ziel speichern/i });
     await userEvent.click(screen.getByRole('button', { name: /ziel speichern/i }));

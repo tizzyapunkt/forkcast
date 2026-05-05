@@ -4,8 +4,8 @@ import { server } from '../test/msw/server';
 import { renderWithProviders } from '../test/harness';
 import { useSearchIngredients } from './use-search-ingredients';
 
-function Consumer({ q }: { q: string }) {
-  const { data, isLoading } = useSearchIngredients(q);
+function Consumer({ q, sources }: { q: string; sources?: Array<'BLS' | 'OFF'> }) {
+  const { data, isLoading } = useSearchIngredients(q, sources);
   if (isLoading) return <p>loading</p>;
   return (
     <ul>
@@ -46,5 +46,31 @@ describe('useSearchIngredients', () => {
     renderWithProviders(<Consumer q="o" />);
     await new Promise((r) => setTimeout(r, 50));
     expect(called).toBe(false);
+  });
+
+  it('includes sources=bls in URL when sources is BLS-only', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    renderWithProviders(<Consumer q="oat" sources={['BLS']} />);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls');
+  });
+
+  it('includes sources=bls,off in URL when sources includes OFF', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    renderWithProviders(<Consumer q="oat" sources={['BLS', 'OFF']} />);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls,off');
   });
 });

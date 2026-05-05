@@ -7,11 +7,15 @@ import { SearchPanel } from './search-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { BarcodeScannerProps } from './barcode-scanner';
 
+beforeEach(() => {
+  localStorage.clear();
+});
+
 vi.mock('./barcode-scanner', () => ({
   BarcodeScanner: ({ onDetect, onCancel }: BarcodeScannerProps) => (
     <>
       <button onClick={() => onDetect('4006381333931')}>trigger-detect</button>
-      <button onClick={onCancel}>Cancel</button>
+      <button onClick={onCancel}>Abbrechen</button>
     </>
   ),
 }));
@@ -114,6 +118,55 @@ describe('SearchPanel', () => {
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'zz');
     expect(await screen.findByText(/keine treffer für/i)).toBeInTheDocument();
+  });
+
+  describe('Open Food Facts toggle', () => {
+    it('renders unchecked by default (OFF disabled)', () => {
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      const toggle = screen.getByRole('checkbox', { name: /open food facts/i });
+      expect(toggle).not.toBeChecked();
+    });
+
+    it('sends only BLS sources when toggle is off', async () => {
+      let capturedUrl = '';
+      server.use(
+        http.get('/api/search-ingredients', ({ request }) => {
+          capturedUrl = request.url;
+          return HttpResponse.json([oats]);
+        }),
+      );
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oa');
+      await screen.findByText('Oats');
+      expect(new URL(capturedUrl).searchParams.get('sources')).not.toContain('off');
+    });
+
+    it('sends bls,off sources when toggle is enabled', async () => {
+      let capturedUrl = '';
+      server.use(
+        http.get('/api/search-ingredients', ({ request }) => {
+          capturedUrl = request.url;
+          return HttpResponse.json([oats]);
+        }),
+      );
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
+      await userEvent.type(screen.getByRole('searchbox'), 'oa');
+      await screen.findByText('Oats');
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls,off');
+    });
+
+    it('persists toggle state in localStorage', async () => {
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
+      expect(localStorage.getItem('forkcast:off-enabled')).toBe('true');
+    });
+
+    it('restores toggle state from localStorage on mount', () => {
+      localStorage.setItem('forkcast:off-enabled', 'true');
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      expect(screen.getByRole('checkbox', { name: /open food facts/i })).toBeChecked();
+    });
   });
 
   describe('barcode scanning', () => {

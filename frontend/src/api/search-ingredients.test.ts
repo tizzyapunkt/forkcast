@@ -22,6 +22,30 @@ describe('searchIngredients', () => {
     expect(results[0]?.name).toBe('Oats');
   });
 
+  it('does not append sources param when sources is omitted', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    await searchIngredients('oat');
+    expect(new URL(capturedUrl).searchParams.has('sources')).toBe(false);
+  });
+
+  it('appends sources param as lowercase comma-joined string', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    await searchIngredients('oat', ['BLS', 'OFF']);
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls,off');
+  });
+
   it('throws ApiError on 400', async () => {
     server.use(
       http.get('/api/search-ingredients', () =>

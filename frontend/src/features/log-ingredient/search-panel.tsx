@@ -3,6 +3,7 @@ import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { BarcodeScanner } from './barcode-scanner';
 import { de } from '../../i18n/de';
+import { useLocalStorage } from '../../hooks/use-local-storage';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -26,7 +27,9 @@ function useDebouncedValue(value: string, delay: number) {
 export function SearchPanel({ onSelect }: SearchPanelProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
-  const { data: results, isLoading } = useSearchIngredients(debouncedQuery);
+  const [offEnabled, setOffEnabled] = useLocalStorage<boolean>('forkcast:off-enabled', false);
+  const sources: Array<'BLS' | 'OFF'> = offEnabled ? ['BLS', 'OFF'] : ['BLS'];
+  const { data: results, isLoading } = useSearchIngredients(debouncedQuery, sources);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [scanState, setScanState] = useState<ScanState>({ mode: 'text' });
@@ -109,6 +112,17 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
           📷
         </button>
       </div>
+
+      <label className="flex items-center gap-2 text-xs text-muted-foreground select-none">
+        <input
+          type="checkbox"
+          checked={offEnabled}
+          onChange={(e) => setOffEnabled(e.target.checked)}
+          aria-label="Open Food Facts"
+          className="h-3.5 w-3.5 rounded"
+        />
+        Open Food Facts
+      </label>
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}
 
