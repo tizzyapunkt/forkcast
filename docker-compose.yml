@@ -1,0 +1,24 @@
+services:
+  backend:
+    image: ${DOCKERHUB_USERNAME}/forkcast-backend:latest
+    restart: unless-stopped
+    volumes:
+      - forkcast_data:/app/backend/data
+    networks:
+      - internal
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/forkcast-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  forkcast_data:
