@@ -21,4 +21,4 @@
 
 - [x] 4.1 Create `.github/workflows/deploy.yml` mirroring tizzydotdev's `main.yml`: trigger on push to `main` and `workflow_dispatch`, checkout, Docker Buildx setup, Docker Hub login using `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` secrets, build and push `backend` image tagged `${{ secrets.DOCKERHUB_USERNAME }}/forkcast-backend:latest`
 - [x] 4.2 Extend the same workflow job (or add a second job) to build and push the `frontend` image tagged `${{ secrets.DOCKERHUB_USERNAME }}/forkcast-frontend:latest`
-- [ ] 4.3 Verify the workflow runs successfully and images appear on Docker Hub
+- [x] 4.3 Verify the workflow runs successfully and images appear on Docker Hub
