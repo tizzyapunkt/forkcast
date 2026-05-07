@@ -192,10 +192,18 @@ export const de = {
   },
 
   barcodeScanner: {
-    cameraDenied:
-      'Kamerazugriff wurde verweigert. Bitte erlaube den Kamerazugriff in den Browsereinstellungen.',
+    cameraDenied: 'Kamerazugriff wurde verweigert. Bitte erlaube den Kamerazugriff in den Browsereinstellungen.',
     cameraUnavailable: 'Kamera nicht erreichbar.',
     cancel: 'Abbrechen',
+  },
+
+  auth: {
+    passwordLabel: 'Passwort',
+    login: 'Anmelden',
+    loggingIn: 'Anmelden…',
+    invalidPassword: 'Falsches Passwort',
+    logout: 'Abmelden',
+    loggingOut: 'Abmelden…',
   },
 
   recipes: {
@@ -203,8 +211,7 @@ export const de = {
     newRecipe: 'Neues Rezept',
     newRecipeAria: 'Neues Rezept',
     empty: 'Noch keine Rezepte — lege eines an, um loszulegen.',
-    listMeta: (ingCount: number, yield_: number) =>
-      `${ingCount} Zutat${ingCount === 1 ? '' : 'en'} · ${yield_} Port.`,
+    listMeta: (ingCount: number, yield_: number) => `${ingCount} Zutat${ingCount === 1 ? '' : 'en'} · ${yield_} Port.`,
     loading: 'Laden…',
     back: 'Zurück',
     backAria: 'Zurück zu Rezepten',

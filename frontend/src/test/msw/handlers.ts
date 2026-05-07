@@ -3,7 +3,25 @@ import { makeDailyLog, makeGoal } from './fixtures';
 
 export { http };
 
+const CORRECT_PASSWORD = 'test-password';
+
 export const handlers = [
+  http.post('/api/auth/login', async ({ request }) => {
+    const body = (await request.json()) as { password?: string };
+    if (body.password === CORRECT_PASSWORD) {
+      return HttpResponse.json({ ok: true });
+    }
+    return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }),
+
+  http.post('/api/auth/logout', () => {
+    return HttpResponse.json({ ok: true });
+  }),
+
+  http.get('/api/auth/me', () => {
+    return HttpResponse.json({ ok: true });
+  }),
+
   http.get('/api/daily-log/:date', () => {
     return HttpResponse.json(makeDailyLog());
   }),

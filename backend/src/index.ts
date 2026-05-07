@@ -24,6 +24,21 @@ import {
   makeUpdateRecipeHandler,
   makeDeleteRecipeHandler,
 } from './http/recipes/recipes.handler.ts';
+import { makeLoginHandler } from './http/auth/login.handler.ts';
+import { makeLogoutHandler } from './http/auth/logout.handler.ts';
+import { makeMeHandler } from './http/auth/me.handler.ts';
+import { makeAuthMiddleware } from './http/auth/auth.middleware.ts';
+
+const authPassword = process.env['AUTH_PASSWORD'];
+const authJwtSecret = process.env['AUTH_JWT_SECRET'];
+if (!authPassword) {
+  console.error('AUTH_PASSWORD environment variable is required but not set');
+  process.exit(1);
+}
+if (!authJwtSecret) {
+  console.error('AUTH_JWT_SECRET environment variable is required but not set');
+  process.exit(1);
+}
 
 const logEntryRepo = new JsonLogEntryRepository('./data/log-entries.json');
 const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal.json');
@@ -34,6 +49,12 @@ const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoo
 await bootstrap([logEntryRepo, nutritionGoalRepo, recipeRepo, blsService]);
 
 const app = new Hono();
+
+app.post('/auth/login', makeLoginHandler(authPassword, authJwtSecret));
+app.post('/auth/logout', makeLogoutHandler());
+app.get('/auth/me', makeMeHandler(authJwtSecret));
+
+app.use('*', makeAuthMiddleware(authJwtSecret));
 
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));

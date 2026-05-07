@@ -17,5 +17,5 @@ interface WrapperProps {
 
 export function renderWithProviders(ui: ReactElement, { queryClient, ...options }: WrapperProps & RenderOptions = {}) {
   const client = queryClient ?? createTestQueryClient();
-  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>, options);
+  return { ...render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>, options), queryClient: client };
 }
