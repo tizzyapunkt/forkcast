@@ -1,10 +1,4 @@
-# ingredient-search-source-toggle
-
-## Purpose
-
-Allow the user to choose which ingredient sources are included in search results. A toggle in the search panel enables or disables the curated FOODS source alongside the default Open Food Facts source, with the preference persisted across sessions.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Backend search endpoint accepts a `sources` query parameter
 

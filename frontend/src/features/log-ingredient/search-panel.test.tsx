@@ -22,7 +22,7 @@ vi.mock('./barcode-scanner', () => ({
 
 const oats: IngredientSearchResult = {
   id: '1',
-  source: 'BLS',
+  source: 'FOODS',
   name: 'Oats',
   unit: 'g',
   macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -66,7 +66,7 @@ describe('SearchPanel', () => {
   });
 
   it('renders a source badge for each result', async () => {
-    const blsResult: IngredientSearchResult = { ...oats, source: 'BLS' };
+    const foodsResult: IngredientSearchResult = { ...oats, source: 'FOODS' };
     const offResult: IngredientSearchResult = {
       id: 'off-1',
       source: 'OFF',
@@ -74,19 +74,19 @@ describe('SearchPanel', () => {
       unit: 'g',
       macrosPerUnit: { calories: 3.6, protein: 0.13, carbs: 0.6, fat: 0.06 },
     };
-    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([blsResult, offResult])));
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([foodsResult, offResult])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'oa');
     await screen.findByText('Oats');
-    expect(screen.getByText('BLS')).toBeInTheDocument();
+    expect(screen.getByText('FOODS')).toBeInTheDocument();
     expect(screen.getByText('OFF')).toBeInTheDocument();
   });
 
-  it('renders two rows without key collision when OFF and BLS share the same id', async () => {
-    const blsResult: IngredientSearchResult = {
+  it('renders two rows without key collision when OFF and FOODS share the same id', async () => {
+    const foodsResult: IngredientSearchResult = {
       id: 'same',
-      source: 'BLS',
-      name: 'BLS Food',
+      source: 'FOODS',
+      name: 'FOODS Food',
       unit: 'g',
       macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
     };
@@ -97,10 +97,10 @@ describe('SearchPanel', () => {
       unit: 'g',
       macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
     };
-    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([blsResult, offResult])));
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([foodsResult, offResult])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'fo');
-    expect(await screen.findByText('BLS Food')).toBeInTheDocument();
+    expect(await screen.findByText('FOODS Food')).toBeInTheDocument();
     expect(screen.getByText('OFF Food')).toBeInTheDocument();
   });
 
@@ -120,14 +120,14 @@ describe('SearchPanel', () => {
     expect(await screen.findByText(/keine treffer für/i)).toBeInTheDocument();
   });
 
-  describe('Open Food Facts toggle', () => {
-    it('renders unchecked by default (OFF disabled)', () => {
+  describe('FOODS toggle', () => {
+    it('renders unchecked by default (FOODS disabled, OFF only)', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      const toggle = screen.getByRole('checkbox', { name: /open food facts/i });
+      const toggle = screen.getByRole('checkbox', { name: /foods/i });
       expect(toggle).not.toBeChecked();
     });
 
-    it('sends only BLS sources when toggle is off', async () => {
+    it('sends only OFF sources when toggle is off', async () => {
       let capturedUrl = '';
       server.use(
         http.get('/api/search-ingredients', ({ request }) => {
@@ -138,10 +138,10 @@ describe('SearchPanel', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
       await userEvent.type(screen.getByRole('searchbox'), 'oa');
       await screen.findByText('Oats');
-      expect(new URL(capturedUrl).searchParams.get('sources')).not.toContain('off');
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('off');
     });
 
-    it('sends bls,off sources when toggle is enabled', async () => {
+    it('sends foods,off sources when toggle is enabled', async () => {
       let capturedUrl = '';
       server.use(
         http.get('/api/search-ingredients', ({ request }) => {
@@ -150,22 +150,28 @@ describe('SearchPanel', () => {
         }),
       );
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /foods/i }));
       await userEvent.type(screen.getByRole('searchbox'), 'oa');
       await screen.findByText('Oats');
-      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls,off');
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('foods,off');
     });
 
-    it('persists toggle state in localStorage', async () => {
+    it('persists toggle state in localStorage under forkcast:foods-enabled', async () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
-      expect(localStorage.getItem('forkcast:off-enabled')).toBe('true');
+      await userEvent.click(screen.getByRole('checkbox', { name: /foods/i }));
+      expect(localStorage.getItem('forkcast:foods-enabled')).toBe('true');
     });
 
     it('restores toggle state from localStorage on mount', () => {
+      localStorage.setItem('forkcast:foods-enabled', 'true');
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      expect(screen.getByRole('checkbox', { name: /foods/i })).toBeChecked();
+    });
+
+    it('removes the legacy forkcast:off-enabled key on mount (one-shot migration)', () => {
       localStorage.setItem('forkcast:off-enabled', 'true');
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      expect(screen.getByRole('checkbox', { name: /open food facts/i })).toBeChecked();
+      expect(localStorage.getItem('forkcast:off-enabled')).toBeNull();
     });
   });
 

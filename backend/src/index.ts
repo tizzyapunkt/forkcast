@@ -11,7 +11,7 @@ import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-rec
 import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
 import { OpenFoodFactsService } from './infrastructure/ingredient-search/open-food-facts.service.ts';
-import { InMemoryBlsService } from './infrastructure/ingredient-search/in-memory-bls.service.ts';
+import { InMemoryFoodsService } from './infrastructure/ingredient-search/in-memory-foods.service.ts';
 import { CompositeIngredientSearchService } from './infrastructure/ingredient-search/composite-ingredient-search.service.ts';
 import {
   makeSearchIngredientsByNameHandler,
@@ -55,10 +55,10 @@ if (!config.ai.anthropicApiKey) {
 const logEntryRepo = new JsonLogEntryRepository('./data/log-entries.json');
 const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
-const blsService = new InMemoryBlsService('./data/bls.json');
-const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoodFactsService(), blsService);
+const foodsService = new InMemoryFoodsService('./data/foods.json');
+const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoodFactsService(), foodsService);
 
-await bootstrap([logEntryRepo, nutritionGoalRepo, recipeRepo, blsService]);
+await bootstrap([logEntryRepo, nutritionGoalRepo, recipeRepo, foodsService]);
 
 const app = new Hono();
 

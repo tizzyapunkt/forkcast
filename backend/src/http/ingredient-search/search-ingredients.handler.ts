@@ -4,17 +4,17 @@ import type {
   IngredientSource,
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
 
-const VALID_SOURCES = new Set<string>(['bls', 'off']);
-const SOURCE_MAP: Record<string, IngredientSource> = { bls: 'BLS', off: 'OFF' };
+const VALID_SOURCES = new Set<string>(['foods', 'off']);
+const SOURCE_MAP: Record<string, IngredientSource> = { foods: 'FOODS', off: 'OFF' };
 
 function parseSources(param: string | undefined): Set<IngredientSource> {
-  if (!param?.trim()) return new Set(['BLS']);
+  if (!param?.trim()) return new Set(['OFF']);
   const parsed = param
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter((s) => VALID_SOURCES.has(s))
     .map((s) => SOURCE_MAP[s]!);
-  return parsed.length > 0 ? new Set(parsed) : new Set(['BLS']);
+  return parsed.length > 0 ? new Set(parsed) : new Set(['OFF']);
 }
 
 export function makeSearchIngredientsByNameHandler(service: IngredientSearchService) {

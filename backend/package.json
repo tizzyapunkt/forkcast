@@ -13,7 +13,7 @@
     "format": "oxfmt --config ../.oxfmtrc.json src",
     "lint": "oxlint --config ../.oxlintrc.json src",
     "typecheck": "tsc --noEmit",
-    "build:bls": "node --experimental-transform-types scripts/build-bls-data.ts"
+    "build:foods": "node --experimental-transform-types --env-file-if-exists=.env scripts/build-foods-data.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",

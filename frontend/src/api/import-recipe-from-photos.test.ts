@@ -78,7 +78,7 @@ describe('importRecipeFromPhotos', () => {
               macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
               amount: 150,
               unitOverridden: false,
-              source: 'BLS',
+              source: 'FOODS',
               pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
             },
           ],

@@ -28,9 +28,9 @@ function makeSearch(map: Record<string, IngredientSearchResult[]>): IngredientSe
   };
 }
 
-const blsResult = (overrides: Partial<IngredientSearchResult> = {}): IngredientSearchResult => ({
-  id: 'bls-1',
-  source: 'BLS',
+const foodsResult = (overrides: Partial<IngredientSearchResult> = {}): IngredientSearchResult => ({
+  id: 'foods-1',
+  source: 'FOODS',
   name: 'Olivenöl',
   unit: 'ml',
   macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -63,7 +63,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
       steps: ['Boil water', 'Cook pasta'],
     });
-    const search = makeSearch({ 'olive oil': [blsResult({ name: 'Olivenöl', unit: 'ml' })] });
+    const search = makeSearch({ 'olive oil': [foodsResult({ name: 'Olivenöl', unit: 'ml' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
@@ -83,7 +83,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'beef', amount: 500, unit: 'g' }],
       steps: ['Step 1', 'Step 2', 'Step 3'],
     });
-    const search = makeSearch({ beef: [blsResult({ name: 'Hackfleisch', unit: 'g' })] });
+    const search = makeSearch({ beef: [foodsResult({ name: 'Hackfleisch', unit: 'g' })] });
 
     const images = threeImages();
     await importRecipeFromPhotos({ extractor, search }, images);
@@ -92,6 +92,23 @@ describe('importRecipeFromPhotos', () => {
     const passed = (extractor.extract as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as RecipeImage[];
     expect(passed).toHaveLength(3);
     expect(passed.map((i) => i.mediaType)).toEqual(['image/jpeg', 'image/png', 'image/webp']);
+  });
+
+  it('pins searchByName to the FOODS source (does not rely on the composite default)', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
+      steps: [],
+    });
+    const search = makeSearch({ 'olive oil': [foodsResult()] });
+
+    await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+    const calls = (search.searchByName as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls).toHaveLength(1);
+    const [, sources] = calls[0] as [string, Set<'FOODS' | 'OFF'>];
+    expect(sources).toEqual(new Set(['FOODS']));
   });
 
   it('uses catalog unit & macros for matched ingredient and keeps extracted amount', async () => {
@@ -103,7 +120,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       'olive oil': [
-        blsResult({ name: 'Olivenöl', unit: 'ml', macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 } }),
+        foodsResult({ name: 'Olivenöl', unit: 'ml', macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 } }),
       ],
     });
 
@@ -116,7 +133,7 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.amount).toBe(25);
     expect(ing.macrosPerUnit).toEqual({ calories: 9, protein: 0, carbs: 0, fat: 1 });
     expect(ing.unitOverridden).toBe(false);
-    expect(ing.source).toBe('BLS');
+    expect(ing.source).toBe('FOODS');
   });
 
   it('flags unitOverridden when extracted unit conflicts with catalog unit', async () => {
@@ -127,7 +144,7 @@ describe('importRecipeFromPhotos', () => {
       steps: [],
     });
     const search = makeSearch({
-      'tomato paste': [blsResult({ name: 'Tomatenmark', unit: 'g' })],
+      'tomato paste': [foodsResult({ name: 'Tomatenmark', unit: 'g' })],
     });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -164,7 +181,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'salt' }],
       steps: [],
     });
-    const search = makeSearch({ salt: [blsResult({ name: 'Salz', unit: 'g' })] });
+    const search = makeSearch({ salt: [foodsResult({ name: 'Salz', unit: 'g' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
@@ -204,7 +221,7 @@ describe('importRecipeFromPhotos', () => {
       ],
       steps: [],
     });
-    const search = makeSearch({ zwiebel: [blsResult({ name: 'Zwiebel', unit: 'g' })] });
+    const search = makeSearch({ zwiebel: [foodsResult({ name: 'Zwiebel', unit: 'g' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -228,7 +245,7 @@ describe('importRecipeFromPhotos', () => {
       ],
       steps: [],
     });
-    const search = makeSearch({ knoblauch: [blsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
+    const search = makeSearch({ knoblauch: [foodsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -267,7 +284,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'olive oil', amount: 10, unit: 'ml' }],
       steps: [],
     });
-    const search = makeSearch({ 'olive oil': [blsResult()] });
+    const search = makeSearch({ 'olive oil': [foodsResult()] });
     const repo = makeRepo();
 
     await importRecipeFromPhotos({ extractor, search, repo }, oneImage());

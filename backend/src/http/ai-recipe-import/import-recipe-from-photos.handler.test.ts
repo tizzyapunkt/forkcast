@@ -38,8 +38,8 @@ function makeApp(opts: {
   const search: IngredientSearchService = opts.search ?? {
     searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
       {
-        id: 'bls-1',
-        source: 'BLS',
+        id: 'foods-1',
+        source: 'FOODS',
         name: 'Olivenöl',
         unit: 'ml',
         macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -185,8 +185,8 @@ describe('POST /import-recipe-from-photos', () => {
     const search: IngredientSearchService = {
       searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
         {
-          id: 'bls-zwiebel',
-          source: 'BLS',
+          id: 'foods-zwiebel',
+          source: 'FOODS',
           name: 'Zwiebel',
           unit: 'g',
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },

@@ -1,0 +1,3708 @@
+[
+  {
+    "id": "ananas",
+    "name": "Ananas",
+    "synonyms": [
+      "pineapple"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 50,
+      "protein": 0.5,
+      "carbs": 12,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "mittel",
+        "grams": 1000
+      },
+      {
+        "label": "gross",
+        "grams": 1500
+      }
+    ]
+  },
+  {
+    "id": "apfel",
+    "name": "Apfel",
+    "synonyms": [
+      "Tafelapfel",
+      "apple"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 54,
+      "protein": 0.3,
+      "carbs": 11.4,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 240
+      }
+    ]
+  },
+  {
+    "id": "aprikose",
+    "name": "Aprikose",
+    "synonyms": [
+      "Marille",
+      "apricot"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 48,
+      "protein": 1.4,
+      "carbs": 9.5,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 30
+      },
+      {
+        "label": "mittel",
+        "grams": 40
+      },
+      {
+        "label": "gross",
+        "grams": 55
+      }
+    ]
+  },
+  {
+    "id": "artischocke",
+    "name": "Artischocke",
+    "synonyms": [
+      "Gemüseartischocke",
+      "artichoke"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 47,
+      "protein": 3.3,
+      "carbs": 6,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 350
+      },
+      {
+        "label": "gross",
+        "grams": 500
+      }
+    ]
+  },
+  {
+    "id": "aubergine",
+    "name": "Aubergine",
+    "synonyms": [
+      "Eierfrucht",
+      "Melanzani",
+      "eggplant"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 25,
+      "protein": 1,
+      "carbs": 2.5,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 350
+      },
+      {
+        "label": "gross",
+        "grams": 500
+      }
+    ]
+  },
+  {
+    "id": "avocado",
+    "name": "Avocado",
+    "synonyms": [
+      "Butterfrucht",
+      "Alligatorbirne"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 160,
+      "protein": 2,
+      "carbs": 2,
+      "fat": 15
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 200
+      },
+      {
+        "label": "gross",
+        "grams": 280
+      }
+    ]
+  },
+  {
+    "id": "baguette",
+    "name": "Baguette",
+    "synonyms": [
+      "Stangenweißbrot",
+      "french bread"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 274,
+      "protein": 9,
+      "carbs": 55,
+      "fat": 1.5
+    },
+    "pieces": [
+      {
+        "label": "Scheibe",
+        "grams": 25
+      },
+      {
+        "label": "halbes Baguette",
+        "grams": 125
+      },
+      {
+        "label": "ganzes Baguette",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "banane",
+    "name": "Banane",
+    "synonyms": [
+      "banana"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 89,
+      "protein": 1.1,
+      "carbs": 20.3,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 100
+      },
+      {
+        "label": "mittel",
+        "grams": 120
+      },
+      {
+        "label": "gross",
+        "grams": 150
+      }
+    ]
+  },
+  {
+    "id": "basmati-reis",
+    "name": "Basmatireis",
+    "synonyms": [
+      "Basmati",
+      "basmati rice"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 349,
+      "protein": 7.5,
+      "carbs": 78,
+      "fat": 0.9
+    }
+  },
+  {
+    "id": "birne",
+    "name": "Birne",
+    "synonyms": [
+      "Tafelbirne",
+      "pear"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 55,
+      "protein": 0.5,
+      "carbs": 12.4,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 130
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 240
+      }
+    ]
+  },
+  {
+    "id": "blumenkohl",
+    "name": "Blumenkohl",
+    "synonyms": [
+      "Karfiol",
+      "Käsekohl",
+      "cauliflower"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 25,
+      "protein": 1.9,
+      "carbs": 5,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 500
+      },
+      {
+        "label": "mittel",
+        "grams": 800
+      },
+      {
+        "label": "gross",
+        "grams": 1200
+      }
+    ]
+  },
+  {
+    "id": "brokkoli",
+    "name": "Brokkoli",
+    "synonyms": [
+      "Broccoli",
+      "Spargelkohl",
+      "broccoli"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 34,
+      "protein": 2.8,
+      "carbs": 6.6,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 300
+      },
+      {
+        "label": "mittel",
+        "grams": 500
+      },
+      {
+        "label": "gross",
+        "grams": 700
+      }
+    ]
+  },
+  {
+    "id": "brombeere",
+    "name": "Brombeere",
+    "synonyms": [
+      "blackberry"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 43,
+      "protein": 1.2,
+      "carbs": 6.2,
+      "fat": 1
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 5
+      }
+    ]
+  },
+  {
+    "id": "bulgur",
+    "name": "Bulgur",
+    "synonyms": [
+      "Weizengrütze",
+      "cracked wheat"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 342,
+      "protein": 12.3,
+      "carbs": 75.9,
+      "fat": 1.3
+    }
+  },
+  {
+    "id": "butter",
+    "name": "Butter",
+    "synonyms": [
+      "Süßrahmbutter"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 741,
+      "protein": 0.7,
+      "carbs": 0.6,
+      "fat": 82
+    }
+  },
+  {
+    "id": "cashew",
+    "name": "Cashew",
+    "synonyms": [
+      "Cashewkerne",
+      "Cashew Nuts",
+      "Kaschukerne"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 553,
+      "protein": 18.2,
+      "carbs": 30.2,
+      "fat": 43.9
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 1.5
+      }
+    ]
+  },
+  {
+    "id": "champignon",
+    "name": "Champignon",
+    "synonyms": [
+      "Egerling",
+      "Zuchtchampignon",
+      "white mushroom",
+      "button mushroom"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 22,
+      "protein": 2.9,
+      "carbs": 0.6,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 10
+      },
+      {
+        "label": "mittel",
+        "grams": 20
+      },
+      {
+        "label": "gross",
+        "grams": 35
+      }
+    ]
+  },
+  {
+    "id": "cherrytomate",
+    "name": "Cherrytomate",
+    "synonyms": [
+      "Kirschtomate",
+      "Cocktailtomate",
+      "cherry tomato"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 18,
+      "protein": 0.9,
+      "carbs": 3.9,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 8
+      },
+      {
+        "label": "mittel",
+        "grams": 15
+      },
+      {
+        "label": "gross",
+        "grams": 25
+      }
+    ]
+  },
+  {
+    "id": "chiasamen",
+    "name": "Chiasamen",
+    "synonyms": [
+      "Chia Seeds",
+      "Chia"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 486,
+      "protein": 16.5,
+      "carbs": 42.1,
+      "fat": 30.7
+    }
+  },
+  {
+    "id": "couscous",
+    "name": "Couscous",
+    "synonyms": [
+      "Kuskus"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 376,
+      "protein": 12.8,
+      "carbs": 72.4,
+      "fat": 0.6
+    }
+  },
+  {
+    "id": "creme-fraiche",
+    "name": "Crème fraîche",
+    "synonyms": [
+      "saure Sahne dick"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 292,
+      "protein": 2.5,
+      "carbs": 2.4,
+      "fat": 30
+    }
+  },
+  {
+    "id": "datteln",
+    "name": "Datteln",
+    "synonyms": [
+      "dates",
+      "Medjool",
+      "Dattel"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 282,
+      "protein": 2.5,
+      "carbs": 65,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 8
+      },
+      {
+        "label": "mittel",
+        "grams": 12
+      },
+      {
+        "label": "gross (Medjool)",
+        "grams": 24
+      }
+    ]
+  },
+  {
+    "id": "dinkel-vollkorn",
+    "name": "Dinkel Vollkorn",
+    "synonyms": [
+      "Dinkelkörner",
+      "spelt",
+      "whole spelt"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 338,
+      "protein": 14.6,
+      "carbs": 63.2,
+      "fat": 2.7
+    }
+  },
+  {
+    "id": "dinkelvollkornmehl",
+    "name": "Dinkelvollkornmehl",
+    "synonyms": [
+      "Vollkorndinkelmehl",
+      "spelt wholemeal flour"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 333,
+      "protein": 13,
+      "carbs": 60.4,
+      "fat": 2.5
+    }
+  },
+  {
+    "id": "edamame",
+    "name": "Edamame",
+    "synonyms": [
+      "junge Sojabohnen",
+      "Soybeans",
+      "grüne Sojabohnen"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 122,
+      "protein": 11,
+      "carbs": 8.9,
+      "fat": 5.2
+    }
+  },
+  {
+    "id": "eisbergsalat",
+    "name": "Eisbergsalat",
+    "synonyms": [
+      "Eissalat",
+      "iceberg lettuce"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 14,
+      "protein": 0.9,
+      "carbs": 3,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 300
+      },
+      {
+        "label": "mittel",
+        "grams": 500
+      },
+      {
+        "label": "gross",
+        "grams": 700
+      }
+    ]
+  },
+  {
+    "id": "erbse",
+    "name": "Erbse",
+    "synonyms": [
+      "Gartenerbse",
+      "Grüne Erbse",
+      "peas",
+      "green pea"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 81,
+      "protein": 5.4,
+      "carbs": 12.3,
+      "fat": 0.5
+    }
+  },
+  {
+    "id": "erdbeere",
+    "name": "Erdbeere",
+    "synonyms": [
+      "strawberry"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 32,
+      "protein": 0.7,
+      "carbs": 5.5,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 10
+      },
+      {
+        "label": "mittel",
+        "grams": 18
+      },
+      {
+        "label": "gross",
+        "grams": 30
+      }
+    ]
+  },
+  {
+    "id": "erdnussbutter",
+    "name": "Erdnussbutter",
+    "synonyms": [
+      "Peanut Butter",
+      "Erdnusscreme",
+      "Erdnussmus"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 588,
+      "protein": 25.1,
+      "carbs": 20,
+      "fat": 50.4
+    }
+  },
+  {
+    "id": "feige",
+    "name": "Feige",
+    "synonyms": [
+      "fig",
+      "Echte Feige"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 74,
+      "protein": 0.8,
+      "carbs": 16.3,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 40
+      },
+      {
+        "label": "mittel",
+        "grams": 60
+      },
+      {
+        "label": "gross",
+        "grams": 85
+      }
+    ]
+  },
+  {
+    "id": "feldsalat",
+    "name": "Feldsalat",
+    "synonyms": [
+      "Rapunzel",
+      "Nüsslisalat",
+      "Ackersalat",
+      "lamb's lettuce",
+      "corn salad"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 21,
+      "protein": 2,
+      "carbs": 3.6,
+      "fat": 0.4
+    }
+  },
+  {
+    "id": "fenchel",
+    "name": "Fenchel",
+    "synonyms": [
+      "Knollenfenchel",
+      "Gemüsefenchel",
+      "fennel"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 31,
+      "protein": 1.2,
+      "carbs": 4.2,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "Knolle",
+        "grams": 300
+      }
+    ]
+  },
+  {
+    "id": "feta",
+    "name": "Feta",
+    "synonyms": [
+      "Schafskäse",
+      "feta cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 264,
+      "protein": 14.2,
+      "carbs": 0.5,
+      "fat": 21.5
+    }
+  },
+  {
+    "id": "forelle",
+    "name": "Forelle",
+    "synonyms": [
+      "trout",
+      "Regenbogenforelle"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 119,
+      "protein": 20,
+      "carbs": 0,
+      "fat": 4
+    },
+    "pieces": [
+      {
+        "label": "ganz klein",
+        "grams": 200
+      },
+      {
+        "label": "ganz mittel",
+        "grams": 280
+      },
+      {
+        "label": "Filet",
+        "grams": 130
+      }
+    ]
+  },
+  {
+    "id": "frischkaese",
+    "name": "Frischkäse",
+    "synonyms": [
+      "Doppelrahmfrischkäse",
+      "cream cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 253,
+      "protein": 6,
+      "carbs": 3,
+      "fat": 24
+    }
+  },
+  {
+    "id": "fruehlingszwiebel",
+    "name": "Frühlingszwiebel",
+    "synonyms": [
+      "Lauchzwiebel",
+      "Jungzwiebel",
+      "scallion",
+      "spring onion"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 32,
+      "protein": 1.8,
+      "carbs": 4.7,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 12
+      },
+      {
+        "label": "mittel",
+        "grams": 20
+      },
+      {
+        "label": "gross",
+        "grams": 35
+      }
+    ]
+  },
+  {
+    "id": "garnele",
+    "name": "Garnele",
+    "synonyms": [
+      "Shrimp",
+      "Krevette",
+      "Prawn"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 99,
+      "protein": 20.3,
+      "carbs": 0.9,
+      "fat": 1.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 5
+      },
+      {
+        "label": "mittel",
+        "grams": 10
+      },
+      {
+        "label": "gross",
+        "grams": 20
+      }
+    ]
+  },
+  {
+    "id": "gouda",
+    "name": "Gouda",
+    "synonyms": [
+      "Schnittkäse",
+      "gouda cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 356,
+      "protein": 24.9,
+      "carbs": 0,
+      "fat": 28.2
+    }
+  },
+  {
+    "id": "granatapfel",
+    "name": "Granatapfel",
+    "synonyms": [
+      "pomegranate",
+      "Grenadine"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 83,
+      "protein": 1.7,
+      "carbs": 18.7,
+      "fat": 1.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 280
+      },
+      {
+        "label": "gross",
+        "grams": 380
+      }
+    ]
+  },
+  {
+    "id": "grapefruit",
+    "name": "Grapefruit",
+    "synonyms": [
+      "Pampelmuse"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 42,
+      "protein": 0.8,
+      "carbs": 8.1,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 300
+      },
+      {
+        "label": "gross",
+        "grams": 400
+      }
+    ]
+  },
+  {
+    "id": "griechischer-joghurt",
+    "name": "Griechischer Joghurt (10% Fett)",
+    "synonyms": [
+      "Greek yogurt",
+      "Joghurt griechische Art"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 133,
+      "protein": 3.7,
+      "carbs": 3.9,
+      "fat": 10
+    }
+  },
+  {
+    "id": "gruene-bohne",
+    "name": "Grüne Bohne",
+    "synonyms": [
+      "Gartenbohne",
+      "Brechbohne",
+      "Buschbohne",
+      "green beans",
+      "string beans"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 31,
+      "protein": 2.4,
+      "carbs": 5.1,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 6
+      }
+    ]
+  },
+  {
+    "id": "gruenkohl",
+    "name": "Grünkohl",
+    "synonyms": [
+      "Braunkohl",
+      "Krauskohl",
+      "kale"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 49,
+      "protein": 4.3,
+      "carbs": 8.8,
+      "fat": 0.9
+    }
+  },
+  {
+    "id": "gurke",
+    "name": "Gurke",
+    "synonyms": [
+      "Salatgurke",
+      "Schlangengurke",
+      "cucumber"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 12,
+      "protein": 0.6,
+      "carbs": 1.8,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 400
+      },
+      {
+        "label": "gross",
+        "grams": 600
+      }
+    ]
+  },
+  {
+    "id": "haehnchenfluegel",
+    "name": "Hähnchenflügel",
+    "synonyms": [
+      "Hühnerflügel",
+      "Chicken Wings",
+      "chicken wings"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 215,
+      "protein": 19,
+      "carbs": 0,
+      "fat": 15.5
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 40
+      },
+      {
+        "label": "mittel",
+        "grams": 60
+      },
+      {
+        "label": "gross",
+        "grams": 90
+      }
+    ]
+  },
+  {
+    "id": "haferflocken",
+    "name": "Haferflocken",
+    "synonyms": [
+      "Hafer",
+      "oats",
+      "rolled oats",
+      "oatmeal"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 370,
+      "protein": 13.5,
+      "carbs": 58.7,
+      "fat": 7
+    }
+  },
+  {
+    "id": "haferkleie",
+    "name": "Haferkleie",
+    "synonyms": [
+      "oat bran"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 360,
+      "protein": 17.3,
+      "carbs": 50.8,
+      "fat": 7
+    }
+  },
+  {
+    "id": "hafermilch",
+    "name": "Hafermilch",
+    "synonyms": [
+      "Haferdrink",
+      "oat milk",
+      "oat drink"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 46,
+      "protein": 0.3,
+      "carbs": 6.7,
+      "fat": 1.5
+    }
+  },
+  {
+    "id": "haselnuss",
+    "name": "Haselnuss",
+    "synonyms": [
+      "Haselnüsse",
+      "Hazelnut",
+      "Hazelnuts"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 628,
+      "protein": 15,
+      "carbs": 16.7,
+      "fat": 60.8
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 1
+      }
+    ]
+  },
+  {
+    "id": "heidelbeere",
+    "name": "Heidelbeere",
+    "synonyms": [
+      "Blaubeere",
+      "blueberry"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 42,
+      "protein": 0.6,
+      "carbs": 7.4,
+      "fat": 0.6
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 1.5
+      }
+    ]
+  },
+  {
+    "id": "himbeere",
+    "name": "Himbeere",
+    "synonyms": [
+      "raspberry"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 43,
+      "protein": 1.3,
+      "carbs": 4.8,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 4
+      }
+    ]
+  },
+  {
+    "id": "honigmelone",
+    "name": "Honigmelone",
+    "synonyms": [
+      "honeydew melon",
+      "honeydew"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 36,
+      "protein": 0.5,
+      "carbs": 8.3,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "mittel",
+        "grams": 1500
+      }
+    ]
+  },
+  {
+    "id": "huehnchenbrust",
+    "name": "Hühnchenbrust",
+    "synonyms": [
+      "Hähnchenbrust",
+      "Hühnerbrust",
+      "chicken breast",
+      "Pouletbrust"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 107,
+      "protein": 23,
+      "carbs": 0,
+      "fat": 1.5
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 130
+      },
+      {
+        "label": "mittel",
+        "grams": 170
+      },
+      {
+        "label": "gross",
+        "grams": 220
+      }
+    ]
+  },
+  {
+    "id": "huehnchenschenkel",
+    "name": "Hühnchenschenkel",
+    "synonyms": [
+      "Hähnchenschenkel",
+      "Hühnerschenkel",
+      "chicken thigh",
+      "Pouletschenkel"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 185,
+      "protein": 18,
+      "carbs": 0,
+      "fat": 12.5
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 220
+      },
+      {
+        "label": "gross",
+        "grams": 300
+      }
+    ]
+  },
+  {
+    "id": "huehnerei",
+    "name": "Hühnerei",
+    "synonyms": [
+      "Ei",
+      "egg",
+      "chicken egg"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 143,
+      "protein": 12.6,
+      "carbs": 0.7,
+      "fat": 9.9
+    },
+    "pieces": [
+      {
+        "label": "S",
+        "grams": 50
+      },
+      {
+        "label": "M",
+        "grams": 60
+      },
+      {
+        "label": "L",
+        "grams": 70
+      }
+    ]
+  },
+  {
+    "id": "huettenkaese",
+    "name": "Hüttenkäse",
+    "synonyms": [
+      "Körniger Frischkäse",
+      "cottage cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 99,
+      "protein": 12.5,
+      "carbs": 3,
+      "fat": 4.3
+    }
+  },
+  {
+    "id": "joghurt-natur",
+    "name": "Naturjoghurt (3,5% Fett)",
+    "synonyms": [
+      "Joghurt",
+      "plain yogurt",
+      "natural yoghurt"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 64,
+      "protein": 3.5,
+      "carbs": 4.7,
+      "fat": 3.5
+    }
+  },
+  {
+    "id": "johannisbeere-rot",
+    "name": "Rote Johannisbeere",
+    "synonyms": [
+      "Ribisel",
+      "redcurrant",
+      "red currant"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 33,
+      "protein": 1.1,
+      "carbs": 4.8,
+      "fat": 0.2
+    }
+  },
+  {
+    "id": "kabeljau",
+    "name": "Kabeljau",
+    "synonyms": [
+      "Dorsch",
+      "cod"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 76,
+      "protein": 17.8,
+      "carbs": 0,
+      "fat": 0.7
+    },
+    "pieces": [
+      {
+        "label": "Filet klein",
+        "grams": 120
+      },
+      {
+        "label": "Filet mittel",
+        "grams": 160
+      },
+      {
+        "label": "Filet gross",
+        "grams": 220
+      }
+    ]
+  },
+  {
+    "id": "kartoffel",
+    "name": "Kartoffel",
+    "synonyms": [
+      "Erdapfel",
+      "Grundbirne",
+      "potato"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 77,
+      "protein": 2,
+      "carbs": 17,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 80
+      },
+      {
+        "label": "mittel",
+        "grams": 150
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "kichererbsen",
+    "name": "Kichererbsen",
+    "synonyms": [
+      "Chickpeas",
+      "Garbanzo",
+      "Kichererbse"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 364,
+      "protein": 19.3,
+      "carbs": 60.6,
+      "fat": 6
+    }
+  },
+  {
+    "id": "kidneybohnen",
+    "name": "Kidneybohnen",
+    "synonyms": [
+      "Kidney Beans",
+      "rote Bohnen",
+      "Kidneybohne"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 333,
+      "protein": 23.6,
+      "carbs": 60,
+      "fat": 0.8
+    }
+  },
+  {
+    "id": "kirsche",
+    "name": "Kirsche",
+    "synonyms": [
+      "Süßkirsche",
+      "Sauerkirsche",
+      "cherry"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 63,
+      "protein": 1.1,
+      "carbs": 13,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 8
+      }
+    ]
+  },
+  {
+    "id": "kiwi",
+    "name": "Kiwi",
+    "synonyms": [
+      "Kiwifrucht"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 61,
+      "protein": 1.1,
+      "carbs": 14.7,
+      "fat": 0.5
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 60
+      },
+      {
+        "label": "mittel",
+        "grams": 80
+      },
+      {
+        "label": "gross",
+        "grams": 110
+      }
+    ]
+  },
+  {
+    "id": "knoblauch",
+    "name": "Knoblauch",
+    "synonyms": [
+      "Knofi",
+      "garlic"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 141,
+      "protein": 6.1,
+      "carbs": 28.4,
+      "fat": 0.5
+    },
+    "pieces": [
+      {
+        "label": "Zehe",
+        "grams": 3
+      },
+      {
+        "label": "Knolle",
+        "grams": 40
+      }
+    ]
+  },
+  {
+    "id": "kohlrabi",
+    "name": "Kohlrabi",
+    "synonyms": [
+      "Oberrübe",
+      "german turnip"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 27,
+      "protein": 1.7,
+      "carbs": 6.2,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 350
+      },
+      {
+        "label": "gross",
+        "grams": 500
+      }
+    ]
+  },
+  {
+    "id": "kokosoel",
+    "name": "Kokosöl",
+    "synonyms": [
+      "Coconut Oil",
+      "Kokosfett"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 862,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100
+    }
+  },
+  {
+    "id": "kraeuterseitling",
+    "name": "Kräuterseitling",
+    "synonyms": [
+      "Kräuter-Seitling",
+      "Königs-Austernpilz",
+      "king oyster mushroom"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 35,
+      "protein": 3.3,
+      "carbs": 4.2,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "mittel",
+        "grams": 60
+      },
+      {
+        "label": "gross",
+        "grams": 100
+      }
+    ]
+  },
+  {
+    "id": "kuerbis-butternut",
+    "name": "Butternut-Kürbis",
+    "synonyms": [
+      "Butternuss-Kürbis",
+      "Birnenkürbis",
+      "butternut squash",
+      "butternut"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 45,
+      "protein": 1,
+      "carbs": 9.7,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 700
+      },
+      {
+        "label": "mittel",
+        "grams": 1100
+      },
+      {
+        "label": "gross",
+        "grams": 1600
+      }
+    ]
+  },
+  {
+    "id": "kuerbis-hokkaido",
+    "name": "Hokkaido-Kürbis",
+    "synonyms": [
+      "Hokkaido",
+      "Roter Kürbis",
+      "hokkaido pumpkin",
+      "red kuri squash"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 63,
+      "protein": 1.9,
+      "carbs": 12,
+      "fat": 0.5
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 800
+      },
+      {
+        "label": "mittel",
+        "grams": 1200
+      },
+      {
+        "label": "gross",
+        "grams": 1800
+      }
+    ]
+  },
+  {
+    "id": "kuerbiskern",
+    "name": "Kürbiskerne",
+    "synonyms": [
+      "Pumpkin Seeds",
+      "Pepitas",
+      "Kürbissamen"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 559,
+      "protein": 30.2,
+      "carbs": 10.7,
+      "fat": 49.1
+    }
+  },
+  {
+    "id": "lachs-filet",
+    "name": "Lachsfilet",
+    "synonyms": [
+      "Lachs",
+      "salmon fillet",
+      "Atlantischer Lachs"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 208,
+      "protein": 20,
+      "carbs": 0,
+      "fat": 13
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 150
+      },
+      {
+        "label": "gross",
+        "grams": 200
+      }
+    ]
+  },
+  {
+    "id": "lauch",
+    "name": "Lauch",
+    "synonyms": [
+      "Porree",
+      "leek"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 31,
+      "protein": 2.1,
+      "carbs": 3.3,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 250
+      },
+      {
+        "label": "gross",
+        "grams": 400
+      }
+    ]
+  },
+  {
+    "id": "leinoel",
+    "name": "Leinöl",
+    "synonyms": [
+      "Flaxseed Oil",
+      "Linseed Oil"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 884,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100
+    }
+  },
+  {
+    "id": "leinsamen",
+    "name": "Leinsamen",
+    "synonyms": [
+      "Flaxseed",
+      "Linseed",
+      "Leinsaat"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 534,
+      "protein": 18.3,
+      "carbs": 28.9,
+      "fat": 42.2
+    }
+  },
+  {
+    "id": "limette",
+    "name": "Limette",
+    "synonyms": [
+      "lime"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 30,
+      "protein": 0.7,
+      "carbs": 10.5,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 45
+      },
+      {
+        "label": "mittel",
+        "grams": 65
+      },
+      {
+        "label": "gross",
+        "grams": 90
+      }
+    ]
+  },
+  {
+    "id": "linsen-gruen",
+    "name": "Grüne Linsen",
+    "synonyms": [
+      "Green Lentils",
+      "Tellerlinsen",
+      "Lentils"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 318,
+      "protein": 24.3,
+      "carbs": 48.8,
+      "fat": 1.4
+    }
+  },
+  {
+    "id": "linsen-rot",
+    "name": "Rote Linsen",
+    "synonyms": [
+      "Red Lentils",
+      "Rote Linse",
+      "geschälte Linsen"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 343,
+      "protein": 24.6,
+      "carbs": 56,
+      "fat": 1.5
+    }
+  },
+  {
+    "id": "mandarine",
+    "name": "Mandarine",
+    "synonyms": [
+      "Clementine",
+      "tangerine"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 53,
+      "protein": 0.8,
+      "carbs": 11.5,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 60
+      },
+      {
+        "label": "mittel",
+        "grams": 80
+      },
+      {
+        "label": "gross",
+        "grams": 110
+      }
+    ]
+  },
+  {
+    "id": "mandel",
+    "name": "Mandel",
+    "synonyms": [
+      "Mandeln",
+      "Almond",
+      "Almonds"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 579,
+      "protein": 21.2,
+      "carbs": 21.6,
+      "fat": 49.9
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 1.2
+      }
+    ]
+  },
+  {
+    "id": "mandelmilch",
+    "name": "Mandelmilch",
+    "synonyms": [
+      "Mandeldrink",
+      "almond milk"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 24,
+      "protein": 0.5,
+      "carbs": 3,
+      "fat": 1.1
+    }
+  },
+  {
+    "id": "mango",
+    "name": "Mango",
+    "synonyms": [],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 60,
+      "protein": 0.8,
+      "carbs": 13,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 350
+      },
+      {
+        "label": "gross",
+        "grams": 500
+      }
+    ]
+  },
+  {
+    "id": "mangold",
+    "name": "Mangold",
+    "synonyms": [
+      "Beißkohl",
+      "Krautstiel",
+      "swiss chard",
+      "chard"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 19,
+      "protein": 1.8,
+      "carbs": 3.7,
+      "fat": 0.2
+    }
+  },
+  {
+    "id": "milch-fettarm",
+    "name": "Fettarme Milch (1,5% Fett)",
+    "synonyms": [
+      "Milch 1,5%",
+      "Magermilch teilentrahmt",
+      "low-fat milk",
+      "skim milk"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 47,
+      "protein": 3.4,
+      "carbs": 4.9,
+      "fat": 1.5
+    }
+  },
+  {
+    "id": "milch-vollfett",
+    "name": "Vollmilch (3,5% Fett)",
+    "synonyms": [
+      "Vollmilch",
+      "Milch 3,5%",
+      "whole milk"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 64,
+      "protein": 3.4,
+      "carbs": 4.8,
+      "fat": 3.5
+    }
+  },
+  {
+    "id": "moehre",
+    "name": "Möhre",
+    "synonyms": [
+      "Karotte",
+      "Mohrrübe",
+      "gelbe Rübe",
+      "Wurzel",
+      "carrot"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 41,
+      "protein": 0.9,
+      "carbs": 9.6,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 50
+      },
+      {
+        "label": "mittel",
+        "grams": 80
+      },
+      {
+        "label": "gross",
+        "grams": 120
+      }
+    ]
+  },
+  {
+    "id": "mozzarella",
+    "name": "Mozzarella",
+    "synonyms": [
+      "Büffelmozzarella",
+      "mozzarella cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 254,
+      "protein": 18.1,
+      "carbs": 1,
+      "fat": 19.9
+    },
+    "pieces": [
+      {
+        "label": "Kugel",
+        "grams": 125
+      }
+    ]
+  },
+  {
+    "id": "nektarine",
+    "name": "Nektarine",
+    "synonyms": [
+      "Glattpfirsich",
+      "nectarine"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 44,
+      "protein": 1.1,
+      "carbs": 8.9,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 100
+      },
+      {
+        "label": "mittel",
+        "grams": 140
+      },
+      {
+        "label": "gross",
+        "grams": 180
+      }
+    ]
+  },
+  {
+    "id": "olive-gruen",
+    "name": "Grüne Olive",
+    "synonyms": [
+      "Olive grün",
+      "green olives"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 145,
+      "protein": 1,
+      "carbs": 3.8,
+      "fat": 15
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 4
+      }
+    ]
+  },
+  {
+    "id": "olive-schwarz",
+    "name": "Schwarze Olive",
+    "synonyms": [
+      "Olive schwarz",
+      "black olives"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 162,
+      "protein": 1.4,
+      "carbs": 1,
+      "fat": 16
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 4
+      }
+    ]
+  },
+  {
+    "id": "olivenoel",
+    "name": "Olivenöl",
+    "synonyms": [
+      "Olive Oil",
+      "natives Olivenöl"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 884,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100
+    }
+  },
+  {
+    "id": "orange",
+    "name": "Orange",
+    "synonyms": [
+      "Apfelsine"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 47,
+      "protein": 0.9,
+      "carbs": 11.7,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 130
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 240
+      }
+    ]
+  },
+  {
+    "id": "pak-choi",
+    "name": "Pak Choi",
+    "synonyms": [
+      "Bok Choy",
+      "Senfkohl",
+      "Chinesischer Senfkohl",
+      "bok choy"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 13,
+      "protein": 1.5,
+      "carbs": 2.2,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 300
+      },
+      {
+        "label": "gross",
+        "grams": 500
+      }
+    ]
+  },
+  {
+    "id": "paprika-gelb",
+    "name": "Paprika gelb",
+    "synonyms": [
+      "Gelbe Paprika",
+      "Gemüsepaprika gelb",
+      "yellow bell pepper"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 27,
+      "protein": 1,
+      "carbs": 5.4,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "paprika-gruen",
+    "name": "Paprika grün",
+    "synonyms": [
+      "Grüne Paprika",
+      "Gemüsepaprika grün",
+      "green bell pepper"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 20,
+      "protein": 0.9,
+      "carbs": 3.6,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "paprika-rot",
+    "name": "Paprika rot",
+    "synonyms": [
+      "Rote Paprika",
+      "Gemüsepaprika rot",
+      "red bell pepper"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 31,
+      "protein": 1,
+      "carbs": 6,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "parmesan",
+    "name": "Parmesan",
+    "synonyms": [
+      "Parmigiano Reggiano",
+      "Hartkäse",
+      "parmesan cheese"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 392,
+      "protein": 35.8,
+      "carbs": 0,
+      "fat": 28.4
+    }
+  },
+  {
+    "id": "pastinake",
+    "name": "Pastinake",
+    "synonyms": [
+      "Hammelmöhre",
+      "Welsche Petersilie",
+      "parsnip"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 75,
+      "protein": 1.2,
+      "carbs": 18,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 80
+      },
+      {
+        "label": "mittel",
+        "grams": 150
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "penne-vollkorn",
+    "name": "Penne Vollkorn",
+    "synonyms": [
+      "Vollkornpenne",
+      "Vollkornnudeln",
+      "wholewheat penne"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 339,
+      "protein": 13.5,
+      "carbs": 62,
+      "fat": 2.5
+    }
+  },
+  {
+    "id": "pfifferling",
+    "name": "Pfifferling",
+    "synonyms": [
+      "Eierschwammerl",
+      "Reherl",
+      "chanterelle"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 19,
+      "protein": 1.5,
+      "carbs": 0.2,
+      "fat": 0.5
+    }
+  },
+  {
+    "id": "pfirsich",
+    "name": "Pfirsich",
+    "synonyms": [
+      "peach"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 39,
+      "protein": 0.8,
+      "carbs": 8.9,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 100
+      },
+      {
+        "label": "mittel",
+        "grams": 150
+      },
+      {
+        "label": "gross",
+        "grams": 200
+      }
+    ]
+  },
+  {
+    "id": "pflaume",
+    "name": "Pflaume",
+    "synonyms": [
+      "Zwetschge",
+      "Zwetschke",
+      "plum"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 46,
+      "protein": 0.7,
+      "carbs": 10.2,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 30
+      },
+      {
+        "label": "mittel",
+        "grams": 50
+      },
+      {
+        "label": "gross",
+        "grams": 70
+      }
+    ]
+  },
+  {
+    "id": "putenbrust",
+    "name": "Putenbrust",
+    "synonyms": [
+      "Truthahnbrust",
+      "turkey breast"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 105,
+      "protein": 24,
+      "carbs": 0,
+      "fat": 1
+    },
+    "pieces": [
+      {
+        "label": "Filet klein",
+        "grams": 150
+      },
+      {
+        "label": "Filet mittel",
+        "grams": 200
+      },
+      {
+        "label": "Filet gross",
+        "grams": 280
+      }
+    ]
+  },
+  {
+    "id": "quark-mager",
+    "name": "Magerquark",
+    "synonyms": [
+      "Quark fettarm",
+      "low-fat quark",
+      "skyr-ähnlich"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 67,
+      "protein": 12,
+      "carbs": 4.1,
+      "fat": 0.2
+    }
+  },
+  {
+    "id": "quark-vollfett",
+    "name": "Sahnequark (40% Fett i.Tr.)",
+    "synonyms": [
+      "Quark vollfett",
+      "full-fat quark"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 160,
+      "protein": 7.5,
+      "carbs": 3.3,
+      "fat": 13
+    }
+  },
+  {
+    "id": "quinoa",
+    "name": "Quinoa",
+    "synonyms": [
+      "Inkakorn",
+      "Andenhirse"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 368,
+      "protein": 14.1,
+      "carbs": 64.2,
+      "fat": 6.1
+    }
+  },
+  {
+    "id": "radieschen",
+    "name": "Radieschen",
+    "synonyms": [
+      "Monatsrettich",
+      "radish"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 16,
+      "protein": 1.1,
+      "carbs": 2.1,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 8
+      },
+      {
+        "label": "mittel",
+        "grams": 15
+      },
+      {
+        "label": "gross",
+        "grams": 25
+      }
+    ]
+  },
+  {
+    "id": "rapsoel",
+    "name": "Rapsöl",
+    "synonyms": [
+      "Canola Oil",
+      "Rapeseed Oil"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 884,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100
+    }
+  },
+  {
+    "id": "reis-vollkorn",
+    "name": "Vollkornreis",
+    "synonyms": [
+      "Naturreis",
+      "brauner Reis",
+      "brown rice"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 350,
+      "protein": 7.5,
+      "carbs": 74.1,
+      "fat": 2.2
+    }
+  },
+  {
+    "id": "reis-weiss",
+    "name": "Reis weiß",
+    "synonyms": [
+      "weißer Reis",
+      "Langkornreis",
+      "white rice"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 351,
+      "protein": 7,
+      "carbs": 77.8,
+      "fat": 0.6
+    }
+  },
+  {
+    "id": "rettich",
+    "name": "Rettich",
+    "synonyms": [
+      "Daikon",
+      "Weißer Rettich",
+      "radish"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 14,
+      "protein": 1.1,
+      "carbs": 2,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 400
+      },
+      {
+        "label": "gross",
+        "grams": 700
+      }
+    ]
+  },
+  {
+    "id": "rinderhack",
+    "name": "Rinderhackfleisch",
+    "synonyms": [
+      "Rinderhack",
+      "Hackfleisch Rind",
+      "ground beef",
+      "beef mince"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 215,
+      "protein": 20,
+      "carbs": 0,
+      "fat": 15
+    }
+  },
+  {
+    "id": "rindfleisch-filet",
+    "name": "Rinderfilet",
+    "synonyms": [
+      "Rindfleisch Filet",
+      "Filetsteak",
+      "beef tenderloin",
+      "beef fillet"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 130,
+      "protein": 21,
+      "carbs": 0,
+      "fat": 5
+    },
+    "pieces": [
+      {
+        "label": "Steak klein",
+        "grams": 150
+      },
+      {
+        "label": "Steak mittel",
+        "grams": 200
+      },
+      {
+        "label": "Steak gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "rindfleisch-roastbeef",
+    "name": "Roastbeef",
+    "synonyms": [
+      "Rindfleisch Roastbeef",
+      "Rinderrücken",
+      "roast beef"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 145,
+      "protein": 22,
+      "carbs": 0,
+      "fat": 6
+    },
+    "pieces": [
+      {
+        "label": "Steak mittel",
+        "grams": 200
+      },
+      {
+        "label": "Scheibe",
+        "grams": 30
+      }
+    ]
+  },
+  {
+    "id": "roggenbrot",
+    "name": "Roggenbrot",
+    "synonyms": [
+      "rye bread"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 207,
+      "protein": 6.6,
+      "carbs": 41,
+      "fat": 1.1
+    },
+    "pieces": [
+      {
+        "label": "Scheibe dünn",
+        "grams": 30
+      },
+      {
+        "label": "Scheibe",
+        "grams": 50
+      }
+    ]
+  },
+  {
+    "id": "romanasalat",
+    "name": "Romanasalat",
+    "synonyms": [
+      "Römersalat",
+      "Romana",
+      "romaine lettuce",
+      "cos lettuce"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 17,
+      "protein": 1.2,
+      "carbs": 3.3,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 250
+      },
+      {
+        "label": "mittel",
+        "grams": 400
+      }
+    ]
+  },
+  {
+    "id": "rosenkohl",
+    "name": "Rosenkohl",
+    "synonyms": [
+      "Kohlsprossen",
+      "Brüsseler Kohl",
+      "brussels sprouts"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 43,
+      "protein": 3.4,
+      "carbs": 9,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 10
+      },
+      {
+        "label": "mittel",
+        "grams": 20
+      },
+      {
+        "label": "gross",
+        "grams": 30
+      }
+    ]
+  },
+  {
+    "id": "rote-bete",
+    "name": "Rote Bete",
+    "synonyms": [
+      "Rote Rübe",
+      "Randen",
+      "Rahnen",
+      "beetroot",
+      "red beet"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 43,
+      "protein": 1.6,
+      "carbs": 9.6,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 100
+      },
+      {
+        "label": "mittel",
+        "grams": 180
+      },
+      {
+        "label": "gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "rote-zwiebel",
+    "name": "Rote Zwiebel",
+    "synonyms": [
+      "Gemüsezwiebel rot",
+      "red onion"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 42,
+      "protein": 1.2,
+      "carbs": 9.5,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 60
+      },
+      {
+        "label": "mittel",
+        "grams": 120
+      },
+      {
+        "label": "gross",
+        "grams": 200
+      }
+    ]
+  },
+  {
+    "id": "rotkohl",
+    "name": "Rotkohl",
+    "synonyms": [
+      "Blaukraut",
+      "Rotkraut",
+      "red cabbage"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 31,
+      "protein": 1.4,
+      "carbs": 7.4,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 700
+      },
+      {
+        "label": "mittel",
+        "grams": 1200
+      },
+      {
+        "label": "gross",
+        "grams": 2000
+      }
+    ]
+  },
+  {
+    "id": "rucola",
+    "name": "Rucola",
+    "synonyms": [
+      "Rauke",
+      "Rukola",
+      "arugula",
+      "rocket"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 25,
+      "protein": 2.6,
+      "carbs": 3.7,
+      "fat": 0.7
+    }
+  },
+  {
+    "id": "sahne",
+    "name": "Schlagsahne (30% Fett)",
+    "synonyms": [
+      "Schlagobers",
+      "Rahm",
+      "heavy cream",
+      "whipping cream"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 290,
+      "protein": 2.4,
+      "carbs": 3.3,
+      "fat": 30
+    }
+  },
+  {
+    "id": "salami",
+    "name": "Salami",
+    "synonyms": [
+      "Hartwurst"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 380,
+      "protein": 22,
+      "carbs": 1,
+      "fat": 32
+    },
+    "pieces": [
+      {
+        "label": "Scheibe dünn",
+        "grams": 5
+      },
+      {
+        "label": "Scheibe",
+        "grams": 8
+      }
+    ]
+  },
+  {
+    "id": "sauerkraut",
+    "name": "Sauerkraut",
+    "synonyms": [
+      "Gärkraut",
+      "saures Kraut",
+      "fermented cabbage"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 19,
+      "protein": 1.1,
+      "carbs": 3.4,
+      "fat": 0.2
+    }
+  },
+  {
+    "id": "schalotte",
+    "name": "Schalotte",
+    "synonyms": [
+      "Edelzwiebel",
+      "Eschalotte",
+      "shallot"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 72,
+      "protein": 2.5,
+      "carbs": 16.8,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 15
+      },
+      {
+        "label": "mittel",
+        "grams": 30
+      },
+      {
+        "label": "gross",
+        "grams": 50
+      }
+    ]
+  },
+  {
+    "id": "schinken-gekocht",
+    "name": "Kochschinken",
+    "synonyms": [
+      "gekochter Schinken",
+      "Schinken gekocht",
+      "cooked ham"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 110,
+      "protein": 21,
+      "carbs": 0.5,
+      "fat": 3
+    },
+    "pieces": [
+      {
+        "label": "Scheibe dünn",
+        "grams": 15
+      },
+      {
+        "label": "Scheibe",
+        "grams": 25
+      }
+    ]
+  },
+  {
+    "id": "schmand",
+    "name": "Schmand",
+    "synonyms": [
+      "Sauerrahm",
+      "sour cream"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 235,
+      "protein": 2.8,
+      "carbs": 3.4,
+      "fat": 24
+    }
+  },
+  {
+    "id": "schweinefilet",
+    "name": "Schweinefilet",
+    "synonyms": [
+      "Schweinelende",
+      "Filet vom Schwein",
+      "pork tenderloin",
+      "pork fillet"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 110,
+      "protein": 22,
+      "carbs": 0,
+      "fat": 2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 300
+      },
+      {
+        "label": "mittel",
+        "grams": 450
+      },
+      {
+        "label": "gross",
+        "grams": 600
+      }
+    ]
+  },
+  {
+    "id": "schweinekotelett",
+    "name": "Schweinekotelett",
+    "synonyms": [
+      "Kotelett",
+      "Schweinerippchen",
+      "pork chop"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 240,
+      "protein": 19,
+      "carbs": 0,
+      "fat": 18
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 200
+      },
+      {
+        "label": "gross",
+        "grams": 280
+      }
+    ]
+  },
+  {
+    "id": "seelachs",
+    "name": "Seelachs",
+    "synonyms": [
+      "Köhler",
+      "pollock",
+      "Alaska Seelachs"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 81,
+      "protein": 18,
+      "carbs": 0,
+      "fat": 1
+    },
+    "pieces": [
+      {
+        "label": "Filet klein",
+        "grams": 120
+      },
+      {
+        "label": "Filet mittel",
+        "grams": 160
+      },
+      {
+        "label": "Filet gross",
+        "grams": 220
+      }
+    ]
+  },
+  {
+    "id": "sellerie-knolle",
+    "name": "Knollensellerie",
+    "synonyms": [
+      "Sellerieknolle",
+      "Wurzelsellerie",
+      "celeriac",
+      "celery root"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 42,
+      "protein": 1.5,
+      "carbs": 7,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 400
+      },
+      {
+        "label": "mittel",
+        "grams": 700
+      },
+      {
+        "label": "gross",
+        "grams": 1000
+      }
+    ]
+  },
+  {
+    "id": "sesam",
+    "name": "Sesam",
+    "synonyms": [
+      "Sesamsamen",
+      "Sesame Seeds",
+      "Sesamkörner"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 573,
+      "protein": 17.7,
+      "carbs": 23.5,
+      "fat": 49.7
+    }
+  },
+  {
+    "id": "shiitake",
+    "name": "Shiitake",
+    "synonyms": [
+      "Shii-Take",
+      "Pasaniapilz",
+      "shiitake mushroom"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 34,
+      "protein": 2.2,
+      "carbs": 6.8,
+      "fat": 0.5
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 18
+      }
+    ]
+  },
+  {
+    "id": "sojamilch",
+    "name": "Sojamilch",
+    "synonyms": [
+      "Sojadrink",
+      "soy milk"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 43,
+      "protein": 3.3,
+      "carbs": 2.8,
+      "fat": 1.8
+    }
+  },
+  {
+    "id": "sonnenblumenkern",
+    "name": "Sonnenblumenkerne",
+    "synonyms": [
+      "Sunflower Seeds",
+      "Sonnenblumensamen"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 584,
+      "protein": 20.8,
+      "carbs": 20,
+      "fat": 51.5
+    }
+  },
+  {
+    "id": "spaghetti",
+    "name": "Spaghetti",
+    "synonyms": [
+      "Nudeln",
+      "Pasta",
+      "noodles"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 359,
+      "protein": 12.5,
+      "carbs": 71.5,
+      "fat": 1.5
+    }
+  },
+  {
+    "id": "spargel-gruen",
+    "name": "Grüner Spargel",
+    "synonyms": [
+      "Spargel grün",
+      "green asparagus"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 22,
+      "protein": 2.4,
+      "carbs": 2,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stange",
+        "grams": 20
+      }
+    ]
+  },
+  {
+    "id": "spargel-weiss",
+    "name": "Weißer Spargel",
+    "synonyms": [
+      "Spargel weiß",
+      "Bleichspargel",
+      "white asparagus"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 18,
+      "protein": 1.9,
+      "carbs": 2,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stange",
+        "grams": 25
+      }
+    ]
+  },
+  {
+    "id": "speck",
+    "name": "Speck",
+    "synonyms": [
+      "Bacon",
+      "bacon",
+      "Frühstücksspeck"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 540,
+      "protein": 13,
+      "carbs": 0.5,
+      "fat": 53
+    },
+    "pieces": [
+      {
+        "label": "Scheibe",
+        "grams": 10
+      },
+      {
+        "label": "Würfel Portion",
+        "grams": 50
+      }
+    ]
+  },
+  {
+    "id": "spinat",
+    "name": "Spinat",
+    "synonyms": [
+      "Blattspinat",
+      "spinach"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 23,
+      "protein": 2.9,
+      "carbs": 3.6,
+      "fat": 0.4
+    }
+  },
+  {
+    "id": "spitzkohl",
+    "name": "Spitzkohl",
+    "synonyms": [
+      "Spitzkraut",
+      "Filderkraut",
+      "pointed cabbage",
+      "sweetheart cabbage"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 25,
+      "protein": 1.5,
+      "carbs": 4.2,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 500
+      },
+      {
+        "label": "mittel",
+        "grams": 800
+      },
+      {
+        "label": "gross",
+        "grams": 1200
+      }
+    ]
+  },
+  {
+    "id": "suesskartoffel",
+    "name": "Süßkartoffel",
+    "synonyms": [
+      "Batate",
+      "sweet potato"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 86,
+      "protein": 1.6,
+      "carbs": 20.1,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 120
+      },
+      {
+        "label": "mittel",
+        "grams": 200
+      },
+      {
+        "label": "gross",
+        "grams": 350
+      }
+    ]
+  },
+  {
+    "id": "tempeh",
+    "name": "Tempeh",
+    "synonyms": [
+      "fermentierte Sojabohnen",
+      "tempe"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 192,
+      "protein": 20.3,
+      "carbs": 7.6,
+      "fat": 10.8
+    }
+  },
+  {
+    "id": "thunfisch-filet",
+    "name": "Thunfischfilet",
+    "synonyms": [
+      "Thunfisch",
+      "tuna fillet",
+      "Tuna Steak"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 144,
+      "protein": 23,
+      "carbs": 0,
+      "fat": 5
+    },
+    "pieces": [
+      {
+        "label": "Steak klein",
+        "grams": 120
+      },
+      {
+        "label": "Steak mittel",
+        "grams": 180
+      },
+      {
+        "label": "Steak gross",
+        "grams": 250
+      }
+    ]
+  },
+  {
+    "id": "thunfisch-konserve",
+    "name": "Thunfisch in Wasser (Konserve)",
+    "synonyms": [
+      "Dosenthunfisch",
+      "Thunfisch aus der Dose",
+      "canned tuna",
+      "tuna"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 116,
+      "protein": 26,
+      "carbs": 0,
+      "fat": 1
+    }
+  },
+  {
+    "id": "tofu-natur",
+    "name": "Tofu natur",
+    "synonyms": [
+      "Naturtofu",
+      "tofu",
+      "Sojaquark"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 127,
+      "protein": 13,
+      "carbs": 1.5,
+      "fat": 7.5
+    }
+  },
+  {
+    "id": "tomate",
+    "name": "Tomate",
+    "synonyms": [
+      "Paradeiser",
+      "Liebesapfel",
+      "tomato"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 18,
+      "protein": 0.9,
+      "carbs": 3.9,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 60
+      },
+      {
+        "label": "mittel",
+        "grams": 120
+      },
+      {
+        "label": "gross",
+        "grams": 200
+      }
+    ]
+  },
+  {
+    "id": "topinambur",
+    "name": "Topinambur",
+    "synonyms": [
+      "Erdartischocke",
+      "Jerusalemartischocke",
+      "sunchoke",
+      "jerusalem artichoke"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 73,
+      "protein": 2,
+      "carbs": 17.4,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 30
+      },
+      {
+        "label": "mittel",
+        "grams": 60
+      },
+      {
+        "label": "gross",
+        "grams": 100
+      }
+    ]
+  },
+  {
+    "id": "vollkornbrot",
+    "name": "Vollkornbrot",
+    "synonyms": [
+      "Vollkornlaib",
+      "wholemeal bread",
+      "whole grain bread"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 211,
+      "protein": 7.4,
+      "carbs": 35.8,
+      "fat": 2.7
+    },
+    "pieces": [
+      {
+        "label": "Scheibe dünn",
+        "grams": 30
+      },
+      {
+        "label": "Scheibe",
+        "grams": 50
+      }
+    ]
+  },
+  {
+    "id": "walnuss",
+    "name": "Walnuss",
+    "synonyms": [
+      "Walnüsse",
+      "Walnut",
+      "Walnuts"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 654,
+      "protein": 15.2,
+      "carbs": 13.7,
+      "fat": 65.2
+    },
+    "pieces": [
+      {
+        "label": "Hälfte",
+        "grams": 2.5
+      }
+    ]
+  },
+  {
+    "id": "wassermelone",
+    "name": "Wassermelone",
+    "synonyms": [
+      "watermelon"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 30,
+      "protein": 0.6,
+      "carbs": 7.6,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Scheibe",
+        "grams": 200
+      },
+      {
+        "label": "mittel",
+        "grams": 4000
+      }
+    ]
+  },
+  {
+    "id": "weintraube",
+    "name": "Weintraube",
+    "synonyms": [
+      "Traube",
+      "grape"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 69,
+      "protein": 0.7,
+      "carbs": 16,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 6
+      }
+    ]
+  },
+  {
+    "id": "weisse-bohnen",
+    "name": "Weisse Bohnen",
+    "synonyms": [
+      "White Beans",
+      "Cannellini",
+      "Navy Beans"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 333,
+      "protein": 21.4,
+      "carbs": 60.3,
+      "fat": 1.6
+    }
+  },
+  {
+    "id": "weisskohl",
+    "name": "Weißkohl",
+    "synonyms": [
+      "Weißkraut",
+      "Kappes",
+      "white cabbage"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 25,
+      "protein": 1.3,
+      "carbs": 5.8,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 800
+      },
+      {
+        "label": "mittel",
+        "grams": 1500
+      },
+      {
+        "label": "gross",
+        "grams": 2500
+      }
+    ]
+  },
+  {
+    "id": "weizenmehl-405",
+    "name": "Weizenmehl Type 405",
+    "synonyms": [
+      "Weißmehl",
+      "Auszugsmehl",
+      "wheat flour"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 348,
+      "protein": 10,
+      "carbs": 72.3,
+      "fat": 1
+    }
+  },
+  {
+    "id": "wirsing",
+    "name": "Wirsing",
+    "synonyms": [
+      "Wirsingkohl",
+      "Welschkraut",
+      "savoy cabbage"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 27,
+      "protein": 2,
+      "carbs": 5,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 500
+      },
+      {
+        "label": "mittel",
+        "grams": 1000
+      },
+      {
+        "label": "gross",
+        "grams": 1500
+      }
+    ]
+  },
+  {
+    "id": "zitrone",
+    "name": "Zitrone",
+    "synonyms": [
+      "lemon"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 29,
+      "protein": 1.1,
+      "carbs": 9.3,
+      "fat": 0.3
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 60
+      },
+      {
+        "label": "mittel",
+        "grams": 90
+      },
+      {
+        "label": "gross",
+        "grams": 120
+      }
+    ]
+  },
+  {
+    "id": "zucchini",
+    "name": "Zucchini",
+    "synonyms": [
+      "Courgette",
+      "courgette",
+      "zucchini squash"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 19,
+      "protein": 1.6,
+      "carbs": 2,
+      "fat": 0.4
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 150
+      },
+      {
+        "label": "mittel",
+        "grams": 250
+      },
+      {
+        "label": "gross",
+        "grams": 400
+      }
+    ]
+  },
+  {
+    "id": "zuckerschote",
+    "name": "Zuckerschote",
+    "synonyms": [
+      "Kaiserschote",
+      "Zuckererbse",
+      "snow pea",
+      "sugar snap pea"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 42,
+      "protein": 2.8,
+      "carbs": 7.5,
+      "fat": 0.2
+    },
+    "pieces": [
+      {
+        "label": "Stück",
+        "grams": 6
+      }
+    ]
+  },
+  {
+    "id": "zwiebel",
+    "name": "Zwiebel",
+    "synonyms": [
+      "Speisezwiebel",
+      "Bolle",
+      "onion"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 40,
+      "protein": 1.1,
+      "carbs": 9.3,
+      "fat": 0.1
+    },
+    "pieces": [
+      {
+        "label": "klein",
+        "grams": 50
+      },
+      {
+        "label": "mittel",
+        "grams": 110
+      },
+      {
+        "label": "gross",
+        "grams": 180
+      }
+    ]
+  }
+]

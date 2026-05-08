@@ -31,7 +31,7 @@ export async function importRecipeFromPhotos(
 }
 
 async function matchIngredient(raw: RawIngredient, search: IngredientSearchService): Promise<DraftIngredient> {
-  const results = await search.searchByName(raw.name);
+  const results = await search.searchByName(raw.name, new Set(['FOODS']));
   const top = results[0];
 
   if (!top) {

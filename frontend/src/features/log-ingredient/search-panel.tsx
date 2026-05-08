@@ -15,6 +15,19 @@ type ScanState =
   | { mode: 'barcode-loading'; barcode: string }
   | { mode: 'barcode-not-found' };
 
+const LEGACY_OFF_KEY = 'forkcast:off-enabled';
+const FOODS_KEY = 'forkcast:foods-enabled';
+
+function clearLegacyToggleKey() {
+  try {
+    if (localStorage.getItem(LEGACY_OFF_KEY) !== null) {
+      localStorage.removeItem(LEGACY_OFF_KEY);
+    }
+  } catch {
+    // ignore quota or access errors
+  }
+}
+
 function useDebouncedValue(value: string, delay: number) {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -27,8 +40,11 @@ function useDebouncedValue(value: string, delay: number) {
 export function SearchPanel({ onSelect }: SearchPanelProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
-  const [offEnabled, setOffEnabled] = useLocalStorage<boolean>('forkcast:off-enabled', false);
-  const sources: Array<'BLS' | 'OFF'> = offEnabled ? ['BLS', 'OFF'] : ['BLS'];
+  useEffect(() => {
+    clearLegacyToggleKey();
+  }, []);
+  const [foodsEnabled, setFoodsEnabled] = useLocalStorage<boolean>(FOODS_KEY, false);
+  const sources: Array<'FOODS' | 'OFF'> = foodsEnabled ? ['FOODS', 'OFF'] : ['OFF'];
   const { data: results, isLoading } = useSearchIngredients(debouncedQuery, sources);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -116,12 +132,12 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
       <label className="flex items-center gap-2 text-xs text-muted-foreground select-none">
         <input
           type="checkbox"
-          checked={offEnabled}
-          onChange={(e) => setOffEnabled(e.target.checked)}
-          aria-label="Open Food Facts"
+          checked={foodsEnabled}
+          onChange={(e) => setFoodsEnabled(e.target.checked)}
+          aria-label="Foods"
           className="h-3.5 w-3.5 rounded"
         />
-        Open Food Facts
+        Foods
       </label>
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}

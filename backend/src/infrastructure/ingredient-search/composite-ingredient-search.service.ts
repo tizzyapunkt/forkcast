@@ -4,12 +4,12 @@ import type {
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 
-const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['BLS']);
+const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['OFF']);
 
 export class CompositeIngredientSearchService implements IngredientSearchService {
   constructor(
     private readonly off: IngredientSearchService,
-    private readonly bls: IngredientSearchService,
+    private readonly foods: IngredientSearchService,
   ) {}
 
   async searchByName(
@@ -19,9 +19,9 @@ export class CompositeIngredientSearchService implements IngredientSearchService
     const tasks: Promise<IngredientSearchResult[]>[] = [];
     const order: IngredientSource[] = [];
 
-    if (sources.has('BLS')) {
-      tasks.push(this.bls.searchByName(query));
-      order.push('BLS');
+    if (sources.has('FOODS')) {
+      tasks.push(this.foods.searchByName(query));
+      order.push('FOODS');
     }
     if (sources.has('OFF')) {
       tasks.push(this.off.searchByName(query));
@@ -42,7 +42,7 @@ export class CompositeIngredientSearchService implements IngredientSearchService
       }
     }
 
-    return [...(bySource.get('BLS') ?? []), ...(bySource.get('OFF') ?? [])];
+    return [...(bySource.get('FOODS') ?? []), ...(bySource.get('OFF') ?? [])];
   }
 
   async searchByBarcode(barcode: string): Promise<IngredientSearchResult | null> {

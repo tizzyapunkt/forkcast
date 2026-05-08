@@ -66,8 +66,8 @@ pnpm --filter @forkcast/frontend <command>
 pnpm --filter @forkcast/backend add <pkg>
 pnpm --filter @forkcast/frontend add <pkg>
 
-# Regenerate BLS food data artifact
-pnpm --filter @forkcast/backend build:bls
+# Regenerate the curated FOODS data artifact (requires ANTHROPIC_API_KEY in backend/.env)
+pnpm --filter @forkcast/backend build:foods
 
 # Add a dev dependency to the root
 pnpm add -Dw <pkg>

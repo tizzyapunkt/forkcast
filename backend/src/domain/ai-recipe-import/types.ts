@@ -28,7 +28,7 @@ export interface MatchedDraftIngredient {
   macrosPerUnit: MacrosPer100;
   amount: number | null;
   unitOverridden: boolean;
-  source: 'BLS' | 'OFF';
+  source: 'FOODS' | 'OFF';
   pieceQuantity?: PieceQuantity;
 }
 

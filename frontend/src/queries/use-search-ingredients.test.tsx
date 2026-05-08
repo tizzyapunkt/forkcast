@@ -4,7 +4,7 @@ import { server } from '../test/msw/server';
 import { renderWithProviders } from '../test/harness';
 import { useSearchIngredients } from './use-search-ingredients';
 
-function Consumer({ q, sources }: { q: string; sources?: Array<'BLS' | 'OFF'> }) {
+function Consumer({ q, sources }: { q: string; sources?: Array<'FOODS' | 'OFF'> }) {
   const { data, isLoading } = useSearchIngredients(q, sources);
   if (isLoading) return <p>loading</p>;
   return (
@@ -23,7 +23,7 @@ describe('useSearchIngredients', () => {
         HttpResponse.json([
           {
             id: '1',
-            source: 'BLS',
+            source: 'FOODS',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -48,7 +48,7 @@ describe('useSearchIngredients', () => {
     expect(called).toBe(false);
   });
 
-  it('includes sources=bls in URL when sources is BLS-only', async () => {
+  it('includes sources=off in URL when sources is OFF-only', async () => {
     let capturedUrl = '';
     server.use(
       http.get('/api/search-ingredients', ({ request }) => {
@@ -56,12 +56,12 @@ describe('useSearchIngredients', () => {
         return HttpResponse.json([]);
       }),
     );
-    renderWithProviders(<Consumer q="oat" sources={['BLS']} />);
+    renderWithProviders(<Consumer q="oat" sources={['OFF']} />);
     await new Promise((r) => setTimeout(r, 50));
-    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls');
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('off');
   });
 
-  it('includes sources=bls,off in URL when sources includes OFF', async () => {
+  it('includes sources=foods,off in URL when sources includes FOODS', async () => {
     let capturedUrl = '';
     server.use(
       http.get('/api/search-ingredients', ({ request }) => {
@@ -69,8 +69,8 @@ describe('useSearchIngredients', () => {
         return HttpResponse.json([]);
       }),
     );
-    renderWithProviders(<Consumer q="oat" sources={['BLS', 'OFF']} />);
+    renderWithProviders(<Consumer q="oat" sources={['FOODS', 'OFF']} />);
     await new Promise((r) => setTimeout(r, 50));
-    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('bls,off');
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('foods,off');
   });
 });
