@@ -35,17 +35,20 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
   const top = results[0];
 
   if (!top) {
-    return {
+    const unmatched: DraftIngredient = {
       matched: false,
       name: raw.name,
       amount: raw.amount ?? null,
       unit: raw.unit ?? null,
     };
+    if (raw.pieceQuantity) unmatched.pieceQuantity = raw.pieceQuantity;
+    return unmatched;
   }
 
   const unitOverridden = raw.unit !== undefined && raw.unit !== top.unit;
+  const matchedUnitIsMass = top.unit === 'g' || top.unit === 'ml';
 
-  return {
+  const matched: DraftIngredient = {
     matched: true,
     name: top.name,
     unit: top.unit,
@@ -54,4 +57,6 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
     unitOverridden,
     source: top.source,
   };
+  if (raw.pieceQuantity && matchedUnitIsMass) matched.pieceQuantity = raw.pieceQuantity;
+  return matched;
 }

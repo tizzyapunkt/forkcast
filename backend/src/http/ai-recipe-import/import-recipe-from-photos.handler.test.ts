@@ -166,6 +166,47 @@ describe('POST /import-recipe-from-photos', () => {
     expect(body.error).toBe('ai-import-not-configured');
   });
 
+  it('returns 200 with pieceQuantity carried end-to-end on the response payload', async () => {
+    const extractor = {
+      extract: vi.fn<(images: RecipeImage[]) => Promise<ExtractedDraft>>(async () => ({
+        name: 'Soup',
+        yield: 1,
+        ingredients: [
+          {
+            name: 'Zwiebel',
+            amount: 150,
+            unit: 'g' as const,
+            pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+          },
+        ],
+        steps: [],
+      })),
+    };
+    const search: IngredientSearchService = {
+      searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
+        {
+          id: 'bls-zwiebel',
+          source: 'BLS',
+          name: 'Zwiebel',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+        },
+      ]),
+      searchByBarcode: vi.fn<(barcode: string) => Promise<IngredientSearchResult | null>>(async () => null),
+    };
+    const app = makeApp({ extractor, search });
+    const res = await app.request('/import-recipe-from-photos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images: [tinyJpeg(20)] }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      ingredients: Array<{ pieceQuantity?: { amount: number; unitLabel: string; gramsPerPiece: number } }>;
+    };
+    expect(body.ingredients[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
+
   it('returns 400 on invalid JSON', async () => {
     const app = makeApp({});
     const res = await app.request('/import-recipe-from-photos', {

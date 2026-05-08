@@ -15,6 +15,9 @@ interface Props {
   ingredients?: RecipeIngredient[];
   onIngredientsChange?: (next: RecipeIngredient[]) => void;
   headerSlot?: React.ReactNode;
+  /** Indices whose `gramsPerPiece` came from an AI estimate; the editor renders an estimate badge for them. */
+  estimateIndices?: ReadonlySet<number>;
+  onEstimateAcknowledged?: (index: number) => void;
 }
 
 export function RecipeForm({
@@ -27,6 +30,8 @@ export function RecipeForm({
   ingredients: controlledIngredients,
   onIngredientsChange,
   headerSlot,
+  estimateIndices,
+  onEstimateAcknowledged,
 }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [recipeYield, setRecipeYield] = useState<number>(initial?.yield ?? 1);
@@ -108,7 +113,12 @@ export function RecipeForm({
         />
       </div>
 
-      <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
+      <RecipeIngredientEditor
+        ingredients={ingredients}
+        onChange={setIngredients}
+        estimateIndices={estimateIndices}
+        onEstimateAcknowledged={onEstimateAcknowledged}
+      />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">

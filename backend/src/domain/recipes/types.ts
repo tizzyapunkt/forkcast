@@ -7,11 +7,18 @@ export interface MacrosPer100 {
   fat: number;
 }
 
+export interface PieceQuantity {
+  amount: number;
+  unitLabel: string;
+  gramsPerPiece: number;
+}
+
 export interface RecipeIngredient {
   name: string;
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPer100;
   amount: number;
+  pieceQuantity?: PieceQuantity;
 }
 
 export interface Recipe {

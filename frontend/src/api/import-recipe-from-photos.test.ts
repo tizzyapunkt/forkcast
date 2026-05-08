@@ -63,4 +63,33 @@ describe('importRecipeFromPhotos', () => {
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).status).toBe(502);
   });
+
+  it('round-trips pieceQuantity on draft ingredients', async () => {
+    server.use(
+      http.post('/api/import-recipe-from-photos', () =>
+        HttpResponse.json({
+          name: 'Soup',
+          yield: 1,
+          ingredients: [
+            {
+              matched: true,
+              name: 'Zwiebel',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+              amount: 150,
+              unitOverridden: false,
+              source: 'BLS',
+              pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+            },
+          ],
+          steps: [],
+        }),
+      ),
+    );
+
+    const draft = await importRecipeFromPhotos([{ data: 'x', mediaType: 'image/jpeg' }]);
+    const ing = draft.ingredients[0];
+    if (!ing || !ing.matched) throw new Error('expected matched');
+    expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
 });

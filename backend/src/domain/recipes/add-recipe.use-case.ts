@@ -1,5 +1,6 @@
 import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
+import { validatePieceQuantity } from './validate-piece-quantity.ts';
 
 export interface AddRecipeCommand {
   name: string;
@@ -35,6 +36,9 @@ function validate(command: AddRecipeCommand): void {
   }
   if (!Array.isArray(command.ingredients) || command.ingredients.length === 0) {
     throw new Error('Recipe must have at least one ingredient');
+  }
+  for (const ingredient of command.ingredients) {
+    validatePieceQuantity(ingredient);
   }
   if (!Array.isArray(command.steps)) {
     throw new Error('Recipe steps must be an array');

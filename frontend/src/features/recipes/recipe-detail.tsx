@@ -83,7 +83,14 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
             <li key={`${ing.name}|${idx}`} className="flex items-center justify-between py-2 text-sm">
               <span className="font-medium">{ing.name}</span>
               <span className="text-muted-foreground">
-                {ing.amount} {ing.unit}
+                {ing.pieceQuantity
+                  ? de.recipeIngredientEditor.pieceSummary(
+                      ing.pieceQuantity.amount,
+                      ing.pieceQuantity.unitLabel,
+                      ing.amount,
+                      ing.unit,
+                    )
+                  : `${ing.amount} ${ing.unit}`}
               </span>
             </li>
           ))}

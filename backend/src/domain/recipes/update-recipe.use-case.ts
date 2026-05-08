@@ -1,5 +1,6 @@
 import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
+import { validatePieceQuantity } from './validate-piece-quantity.ts';
 
 export interface UpdateRecipeCommand {
   id: string;
@@ -26,6 +27,9 @@ export async function updateRecipe(repo: RecipeRepository, command: UpdateRecipe
   if (command.ingredients !== undefined) {
     if (!Array.isArray(command.ingredients) || command.ingredients.length === 0) {
       throw new Error('Recipe must have at least one ingredient');
+    }
+    for (const ingredient of command.ingredients) {
+      validatePieceQuantity(ingredient);
     }
     next.ingredients = command.ingredients;
   }

@@ -97,4 +97,46 @@ describe('addRecipe', () => {
     const b = await addRecipe(repo, { name: 'B', yield: 1, ingredients: [validIngredient], steps: [] });
     expect(a.id).not.toBe(b.id);
   });
+
+  it('persists a recipe with a piece-tracked ingredient', async () => {
+    const repo = makeRepo();
+    const onion = {
+      name: 'Zwiebel',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 150,
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [onion], steps: [] });
+    expect(recipe.ingredients[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
+  it('rejects an inconsistent piece-tracked ingredient', async () => {
+    const repo = makeRepo();
+    const inconsistent = {
+      name: 'Zwiebel',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 200,
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    await expect(addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [inconsistent], steps: [] })).rejects.toThrow(
+      /pieceQuantity|does not match/i,
+    );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects piece-tracked ingredient with non-mass unit', async () => {
+    const repo = makeRepo();
+    const bad = {
+      name: 'Olive Oil',
+      unit: 'tbsp' as const,
+      macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
+      amount: 2,
+      pieceQuantity: { amount: 2, unitLabel: 'tbsp', gramsPerPiece: 14 },
+    };
+    await expect(addRecipe(repo, { name: 'X', yield: 1, ingredients: [bad], steps: [] })).rejects.toThrow(/mass unit/i);
+    expect(repo.save).not.toHaveBeenCalled();
+  });
 });

@@ -255,6 +255,18 @@ export const de = {
     empty: 'Noch keine Zutaten.',
     amountFor: (name: string) => `Menge für ${name}`,
     remove: (name: string) => `${name} entfernen`,
+    pieceCountFor: (name: string) => `Stückzahl für ${name}`,
+    pieceLabelFor: (name: string) => `Bezeichnung pro Stück für ${name}`,
+    gramsPerPieceFor: (name: string) => `Gewicht pro Stück (g) für ${name}`,
+    pieceSummary: (count: number, label: string, total: number, unit: string) =>
+      `${count} ${label} (≈ ${total} ${unit})`,
+    estimateBadge: 'KI-Schätzung',
+    addPieceTracking: '+ pro Stück',
+    addPieceTrackingAria: (name: string) => `Stückgewicht für ${name} hinterlegen`,
+    detachPiece: 'Stückzählung entfernen',
+    detachPieceAria: (name: string) => `Stückzählung für ${name} entfernen`,
+    massEditDetachHint: 'Direktes Bearbeiten der Gesamtmenge entfernt die Stückzählung.',
+    pieceLabelPlaceholder: 'z. B. Zwiebel, mittlere Zucchini, Zehe',
   },
 
   aiRecipeImport: {

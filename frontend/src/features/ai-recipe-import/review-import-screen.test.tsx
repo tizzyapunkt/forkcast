@@ -63,6 +63,66 @@ describe('ReviewImportScreen', () => {
     expect(screen.queryByText(/zutat ohne treffer/i)).not.toBeInTheDocument();
   });
 
+  it('renders piece-tracked draft rows in dual form with an estimate badge', () => {
+    const pieceDraft: RecipeDraft = {
+      name: 'Soup',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Zwiebel',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+          amount: 150,
+          unitOverridden: false,
+          source: 'BLS',
+          pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+        },
+      ],
+    };
+    renderWithProviders(<ReviewImportScreen draft={pieceDraft} onSaved={() => {}} onCancel={() => {}} />);
+    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue(150);
+    expect(screen.getByTestId('piece-estimate-0')).toBeInTheDocument();
+  });
+
+  it('saving a piece-tracked recipe persists the updated mass and pieceQuantity after editing gramsPerPiece', async () => {
+    const pieceDraft: RecipeDraft = {
+      name: 'Soup',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Zwiebel',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+          amount: 150,
+          unitOverridden: false,
+          source: 'BLS',
+          pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+        },
+      ],
+    };
+    let captured: { ingredients: Array<{ amount: number; pieceQuantity?: unknown }> } | null = null;
+    server.use(
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const { fireEvent } = await import('@testing-library/react');
+    const onSaved = vi.fn<() => void>();
+    renderWithProviders(<ReviewImportScreen draft={pieceDraft} onSaved={onSaved} onCancel={() => {}} />);
+    fireEvent.change(screen.getByLabelText(/gewicht pro stück.*zwiebel/i), { target: { value: '200' } });
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(captured!.ingredients[0]!.amount).toBe(200);
+    expect(captured!.ingredients[0]!.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 200 });
+  });
+
   it('submits via POST /add-recipe and calls onSaved', async () => {
     server.use(
       http.post('/api/add-recipe', async ({ request }) => {

@@ -1,9 +1,5 @@
-# recipes
+## MODIFIED Requirements
 
-## Purpose
-
-Define and manage reusable recipes — a yielded list of full ingredients plus ordered cooking steps. Powers the Recipes screen and is the source for batch-logging into the meal log.
-## Requirements
 ### Requirement: Recipe entity shape
 The system SHALL model a `Recipe` as an aggregate consisting of `id` (string), `name` (non-empty string), `yield` (positive integer representing the number of portions the recipe produces), `ingredients` (ordered list of full ingredients — `{ name, unit, macrosPerUnit, amount, pieceQuantity? }`), `steps` (ordered list of non-empty strings, each describing one cooking step), `createdAt` (ISO datetime), and `updatedAt` (ISO datetime).
 
@@ -47,39 +43,6 @@ A recipe MUST have at least one ingredient. Steps MAY be empty (a recipe with no
 - **WHEN** the recipe store contains a recipe whose ingredients have no `pieceQuantity` field
 - **THEN** the recipe loads successfully and is returned with `pieceQuantity` absent on those ingredients
 
-### Requirement: Add recipe
-The system SHALL expose a command to add a new recipe. On success, the system MUST assign a fresh `id`, set `createdAt` and `updatedAt` to the current time, persist the recipe, and return it.
-
-#### Scenario: Add a recipe via HTTP
-- **WHEN** a client sends `POST /add-recipe` with a valid body
-- **THEN** the response is `200` (or `201`) with the persisted recipe including its assigned `id`, `createdAt`, and `updatedAt`
-
-#### Scenario: Add with invalid body
-- **WHEN** a client sends `POST /add-recipe` with a body that fails validation (missing name, empty ingredients, non-positive yield, …)
-- **THEN** the response is `400` with an error describing the validation failure, and no recipe is persisted
-
-### Requirement: List recipes
-The system SHALL expose a query that returns every persisted recipe, sorted alphabetically by `name` (case-insensitive).
-
-#### Scenario: No recipes
-- **WHEN** a client sends `GET /recipes` and no recipes exist
-- **THEN** the response is `200` with body `[]`
-
-#### Scenario: Populated list
-- **WHEN** recipes "Bolognese", "Apple Pie", and "carrot soup" exist
-- **THEN** `GET /recipes` returns them in the order Apple Pie, Bolognese, carrot soup
-
-### Requirement: Get recipe by id
-The system SHALL expose a query that returns a single recipe by its `id`.
-
-#### Scenario: Existing recipe
-- **WHEN** a client sends `GET /recipes/:id` for an existing recipe
-- **THEN** the response is `200` with the full recipe
-
-#### Scenario: Missing recipe
-- **WHEN** a client sends `GET /recipes/:id` for an `id` that does not exist
-- **THEN** the response is `404`
-
 ### Requirement: Update recipe
 The system SHALL expose a command to update a recipe's `name`, `yield`, `ingredients`, and/or `steps`. The command MUST accept partial updates: any field omitted is left unchanged. On success, `updatedAt` MUST be set to the current time and the updated recipe is returned. The same validation rules as creation apply to any field that is being updated (e.g. an `ingredients` update MUST contain at least one ingredient, and any `pieceQuantity` MUST satisfy the invariants on `Recipe entity shape`).
 
@@ -112,21 +75,6 @@ Updating a recipe MUST NOT modify any previously logged `LogEntry` records that 
 #### Scenario: Update with inconsistent pieceQuantity
 - **WHEN** a client sends `PATCH /recipe/:id` with an ingredient whose `amount` does not equal `pieceQuantity.amount * pieceQuantity.gramsPerPiece`
 - **THEN** the response is `400` and the recipe is unchanged
-
-### Requirement: Delete recipe
-The system SHALL expose a command to delete a recipe by `id`. On success, the recipe is removed from storage. Deleting a recipe MUST NOT cascade to any `LogEntry` rows that reference it; those entries remain intact, retaining their `recipeId` (the meal-log capability separately handles the now-orphaned reference).
-
-#### Scenario: Delete existing recipe
-- **WHEN** a client sends `DELETE /recipe/:id` for an existing recipe
-- **THEN** the response is `204` and subsequent `GET /recipes/:id` returns `404`
-
-#### Scenario: Delete missing recipe
-- **WHEN** a client sends `DELETE /recipe/:id` for an unknown `id`
-- **THEN** the response is `404`
-
-#### Scenario: Logged entries survive recipe deletion
-- **WHEN** a recipe has been logged into the meal log and the recipe is then deleted
-- **THEN** the `LogEntry` rows produced from that recipe remain in storage with their original ingredient snapshots and their original `recipeId` value
 
 ### Requirement: Recipes UI — list and create
 The frontend SHALL provide a Recipes screen, reachable from the bottom navigation, that lists all recipes and exposes a "New recipe" affordance. The recipe form MUST allow entering `name`, `yield`, an ordered list of ingredients (each via the same ingredient picker the log drawer uses), and an ordered list of steps (free-text per step). Saving the form invokes the add-recipe command.
@@ -178,6 +126,8 @@ In read mode, ingredients with a `pieceQuantity` MUST be rendered in dual form (
 - **WHEN** the user opens a recipe whose ingredient list includes a row with `pieceQuantity = { amount: 1, unitLabel: "Zwiebel", gramsPerPiece: 150 }` and `amount = 150`, `unit = "g"`
 - **THEN** the row is rendered as `1 Zwiebel (≈ 150 g)` (or the equivalent localized label)
 
+## ADDED Requirements
+
 ### Requirement: Yield scaling preserves piece quantities
 When a recipe is rendered or rolled up at a different effective yield (e.g. for portion-based logging or future planning views), the system SHALL scale `amount` and `pieceQuantity.amount` by the same factor while keeping `gramsPerPiece` invariant. The invariant `amount === pieceQuantity.amount * pieceQuantity.gramsPerPiece` MUST continue to hold after scaling.
 
@@ -188,4 +138,3 @@ When a recipe is rendered or rolled up at a different effective yield (e.g. for 
 #### Scenario: Halving portions halves count and weight
 - **WHEN** the same recipe is rendered for `1` effective portion (factor `0.5`)
 - **THEN** the rendered ingredient has `amount = 75`, `pieceQuantity.amount = 0.5`, and `pieceQuantity.gramsPerPiece = 150`
-

@@ -28,33 +28,50 @@ function isMatched(ing: DraftIngredient): ing is MatchedDraftIngredient {
 function buildInitialMatchedIngredients(draft: RecipeDraft): {
   matched: RecipeIngredient[];
   overrideMap: Map<number, OverriddenInfo>;
+  estimateIndices: Set<number>;
 } {
   const matched: RecipeIngredient[] = [];
   const overrideMap = new Map<number, OverriddenInfo>();
+  const estimateIndices = new Set<number>();
   draft.ingredients.forEach((ing) => {
     if (!isMatched(ing)) return;
     const idx = matched.length;
-    matched.push({
+    const row: RecipeIngredient = {
       name: ing.name,
       unit: ing.unit,
       macrosPerUnit: ing.macrosPerUnit,
       amount: ing.amount ?? 0,
-    });
+    };
+    if (ing.pieceQuantity) {
+      row.pieceQuantity = ing.pieceQuantity;
+      estimateIndices.add(idx);
+    }
+    matched.push(row);
     if (ing.unitOverridden) {
       overrideMap.set(idx, { extractedUnit: ing.unit });
     }
   });
-  return { matched, overrideMap };
+  return { matched, overrideMap, estimateIndices };
 }
 
 export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
   const initial = useMemo(() => buildInitialMatchedIngredients(draft), [draft]);
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(initial.matched);
+  const [estimateIndices, setEstimateIndices] = useState<Set<number>>(initial.estimateIndices);
   const [unmatched, setUnmatched] = useState<UnmatchedDraftIngredient[]>(() =>
     draft.ingredients.filter((i): i is UnmatchedDraftIngredient => !i.matched),
   );
   const [pickerForName, setPickerForName] = useState<string | null>(null);
   const addMutation = useAddRecipe();
+
+  function clearEstimate(index: number) {
+    setEstimateIndices((prev) => {
+      if (!prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
+    });
+  }
 
   function resolveUnmatched(name: string, picked: RecipeIngredient) {
     setIngredients((prev) => [...prev, picked]);
@@ -123,6 +140,8 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
         initial={initialRecipe}
         ingredients={ingredients}
         onIngredientsChange={setIngredients}
+        estimateIndices={estimateIndices}
+        onEstimateAcknowledged={clearEstimate}
         submitLabel={de.recipes.create}
         isSubmitting={addMutation.isPending}
         error={addMutation.error}

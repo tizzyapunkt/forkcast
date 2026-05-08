@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Recipe } from '../../domain/recipes';
 import type { MealSlot } from '../../domain/meal-log';
+import { scaleIngredients } from '../../domain/scale-recipe-ingredients';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
@@ -93,9 +94,17 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
         <div className="rounded-md border p-3 text-xs">
           <p className="mb-1 font-medium">{de.recipeConfirm.willLogHeading(recipe.ingredients.length)}</p>
           <ul className="space-y-0.5 text-muted-foreground">
-            {recipe.ingredients.map((ing, i) => (
+            {scaleIngredients(recipe.ingredients, factor).map((ing, i) => (
               <li key={i}>
-                {ing.name} — {Math.round(ing.amount * factor * 10) / 10} {ing.unit}
+                {ing.name} —{' '}
+                {ing.pieceQuantity
+                  ? de.recipeIngredientEditor.pieceSummary(
+                      ing.pieceQuantity.amount,
+                      ing.pieceQuantity.unitLabel,
+                      ing.amount,
+                      ing.unit,
+                    )
+                  : `${ing.amount} ${ing.unit}`}
               </li>
             ))}
           </ul>

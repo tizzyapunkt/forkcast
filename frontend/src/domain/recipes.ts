@@ -1,10 +1,17 @@
 import type { MeasurementUnit, MacrosPer100 } from './meal-log';
 
+export interface PieceQuantity {
+  amount: number;
+  unitLabel: string;
+  gramsPerPiece: number;
+}
+
 export interface RecipeIngredient {
   name: string;
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPer100;
   amount: number;
+  pieceQuantity?: PieceQuantity;
 }
 
 export interface Recipe {
@@ -25,6 +32,7 @@ export interface MatchedDraftIngredient {
   amount: number | null;
   unitOverridden: boolean;
   source: 'BLS' | 'OFF';
+  pieceQuantity?: PieceQuantity;
 }
 
 export interface UnmatchedDraftIngredient {
@@ -32,6 +40,7 @@ export interface UnmatchedDraftIngredient {
   name: string;
   amount: number | null;
   unit: MeasurementUnit | null;
+  pieceQuantity?: PieceQuantity;
 }
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;

@@ -89,4 +89,39 @@ describe('updateRecipe', () => {
     expect(updated.steps).toEqual(base.steps);
     expect(updated.yield).toBe(base.yield);
   });
+
+  it('updates ingredients with a piece quantity', async () => {
+    const { repo, saved } = makeRepo(base);
+    const onion = {
+      name: 'Zwiebel',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 300,
+      pieceQuantity: { amount: 2, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    const updated = await updateRecipe(repo, { id: 'rec-1', ingredients: [onion] });
+    expect(updated.ingredients[0]?.pieceQuantity).toEqual({ amount: 2, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+    expect(saved).toEqual([updated]);
+  });
+
+  it('rejects update with inconsistent pieceQuantity', async () => {
+    const { repo, saved } = makeRepo(base);
+    const bad = {
+      name: 'Zwiebel',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 200,
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    await expect(updateRecipe(repo, { id: 'rec-1', ingredients: [bad] })).rejects.toThrow(
+      /pieceQuantity|does not match/i,
+    );
+    expect(saved).toEqual([]);
+  });
+
+  it('passes legacy recipes (no pieceQuantity) through unchanged', async () => {
+    const { repo } = makeRepo(base);
+    const updated = await updateRecipe(repo, { id: 'rec-1', name: 'Renamed' });
+    expect(updated.ingredients[0]?.pieceQuantity).toBeUndefined();
+  });
 });

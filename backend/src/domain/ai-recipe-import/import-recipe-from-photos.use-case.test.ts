@@ -190,6 +190,76 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.unit).toBeNull();
   });
 
+  it('preserves pieceQuantity on matched mass-unit ingredient', async () => {
+    const extractor = makeExtractor({
+      name: 'Soup',
+      yield: 1,
+      ingredients: [
+        {
+          name: 'Zwiebel',
+          amount: 150,
+          unit: 'g',
+          pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+        },
+      ],
+      steps: [],
+    });
+    const search = makeSearch({ zwiebel: [blsResult({ name: 'Zwiebel', unit: 'g' })] });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.unit).toBe('g');
+    expect(ing.amount).toBe(150);
+    expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
+
+  it('drops pieceQuantity when the matched catalog unit is non-mass', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [
+        {
+          name: 'Knoblauch',
+          amount: 6,
+          unit: 'g',
+          pieceQuantity: { amount: 2, unitLabel: 'Zehe', gramsPerPiece: 3 },
+        },
+      ],
+      steps: [],
+    });
+    const search = makeSearch({ knoblauch: [blsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.unit).toBe('tbsp');
+    expect(ing.unitOverridden).toBe(true);
+    expect(ing.pieceQuantity).toBeUndefined();
+  });
+
+  it('preserves pieceQuantity on unmatched ingredient', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [
+        {
+          name: 'rare squash',
+          amount: 200,
+          unit: 'g',
+          pieceQuantity: { amount: 1, unitLabel: 'rare squash', gramsPerPiece: 200 },
+        },
+      ],
+      steps: [],
+    });
+    const search = makeSearch({});
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || ing.matched) throw new Error('expected unmatched ingredient');
+    expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'rare squash', gramsPerPiece: 200 });
+  });
+
   it('does not write to the recipe repository', async () => {
     const extractor = makeExtractor({
       name: 'X',
