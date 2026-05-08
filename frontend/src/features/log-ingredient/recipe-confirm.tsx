@@ -67,7 +67,9 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
           {de.recipeConfirm.summaryLine(recipe.yield, recipe.ingredients.length)}
         </p>
         {totals && (
-          <p className="text-xs text-muted-foreground">{de.recipeConfirm.totalLine(totals.calories, totals.protein, totals.carbs, totals.fat)}</p>
+          <p className="text-xs text-muted-foreground">
+            {de.recipeConfirm.totalLine(totals.calories, totals.protein, totals.carbs, totals.fat)}
+          </p>
         )}
       </div>
 

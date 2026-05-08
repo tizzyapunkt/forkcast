@@ -1,20 +1,23 @@
-import type { MeasurementUnit, MacrosPer100 } from './meal-log';
+import type { MacrosPer100, MeasurementUnit } from '../meal-log/types.ts';
 
-export interface RecipeIngredient {
-  name: string;
-  unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
-  amount: number;
+export type SupportedImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp';
+
+export interface RecipeImage {
+  mediaType: SupportedImageMediaType;
+  bytes: Uint8Array;
 }
 
-export interface Recipe {
-  id: string;
+export interface RawIngredient {
+  name: string;
+  amount?: number;
+  unit?: MeasurementUnit;
+}
+
+export interface ExtractedDraft {
   name: string;
   yield: number;
-  ingredients: RecipeIngredient[];
+  ingredients: RawIngredient[];
   steps: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface MatchedDraftIngredient {

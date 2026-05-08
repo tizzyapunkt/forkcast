@@ -66,4 +66,32 @@ describe('RecipesScreen', () => {
     await waitFor(() => expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument());
     expect(screen.getByLabelText(/ergibt/i)).toBeInTheDocument();
   });
+
+  it('hides the "Aus Fotos" button when the import endpoint returns 503', async () => {
+    server.use(
+      http.get('/api/recipes', () => HttpResponse.json([])),
+      http.post('/api/import-recipe-from-photos', () =>
+        HttpResponse.json({ error: 'ai-import-not-configured' }, { status: 503 }),
+      ),
+    );
+
+    renderWithProviders(<RecipesScreen />);
+    await screen.findByText(/noch keine rezepte/i);
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /aus fotos/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows the "Aus Fotos" button when the import endpoint is configured', async () => {
+    server.use(
+      http.get('/api/recipes', () => HttpResponse.json([])),
+      http.post('/api/import-recipe-from-photos', () =>
+        HttpResponse.json({ error: 'At least one image is required' }, { status: 400 }),
+      ),
+    );
+
+    renderWithProviders(<RecipesScreen />);
+    await screen.findByText(/noch keine rezepte/i);
+    expect(await screen.findByRole('button', { name: /aus fotos/i })).toBeInTheDocument();
+  });
 });

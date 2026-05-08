@@ -5,13 +5,16 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { RecipeForm } from './recipe-form';
 import { RecipeDetail } from './recipe-detail';
+import { ImportRecipeScreen } from '../ai-recipe-import/import-recipe-screen';
+import { useImportConfigured } from '../ai-recipe-import/use-import-configured';
 import { de } from '../../i18n/de';
 
-type View = { mode: 'list' } | { mode: 'create' } | { mode: 'detail'; id: string };
+type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
 
 export function RecipesScreen() {
   const [view, setView] = useState<View>({ mode: 'list' });
   const { data: recipes, isLoading, error } = useRecipes();
+  const { data: importConfigured } = useImportConfigured();
   const addMutation = useAddRecipe();
 
   if (view.mode === 'create') {
@@ -30,6 +33,10 @@ export function RecipesScreen() {
     );
   }
 
+  if (view.mode === 'import') {
+    return <ImportRecipeScreen onCancel={() => setView({ mode: 'list' })} onSaved={() => setView({ mode: 'list' })} />;
+  }
+
   if (view.mode === 'detail') {
     return (
       <RecipeDetail id={view.id} onBack={() => setView({ mode: 'list' })} onDeleted={() => setView({ mode: 'list' })} />
@@ -38,15 +45,26 @@ export function RecipesScreen() {
 
   return (
     <div className="space-y-3 p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h2 className="text-base font-semibold">{de.recipes.screenTitle}</h2>
-        <button
-          onClick={() => setView({ mode: 'create' })}
-          className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
-          aria-label={de.recipes.newRecipeAria}
-        >
-          + {de.recipes.newRecipe}
-        </button>
+        <div className="flex gap-2">
+          {importConfigured && (
+            <button
+              onClick={() => setView({ mode: 'import' })}
+              className="rounded-md border px-3 py-1 text-sm"
+              aria-label={de.aiRecipeImport.entryButtonAria}
+            >
+              {de.aiRecipeImport.entryButton}
+            </button>
+          )}
+          <button
+            onClick={() => setView({ mode: 'create' })}
+            className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
+            aria-label={de.recipes.newRecipeAria}
+          >
+            + {de.recipes.newRecipe}
+          </button>
+        </div>
       </div>
 
       {error && <ErrorBanner error={error} />}

@@ -55,7 +55,9 @@ export function RecipeIngredientPicker({ open, onClose, onPicked }: Props) {
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted" />
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <h2 className="min-w-0 truncate text-sm font-semibold">
-            {step.kind === 'pick' ? de.recipeIngredientPicker.titlePick : de.recipeIngredientPicker.titleAmount(step.result.name)}
+            {step.kind === 'pick'
+              ? de.recipeIngredientPicker.titlePick
+              : de.recipeIngredientPicker.titleAmount(step.result.name)}
           </h2>
           <button
             type="button"

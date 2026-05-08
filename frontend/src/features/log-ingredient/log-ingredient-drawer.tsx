@@ -58,11 +58,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
   const slotLabel = slotLabelsDe[slot];
 
   const headerSuffix =
-    step.kind === 'confirm'
-      ? ` — ${step.result.name}`
-      : step.kind === 'recipe-confirm'
-        ? ` — ${step.recipe.name}`
-        : '';
+    step.kind === 'confirm' ? ` — ${step.result.name}` : step.kind === 'recipe-confirm' ? ` — ${step.recipe.name}` : '';
 
   const drawerHeight = tab === 'quick' ? 'h-[55dvh]' : 'h-[82dvh]';
 
@@ -127,7 +123,13 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
           {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 
           {step.kind === 'confirm' && (
-            <FullEntryConfirm result={step.result} date={date} slot={slot} onSuccess={handleClose} onBack={handleBack} />
+            <FullEntryConfirm
+              result={step.result}
+              date={date}
+              slot={slot}
+              onSuccess={handleClose}
+              onBack={handleBack}
+            />
           )}
 
           {step.kind === 'recipe-confirm' && (

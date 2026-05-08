@@ -28,16 +28,28 @@ import { makeLoginHandler } from './http/auth/login.handler.ts';
 import { makeLogoutHandler } from './http/auth/logout.handler.ts';
 import { makeMeHandler } from './http/auth/me.handler.ts';
 import { makeAuthMiddleware } from './http/auth/auth.middleware.ts';
+import Anthropic from '@anthropic-ai/sdk';
+import { AnthropicRecipeDraftExtractor } from './infrastructure/ai-recipe-import/anthropic-recipe-draft-extractor.ts';
+import {
+  makeImportRecipeFromPhotosHandler,
+  makeUnconfiguredImportRecipeFromPhotosHandler,
+} from './http/ai-recipe-import/import-recipe-from-photos.handler.ts';
+import { loadAppConfig } from './config/app-config.ts';
+import { DotenvEnvSource } from './infrastructure/config/dotenv-env-source.ts';
 
-const authPassword = process.env['AUTH_PASSWORD'];
-const authJwtSecret = process.env['AUTH_JWT_SECRET'];
-if (!authPassword) {
-  console.error('AUTH_PASSWORD environment variable is required but not set');
+const envSource = new DotenvEnvSource();
+let config;
+try {
+  config = loadAppConfig(envSource);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : String(err));
   process.exit(1);
 }
-if (!authJwtSecret) {
-  console.error('AUTH_JWT_SECRET environment variable is required but not set');
-  process.exit(1);
+
+if (!config.ai.anthropicApiKey) {
+  console.warn(
+    'ANTHROPIC_API_KEY is not set — POST /import-recipe-from-photos will return 503 ai-import-not-configured',
+  );
 }
 
 const logEntryRepo = new JsonLogEntryRepository('./data/log-entries.json');
@@ -50,11 +62,11 @@ await bootstrap([logEntryRepo, nutritionGoalRepo, recipeRepo, blsService]);
 
 const app = new Hono();
 
-app.post('/auth/login', makeLoginHandler(authPassword, authJwtSecret));
+app.post('/auth/login', makeLoginHandler(config.auth.password, config.auth.jwtSecret));
 app.post('/auth/logout', makeLogoutHandler());
-app.get('/auth/me', makeMeHandler(authJwtSecret));
+app.get('/auth/me', makeMeHandler(config.auth.jwtSecret));
 
-app.use('*', makeAuthMiddleware(authJwtSecret));
+app.use('*', makeAuthMiddleware(config.auth.jwtSecret));
 
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));
@@ -72,6 +84,28 @@ app.get('/recipes/:id', makeGetRecipeHandler(recipeRepo));
 app.patch('/recipe/:id', makeUpdateRecipeHandler(recipeRepo));
 app.delete('/recipe/:id', makeDeleteRecipeHandler(recipeRepo));
 app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
+
+if (config.ai.anthropicApiKey) {
+  const anthropicClient = new Anthropic({ apiKey: config.ai.anthropicApiKey });
+  const recipeDraftExtractor = new AnthropicRecipeDraftExtractor({
+    client: anthropicClient,
+    model: config.ai.model,
+  });
+  app.post(
+    '/import-recipe-from-photos',
+    makeImportRecipeFromPhotosHandler({
+      extractor: recipeDraftExtractor,
+      search: ingredientSearchService,
+      limits: {
+        maxImages: config.ai.recipeImport.maxImages,
+        maxImageBytes: config.ai.recipeImport.maxImageBytes,
+        maxTotalBytes: config.ai.recipeImport.maxTotalBytes,
+      },
+    }),
+  );
+} else {
+  app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
+}
 
 serve({ fetch: app.fetch, port: 3000 }, () => {
   console.log('forkcast backend running on http://localhost:3000');

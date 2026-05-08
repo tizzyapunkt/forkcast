@@ -11,12 +11,28 @@ interface Props {
   error?: Error | null;
   onCancel: () => void;
   onSubmit: (values: { name: string; yield: number; ingredients: RecipeIngredient[]; steps: string[] }) => void;
+  /** When provided, ingredient state is controlled by the parent (used by AI recipe import). */
+  ingredients?: RecipeIngredient[];
+  onIngredientsChange?: (next: RecipeIngredient[]) => void;
+  headerSlot?: React.ReactNode;
 }
 
-export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel, onSubmit }: Props) {
+export function RecipeForm({
+  initial,
+  submitLabel,
+  isSubmitting,
+  error,
+  onCancel,
+  onSubmit,
+  ingredients: controlledIngredients,
+  onIngredientsChange,
+  headerSlot,
+}: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [recipeYield, setRecipeYield] = useState<number>(initial?.yield ?? 1);
-  const [ingredients, setIngredients] = useState<RecipeIngredient[]>(initial?.ingredients ?? []);
+  const [internalIngredients, setInternalIngredients] = useState<RecipeIngredient[]>(initial?.ingredients ?? []);
+  const ingredients = controlledIngredients ?? internalIngredients;
+  const setIngredients = onIngredientsChange ?? setInternalIngredients;
   const [steps, setSteps] = useState<string[]>(initial?.steps ?? []);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -60,6 +76,7 @@ export function RecipeForm({ initial, submitLabel, isSubmitting, error, onCancel
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
+      {headerSlot}
       {error && <ErrorBanner error={error} />}
       {validationError && <p className="text-sm text-destructive">{validationError}</p>}
 
