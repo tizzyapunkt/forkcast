@@ -45,6 +45,39 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+
+  /* Hard guard against horizontal page scroll on mobile.
+   *
+   * The forkcast UI is mobile-first (see CLAUDE.md): every screen must fit a
+   * narrow viewport (e.g. iPhone 15 Pro at 393 CSS px) without horizontal
+   * scrolling. The most common offenders are inputs (intrinsic `size`
+   * attribute creates a min-content width), long unbroken words in
+   * user-generated text, and grids/flex children that forget `min-w-0`.
+   *
+   * `overflow-x: clip` (instead of `hidden`) prevents creating a new scroll
+   * container, so `position: sticky` continues to work for the app header.
+   * If horizontal scroll is ever genuinely needed, it must be opted into on
+   * a specific local container — never on the page as a whole.
+   *
+   * See `.cursor/rules/no-horizontal-overflow-mobile.mdc` for the full rule.
+   */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  /* Allow form fields to shrink below their intrinsic content size.
+   * Without this, `<input>` defaults `min-width` to its `size` attribute
+   * (≈20ch), which causes overflow inside narrow flex/grid containers and
+   * even inside plain blocks on iOS WebKit when combined with native
+   * input chrome (number steppers, password reveal buttons, etc.).
+   * `w-full` alone is not enough on every browser — this guarantees it. */
+  input,
+  textarea,
+  select {
+    min-width: 0;
+  }
+
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
