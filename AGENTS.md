@@ -21,6 +21,6 @@ forkcast is a pnpm monorepo with two packages: `@forkcast/backend` (Hono API on 
 ### Caveats
 
 - The frontend uses `@vitejs/plugin-basic-ssl` for HTTPS — accept the self-signed certificate when testing in browser.
-- Data files (`backend/data/log-entries.json`, `backend/data/recipes.json`, `backend/data/nutrition-goal.json`) are created at runtime and should not be committed. `backend/data/bls.json` is the pre-built BLS food dataset and IS tracked in git.
+- Data files (`backend/data/log-entries.json`, `backend/data/recipes.json`, `backend/data/nutrition-goal.json`) are created at runtime and should not be committed. `backend/data/foods.json` is the pre-built curated foods dataset and IS tracked in git.
 - The backend's `node --watch` restarts on file changes but does not pick up new npm dependencies — restart the process after `pnpm install`.
 - Pre-commit hook runs `pnpm lint-staged` via husky.

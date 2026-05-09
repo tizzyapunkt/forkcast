@@ -10,8 +10,8 @@ COPY backend/package.json ./backend/
 RUN pnpm install --filter @forkcast/backend --frozen-lockfile --prod --ignore-scripts
 
 COPY backend/src ./backend/src
-# bls.json is stored outside the data volume so the entrypoint can refresh it on each start
-COPY backend/data/bls.json ./backend/bls.json.img
+# foods.json is stored outside the data volume so the entrypoint can refresh it on each start
+COPY backend/data/foods.json ./backend/foods.json.img
 COPY backend/docker-entrypoint.sh ./backend/docker-entrypoint.sh
 RUN chmod +x ./backend/docker-entrypoint.sh
 

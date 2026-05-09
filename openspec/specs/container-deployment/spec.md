@@ -1,13 +1,13 @@
 ### Requirement: Backend Docker image is buildable and self-contained
-The system SHALL provide a `backend/Dockerfile` that produces a runnable image containing the Hono server, all production dependencies, and the `bls.json` food database. The image SHALL start the server on port 3000 using `node --experimental-transform-types`.
+The system SHALL provide a `backend/Dockerfile` that produces a runnable image containing the Hono server, all production dependencies, and the curated `foods.json` food database. The image SHALL start the server on port 3000 using `node --experimental-transform-types`.
 
 #### Scenario: Backend image starts successfully
 - **WHEN** `docker build -t forkcast-backend ./backend` is run and then the container is started
 - **THEN** the server starts and responds to requests on port 3000
 
-#### Scenario: bls.json is available inside the image
+#### Scenario: foods.json is available inside the image
 - **WHEN** the backend container starts
-- **THEN** the BLS food database is loaded from `/app/data/bls.json` without requiring any external volume
+- **THEN** the curated foods database is loaded from `/app/backend/data/foods.json` without requiring any external volume
 
 ### Requirement: Frontend Docker image builds and serves the app via nginx
 The system SHALL provide a `frontend/Dockerfile` that builds the Vite/React app and serves the static output via nginx on port 80. The image SHALL include an nginx config that proxies `/api` requests to `http://backend:3000`.
@@ -35,9 +35,9 @@ The system SHALL provide a `docker-compose.yml` at the repo root that defines bo
 - **WHEN** the backend container is stopped and restarted
 - **THEN** log entries and recipes written before the restart are still available
 
-#### Scenario: bls.json is not overridden by the data volume
-- **WHEN** the data volume is mounted at `/app/data`
-- **THEN** the `bls.json` file baked into the image remains accessible (the volume does not shadow it on first run, or the image initializes it correctly)
+#### Scenario: foods.json is not overridden by the data volume
+- **WHEN** the data volume is mounted at `/app/backend/data`
+- **THEN** the `foods.json` file baked into the image is copied into the data volume on container start so the running server reads the image's curated dataset, not a stale copy from the volume
 
 ### Requirement: GitHub Actions publishes Docker images to Docker Hub on push to main
 The system SHALL provide a `.github/workflows/deploy.yml` CI workflow that builds both Docker images and pushes them to Docker Hub when a commit is pushed to the `main` branch. The workflow SHALL use `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets.
