@@ -1,0 +1,144 @@
+---
+description: Prevent horizontal scroll on mobile (iPhone-class viewports). Apply when adding or modifying any frontend screen, drawer, dialog, form, list, or input.
+globs: frontend/**/*.{ts,tsx,css,html}
+alwaysApply: true
+---
+
+# No horizontal overflow on mobile
+
+forkcast is mobile-first (see `CLAUDE.md`). Every screen must fit narrow viewports
+(iPhone 15 Pro = 393 CSS px, iPhone SE = 320 CSS px) **without introducing
+horizontal page scroll**. Users have repeatedly hit this in drawers, the login
+screen, the daily log, and recipe editors. This rule encodes the patterns that
+fix it permanently.
+
+## Hard rules
+
+1. **Never add `overflow-x: visible` (or remove the existing `overflow-x: clip`)
+   from `html` / `body` in `frontend/src/index.css`.** That global guard is the
+   safety net of last resort and must stay in place.
+
+2. **Inputs, textareas, and selects must never enforce a min-content width.**
+   The global rule
+   ```css
+   input, textarea, select { min-width: 0; }
+   ```
+   in `frontend/src/index.css` exists for this reason. Do not override it with
+   `min-width: <something>` on a form field unless the field is in a fixed-width
+   container that is provably narrower than every supported viewport.
+
+3. **Every text/number/search input must use a font-size of at least 16 px on
+   mobile.** iOS Safari zooms the entire viewport when focusing an input
+   smaller than 16 px, which manifests as horizontal scroll, layout jumps, and
+   broken sticky headers. The Tailwind pattern is:
+
+   ```tsx
+   className="… text-base sm:text-sm"
+   ```
+
+   - `text-base` (16 px) on phones
+   - `text-sm` (14 px) on `sm:` and up where there is no auto-zoom
+
+   Tiny inline editors (e.g. `text-xs`) are the only allowed exception, and
+   only when they are not auto-focused and not inside a flex/grid that could
+   become wider than the viewport.
+
+4. **Numeric inputs must declare `inputMode`.** Use `inputMode="decimal"` for
+   floats and `inputMode="numeric"` for integers so iOS shows the right
+   keyboard. Combined with `text-base` this avoids the auto-zoom path entirely.
+
+5. **Every flex/grid container that holds a shrinkable child (input, truncated
+   text, long ingredient name, recipe step, …) must give that child a way to
+   shrink.** Practically:
+
+   - Add `min-w-0` to the flex/grid item.
+   - Add `truncate` / `break-words` / `overflow-wrap: anywhere` to text that
+     could be a long unbroken token (URLs, ingredient names from external
+     databases).
+   - For inputs that should fill remaining space inside a flex row use
+     `min-w-0 flex-1` (not just `flex-1`).
+
+6. **Drawers and modals (`fixed inset-x-0 …`) must clip their own contents.**
+   Add `overflow-x-hidden` (or `overflow-x: clip`) to the scrollable body of
+   every drawer / dialog. Do not rely on the global `body` clip alone, because
+   internal scroll containers can still overflow visually inside the drawer.
+
+7. **Search/filter inputs use `appearance-none`.** Native search controls
+   render an inner cancel button on iOS that adds horizontal padding and
+   defeats `w-full`. The established pattern is:
+   ```tsx
+   <input
+     role="searchbox"
+     type="search"
+     className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-base sm:text-sm"
+   />
+   ```
+
+## Reference patterns
+
+### Full-width form input
+
+```tsx
+<input
+  id="amount"
+  type="number"
+  inputMode="decimal"
+  className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+/>
+```
+
+### Input inside a flex row
+
+```tsx
+<div className="flex min-w-0 items-center gap-2">
+  <input className="min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm" />
+  <button className="shrink-0 rounded-md border px-3 py-2 text-sm">📷</button>
+</div>
+```
+
+### Drawer body
+
+```tsx
+<div
+  role="dialog"
+  className="fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden rounded-t-xl bg-background"
+>
+  <div className="shrink-0">{/* header */}</div>
+  <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">{/* body */}</div>
+</div>
+```
+
+### List row with potentially long text
+
+```tsx
+<button className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left">
+  <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
+  <span className="shrink-0 text-xs text-muted-foreground">{meta}</span>
+</button>
+```
+
+## Anti-patterns
+
+- ❌ `<input className="w-full text-sm">` on a screen reachable from mobile.
+  Use `text-base sm:text-sm`.
+- ❌ Setting `min-width` on a form field "to make it look right".
+- ❌ Removing `overflow-x: clip` from `html, body` to "let the page scroll".
+- ❌ A flex row with a long-text child but no `min-w-0` on either parent or
+  child.
+- ❌ A drawer that omits `overflow-x-hidden` on its body.
+- ❌ Adding `maximum-scale=1` / `user-scalable=no` to the viewport meta tag to
+  defeat zoom — this breaks accessibility. Use `text-base` instead.
+
+## How to verify
+
+When you add or modify a screen, dialog, drawer, or form:
+
+1. Resize the dev tools viewport to **375 px** (iPhone SE class) **and**
+   **393 px** (iPhone 15 Pro). Body width must equal viewport width — there
+   must be no horizontal scrollbar.
+2. Tap into every input. The page must not zoom or shift sideways.
+3. Open every drawer/dialog and walk through every step (search → confirm →
+   amount, etc.). The drawer must stay flush to both edges.
+4. Where applicable, add a regression test that asserts
+   `document.documentElement.scrollWidth <= window.innerWidth` after rendering
+   the screen.
