@@ -81,10 +81,11 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
         <input
           id="portions"
           type="number"
+          inputMode="decimal"
           step="0.5"
           min="0"
           {...register('portions')}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           autoFocus
         />
         {errors.portions && <p className="text-xs text-destructive">{errors.portions.message}</p>}

@@ -44,7 +44,7 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={de.recentPanel.placeholder}
-        className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-sm"
+        className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-base sm:text-sm"
       />
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.recentPanel.loading}</p>}
