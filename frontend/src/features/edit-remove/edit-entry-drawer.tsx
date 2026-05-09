@@ -83,8 +83,9 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
             <input
               id="edit-calories"
               type="number"
+              inputMode="numeric"
               {...register('calories')}
-              className="w-full rounded-md border px-3 py-2 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
             />
             {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
           </div>
@@ -98,9 +99,10 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
                 <input
                   id={`edit-${macro}`}
                   type="number"
+                  inputMode="decimal"
                   step="0.1"
                   {...register(macro)}
-                  className="w-full rounded-md border px-2 py-1.5 text-sm"
+                  className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
                   placeholder="—"
                 />
               </div>

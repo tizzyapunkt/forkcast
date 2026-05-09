@@ -83,7 +83,7 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
         <input
           id="label"
           {...register('label')}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder={de.quickEntry.labelPlaceholder}
         />
         {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
@@ -96,8 +96,9 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
         <input
           id="calories"
           type="number"
+          inputMode="numeric"
           {...register('calories')}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder="0"
         />
         {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
@@ -112,9 +113,10 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
             <input
               id={macro}
               type="number"
+              inputMode="decimal"
               step="0.1"
               {...register(macro)}
-              className="w-full rounded-md border px-2 py-1.5 text-sm"
+              className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
               placeholder="—"
             />
           </div>

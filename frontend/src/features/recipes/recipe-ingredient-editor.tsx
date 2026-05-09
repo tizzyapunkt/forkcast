@@ -240,6 +240,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <input
                       aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
                       type="number"
+                      inputMode="decimal"
                       step="0.5"
                       min={0}
                       value={piece.amount}
@@ -247,7 +248,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                         const v = Number(e.target.value);
                         if (Number.isFinite(v)) handleEditPieceCount(idx, v);
                       }}
-                      className="w-16 rounded-md border px-2 py-1 text-right text-sm"
+                      className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <input
                       aria-label={de.recipeIngredientEditor.pieceLabelFor(ing.name)}
@@ -255,12 +256,13 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                       value={piece.unitLabel}
                       placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
                       onChange={(e) => handleEditUnitLabel(idx, e.target.value)}
-                      className="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm"
+                      className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
                     />
                     <span aria-hidden>×</span>
                     <input
                       aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
                       type="number"
+                      inputMode="numeric"
                       step="1"
                       min={0}
                       value={piece.gramsPerPiece}
@@ -268,7 +270,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                         const v = Number(e.target.value);
                         if (Number.isFinite(v)) handleEditGramsPerPiece(idx, v);
                       }}
-                      className="w-20 rounded-md border px-2 py-1 text-right text-sm"
+                      className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <span className="text-xs">{ing.unit}/Stk</span>
                     {isEstimate && (
@@ -365,11 +367,12 @@ function AttachPieceForm({ ingredient, onAttach, onCancel }: AttachPieceFormProp
       <input
         aria-label={de.recipeIngredientEditor.pieceCountFor(ingredient.name)}
         type="number"
+        inputMode="decimal"
         step="0.5"
         min={0}
         value={count}
         onChange={(e) => setCount(Number(e.target.value))}
-        className="w-16 rounded-md border px-2 py-1 text-right text-sm"
+        className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
       />
       <input
         aria-label={de.recipeIngredientEditor.pieceLabelFor(ingredient.name)}
@@ -377,17 +380,18 @@ function AttachPieceForm({ ingredient, onAttach, onCancel }: AttachPieceFormProp
         value={label}
         placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
         onChange={(e) => setLabel(e.target.value)}
-        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm"
+        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
       />
       <span aria-hidden>×</span>
       <input
         aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ingredient.name)}
         type="number"
+        inputMode="numeric"
         step="1"
         min={0}
         value={grams}
         onChange={(e) => setGrams(Number(e.target.value))}
-        className="w-20 rounded-md border px-2 py-1 text-right text-sm"
+        className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
       />
       <span className="text-xs">{ingredient.unit}/Stk</span>
       <button

@@ -97,9 +97,10 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: Full
         <input
           id="amount"
           type="number"
+          inputMode="decimal"
           step="1"
           {...register('amount')}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder={de.fullEntry.amountPlaceholder}
           autoFocus
         />

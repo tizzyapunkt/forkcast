@@ -93,7 +93,7 @@ export function RecipeForm({
           id="recipe-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder={de.recipeForm.namePlaceholder}
         />
       </div>
@@ -105,11 +105,12 @@ export function RecipeForm({
         <input
           id="recipe-yield"
           type="number"
+          inputMode="numeric"
           min={1}
           step={1}
           value={recipeYield}
           onChange={(e) => setRecipeYield(Number(e.target.value))}
-          className="w-24 rounded-md border px-3 py-2 text-sm"
+          className="w-24 rounded-md border px-3 py-2 text-base sm:text-sm"
         />
       </div>
 
@@ -138,7 +139,7 @@ export function RecipeForm({
                   aria-label={de.recipeForm.stepAria(idx + 1)}
                   value={s}
                   onChange={(e) => updateStep(idx, e.target.value)}
-                  className="min-h-[3rem] flex-1 rounded-md border px-3 py-2 text-sm"
+                  className="min-h-[3rem] min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm"
                 />
                 <div className="flex flex-col gap-1">
                   <button

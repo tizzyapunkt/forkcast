@@ -71,9 +71,10 @@ export function NutritionGoalForm() {
           <input
             id={`goal-${key}`}
             type="number"
+            inputMode="numeric"
             step="1"
             {...register(key)}
-            className="w-full rounded-md border px-3 py-2 text-sm"
+            className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
             placeholder="0"
           />
           {errors[key] && <p className="text-xs text-destructive">{errors[key]?.message}</p>}
