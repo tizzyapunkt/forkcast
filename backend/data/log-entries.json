@@ -1,0 +1,21 @@
+[
+  {
+    "id": "185e1c16-1d7e-4ff8-98a4-271fe45f1792",
+    "date": "2026-05-09",
+    "slot": "lunch",
+    "loggedAt": "2026-05-08T23:13:43.545Z",
+    "recipeId": "f4d3f6cf-a68e-4686-b5c9-4bc886a160a6",
+    "ingredient": {
+      "type": "full",
+      "name": "Hähnchenbrust",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 1.07,
+        "protein": 0.23,
+        "carbs": 0,
+        "fat": 0.015
+      },
+      "amount": 200
+    }
+  }
+]

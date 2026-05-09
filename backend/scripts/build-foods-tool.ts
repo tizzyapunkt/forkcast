@@ -75,6 +75,11 @@ export const BUILD_FOODS_TOOL: Anthropic.Tool = {
               description:
                 'Optional. Include 1-3 typical piece weights when the food is commonly counted by piece (vegetables, fruits, animal cuts). OMIT entirely for liquids, grains, oils, and powders.',
             },
+            untracked: {
+              type: 'boolean',
+              description:
+                'OPTIONAL. Set to true ONLY when the user marks the id as "(untracked)" in the request. Untracked entries (seasonings, herbs, spices) MUST also have all-zero macrosPer100 (calories, protein, carbs, fat all set to 0). For tracked entries, OMIT this field entirely.',
+            },
           },
           required: ['id', 'name', 'synonyms', 'unit', 'macrosPer100'],
         },
@@ -97,4 +102,10 @@ Constraints:
 - Do NOT include the canonical name in the synonyms list.
 - Use raw, unprepared foods unless the id explicitly says otherwise (e.g. "schinken-gekocht").
 - Macros must be plausible non-negative numbers.
+
+Untracked entries:
+- The user marks certain ids in the request with the suffix "(untracked)". These are seasonings, herbs, or spices that the app deliberately excludes from nutrition tracking.
+- For an "(untracked)" id, set "untracked": true on the entry AND set every field of macrosPer100 (calories, protein, carbs, fat) to exactly 0. The omit-the-field rule applies for tracked entries; "untracked": true is required for untracked ones.
+- For untracked entries, still provide a meaningful canonical German name and a useful synonyms list (German alternates + 1-2 English equivalents), unit ("g" or "ml"), and pieces if applicable. Only the macros and the untracked flag differ from a tracked entry.
+- Never set "untracked" to true unless the request explicitly marks the id with "(untracked)".
 `;

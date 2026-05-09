@@ -45,7 +45,7 @@ The system SHALL reject requests where any image exceeds the per-image byte limi
 - **THEN** the response is `400` with an error that names the offending image's index and the unsupported media type
 
 ### Requirement: Ingredient matching against existing catalog
-The system SHALL, for each ingredient name extracted from the photos, attempt to match it against the existing ingredient catalog using the existing ingredient search service. When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit` and `macrosPerUnit`, while keeping the model-extracted `amount`. When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no match is found, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), and `pieceQuantity` (if any), without macros.
+The system SHALL, for each ingredient name extracted from the photos, attempt to match it against the existing ingredient catalog using the existing ingredient search service. When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`. When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no match is found, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), and `pieceQuantity` (if any), without macros and without an `untracked` flag (the user sets it manually in the review UI if needed).
 
 When the model returns piece-quantity fields for an ingredient (see "Resolve piece quantities to gram weights"), the matching pipeline MUST preserve them on the draft row, subject to:
 - If the resolved catalog `unit` is `g` or `ml`, `pieceQuantity` is preserved verbatim and the catalog `unit` is used.
@@ -63,7 +63,7 @@ When the model returns piece-quantity fields for an ingredient (see "Resolve pie
 
 #### Scenario: Unmatched ingredient
 - **WHEN** the model extracts an ingredient name that has no match in the catalog
-- **THEN** the draft row is flagged as unmatched and carries only the extracted `name`, `amount`, `unit`, and `pieceQuantity` (when present), with no `macrosPerUnit`
+- **THEN** the draft row is flagged as unmatched and carries only the extracted `name`, `amount`, `unit`, and `pieceQuantity` (when present), with no `macrosPerUnit` and no `untracked` flag
 
 #### Scenario: Piece quantity preserved through mass-unit match
 - **WHEN** the model extracts `{ name: "Zwiebel", amount: 150, unit: "g", pieceAmount: 1, pieceUnitLabel: "Zwiebel", gramsPerPiece: 150 }` and the catalog match for "Zwiebel" has `unit: "g"` with known macros
@@ -72,6 +72,14 @@ When the model returns piece-quantity fields for an ingredient (see "Resolve pie
 #### Scenario: Piece quantity dropped through non-mass match
 - **WHEN** the model extracts `{ name: "Knoblauch", amount: 6, unit: "g", pieceAmount: 2, pieceUnitLabel: "Zehe", gramsPerPiece: 3 }` and the catalog match for "Knoblauch" has `unit: "tbsp"`
 - **THEN** the draft row uses the catalog `unit: "tbsp"`, drops the `pieceQuantity`, and is flagged `unitOverridden: true`
+
+#### Scenario: Untracked inherited from FOODS match
+- **WHEN** the model extracts `{ name: "salt", amount: 5, unit: "g" }` and the catalog match for `salz` has `unit: "g"` and `untracked: true`
+- **THEN** the matched draft row carries `untracked: true` (the flag is inherited from the FOODS match)
+
+#### Scenario: Tracked match yields no untracked flag on the draft row
+- **WHEN** the model extracts an ingredient that matches a tracked FOODS entry
+- **THEN** the matched draft row carries `untracked: false` (or omits the field) — the row is treated as tracked
 
 ### Requirement: Missing amount surfaced, never guessed
 When an ingredient amount or unit is not visible in any of the submitted photos, the system MUST return that field as missing rather than guess. Unmatched rows with missing amounts and matched rows with missing amounts MUST both be representable in the draft.
@@ -189,4 +197,49 @@ The review UI MUST visually distinguish AI-estimated `gramsPerPiece` values so t
 #### Scenario: User adjusts gramsPerPiece before saving
 - **WHEN** the user changes `gramsPerPiece` from `150` to `200` on a piece-tracked draft row with `pieceAmount = 1`
 - **THEN** the row updates to show `1 onion (≈ 200 g)` and saving the recipe persists `amount = 200` with `pieceQuantity.gramsPerPiece = 200`
+
+### Requirement: Review UI surfaces and allows toggling the untracked flag
+The frontend review-import screen SHALL render the `untracked` flag on every draft ingredient row that carries it, with the same visual treatment used in the recipe form (muted styling and/or a small badge). The screen SHALL also provide a toggle on every row — including unmatched rows that arrived without a flag — that lets the user mark the row as untracked or clear the flag before saving the recipe. Saving the recipe MUST persist whatever `untracked` value the user left on each row.
+
+#### Scenario: Inherited untracked flag visible in review
+- **WHEN** the importer returns a draft with one row inheriting `untracked: true` from a FOODS match
+- **THEN** the review screen renders that row visually muted with the untracked toggle in the on state
+
+#### Scenario: User toggles unmatched row to untracked
+- **WHEN** the user opens an imported draft, finds an unmatched row "fresh thyme", and toggles it to untracked
+- **THEN** the form state for that row carries `untracked: true` and the row's visual treatment switches to muted
+
+#### Scenario: User clears an inherited untracked flag
+- **WHEN** the importer returns a row with inherited `untracked: true` and the user toggles it off before saving
+- **THEN** the row is saved with `untracked: false` (or absent)
+
+#### Scenario: Saved recipe reflects review-time toggle state
+- **WHEN** the user saves the imported recipe after toggling some rows
+- **THEN** the persisted recipe carries `untracked` per row exactly as left in the review UI
+
+### Requirement: Review screen replaces a misrecognized ingredient via the picker
+The frontend AI-import review screen SHALL allow the user to replace a misrecognized ingredient on any matched row by opening the existing ingredient picker via the row's name (per the `recipes` capability "Replace ingredient via picker" requirement). The user MUST NOT be required to delete the row and re-add it from scratch in order to correct a wrong AI match.
+
+The replace MUST follow the same per-field rules as the manual editor: keep `amount`, replace `name`/`unit`/`macrosPerUnit`/`untracked`, and keep or drop `pieceQuantity` per the new pick's unit. Saving the recipe after a replace MUST send the swapped row in the `add-recipe` payload.
+
+When a row's `pieceQuantity` was AI-estimated (visible via the estimate badge) and the user swaps the ingredient, the estimate badge MUST be cleared for that row regardless of whether `pieceQuantity` is preserved or dropped — the user has now made an explicit pick.
+
+#### Scenario: Mismatched ingredient corrected via swap
+- **GIVEN** an imported draft contains a matched row `{ name: "Olivenöl", unit: "ml", amount: 30 }` but the photo actually showed sunflower oil
+- **WHEN** the user taps the row's name in the review screen, picks "Sonnenblumenöl" from the picker
+- **THEN** the review screen now shows the row as `Sonnenblumenöl, 30 ml` (amount preserved)
+- **AND** saving the recipe sends `name: "Sonnenblumenöl"`, `unit: "ml"`, the picked `macrosPerUnit`, and `amount: 30` in the `add-recipe` payload
+
+#### Scenario: Tracked → untracked swap in review
+- **WHEN** the user replaces a tracked row in the review screen with a FOODS-untracked seasoning (e.g. "Salz")
+- **THEN** the row is rendered with `untracked: true` (muted style, "Nicht gezählt" indicator) and saving the recipe sends `untracked: true` for that row
+
+#### Scenario: AI-estimated piece weight cleared after swap
+- **GIVEN** a draft row with `pieceQuantity` flagged as an AI estimate (estimate badge visible)
+- **WHEN** the user swaps the ingredient via the picker
+- **THEN** the estimate badge is no longer shown for that row, regardless of whether `pieceQuantity` was preserved or dropped by the swap rules
+
+#### Scenario: Discard via swap, not via remove + add
+- **WHEN** the user wants to correct any matched row in the review screen
+- **THEN** the swap action (tap-the-name → pick) is sufficient — there is no requirement to first delete the row using the row's ✕ button
 

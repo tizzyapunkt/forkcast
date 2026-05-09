@@ -82,4 +82,54 @@ describe('validateFoodEntry', () => {
     const result = validateFoodEntry({ ...valid, name: '' });
     expect(result.ok).toBe(false);
   });
+
+  it('accepts an untracked entry with all-zero macros', () => {
+    const result = validateFoodEntry({
+      id: 'salz',
+      name: 'Salz',
+      synonyms: ['Speisesalz', 'salt'],
+      unit: 'g',
+      macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      untracked: true,
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it('rejects an untracked entry with non-zero calories', () => {
+    const result = validateFoodEntry({
+      id: 'salz',
+      name: 'Salz',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 12, protein: 0, carbs: 0, fat: 0 },
+      untracked: true,
+    });
+    expect(result).toEqual({ ok: false, reason: expect.stringMatching(/untracked.*all-zero/i) });
+  });
+
+  it('rejects an untracked entry with any non-zero macro', () => {
+    for (const macro of ['protein', 'carbs', 'fat'] as const) {
+      const result = validateFoodEntry({
+        id: 'x',
+        name: 'X',
+        synonyms: [],
+        unit: 'g',
+        macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0, [macro]: 1 },
+        untracked: true,
+      });
+      expect(result.ok).toBe(false);
+    }
+  });
+
+  it('rejects an entry whose untracked is not a boolean', () => {
+    const result = validateFoodEntry({
+      id: 'x',
+      name: 'X',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      untracked: 'yes' as unknown as boolean,
+    });
+    expect(result.ok).toBe(false);
+  });
 });

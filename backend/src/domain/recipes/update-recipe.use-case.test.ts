@@ -124,4 +124,55 @@ describe('updateRecipe', () => {
     const updated = await updateRecipe(repo, { id: 'rec-1', name: 'Renamed' });
     expect(updated.ingredients[0]?.pieceQuantity).toBeUndefined();
   });
+
+  it('updates ingredients with the untracked flag', async () => {
+    const { repo, saved } = makeRepo(base);
+    const ingredients = [
+      {
+        name: 'Oats',
+        unit: 'g' as const,
+        macrosPerUnit: { calories: 3.7, protein: 0.13, carbs: 0.66, fat: 0.07 },
+        amount: 80,
+      },
+      {
+        name: 'Salz',
+        unit: 'g' as const,
+        macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        amount: 5,
+        untracked: true,
+      },
+    ];
+    const updated = await updateRecipe(repo, { id: 'rec-1', ingredients });
+    expect(updated.ingredients[0]?.untracked).toBeUndefined();
+    expect(updated.ingredients[1]?.untracked).toBe(true);
+    expect(saved).toEqual([updated]);
+  });
+
+  it('preserves untracked flag when toggling rows in subsequent updates', async () => {
+    const seeded: Recipe = {
+      ...base,
+      ingredients: [
+        { ...base.ingredients[0]! },
+        {
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          untracked: true,
+        },
+      ],
+    };
+    const { repo, saved } = makeRepo(seeded);
+    const ingredients = seeded.ingredients.map((i) => ({ ...i, untracked: !i.untracked }));
+    const updated = await updateRecipe(repo, { id: 'rec-1', ingredients });
+    expect(updated.ingredients[0]?.untracked).toBe(true);
+    expect(updated.ingredients[1]?.untracked).toBe(false);
+    expect(saved).toEqual([updated]);
+  });
+
+  it('passes legacy recipes (no untracked field) through unchanged when other fields change', async () => {
+    const { repo } = makeRepo(base);
+    const updated = await updateRecipe(repo, { id: 'rec-1', name: 'Renamed' });
+    expect(updated.ingredients[0]?.untracked).toBeUndefined();
+  });
 });

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../test/msw/server';
+import { renderWithProviders } from '../../test/harness';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
 import type { RecipeIngredient } from '../../domain/recipes';
 
@@ -82,5 +85,320 @@ describe('RecipeIngredientEditor — piece quantities', () => {
     await user.click(screen.getByRole('button', { name: /^OK$/ }));
     // After attach: row shows the count input
     expect(screen.getByLabelText(/Stückzahl für Tomate/i)).toBeInTheDocument();
+  });
+});
+
+describe('RecipeIngredientEditor — untracked toggle', () => {
+  const salt: RecipeIngredient = {
+    name: 'Salz',
+    unit: 'g',
+    macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    amount: 5,
+    untracked: true,
+  };
+
+  it('renders an inherited-untracked row with the toggle pressed and the "Nicht gezählt" label', () => {
+    render(<Harness initial={[salt]} />);
+    const toggle = screen.getByTestId('untracked-toggle-0');
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(toggle).toHaveAccessibleName(/salz nicht in nährwerten zählen/i);
+    expect(toggle).toHaveTextContent(/nicht gezählt/i);
+  });
+
+  it('renders a tracked row with the toggle unpressed and the "Nicht zählen" label', () => {
+    render(<Harness initial={[massOnly]} />);
+    const toggle = screen.getByTestId('untracked-toggle-0');
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).toHaveTextContent(/nicht zählen/i);
+  });
+
+  it('toggling a tracked row to untracked flips aria-pressed and the label', async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={[massOnly]} />);
+    const toggle = screen.getByTestId('untracked-toggle-0');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(toggle).toHaveTextContent(/nicht gezählt/i);
+  });
+
+  it('toggling an inherited-untracked row off flips aria-pressed and the label back', async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={[salt]} />);
+    const toggle = screen.getByTestId('untracked-toggle-0');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).toHaveTextContent(/nicht zählen/i);
+  });
+
+  it('handles mixed tracked and untracked rows independently', async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={[massOnly, salt]} />);
+    const flourToggle = screen.getByTestId('untracked-toggle-0');
+    const saltToggle = screen.getByTestId('untracked-toggle-1');
+    expect(flourToggle).toHaveAttribute('aria-pressed', 'false');
+    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
+    await user.click(flourToggle);
+    expect(flourToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
+  });
+});
+
+describe('RecipeIngredientEditor — replace ingredient via picker', () => {
+  function Capture({ initial }: { initial: RecipeIngredient[] }) {
+    const [ingredients, setIngredients] = useState(initial);
+    return (
+      <>
+        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
+        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
+      </>
+    );
+  }
+
+  function readState(): RecipeIngredient[] {
+    const el = screen.getByTestId('captured-state');
+    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
+  }
+
+  const oilRow: RecipeIngredient = {
+    name: 'Olivenöl',
+    unit: 'ml',
+    macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
+    amount: 30,
+  };
+
+  const saltRow: RecipeIngredient = {
+    name: 'Salz',
+    unit: 'g',
+    macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    amount: 5,
+    untracked: true,
+  };
+
+  const onionRowWithPiece: RecipeIngredient = {
+    name: 'Zwiebel',
+    unit: 'g',
+    macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+    amount: 150,
+    pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+  };
+
+  it('opens the picker with the replace title when the row name is tapped', async () => {
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([])));
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow]} />);
+    await user.click(screen.getByTestId('replace-row-0'));
+    expect(screen.getByRole('heading', { name: /zutat ersetzen/i })).toBeInTheDocument();
+  });
+
+  it('replaces a tracked row, keeping the amount and replacing name/unit/macros', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'sonnenblumenoel',
+            source: 'FOODS',
+            name: 'Sonnenblumenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'sonne');
+    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state).toHaveLength(1);
+    expect(state[0]).toMatchObject({
+      name: 'Sonnenblumenöl',
+      unit: 'ml',
+      amount: 30,
+      macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+    });
+    expect(state[0]?.untracked).toBeUndefined();
+  });
+
+  it('inherits untracked when the replacement is a FOODS-untracked entry', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'salz',
+            source: 'FOODS',
+            name: 'Salz',
+            unit: 'g',
+            macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+            untracked: true,
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'salz');
+    const result = await screen.findByRole('button', { name: /^salz/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state[0]).toMatchObject({ name: 'Salz', unit: 'g', amount: 30, untracked: true });
+  });
+
+  it('clears inherited untracked when replacing an untracked row with a tracked entry', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'zucker',
+            source: 'FOODS',
+            name: 'Zucker',
+            unit: 'g',
+            macrosPerUnit: { calories: 4, protein: 0, carbs: 1, fat: 0 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[saltRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'zucker');
+    const result = await screen.findByRole('button', { name: /zucker/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state[0]).toMatchObject({ name: 'Zucker', amount: 5 });
+    expect(state[0]?.untracked).toBeUndefined();
+  });
+
+  it('preserves pieceQuantity when the new pick is mass-tracked (g/ml)', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'schalotte',
+            source: 'FOODS',
+            name: 'Schalotte',
+            unit: 'g',
+            macrosPerUnit: { calories: 0.7, protein: 0.025, carbs: 0.16, fat: 0.001 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[onionRowWithPiece]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'schal');
+    const result = await screen.findByRole('button', { name: /schalotte/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+    expect(state[0]?.amount).toBe(150);
+  });
+
+  it('drops pieceQuantity when the new pick has a non-mass unit', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'tomatenmark',
+            source: 'FOODS',
+            name: 'Tomatenmark',
+            unit: 'tbsp',
+            macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[onionRowWithPiece]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'tomate');
+    const result = await screen.findByRole('button', { name: /tomatenmark/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state[0]?.unit).toBe('tbsp');
+    expect(state[0]?.pieceQuantity).toBeUndefined();
+    expect(state[0]?.amount).toBe(150);
+  });
+
+  it('cancelling the picker leaves the row unchanged', async () => {
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([])));
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    expect(screen.getByRole('heading', { name: /zutat ersetzen/i })).toBeInTheDocument();
+    // The picker has a top-right "Abbrechen" button
+    const cancelButtons = screen.getAllByRole('button', { name: /^abbrechen$/i });
+    await user.click(cancelButtons[0]!);
+
+    const state = readState();
+    expect(state).toEqual([oilRow]);
+  });
+
+  it('replacing one row does not affect any other row', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'sonnenblumenoel',
+            source: 'FOODS',
+            name: 'Sonnenblumenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow, saltRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'sonne');
+    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state[0]?.name).toBe('Sonnenblumenöl');
+    expect(state[1]).toEqual(saltRow);
+  });
+
+  it('skips the amount step in replace mode (no amount input shown after picking)', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'sonnenblumenoel',
+            source: 'FOODS',
+            name: 'Sonnenblumenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oilRow]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'sonne');
+    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    await user.click(result);
+
+    // After picking, the picker dialog should be closed — no amount input visible.
+    expect(screen.queryByLabelText(/menge pro rezept/i)).not.toBeInTheDocument();
+    // Replace title also gone.
+    expect(screen.queryByRole('heading', { name: /zutat ersetzen/i })).not.toBeInTheDocument();
   });
 });

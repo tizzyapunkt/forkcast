@@ -139,4 +139,83 @@ describe('addRecipe', () => {
     await expect(addRecipe(repo, { name: 'X', yield: 1, ingredients: [bad], steps: [] })).rejects.toThrow(/mass unit/i);
     expect(repo.save).not.toHaveBeenCalled();
   });
+
+  it('persists an untracked ingredient', async () => {
+    const repo = makeRepo();
+    const salt = {
+      name: 'Salz',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 5,
+      untracked: true,
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [salt], steps: [] });
+    expect(recipe.ingredients[0]?.untracked).toBe(true);
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
+  it('accepts an untracked ingredient with non-zero macrosPerUnit (untracked is the source of truth)', async () => {
+    const repo = makeRepo();
+    const oddly = {
+      name: 'Salz',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 99, protein: 1, carbs: 1, fat: 1 },
+      amount: 5,
+      untracked: true,
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [oddly], steps: [] });
+    expect(recipe.ingredients[0]?.macrosPerUnit).toEqual({ calories: 99, protein: 1, carbs: 1, fat: 1 });
+    expect(recipe.ingredients[0]?.untracked).toBe(true);
+  });
+
+  it('rejects an untracked ingredient with non-positive amount', async () => {
+    const repo = makeRepo();
+    const noAmount = {
+      name: 'Salz',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 0,
+      untracked: true,
+    };
+    await expect(addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [noAmount], steps: [] })).rejects.toThrow(
+      /amount/i,
+    );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects an untracked ingredient with empty unit', async () => {
+    const repo = makeRepo();
+    const noUnit = {
+      name: 'Salz',
+      unit: '' as unknown as 'g',
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 5,
+      untracked: true,
+    };
+    await expect(addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [noUnit], steps: [] })).rejects.toThrow(
+      /unit/i,
+    );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('persists a recipe with mixed tracked and untracked ingredients', async () => {
+    const repo = makeRepo();
+    const recipe = await addRecipe(repo, {
+      name: 'Chicken with salt',
+      yield: 1,
+      ingredients: [
+        { ...validIngredient, name: 'Hähnchenbrust', amount: 200 },
+        {
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          untracked: true,
+        },
+      ],
+      steps: [],
+    });
+    expect(recipe.ingredients[0]?.untracked).toBeUndefined();
+    expect(recipe.ingredients[1]?.untracked).toBe(true);
+  });
 });

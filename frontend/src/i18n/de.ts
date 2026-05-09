@@ -173,6 +173,7 @@ export const de = {
     searching: 'Suche läuft…',
     noResults: (q: string) => `Keine Treffer für „${q}“`,
     kcalPer: (kcal: number, unit: string) => `${kcal} kcal / ${unit}`,
+    untrackedHint: 'Würzmittel — nicht getrackt. In Rezepten verwendbar.',
   },
 
   recentPanel: {
@@ -267,6 +268,10 @@ export const de = {
     detachPieceAria: (name: string) => `Stückzählung für ${name} entfernen`,
     massEditDetachHint: 'Direktes Bearbeiten der Gesamtmenge entfernt die Stückzählung.',
     pieceLabelPlaceholder: 'z. B. Zwiebel, mittlere Zucchini, Zehe',
+    untrackedToggle: 'Nicht zählen',
+    untrackedToggleAria: (name: string) => `${name} nicht in Nährwerten zählen`,
+    untrackedBadge: 'Nicht gezählt',
+    replaceAria: (name: string) => `Zutat „${name}“ ersetzen`,
   },
 
   aiRecipeImport: {
@@ -298,11 +303,13 @@ export const de = {
     unitOverridden: (extracted: string, catalog: string) =>
       `Einheit aus Katalog (${catalog}) statt extrahierter Einheit (${extracted})`,
     unitOverriddenAria: 'Einheit wurde aus dem Katalog übernommen',
+    untrackedHint: 'Würzmittel — wird in Nährwerten nicht berücksichtigt',
   },
 
   recipeIngredientPicker: {
     dialogAria: 'Zutat zum Rezept hinzufügen',
     titlePick: 'Zutat hinzufügen',
+    titleReplace: 'Zutat ersetzen',
     titleAmount: (name: string) => `Menge — ${name}`,
     cancel: 'Abbrechen',
     search: 'Suche',

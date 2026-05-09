@@ -12,6 +12,7 @@ export interface RecipeIngredient {
   macrosPerUnit: MacrosPer100;
   amount: number;
   pieceQuantity?: PieceQuantity;
+  untracked?: boolean;
 }
 
 export interface Recipe {
@@ -33,6 +34,7 @@ export interface MatchedDraftIngredient {
   unitOverridden: boolean;
   source: 'FOODS' | 'OFF';
   pieceQuantity?: PieceQuantity;
+  untracked?: boolean;
 }
 
 export interface UnmatchedDraftIngredient {

@@ -166,4 +166,80 @@ describe('logRecipe', () => {
     ).rejects.toThrow('disk full');
     expect(logRepo.save).not.toHaveBeenCalled();
   });
+
+  it('skips untracked ingredients — only tracked rows produce LogEntries', async () => {
+    const recipeWithSalt: Recipe = {
+      ...baseRecipe,
+      yield: 2,
+      ingredients: [
+        { name: 'Rice', unit: 'g', macrosPerUnit: { calories: 1.3, protein: 0, carbs: 0.28, fat: 0 }, amount: 200 },
+        {
+          name: 'Chicken',
+          unit: 'g',
+          macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.04 },
+          amount: 100,
+        },
+        {
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          untracked: true,
+        },
+      ],
+    };
+    const recipeRepo = makeRecipeRepo(recipeWithSalt);
+    const { repo: logRepo, saved } = makeLogRepo();
+
+    const result = await logRecipe(recipeRepo, logRepo, {
+      recipeId: 'rec-1',
+      portions: 1,
+      date: '2026-04-28',
+      slot: 'lunch',
+    });
+
+    expect(result).toHaveLength(2);
+    expect(saved[0]).toEqual(result);
+    const names = result.map((e) => (e.ingredient.type === 'full' ? e.ingredient.name : ''));
+    expect(names).toEqual(['Rice', 'Chicken']);
+    if (result[0]?.ingredient.type !== 'full' || result[1]?.ingredient.type !== 'full')
+      throw new Error('expected full');
+    expect(result[0].ingredient.amount).toBe(100); // 200 * 1/2
+    expect(result[1].ingredient.amount).toBe(50); // 100 * 1/2
+  });
+
+  it('returns empty array for an all-untracked recipe and persists no entries', async () => {
+    const allUntracked: Recipe = {
+      ...baseRecipe,
+      ingredients: [
+        {
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          untracked: true,
+        },
+        {
+          name: 'Pfeffer',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 2,
+          untracked: true,
+        },
+      ],
+    };
+    const recipeRepo = makeRecipeRepo(allUntracked);
+    const { repo: logRepo, saved } = makeLogRepo();
+
+    const result = await logRecipe(recipeRepo, logRepo, {
+      recipeId: 'rec-1',
+      portions: 1,
+      date: '2026-04-28',
+      slot: 'lunch',
+    });
+
+    expect(result).toEqual([]);
+    expect(saved).toEqual([]);
+    expect(logRepo.saveMany).not.toHaveBeenCalled();
+  });
 });

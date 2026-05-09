@@ -69,5 +69,18 @@ export function validateFoodEntry(entry: FoodEntry): ValidationResult {
       seen.add(p.label);
     }
   }
+  if (entry.untracked !== undefined) {
+    if (typeof entry.untracked !== 'boolean') {
+      return { ok: false, reason: `entry ${entry.id}: untracked must be a boolean when present` };
+    }
+    if (entry.untracked === true) {
+      if (m.calories !== 0 || m.protein !== 0 || m.carbs !== 0 || m.fat !== 0) {
+        return {
+          ok: false,
+          reason: `entry ${entry.id}: untracked entries must have all-zero macrosPer100`,
+        };
+      }
+    }
+  }
   return { ok: true, entry };
 }

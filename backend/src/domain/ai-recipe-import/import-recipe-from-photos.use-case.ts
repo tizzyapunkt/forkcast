@@ -58,5 +58,6 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
     source: top.source,
   };
   if (raw.pieceQuantity && matchedUnitIsMass) matched.pieceQuantity = raw.pieceQuantity;
+  if (top.untracked === true) matched.untracked = true;
   return matched;
 }

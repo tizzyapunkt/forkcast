@@ -46,6 +46,7 @@ function buildInitialMatchedIngredients(draft: RecipeDraft): {
       row.pieceQuantity = ing.pieceQuantity;
       estimateIndices.add(idx);
     }
+    if (ing.untracked === true) row.untracked = true;
     matched.push(row);
     if (ing.unitOverridden) {
       overrideMap.set(idx, { extractedUnit: ing.unit });

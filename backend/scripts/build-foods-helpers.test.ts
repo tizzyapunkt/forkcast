@@ -57,6 +57,65 @@ describe('collectEntries', () => {
     const { errors } = collectEntries(['a', 'b'], [bad as FoodEntry]);
     expect(errors).toHaveLength(2);
   });
+
+  it('accepts an untracked entry when seed marks the key as untracked', () => {
+    const untracked: FoodEntry = {
+      id: 'salz',
+      name: 'Salz',
+      synonyms: ['salt'],
+      unit: 'g',
+      macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      untracked: true,
+    };
+    const { entries, errors } = collectEntries(['salz'], [untracked], { untrackedKeys: new Set(['salz']) });
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.untracked).toBe(true);
+    expect(errors).toEqual([]);
+  });
+
+  it('errors when seed marks key untracked but AI omits the flag', () => {
+    const noFlag: FoodEntry = {
+      id: 'salz',
+      name: 'Salz',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    };
+    const { entries, errors } = collectEntries(['salz'], [noFlag], { untrackedKeys: new Set(['salz']) });
+    expect(entries).toHaveLength(0);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/seed marks.*untracked/i);
+  });
+
+  it('errors when seed marks key untracked but AI returns non-zero macros', () => {
+    const driftedMacros: FoodEntry = {
+      id: 'salz',
+      name: 'Salz',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 5, protein: 0, carbs: 0, fat: 0 },
+      untracked: true,
+    };
+    const { entries, errors } = collectEntries(['salz'], [driftedMacros], { untrackedKeys: new Set(['salz']) });
+    expect(entries).toHaveLength(0);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/all-zero/i);
+  });
+
+  it('errors when AI sets untracked: true on a tracked seed key', () => {
+    const drifted: FoodEntry = {
+      id: 'moehre',
+      name: 'Möhre',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 },
+      untracked: true,
+    };
+    const { entries, errors } = collectEntries(['moehre'], [drifted], { untrackedKeys: new Set() });
+    expect(entries).toHaveLength(0);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/untracked.*tracked/i);
+  });
 });
 
 describe('sortEntriesById', () => {

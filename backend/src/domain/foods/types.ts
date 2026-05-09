@@ -15,6 +15,7 @@ export interface FoodEntry {
     fat: number;
   };
   pieces?: PieceWeight[];
+  untracked?: boolean;
 }
 
 export interface FoodIndexedEntry extends FoodEntry {

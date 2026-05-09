@@ -277,6 +277,60 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'rare squash', gramsPerPiece: 200 });
   });
 
+  it('inherits untracked: true from a matched untracked FOODS entry', async () => {
+    const extractor = makeExtractor({
+      name: 'Pasta',
+      yield: 1,
+      ingredients: [{ name: 'salt', amount: 5, unit: 'g' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      salt: [
+        foodsResult({
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.untracked).toBe(true);
+  });
+
+  it('omits untracked on a matched tracked FOODS entry', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'olive oil', amount: 25, unit: 'ml' }],
+      steps: [],
+    });
+    const search = makeSearch({ 'olive oil': [foodsResult()] });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.untracked).toBeUndefined();
+  });
+
+  it('never sets untracked on an unmatched ingredient row', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'fresh thyme', amount: 5, unit: 'g' }],
+      steps: [],
+    });
+    const search = makeSearch({});
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || ing.matched) throw new Error('expected unmatched ingredient');
+    expect('untracked' in ing).toBe(false);
+  });
+
   it('does not write to the recipe repository', async () => {
     const extractor = makeExtractor({
       name: 'X',

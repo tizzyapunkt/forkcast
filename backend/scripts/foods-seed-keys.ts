@@ -4,8 +4,15 @@
  *
  * IDs are stable, lowercase, ASCII kebab-case (German romanisation).
  * Re-running the build script regenerates the entries — local hand edits to `foods.json` may be overwritten.
+ *
+ * A plain string entry is a tracked food. An object `{ key, untracked: true }` marks the key as
+ * untracked: a seasoning, herb, or spice that belongs to a recipe and the future grocery list but
+ * never contributes to nutrition rollups. The build script enforces that untracked entries land
+ * with `untracked: true` AND all-zero `macrosPer100` in the generated JSON.
  */
-export const FOODS_SEED_KEYS: ReadonlyArray<string> = [
+export type FoodSeedKey = string | { key: string; untracked: true };
+
+export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   // Vegetables — leafy & cruciferous
   'spinat',
   'gruenkohl',
@@ -209,4 +216,33 @@ export const FOODS_SEED_KEYS: ReadonlyArray<string> = [
   'rapsoel',
   'kokosoel',
   'leinoel',
+
+  // Seasonings, herbs & spices — untracked (no macro contribution by definition)
+  { key: 'salz', untracked: true },
+  { key: 'pfeffer-schwarz', untracked: true },
+  { key: 'basilikum', untracked: true },
+  { key: 'oregano', untracked: true },
+  { key: 'thymian', untracked: true },
+  { key: 'rosmarin', untracked: true },
+  { key: 'paprikapulver', untracked: true },
+  { key: 'kreuzkuemmel', untracked: true },
+  { key: 'kurkuma', untracked: true },
+  { key: 'zimt', untracked: true },
+  { key: 'lorbeerblatt', untracked: true },
+  { key: 'petersilie', untracked: true },
+  { key: 'schnittlauch', untracked: true },
+  { key: 'dill', untracked: true },
+  { key: 'chiliflocken', untracked: true },
+  { key: 'muskat', untracked: true },
 ];
+
+export interface NormalizedFoodSeedKey {
+  key: string;
+  untracked: boolean;
+}
+
+export function normalizeFoodSeedKeys(seed: ReadonlyArray<FoodSeedKey>): NormalizedFoodSeedKey[] {
+  return seed.map((entry) =>
+    typeof entry === 'string' ? { key: entry, untracked: false } : { key: entry.key, untracked: entry.untracked === true },
+  );
+}

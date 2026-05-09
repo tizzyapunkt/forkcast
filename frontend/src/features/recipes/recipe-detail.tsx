@@ -79,21 +79,39 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
       <section>
         <h3 className="mb-2 text-sm font-medium">{de.recipes.ingredients}</h3>
         <ul className="divide-y">
-          {recipe.ingredients.map((ing, idx) => (
-            <li key={`${ing.name}|${idx}`} className="flex items-center justify-between py-2 text-sm">
-              <span className="font-medium">{ing.name}</span>
-              <span className="text-muted-foreground">
-                {ing.pieceQuantity
-                  ? de.recipeIngredientEditor.pieceSummary(
-                      ing.pieceQuantity.amount,
-                      ing.pieceQuantity.unitLabel,
-                      ing.amount,
-                      ing.unit,
-                    )
-                  : `${ing.amount} ${ing.unit}`}
-              </span>
-            </li>
-          ))}
+          {recipe.ingredients.map((ing, idx) => {
+            const untracked = ing.untracked === true;
+            return (
+              <li
+                key={`${ing.name}|${idx}`}
+                data-untracked={untracked || undefined}
+                className={`flex items-center justify-between py-2 text-sm ${untracked ? 'text-muted-foreground' : ''}`}
+              >
+                <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-medium">{ing.name}</span>
+                  {untracked && (
+                    <span
+                      data-testid={`untracked-badge-${idx}`}
+                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium"
+                    >
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-foreground/60" />
+                      {de.recipeIngredientEditor.untrackedBadge}
+                    </span>
+                  )}
+                </span>
+                <span className="text-muted-foreground">
+                  {ing.pieceQuantity
+                    ? de.recipeIngredientEditor.pieceSummary(
+                        ing.pieceQuantity.amount,
+                        ing.pieceQuantity.unitLabel,
+                        ing.amount,
+                        ing.unit,
+                      )
+                    : `${ing.amount} ${ing.unit}`}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </section>
 

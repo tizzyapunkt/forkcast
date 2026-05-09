@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": "f4d3f6cf-a68e-4686-b5c9-4bc886a160a6",
+    "name": "Hähnchen mit Salz",
+    "yield": 1,
+    "ingredients": [
+      {
+        "name": "Salz",
+        "unit": "g",
+        "macrosPerUnit": {
+          "calories": 0,
+          "protein": 0,
+          "carbs": 0,
+          "fat": 0
+        },
+        "amount": 5,
+        "untracked": true
+      },
+      {
+        "name": "Lachsfilet",
+        "unit": "g",
+        "macrosPerUnit": {
+          "calories": 2.08,
+          "protein": 0.2,
+          "carbs": 0,
+          "fat": 0.13
+        },
+        "amount": 200
+      }
+    ],
+    "steps": [],
+    "createdAt": "2026-05-08T23:12:56.326Z",
+    "updatedAt": "2026-05-08T23:56:47.182Z"
+  }
+]

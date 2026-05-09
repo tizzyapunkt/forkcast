@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PieceQuantity, RecipeIngredient } from '../../domain/recipes';
+import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { de } from '../../i18n/de';
 
@@ -17,8 +18,39 @@ function round1(n: number): number {
 
 export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices, onEstimateAcknowledged }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   const [pendingDetach, setPendingDetach] = useState<{ index: number; nextAmount: number } | null>(null);
   const [addingPieceFor, setAddingPieceFor] = useState<number | null>(null);
+
+  const isPickerOpen = pickerOpen || replacingIndex !== null;
+  const pickerMode: 'add' | 'replace' = replacingIndex !== null ? 'replace' : 'add';
+
+  function closePicker() {
+    setPickerOpen(false);
+    setReplacingIndex(null);
+  }
+
+  function handleReplace(index: number, result: IngredientSearchResult) {
+    const existing = ingredients[index];
+    if (!existing) return;
+    const next: RecipeIngredient = {
+      name: result.name,
+      unit: result.unit,
+      macrosPerUnit: result.macrosPerUnit,
+      amount: existing.amount,
+    };
+    const newUnitIsMass = result.unit === 'g' || result.unit === 'ml';
+    if (newUnitIsMass && existing.pieceQuantity) {
+      next.pieceQuantity = existing.pieceQuantity;
+    }
+    if (result.untracked === true) {
+      next.untracked = true;
+    }
+    onChange(ingredients.map((ing, i) => (i === index ? next : ing)));
+    if (estimateIndices?.has(index)) {
+      onEstimateAcknowledged?.(index);
+    }
+  }
 
   function handleRemove(index: number) {
     onChange(ingredients.filter((_, i) => i !== index));
@@ -104,6 +136,15 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
     });
   }
 
+  function handleToggleUntracked(index: number, next: boolean) {
+    update(index, (ing) => {
+      const updated: RecipeIngredient = { ...ing };
+      if (next) updated.untracked = true;
+      else delete updated.untracked;
+      return updated;
+    });
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -128,10 +169,27 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
             const massEditable = ing.unit === 'g' || ing.unit === 'ml';
             const showAddPiece = !piece && massEditable && addingPieceFor !== idx;
 
+            const untracked = ing.untracked === true;
+
             return (
-              <li key={`${ing.name}|${ing.unit}|${idx}`} className="space-y-2 py-2 text-sm">
+              <li
+                key={`${ing.name}|${ing.unit}|${idx}`}
+                data-untracked={untracked || undefined}
+                className={`space-y-2 py-2 text-sm ${untracked ? 'text-muted-foreground' : ''}`}
+              >
                 <div className="flex items-center gap-2">
-                  <span className="min-w-0 flex-1 truncate font-medium">{ing.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setReplacingIndex(idx)}
+                    aria-label={de.recipeIngredientEditor.replaceAria(ing.name)}
+                    data-testid={`replace-row-${idx}`}
+                    className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
+                  >
+                    <span className="min-w-0 truncate">{ing.name}</span>
+                    <span aria-hidden className="shrink-0 text-xs text-muted-foreground/50">
+                      ↻
+                    </span>
+                  </button>
                   <input
                     aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
                     type="number"
@@ -141,16 +199,39 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                       const v = Number(e.target.value);
                       if (Number.isFinite(v)) handleEditMassAmount(idx, v);
                     }}
-                    className="w-20 rounded-md border px-2 py-1 text-right text-sm"
+                    className="h-10 w-20 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
                   />
                   <span className="w-10 text-xs text-muted-foreground">{ing.unit}</span>
                   <button
                     type="button"
                     onClick={() => handleRemove(idx)}
                     aria-label={de.recipeIngredientEditor.remove(ing.name)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="-mr-1 inline-flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-destructive sm:h-8 sm:w-8"
                   >
                     ✕
+                  </button>
+                </div>
+
+                <div className="flex pl-2">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleUntracked(idx, !untracked)}
+                    aria-label={de.recipeIngredientEditor.untrackedToggleAria(ing.name)}
+                    aria-pressed={untracked}
+                    data-testid={`untracked-toggle-${idx}`}
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors ${
+                      untracked
+                        ? 'bg-muted text-foreground'
+                        : 'text-muted-foreground/70 hover:bg-muted/40 active:bg-muted/60'
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        untracked ? 'bg-foreground/70' : 'bg-muted-foreground/40'
+                      }`}
+                    />
+                    {untracked ? de.recipeIngredientEditor.untrackedBadge : de.recipeIngredientEditor.untrackedToggle}
                   </button>
                 </div>
 
@@ -254,9 +335,13 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
       )}
 
       <RecipeIngredientPicker
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
+        open={isPickerOpen}
+        mode={pickerMode}
+        onClose={closePicker}
         onPicked={(ing) => onChange([...ingredients, ing])}
+        onPickResult={(result) => {
+          if (replacingIndex !== null) handleReplace(replacingIndex, result);
+        }}
       />
     </div>
   );

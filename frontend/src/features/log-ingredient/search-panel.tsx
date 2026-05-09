@@ -7,6 +7,10 @@ import { useLocalStorage } from '../../hooks/use-local-storage';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
+  /** When true (log drawer flow), untracked search results render disabled with an inline hint
+   * because logging an untracked item makes no sense. The recipe-form picker leaves this off so
+   * users can still pick untracked ingredients into a recipe. */
+  disableUntracked?: boolean;
 }
 
 type ScanState =
@@ -37,7 +41,7 @@ function useDebouncedValue(value: string, delay: number) {
   return debounced;
 }
 
-export function SearchPanel({ onSelect }: SearchPanelProps) {
+export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
   useEffect(() => {
@@ -148,22 +152,35 @@ export function SearchPanel({ onSelect }: SearchPanelProps) {
 
       {results && results.length > 0 && (
         <ul className="w-full min-w-0 divide-y">
-          {results.map((result) => (
-            <li key={`${result.source}:${result.id}`} className="min-w-0">
-              <button
-                onClick={() => onSelect(result)}
-                className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
+          {results.map((result) => {
+            const gated = disableUntracked && result.untracked === true;
+            return (
+              <li
+                key={`${result.source}:${result.id}`}
+                className="min-w-0"
+                data-untracked={result.untracked === true || undefined}
               >
-                <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
-                <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
-                    {result.source}
+                <button
+                  type="button"
+                  onClick={() => onSelect(result)}
+                  disabled={gated}
+                  aria-disabled={gated || undefined}
+                  className={`flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm ${
+                    gated ? 'cursor-not-allowed text-muted-foreground' : 'hover:bg-muted/50'
+                  }`}
+                >
+                  <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
+                  <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
+                      {result.source}
+                    </span>
+                    {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
                   </span>
-                  {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
-                </span>
-              </button>
-            </li>
-          ))}
+                </button>
+                {gated && <p className="px-0 pb-2 text-[11px] text-muted-foreground">{de.searchPanel.untrackedHint}</p>}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

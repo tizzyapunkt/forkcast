@@ -22,9 +22,11 @@ The system SHALL extend the `LogEntry` shape with an optional `recipeId?: string
 - **THEN** they load successfully with `recipeId === undefined`
 
 ### Requirement: Log a recipe
-The system SHALL expose a command `LogRecipe` that, given `{ recipeId, portions, date, slot }`, loads the named recipe and produces one `LogEntry` per recipe ingredient, all sharing the same `recipeId`. For each produced entry, `ingredient.amount` MUST equal `recipeIngredient.amount * (portions / recipe.yield)`. `ingredient.name`, `ingredient.unit`, and `ingredient.macrosPerUnit` MUST be copied from the recipe ingredient unchanged. Each entry MUST receive a fresh `id` and `loggedAt`.
+The system SHALL expose a command `LogRecipe` that, given `{ recipeId, portions, date, slot }`, loads the named recipe and produces one `LogEntry` per **tracked** recipe ingredient, all sharing the same `recipeId`. Recipe ingredients with `untracked: true` MUST be skipped — no `LogEntry` is produced for them. For each produced entry, `ingredient.amount` MUST equal `recipeIngredient.amount * (portions / recipe.yield)`. `ingredient.name`, `ingredient.unit`, and `ingredient.macrosPerUnit` MUST be copied from the recipe ingredient unchanged. Each entry MUST receive a fresh `id` and `loggedAt`.
 
 `portions` MUST be a positive number (floats allowed). `date` and `slot` follow the existing meal-log conventions.
+
+When a recipe contains only untracked ingredients, the command MUST succeed and return an empty array. The command MUST NOT reject such a recipe — marinades, rubs, and seasoning blends are legitimate recipes that simply produce no log entries.
 
 #### Scenario: Log a 4-yield recipe at 2 portions
 - **GIVEN** a recipe yields 4 with two ingredients (200g rice, 100g chicken)
@@ -52,8 +54,18 @@ The system SHALL expose a command `LogRecipe` that, given `{ recipeId, portions,
 - **WHEN** `LogRecipe` is invoked and a partial write would occur (e.g. one row succeeds and one fails)
 - **THEN** either every produced `LogEntry` is persisted or none are — no partial recipe logs
 
+#### Scenario: Untracked ingredients skipped
+- **GIVEN** a recipe yields 2 with three ingredients: 200 g rice (tracked), 100 g chicken (tracked), 5 g salt (`untracked: true`)
+- **WHEN** the user logs 1 portion of it
+- **THEN** exactly two `LogEntry` rows are created (for rice and chicken, scaled by `1/2`); no `LogEntry` is created for salt
+
+#### Scenario: All-untracked recipe produces empty result
+- **GIVEN** a recipe whose every ingredient has `untracked: true`
+- **WHEN** the user logs any positive portion of it
+- **THEN** the command succeeds and returns an empty array; no `LogEntry` rows are persisted
+
 ### Requirement: HTTP endpoint to log a recipe
-The system SHALL expose `POST /log-recipe` accepting body `{ recipeId, portions, date, slot }` and returning the created `LogEntry[]` on success.
+The system SHALL expose `POST /log-recipe` accepting body `{ recipeId, portions, date, slot }` and returning the created `LogEntry[]` on success. When the source recipe consists entirely of untracked ingredients, the response body MUST be `[]` with status `200` (or `201`).
 
 #### Scenario: Successful log
 - **WHEN** a client sends `POST /log-recipe` with valid body
@@ -66,6 +78,10 @@ The system SHALL expose `POST /log-recipe` accepting body `{ recipeId, portions,
 #### Scenario: Unknown recipeId
 - **WHEN** a client sends `POST /log-recipe` with a `recipeId` that does not exist
 - **THEN** the response is `404` and no entries are persisted
+
+#### Scenario: All-untracked recipe returns empty array with success
+- **WHEN** a client sends `POST /log-recipe` for a recipe whose every ingredient is untracked
+- **THEN** the response is `200` (or `201`) with body `[]`
 
 ### Requirement: Recipes tab in the log drawer
 The `LogIngredientDrawer` SHALL include a "Recipes" tab as the third tab, with the order Search → Recent → Recipes → Quick. The default selected tab on drawer open remains Search. The Recipes tab SHALL list the user's recipes, allow filtering them by name client-side, and let the user pick one. Picking a recipe MUST transition the drawer to a portions-confirm step (analogous to the existing full-entry confirm) where the user picks the number of portions, with `1` as the default. Submitting the confirm step invokes `LogRecipe` for the drawer's `date` + `slot`.
@@ -119,3 +135,20 @@ The user SHALL be able to edit (e.g. change `amount`) or remove a `LogEntry` reg
 #### Scenario: Remove one entry of a recipe batch
 - **WHEN** the user removes one entry produced by a recipe log
 - **THEN** only that entry is deleted; the remaining entries from the same recipe-log batch are unaffected
+
+### Requirement: Log drawer disables logging of untracked search results
+The `LogIngredientDrawer`'s Search tab SHALL continue to display FOODS results that have `untracked: true` (so the user can see they exist), but MUST disable the row's "log" / "select" affordance and render the row in a muted style with an inline hint indicating the row cannot be logged because it is untracked. The hint copy SHOULD make clear that the user can still pick the ingredient inside a recipe.
+
+This requirement only applies to the log drawer flow. The recipe-form ingredient picker MUST continue to allow picking untracked search results normally.
+
+#### Scenario: Untracked FOODS result rendered un-loggable
+- **WHEN** the user opens the log drawer's Search tab and a query returns a FOODS result with `untracked: true` (e.g. "Salz")
+- **THEN** the row is rendered in a muted style with the log/select affordance disabled and an inline hint explaining the row is untracked
+
+#### Scenario: Tracked results unchanged
+- **WHEN** the same query returns tracked FOODS or OFF results alongside untracked ones
+- **THEN** tracked results render and behave as today (selectable, logable)
+
+#### Scenario: Recipe-form picker still allows untracked selection
+- **WHEN** the user opens the recipe form's ingredient picker and the same query returns an untracked FOODS result
+- **THEN** the result is selectable and adding it produces a new ingredient row with `untracked: true` (per the recipes capability)

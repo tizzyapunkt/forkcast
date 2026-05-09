@@ -14,7 +14,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import type { FoodEntry } from '../src/domain/foods/types.ts';
-import { FOODS_SEED_KEYS } from './foods-seed-keys.ts';
+import { FOODS_SEED_KEYS, normalizeFoodSeedKeys, type NormalizedFoodSeedKey } from './foods-seed-keys.ts';
 import { BUILD_FOODS_TOOL, BUILD_FOODS_TOOL_NAME, BUILD_FOODS_SYSTEM_PROMPT } from './build-foods-tool.ts';
 import { chunkKeys, collectEntries, sortEntriesById, formatFoodsJson } from './build-foods-helpers.ts';
 
@@ -22,8 +22,12 @@ const BATCH_SIZE = 20;
 const MODEL = 'claude-opus-4-7';
 const MAX_TOKENS = 8192;
 
-async function runBatch(client: Anthropic, ids: ReadonlyArray<string>): Promise<FoodEntry[]> {
-  const userMessage = `Submit one food entry per id, in the same order:\n${ids.map((id) => `- ${id}`).join('\n')}`;
+function formatRequestLine(entry: NormalizedFoodSeedKey): string {
+  return entry.untracked ? `- ${entry.key} (untracked)` : `- ${entry.key}`;
+}
+
+async function runBatch(client: Anthropic, batch: ReadonlyArray<NormalizedFoodSeedKey>): Promise<FoodEntry[]> {
+  const userMessage = `Submit one food entry per id, in the same order:\n${batch.map(formatRequestLine).join('\n')}`;
 
   const response = await client.messages.create({
     model: MODEL,
@@ -38,11 +42,13 @@ async function runBatch(client: Anthropic, ids: ReadonlyArray<string>): Promise<
     (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use' && block.name === BUILD_FOODS_TOOL_NAME,
   );
   if (!toolUse) {
-    throw new Error(`No ${BUILD_FOODS_TOOL_NAME} tool_use block in batch response (ids: ${ids.join(', ')})`);
+    throw new Error(
+      `No ${BUILD_FOODS_TOOL_NAME} tool_use block in batch response (ids: ${batch.map((b) => b.key).join(', ')})`,
+    );
   }
   const input = toolUse.input as { entries?: unknown };
   if (!Array.isArray(input.entries)) {
-    throw new Error(`tool_use input.entries is not an array (ids: ${ids.join(', ')})`);
+    throw new Error(`tool_use input.entries is not an array (ids: ${batch.map((b) => b.key).join(', ')})`);
   }
   return input.entries as FoodEntry[];
 }
@@ -56,16 +62,27 @@ async function main(): Promise<void> {
 
   const client = new Anthropic({ apiKey });
 
-  const batches = chunkKeys(FOODS_SEED_KEYS, BATCH_SIZE);
+  const normalizedSeed = normalizeFoodSeedKeys(FOODS_SEED_KEYS);
+  const allKeys = normalizedSeed.map((s) => s.key);
+  const untrackedKeys = new Set(normalizedSeed.filter((s) => s.untracked).map((s) => s.key));
+
+  const keyBatches = chunkKeys(allKeys, BATCH_SIZE);
+  const seedBatches: NormalizedFoodSeedKey[][] = keyBatches.map((batch) =>
+    batch.map((key) => ({ key, untracked: untrackedKeys.has(key) })),
+  );
+
   const allEntries: FoodEntry[] = [];
   const allErrors: string[] = [];
 
-  console.log(`build-foods-data: processing ${FOODS_SEED_KEYS.length} ids in ${batches.length} batches of ${BATCH_SIZE}`);
+  console.log(
+    `build-foods-data: processing ${normalizedSeed.length} ids (${untrackedKeys.size} untracked) in ${keyBatches.length} batches of ${BATCH_SIZE}`,
+  );
 
-  for (const [i, batch] of batches.entries()) {
-    console.log(`  batch ${i + 1}/${batches.length} (${batch.length} ids)…`);
-    const candidate = await runBatch(client, batch);
-    const { entries, errors } = collectEntries(batch, candidate);
+  for (const [i, seedBatch] of seedBatches.entries()) {
+    const keyBatch = seedBatch.map((s) => s.key);
+    console.log(`  batch ${i + 1}/${seedBatches.length} (${seedBatch.length} ids)…`);
+    const candidate = await runBatch(client, seedBatch);
+    const { entries, errors } = collectEntries(keyBatch, candidate, { untrackedKeys });
     allEntries.push(...entries);
     allErrors.push(...errors);
   }

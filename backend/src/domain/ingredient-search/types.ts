@@ -6,4 +6,5 @@ export interface IngredientSearchResult {
   name: string;
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPer100;
+  untracked?: boolean;
 }

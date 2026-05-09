@@ -23,15 +23,22 @@ export interface CollectResult {
   errors: string[];
 }
 
+export interface CollectOptions {
+  /** Keys that the seed list marked as untracked. The AI output must echo `untracked: true` for these. */
+  untrackedKeys?: ReadonlySet<string>;
+}
+
 export function collectEntries(
   requestedIds: ReadonlyArray<string>,
   candidate: ReadonlyArray<FoodEntry>,
+  options: CollectOptions = {},
 ): CollectResult {
   const errors: string[] = [];
   const byId = new Map<string, FoodEntry>();
   for (const e of candidate) {
     if (e && typeof e.id === 'string') byId.set(e.id, e);
   }
+  const untrackedKeys = options.untrackedKeys ?? new Set<string>();
   const collected: FoodEntry[] = [];
   for (const id of requestedIds) {
     const raw = byId.get(id);
@@ -40,6 +47,17 @@ export function collectEntries(
       continue;
     }
     const entry = sanitizeEntry(raw);
+    const isSeedUntracked = untrackedKeys.has(id);
+
+    if (isSeedUntracked && entry.untracked !== true) {
+      errors.push(`entry ${id}: seed marks key as untracked but AI output did not set untracked: true`);
+      continue;
+    }
+    if (!isSeedUntracked && entry.untracked === true) {
+      errors.push(`entry ${id}: AI output set untracked: true but seed key is tracked`);
+      continue;
+    }
+
     const result = validateFoodEntry(entry);
     if (!result.ok) {
       errors.push(result.reason);

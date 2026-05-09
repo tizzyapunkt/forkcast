@@ -1,6 +1,7 @@
 import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
 import { validatePieceQuantity } from './validate-piece-quantity.ts';
+import { validateIngredientShape } from './validate-ingredient-shape.ts';
 
 export interface UpdateRecipeCommand {
   id: string;
@@ -29,6 +30,7 @@ export async function updateRecipe(repo: RecipeRepository, command: UpdateRecipe
       throw new Error('Recipe must have at least one ingredient');
     }
     for (const ingredient of command.ingredients) {
+      validateIngredientShape(ingredient);
       validatePieceQuantity(ingredient);
     }
     next.ingredients = command.ingredients;

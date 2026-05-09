@@ -19,6 +19,7 @@ export interface RecipeIngredient {
   macrosPerUnit: MacrosPer100;
   amount: number;
   pieceQuantity?: PieceQuantity;
+  untracked?: boolean;
 }
 
 export interface Recipe {

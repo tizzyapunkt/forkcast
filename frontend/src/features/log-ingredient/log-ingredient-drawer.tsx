@@ -118,7 +118,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
           {tab === 'quick' && <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />}
 
-          {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} />}
+          {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} disableUntracked />}
           {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleSelect} />}
           {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 

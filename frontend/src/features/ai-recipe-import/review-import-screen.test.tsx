@@ -123,6 +123,189 @@ describe('ReviewImportScreen', () => {
     expect(captured!.ingredients[0]!.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 200 });
   });
 
+  it('renders an inherited-untracked draft row with the toggle on and a badge', () => {
+    const untrackedDraft: RecipeDraft = {
+      name: 'Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Olivenöl',
+          unit: 'ml',
+          macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          amount: 30,
+          unitOverridden: false,
+          source: 'FOODS',
+        },
+        {
+          matched: true,
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          unitOverridden: false,
+          source: 'FOODS',
+          untracked: true,
+        },
+      ],
+    };
+    renderWithProviders(<ReviewImportScreen draft={untrackedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+    const oilToggle = screen.getByTestId('untracked-toggle-0');
+    const saltToggle = screen.getByTestId('untracked-toggle-1');
+    expect(oilToggle).toHaveAttribute('aria-pressed', 'false');
+    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(oilToggle).toHaveTextContent(/nicht zählen/i);
+    expect(saltToggle).toHaveTextContent(/nicht gezählt/i);
+  });
+
+  it('persists the user-edited untracked state in the POST /add-recipe payload', async () => {
+    const untrackedDraft: RecipeDraft = {
+      name: 'Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Olivenöl',
+          unit: 'ml',
+          macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          amount: 30,
+          unitOverridden: false,
+          source: 'FOODS',
+        },
+        {
+          matched: true,
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          unitOverridden: false,
+          source: 'FOODS',
+          untracked: true,
+        },
+      ],
+    };
+    let captured: { ingredients: Array<{ name: string; untracked?: boolean }> } | null = null;
+    server.use(
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const onSaved = vi.fn<() => void>();
+    renderWithProviders(<ReviewImportScreen draft={untrackedDraft} onSaved={onSaved} onCancel={() => {}} />);
+
+    // Toggle Olivenöl ON (override tracked → untracked) and leave Salz as-is.
+    await userEvent.click(screen.getByLabelText(/olivenöl nicht in nährwerten zählen/i));
+
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+
+    expect(captured!.ingredients[0]!.name).toBe('Olivenöl');
+    expect(captured!.ingredients[0]!.untracked).toBe(true);
+    expect(captured!.ingredients[1]!.name).toBe('Salz');
+    expect(captured!.ingredients[1]!.untracked).toBe(true);
+  });
+
+  it('swaps a misrecognized matched row via the picker, keeping the AI-extracted amount', async () => {
+    const wrongMatchDraft: RecipeDraft = {
+      name: 'Test Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Olivenöl',
+          unit: 'ml',
+          macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
+          amount: 30,
+          unitOverridden: false,
+          source: 'FOODS',
+        },
+      ],
+    };
+    let captured: { ingredients: Array<{ name: string; amount: number; unit: string }> } | null = null;
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'sonnenblumenoel',
+            source: 'FOODS',
+            name: 'Sonnenblumenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const onSaved = vi.fn<() => void>();
+    renderWithProviders(<ReviewImportScreen draft={wrongMatchDraft} onSaved={onSaved} onCancel={() => {}} />);
+
+    await userEvent.click(screen.getByTestId('replace-row-0'));
+    await userEvent.type(screen.getByRole('searchbox'), 'sonne');
+    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    await userEvent.click(result);
+
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+
+    expect(captured!.ingredients[0]!.name).toBe('Sonnenblumenöl');
+    expect(captured!.ingredients[0]!.amount).toBe(30);
+    expect(captured!.ingredients[0]!.unit).toBe('ml');
+  });
+
+  it('clears the AI-estimate badge after a swap, even if pieceQuantity is preserved', async () => {
+    const estimatedDraft: RecipeDraft = {
+      name: 'Soup',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Zwiebel',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+          amount: 150,
+          unitOverridden: false,
+          source: 'FOODS',
+          pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+        },
+      ],
+    };
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'schalotte',
+            source: 'FOODS',
+            name: 'Schalotte',
+            unit: 'g',
+            macrosPerUnit: { calories: 0.7, protein: 0.025, carbs: 0.16, fat: 0.001 },
+          },
+        ]),
+      ),
+    );
+
+    renderWithProviders(<ReviewImportScreen draft={estimatedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+    expect(screen.getByTestId('piece-estimate-0')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId('replace-row-0'));
+    await userEvent.type(screen.getByRole('searchbox'), 'schal');
+    const result = await screen.findByRole('button', { name: /schalotte/i });
+    await userEvent.click(result);
+
+    expect(screen.queryByTestId('piece-estimate-0')).not.toBeInTheDocument();
+  });
+
   it('submits via POST /add-recipe and calls onSaved', async () => {
     server.use(
       http.post('/api/add-recipe', async ({ request }) => {

@@ -1,6 +1,7 @@
 import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
 import { validatePieceQuantity } from './validate-piece-quantity.ts';
+import { validateIngredientShape } from './validate-ingredient-shape.ts';
 
 export interface AddRecipeCommand {
   name: string;
@@ -38,6 +39,7 @@ function validate(command: AddRecipeCommand): void {
     throw new Error('Recipe must have at least one ingredient');
   }
   for (const ingredient of command.ingredients) {
+    validateIngredientShape(ingredient);
     validatePieceQuantity(ingredient);
   }
   if (!Array.isArray(command.steps)) {

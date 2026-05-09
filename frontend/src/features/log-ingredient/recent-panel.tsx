@@ -62,6 +62,7 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
           {filtered.map((recent) => (
             <li key={`${recent.name.toLowerCase()}|${recent.unit}`} className="min-w-0">
               <button
+                type="button"
                 onClick={() => onSelect(toSearchResult(recent))}
                 className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
               >

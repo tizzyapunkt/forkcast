@@ -30,6 +30,7 @@ export interface MatchedDraftIngredient {
   unitOverridden: boolean;
   source: 'FOODS' | 'OFF';
   pieceQuantity?: PieceQuantity;
+  untracked?: boolean;
 }
 
 export interface UnmatchedDraftIngredient {

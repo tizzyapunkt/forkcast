@@ -2,7 +2,7 @@ import type { IngredientSearchResult } from '../ingredient-search/types.ts';
 import type { FoodEntry } from './types.ts';
 
 export function mapFoodEntry(entry: FoodEntry): IngredientSearchResult {
-  return {
+  const result: IngredientSearchResult = {
     id: entry.id,
     source: 'FOODS',
     name: entry.name,
@@ -14,4 +14,6 @@ export function mapFoodEntry(entry: FoodEntry): IngredientSearchResult {
       fat: entry.macrosPer100.fat / 100,
     },
   };
+  if (entry.untracked === true) result.untracked = true;
+  return result;
 }

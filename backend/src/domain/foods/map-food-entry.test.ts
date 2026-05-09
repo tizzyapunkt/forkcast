@@ -48,4 +48,42 @@ describe('mapFoodEntry', () => {
     expect(result.macrosPerUnit.carbs).toBe(0);
     expect(result.macrosPerUnit.fat).toBeCloseTo(0.23);
   });
+
+  it('propagates untracked: true to the result when set on the entry', () => {
+    const entry: FoodEntry = {
+      id: 'salz',
+      name: 'Salz',
+      synonyms: ['Speisesalz', 'salt'],
+      unit: 'g',
+      macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      untracked: true,
+    };
+    const result = mapFoodEntry(entry);
+    expect(result.untracked).toBe(true);
+  });
+
+  it('omits untracked on the result when the entry has no untracked field', () => {
+    const entry: FoodEntry = {
+      id: 'moehre',
+      name: 'Möhre',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 },
+    };
+    const result = mapFoodEntry(entry);
+    expect('untracked' in result).toBe(false);
+  });
+
+  it('omits untracked on the result when the entry has untracked: false', () => {
+    const entry: FoodEntry = {
+      id: 'moehre',
+      name: 'Möhre',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 },
+      untracked: false,
+    };
+    const result = mapFoodEntry(entry);
+    expect('untracked' in result).toBe(false);
+  });
 });

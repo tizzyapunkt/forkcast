@@ -36,6 +36,15 @@ const scannedProduct: IngredientSearchResult = {
   macrosPerUnit: { calories: 5.35, protein: 0.05, carbs: 0.59, fat: 0.3 },
 };
 
+const untrackedSalt: IngredientSearchResult = {
+  id: 'salz',
+  source: 'FOODS',
+  name: 'Salz',
+  unit: 'g',
+  macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  untracked: true,
+};
+
 describe('SearchPanel', () => {
   it('does not request when query is shorter than 2 chars', async () => {
     let called = false;
@@ -118,6 +127,51 @@ describe('SearchPanel', () => {
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'zz');
     expect(await screen.findByText(/keine treffer für/i)).toBeInTheDocument();
+  });
+
+  describe('untracked gating (log drawer flow)', () => {
+    it('renders an untracked result with the log button disabled and the inline hint', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([untrackedSalt])));
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} disableUntracked />);
+      await userEvent.type(screen.getByRole('searchbox'), 'salz');
+      const button = await screen.findByRole('button', { name: /salz/i });
+      expect(button).toBeDisabled();
+      expect(screen.getByText(/würzmittel.*nicht getrackt/i)).toBeInTheDocument();
+      // Clicking the disabled button does not invoke onSelect
+      await userEvent.click(button);
+      expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('does not gate tracked results in the same query', async () => {
+      const tracked: IngredientSearchResult = {
+        id: 'huehnchenbrust',
+        source: 'FOODS',
+        name: 'Hähnchenbrust',
+        unit: 'g',
+        macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.04 },
+      };
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([tracked, untrackedSalt])));
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} disableUntracked />);
+      await userEvent.type(screen.getByRole('searchbox'), 'mix');
+      await screen.findByText('Hähnchenbrust');
+      const trackedBtn = screen.getByRole('button', { name: /hähnchenbrust/i });
+      expect(trackedBtn).not.toBeDisabled();
+      await userEvent.click(trackedBtn);
+      expect(onSelect).toHaveBeenCalledWith(tracked);
+    });
+
+    it('does NOT gate untracked results when disableUntracked is false (recipe-form flow)', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([untrackedSalt])));
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'salz');
+      const button = await screen.findByRole('button', { name: /salz/i });
+      expect(button).not.toBeDisabled();
+      await userEvent.click(button);
+      expect(onSelect).toHaveBeenCalledWith(untrackedSalt);
+    });
   });
 
   describe('FOODS toggle', () => {

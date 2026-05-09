@@ -24,7 +24,9 @@ export async function logRecipe(
   const factor = command.portions / recipe.yield;
   const loggedAt = new Date().toISOString();
 
-  const entries: LogEntry[] = recipe.ingredients.map((ingredient) => ({
+  const trackedIngredients = recipe.ingredients.filter((ingredient) => ingredient.untracked !== true);
+
+  const entries: LogEntry[] = trackedIngredients.map((ingredient) => ({
     id: crypto.randomUUID(),
     date: command.date,
     slot: command.slot,
@@ -38,6 +40,8 @@ export async function logRecipe(
       amount: ingredient.amount * factor,
     },
   }));
+
+  if (entries.length === 0) return entries;
 
   await logRepo.saveMany(entries);
   return entries;
