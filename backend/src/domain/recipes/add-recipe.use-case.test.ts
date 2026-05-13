@@ -168,18 +168,58 @@ describe('addRecipe', () => {
     expect(recipe.ingredients[0]?.untracked).toBe(true);
   });
 
-  it('rejects an untracked ingredient with non-positive amount', async () => {
+  it('accepts an untracked ingredient with amount = 0', async () => {
     const repo = makeRepo();
-    const noAmount = {
+    const zeroSalt = {
       name: 'Salz',
       unit: 'g' as const,
       macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
       amount: 0,
       untracked: true,
     };
-    await expect(addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [noAmount], steps: [] })).rejects.toThrow(
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [zeroSalt], steps: [] });
+    expect(recipe.ingredients[0]?.amount).toBe(0);
+    expect(recipe.ingredients[0]?.untracked).toBe(true);
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
+  it('rejects an untracked ingredient with negative amount', async () => {
+    const repo = makeRepo();
+    const negative = {
+      name: 'Salz',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: -1,
+      untracked: true,
+    };
+    await expect(addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [negative], steps: [] })).rejects.toThrow(
       /amount/i,
     );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('persists an untracked ingredient with displayQuantity', async () => {
+    const repo = makeRepo();
+    const salt = {
+      name: 'Salz',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 0,
+      untracked: true,
+      displayQuantity: { amount: 1, unitLabel: 'TL' },
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [salt], steps: [] });
+    expect(recipe.ingredients[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
+  it('rejects displayQuantity on a tracked row', async () => {
+    const repo = makeRepo();
+    const ing = {
+      ...validIngredient,
+      displayQuantity: { amount: 1, unitLabel: 'TL' },
+    };
+    await expect(addRecipe(repo, { name: 'X', yield: 1, ingredients: [ing], steps: [] })).rejects.toThrow(/untracked/i);
     expect(repo.save).not.toHaveBeenCalled();
   });
 

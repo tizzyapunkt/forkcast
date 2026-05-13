@@ -60,6 +60,16 @@ export const EXTRACT_RECIPE_TOOL = {
               description:
                 'Your best estimate of the typical mass of one such piece in grams (or ml for liquid pieces). MUST be present whenever pieceAmount is present.',
             },
+            rawDisplayAmount: {
+              type: 'number',
+              description:
+                'Literal numeric amount as written in the recipe, when the recipe uses a unit outside the canonical enum (typical for seasonings/spices/herbs, e.g. "1 TL", "2 EL", "1/2 Prise"). Fractional values are permitted. OMIT when the recipe uses a canonical unit (g, ml, oz, cup, tbsp, tsp, piece).',
+            },
+            rawDisplayUnitLabel: {
+              type: 'string',
+              description:
+                'Literal textual unit as written in the recipe, when outside the canonical enum (e.g. "TL", "EL", "Teelöffel", "Esslöffel", "Prise", "Schuss", "Spritzer", "n. Geschmack"). OMIT when the recipe uses a canonical unit. Capture the original language and casing.',
+            },
           },
         },
       },
@@ -79,6 +89,8 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
   '- If an ingredient amount or unit is not visible (e.g. "salt to taste"), omit those fields rather than guessing.',
   '- When an ingredient is given as a count rather than a mass (e.g. "1 onion", "½ medium zucchini", "2 cloves garlic", "1 medium tomato"), populate pieceAmount, pieceUnitLabel, and gramsPerPiece with your best estimate of a typical piece weight in grams. Always also populate amount and unit with the resulting total weight (amount = pieceAmount * gramsPerPiece, unit = "g"). Use unit = "ml" only when the recipe explicitly frames the piece as a liquid quantity (e.g. "juice of 1 lemon").',
   '- When the recipe is already given by mass directly (e.g. "200 g flour"), omit the piece fields.',
+  '- When the recipe uses a unit outside the canonical enum (typical for seasonings/spices/herbs, e.g. "1 TL Salz", "2 EL Olivenöl", "Prise Pfeffer", "Schuss Zitronensaft", "Salz n. Geschmack"), populate rawDisplayAmount and rawDisplayUnitLabel with the literal numeric amount and textual unit as written in the original language. Still attempt to populate amount and unit with a sensible canonical conversion if obvious, but never guess if the conversion is uncertain — omit amount/unit in that case.',
+  '- When the recipe states no quantity at all for an ingredient ("Salz n. Geschmack"), you MAY populate rawDisplayUnitLabel alone with the qualitative phrase and omit rawDisplayAmount, amount, and unit.',
   'Keep the original language for names and steps.',
 ].join(' ');
 
@@ -89,6 +101,8 @@ interface RawToolInputIngredient {
   pieceAmount?: unknown;
   pieceUnitLabel?: unknown;
   gramsPerPiece?: unknown;
+  rawDisplayAmount?: unknown;
+  rawDisplayUnitLabel?: unknown;
 }
 interface RawToolInput {
   name?: unknown;
@@ -181,6 +195,14 @@ export function parseToolInput(input: unknown): ExtractedDraft {
       if (amount !== undefined) result.amount = amount;
     }
     if (unit !== undefined) result.unit = unit;
+
+    if (typeof ing.rawDisplayAmount === 'number' && Number.isFinite(ing.rawDisplayAmount)) {
+      result.rawDisplayAmount = ing.rawDisplayAmount;
+    }
+    if (typeof ing.rawDisplayUnitLabel === 'string') {
+      const trimmed = ing.rawDisplayUnitLabel.trim();
+      if (trimmed.length > 0) result.rawDisplayUnitLabel = trimmed;
+    }
     return result;
   });
 

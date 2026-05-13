@@ -331,6 +331,135 @@ describe('importRecipeFromPhotos', () => {
     expect('untracked' in ing).toBe(false);
   });
 
+  it('populates displayQuantity on a matched-untracked row when rawDisplayUnitLabel is present', async () => {
+    const extractor = makeExtractor({
+      name: 'Pasta',
+      yield: 1,
+      ingredients: [{ name: 'salt', rawDisplayAmount: 1, rawDisplayUnitLabel: 'TL' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      salt: [
+        foodsResult({
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.untracked).toBe(true);
+    expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+  });
+
+  it('defaults displayQuantity.amount to 1 when only rawDisplayUnitLabel is present', async () => {
+    const extractor = makeExtractor({
+      name: 'Pasta',
+      yield: 1,
+      ingredients: [{ name: 'pepper', rawDisplayUnitLabel: 'Prise' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      pepper: [
+        foodsResult({
+          name: 'Pfeffer',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'Prise' });
+  });
+
+  it('matched-untracked row with no raw display fields produces no displayQuantity', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'salt', amount: 5, unit: 'g' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      salt: [
+        foodsResult({
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.untracked).toBe(true);
+    expect(ing.displayQuantity).toBeUndefined();
+  });
+
+  it('matched-tracked row drops raw display fields (no displayQuantity)', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' }],
+      steps: [],
+    });
+    const search = makeSearch({ 'olive oil': [foodsResult()] });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.displayQuantity).toBeUndefined();
+  });
+
+  it('unmatched row never carries displayQuantity even when raw display fields are present', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'fresh thyme', rawDisplayAmount: 1, rawDisplayUnitLabel: 'sprig' }],
+      steps: [],
+    });
+    const search = makeSearch({});
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || ing.matched) throw new Error('expected unmatched ingredient');
+    expect((ing as unknown as { displayQuantity?: unknown }).displayQuantity).toBeUndefined();
+  });
+
+  it('matched-untracked with no extracted amount sets canonical amount to 0', async () => {
+    const extractor = makeExtractor({
+      name: 'X',
+      yield: 1,
+      ingredients: [{ name: 'salt', rawDisplayUnitLabel: 'n. Geschmack' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      salt: [
+        foodsResult({
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.amount).toBe(0);
+    expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'n. Geschmack' });
+  });
+
   it('does not write to the recipe repository', async () => {
     const extractor = makeExtractor({
       name: 'X',

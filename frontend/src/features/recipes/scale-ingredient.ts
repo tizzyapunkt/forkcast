@@ -12,6 +12,12 @@ export function scaleIngredient(ingredient: RecipeIngredient, factor: number): R
       amount: ingredient.pieceQuantity.amount * factor,
     };
   }
+  if (ingredient.displayQuantity) {
+    scaled.displayQuantity = {
+      ...ingredient.displayQuantity,
+      amount: ingredient.displayQuantity.amount * factor,
+    };
+  }
   return scaled;
 }
 

@@ -47,6 +47,7 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
 
   const unitOverridden = raw.unit !== undefined && raw.unit !== top.unit;
   const matchedUnitIsMass = top.unit === 'g' || top.unit === 'ml';
+  const isUntracked = top.untracked === true;
 
   const matched: DraftIngredient = {
     matched: true,
@@ -58,6 +59,18 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
     source: top.source,
   };
   if (raw.pieceQuantity && matchedUnitIsMass) matched.pieceQuantity = raw.pieceQuantity;
-  if (top.untracked === true) matched.untracked = true;
+  if (isUntracked) {
+    matched.untracked = true;
+    const rawLabel = raw.rawDisplayUnitLabel?.trim();
+    if (rawLabel && rawLabel.length > 0) {
+      matched.displayQuantity = {
+        amount: raw.rawDisplayAmount ?? 1,
+        unitLabel: rawLabel,
+      };
+    }
+    if (matched.amount === null && matched.pieceQuantity === undefined) {
+      matched.amount = 0;
+    }
+  }
   return matched;
 }

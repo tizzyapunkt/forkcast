@@ -3,6 +3,7 @@ import { useRecipe } from '../../queries/use-recipe';
 import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
 import { RecipeForm } from './recipe-form';
+import { RecipeTotalsStrip } from './recipe-totals-strip';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
@@ -83,6 +84,12 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
         <p className="text-xs text-muted-foreground">{de.recipes.yields(recipe.yield)}</p>
       </div>
 
+      <RecipeTotalsStrip
+        ingredients={recipe.ingredients}
+        yield={recipe.yield}
+        chosenServings={servings ?? recipe.yield}
+      />
+
       <section>
         <div className="mb-2 flex items-center justify-between gap-2">
           <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
@@ -149,9 +156,11 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                   )}
                 </span>
                 <span className="text-muted-foreground">
-                  {scaled.pieceQuantity
-                    ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
-                    : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
+                  {untracked && scaled.displayQuantity
+                    ? `${formatPieceCount(scaled.displayQuantity.amount)} ${scaled.displayQuantity.unitLabel}`
+                    : scaled.pieceQuantity
+                      ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
+                      : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
                 </span>
               </li>
             );

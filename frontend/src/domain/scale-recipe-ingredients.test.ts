@@ -47,4 +47,33 @@ describe('scaleIngredients', () => {
     if (!scaled?.pieceQuantity) throw new Error('expected piece quantity');
     expect(scaled.amount).toBeCloseTo(scaled.pieceQuantity.amount * scaled.pieceQuantity.gramsPerPiece, 1);
   });
+
+  it('scales displayQuantity.amount and keeps unitLabel invariant', () => {
+    const salt: RecipeIngredient = {
+      name: 'Salz',
+      unit: 'g',
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 0,
+      untracked: true,
+      displayQuantity: { amount: 1, unitLabel: 'TL' },
+    };
+    const [scaled2] = scaleIngredients([salt], 2);
+    expect(scaled2!.displayQuantity).toEqual({ amount: 2, unitLabel: 'TL' });
+    const [scaledHalf] = scaleIngredients([salt], 0.5);
+    expect(scaledHalf!.displayQuantity).toEqual({ amount: 0.5, unitLabel: 'TL' });
+  });
+
+  it('scales both piece-tracked and displayQuantity rows together when they coexist in a recipe', () => {
+    const salt: RecipeIngredient = {
+      name: 'Salz',
+      unit: 'g',
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 0,
+      untracked: true,
+      displayQuantity: { amount: 1, unitLabel: 'Prise' },
+    };
+    const scaled = scaleIngredients([onion, salt], 3);
+    expect(scaled[0]!.pieceQuantity).toEqual({ amount: 3, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+    expect(scaled[1]!.displayQuantity).toEqual({ amount: 3, unitLabel: 'Prise' });
+  });
 });

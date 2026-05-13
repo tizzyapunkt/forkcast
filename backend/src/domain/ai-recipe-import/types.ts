@@ -1,4 +1,4 @@
-import type { MacrosPer100, MeasurementUnit, PieceQuantity } from '../recipes/types.ts';
+import type { DisplayQuantity, MacrosPer100, MeasurementUnit, PieceQuantity } from '../recipes/types.ts';
 
 export type SupportedImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp';
 
@@ -12,6 +12,8 @@ export interface RawIngredient {
   amount?: number;
   unit?: MeasurementUnit;
   pieceQuantity?: PieceQuantity;
+  rawDisplayAmount?: number;
+  rawDisplayUnitLabel?: string;
 }
 
 export interface ExtractedDraft {
@@ -31,6 +33,7 @@ export interface MatchedDraftIngredient {
   source: 'FOODS' | 'OFF';
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
+  displayQuantity?: DisplayQuantity;
 }
 
 export interface UnmatchedDraftIngredient {

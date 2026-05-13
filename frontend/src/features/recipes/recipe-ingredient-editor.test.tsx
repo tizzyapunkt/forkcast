@@ -402,3 +402,110 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
     expect(screen.queryByRole('heading', { name: /zutat ersetzen/i })).not.toBeInTheDocument();
   });
 });
+
+describe('RecipeIngredientEditor — displayQuantity', () => {
+  function Capture({ initial }: { initial: RecipeIngredient[] }) {
+    const [ingredients, setIngredients] = useState(initial);
+    return (
+      <>
+        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
+        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
+      </>
+    );
+  }
+  function readState(): RecipeIngredient[] {
+    const el = screen.getByTestId('captured-state');
+    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
+  }
+
+  const tracked: RecipeIngredient = {
+    name: 'Mehl',
+    unit: 'g',
+    macrosPerUnit: { calories: 3.4, protein: 0.1, carbs: 0.7, fat: 0.01 },
+    amount: 200,
+  };
+
+  const untrackedNoDQ: RecipeIngredient = {
+    name: 'Salz',
+    unit: 'g',
+    macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    amount: 0,
+    untracked: true,
+  };
+
+  const untrackedWithDQ: RecipeIngredient = {
+    ...untrackedNoDQ,
+    displayQuantity: { amount: 1, unitLabel: 'TL' },
+  };
+
+  it('tracked row does not show the + Menge ergänzen affordance', () => {
+    render(<Capture initial={[tracked]} />);
+    expect(screen.queryByRole('button', { name: /menge für mehl ergänzen/i })).not.toBeInTheDocument();
+  });
+
+  it('untracked row without displayQuantity shows + Menge ergänzen', () => {
+    render(<Capture initial={[untrackedNoDQ]} />);
+    expect(screen.getByRole('button', { name: /menge für salz ergänzen/i })).toBeInTheDocument();
+  });
+
+  it('clicking + Menge ergänzen, entering values, and confirming writes displayQuantity to state', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedNoDQ]} />);
+    await user.click(screen.getByRole('button', { name: /menge für salz ergänzen/i }));
+
+    const amountInput = screen.getByLabelText(/anzeige-menge für salz/i);
+    const unitInput = screen.getByLabelText(/anzeige-einheit für salz/i);
+    fireEvent.change(amountInput, { target: { value: '1' } });
+    await user.clear(unitInput);
+    await user.type(unitInput, 'TL');
+    await user.click(screen.getByRole('button', { name: /^ok$/i }));
+
+    const state = readState();
+    expect(state[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+  });
+
+  it('untracked row with displayQuantity renders {amount} {unitLabel} in place of canonical', () => {
+    render(<Capture initial={[untrackedWithDQ]} />);
+    expect(screen.getByTestId('display-quantity-0')).toHaveTextContent(/^1 TL$/);
+    // canonical amount input for that row should be absent (exact label, not the edit button)
+    expect(screen.queryByLabelText('Menge für Salz')).not.toBeInTheDocument();
+  });
+
+  it('clicking the edit affordance opens a prefilled inline editor', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedWithDQ]} />);
+    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
+  });
+
+  it('"Menge entfernen" clears the displayQuantity from state', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedWithDQ]} />);
+    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
+    await user.click(screen.getByRole('button', { name: /^menge entfernen$/i }));
+    const state = readState();
+    expect(state[0]?.displayQuantity).toBeUndefined();
+  });
+
+  it('canceling the editor leaves the row state unchanged', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedWithDQ]} />);
+    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
+    const unitInput = screen.getByLabelText(/anzeige-einheit für salz/i);
+    await user.clear(unitInput);
+    await user.type(unitInput, 'EL');
+    await user.click(screen.getByRole('button', { name: /^abbrechen$/i }));
+    const state = readState();
+    expect(state[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+  });
+
+  it('toggling an untracked row with displayQuantity to tracked clears displayQuantity', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedWithDQ]} />);
+    await user.click(screen.getByTestId('untracked-toggle-0'));
+    const state = readState();
+    expect(state[0]?.untracked).toBeUndefined();
+    expect(state[0]?.displayQuantity).toBeUndefined();
+  });
+});

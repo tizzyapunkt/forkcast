@@ -234,6 +234,19 @@ export const de = {
     servingsIncrement: 'Eine Portion mehr',
     servingsReset: 'Zurücksetzen',
     servingsResetAria: (n: number) => `Auf ${n} Portion${n === 1 ? '' : 'en'} zurücksetzen`,
+    macroLine: (kcal: number, p: number, c: number, f: number) => `${kcal} kcal · ${p} P / ${c} C / ${f} F`,
+  },
+
+  recipeTotals: {
+    perServingLabel: 'Pro Portion',
+    totalLabel: 'Gesamt',
+    forServingsLabel: (n: number) => `Bei ${n} Portion${n === 1 ? '' : 'en'}`,
+    kcalUnit: 'kcal',
+    proteinShort: 'P',
+    carbsShort: 'C',
+    fatShort: 'F',
+    summary: (kcal: number, p: number, c: number, f: number) => `${kcal} kcal · ${p} P / ${c} C / ${f} F`,
+    sectionAria: 'Nährwerte',
   },
 
   recipeForm: {
@@ -277,6 +290,15 @@ export const de = {
     untrackedToggleAria: (name: string) => `${name} nicht in Nährwerten zählen`,
     untrackedBadge: 'Nicht gezählt',
     replaceAria: (name: string) => `Zutat „${name}“ ersetzen`,
+    addDisplayQuantity: '+ Menge ergänzen',
+    addDisplayQuantityAria: (name: string) => `Menge für ${name} ergänzen`,
+    editDisplayQuantityAria: (name: string) => `Menge für ${name} bearbeiten`,
+    displayQuantityAmountAria: (name: string) => `Anzeige-Menge für ${name}`,
+    displayQuantityUnitAria: (name: string) => `Anzeige-Einheit für ${name}`,
+    displayQuantityUnitPlaceholder: 'z. B. TL, EL, Prise',
+    removeDisplayQuantity: 'Menge entfernen',
+    confirmDisplayQuantity: 'OK',
+    cancelDisplayQuantity: 'Abbrechen',
   },
 
   aiRecipeImport: {

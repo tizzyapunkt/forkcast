@@ -306,6 +306,133 @@ describe('ReviewImportScreen', () => {
     expect(screen.queryByTestId('piece-estimate-0')).not.toBeInTheDocument();
   });
 
+  it('round-trips importer-provided displayQuantity through to the add-recipe payload', async () => {
+    const dq = { amount: 1, unitLabel: 'TL' } as const;
+    const draftWithDQ: RecipeDraft = {
+      name: 'Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 0,
+          unitOverridden: false,
+          source: 'FOODS',
+          untracked: true,
+          displayQuantity: dq,
+        },
+      ],
+    };
+    let captured: {
+      ingredients: Array<{
+        name: string;
+        untracked?: boolean;
+        displayQuantity?: { amount: number; unitLabel: string };
+      }>;
+    } | null = null;
+    server.use(
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const onSaved = vi.fn<() => void>();
+    renderWithProviders(<ReviewImportScreen draft={draftWithDQ} onSaved={onSaved} onCancel={() => {}} />);
+
+    // Row should render `1 TL` (not `0 g`).
+    expect(screen.getByTestId('display-quantity-0')).toHaveTextContent(/^1 TL$/);
+
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(captured!.ingredients[0]!.untracked).toBe(true);
+    expect(captured!.ingredients[0]!.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+  });
+
+  it('lets the user add a displayQuantity to an imported untracked row and includes it on save', async () => {
+    const draftMissingDQ: RecipeDraft = {
+      name: 'Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 0,
+          unitOverridden: false,
+          source: 'FOODS',
+          untracked: true,
+        },
+      ],
+    };
+    let captured: { ingredients: Array<{ displayQuantity?: { amount: number; unitLabel: string } }> } | null = null;
+    server.use(
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const onSaved = vi.fn<() => void>();
+    const { fireEvent } = await import('@testing-library/react');
+    renderWithProviders(<ReviewImportScreen draft={draftMissingDQ} onSaved={onSaved} onCancel={() => {}} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /menge für salz ergänzen/i }));
+    fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '1' } });
+    await userEvent.clear(screen.getByLabelText(/anzeige-einheit für salz/i));
+    await userEvent.type(screen.getByLabelText(/anzeige-einheit für salz/i), 'EL');
+    await userEvent.click(screen.getByRole('button', { name: /^ok$/i }));
+
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(captured!.ingredients[0]!.displayQuantity).toEqual({ amount: 1, unitLabel: 'EL' });
+  });
+
+  it('toggling an imported untracked row to tracked drops displayQuantity from the save payload', async () => {
+    const dq = { amount: 1, unitLabel: 'TL' } as const;
+    const draftWithDQ: RecipeDraft = {
+      name: 'Pasta',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          unitOverridden: false,
+          source: 'FOODS',
+          untracked: true,
+          displayQuantity: dq,
+        },
+      ],
+    };
+    let captured: { ingredients: Array<{ untracked?: boolean; displayQuantity?: unknown }> } | null = null;
+    server.use(
+      http.post('/api/add-recipe', async ({ request }) => {
+        captured = (await request.json()) as typeof captured;
+        return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+      }),
+    );
+
+    const onSaved = vi.fn<() => void>();
+    renderWithProviders(<ReviewImportScreen draft={draftWithDQ} onSaved={onSaved} onCancel={() => {}} />);
+
+    // Toggle untracked → tracked (clears displayQuantity per the editor rules).
+    await userEvent.click(screen.getByTestId('untracked-toggle-0'));
+    await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+
+    expect(captured!.ingredients[0]!.untracked).toBeUndefined();
+    expect(captured!.ingredients[0]!.displayQuantity).toBeUndefined();
+  });
+
   it('submits via POST /add-recipe and calls onSaved', async () => {
     server.use(
       http.post('/api/add-recipe', async ({ request }) => {

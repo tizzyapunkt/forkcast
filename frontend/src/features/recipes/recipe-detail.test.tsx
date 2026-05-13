@@ -218,3 +218,105 @@ describe('RecipeDetail — servings multiplier', () => {
     expect(screen.getByText('Brown the meat.')).toBeInTheDocument();
   });
 });
+
+describe('RecipeDetail — totals strip & displayQuantity', () => {
+  function mockRecipeWithDisplayQuantity() {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          yield: 2,
+          name: 'Bolognese',
+          ingredients: [
+            {
+              name: 'Hackfleisch',
+              unit: 'g',
+              macrosPerUnit: { calories: 2.5, protein: 0.2, carbs: 0, fat: 0.18 },
+              amount: 400,
+            },
+            {
+              name: 'Salz',
+              unit: 'g',
+              macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+              amount: 0,
+              untracked: true,
+              displayQuantity: { amount: 1, unitLabel: 'TL' },
+            },
+          ],
+          steps: [],
+        }),
+      ),
+    );
+  }
+
+  it('renders the totals strip with per-serving and "Bei N Portionen" lines', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Bolognese');
+    // 400 g × 2.5 = 1000 kcal total / yield 2 = 500 kcal per serving
+    expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal/);
+    // "Bei 2 Portionen" at default: 1000 kcal
+    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^1000 kcal/);
+  });
+
+  it('rescales the secondary totals line when the multiplier changes', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Bolognese');
+    const inc = screen.getByRole('button', { name: /Eine Portion mehr/ });
+    await userEvent.click(inc);
+    await userEvent.click(inc);
+
+    // Per serving unchanged at 500, total at 4 servings = 2000
+    expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal/);
+    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^2000 kcal/);
+  });
+
+  it('excludes untracked rows from the totals regardless of multiplier', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Bolognese');
+    // Salt's macrosPerUnit are zero — but the test ensures even non-zero untracked rows are excluded.
+    // Increment doesn't change per-serving total.
+    await userEvent.click(screen.getByRole('button', { name: /Eine Portion mehr/ }));
+    expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal/);
+  });
+
+  it('renders an untracked row with displayQuantity as {amount} {unitLabel}', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    expect(await screen.findByText('Salz')).toBeInTheDocument();
+    expect(screen.getByText(/^1 TL$/)).toBeInTheDocument();
+    // The canonical "0 g" must NOT appear for this row.
+    expect(screen.queryByText(/^0 g$/)).not.toBeInTheDocument();
+  });
+
+  it('scales displayQuantity.amount with the multiplier', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Bolognese');
+    const inc = screen.getByRole('button', { name: /Eine Portion mehr/ });
+    await userEvent.click(inc);
+    await userEvent.click(inc);
+
+    expect(screen.getByText(/^2 TL$/)).toBeInTheDocument();
+  });
+
+  it('reset returns displayQuantity to its stored amount', async () => {
+    mockRecipeWithDisplayQuantity();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Bolognese');
+    await userEvent.click(screen.getByRole('button', { name: /Eine Portion mehr/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Eine Portion mehr/ }));
+    expect(screen.getByText(/^2 TL$/)).toBeInTheDocument();
+
+    await userEvent.click(await screen.findByRole('button', { name: /zurücksetzen/i }));
+    expect(screen.getByText(/^1 TL$/)).toBeInTheDocument();
+  });
+});

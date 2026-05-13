@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
+import { RecipeTotalsStrip } from './recipe-totals-strip';
 import { de } from '../../i18n/de';
 
 interface Props {
@@ -120,6 +121,8 @@ export function RecipeForm({
         estimateIndices={estimateIndices}
         onEstimateAcknowledged={onEstimateAcknowledged}
       />
+
+      <RecipeTotalsStrip ingredients={ingredients} yield={recipeYield} />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">

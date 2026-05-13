@@ -8,16 +8,19 @@ export function scaleIngredients(ingredients: RecipeIngredient[], factor: number
   if (!Number.isFinite(factor) || factor <= 0) return ingredients;
   return ingredients.map((ing) => {
     const scaledAmount = round1(ing.amount * factor);
-    if (!ing.pieceQuantity) {
-      return { ...ing, amount: scaledAmount };
-    }
-    return {
-      ...ing,
-      amount: scaledAmount,
-      pieceQuantity: {
+    const next: RecipeIngredient = { ...ing, amount: scaledAmount };
+    if (ing.pieceQuantity) {
+      next.pieceQuantity = {
         ...ing.pieceQuantity,
         amount: round1(ing.pieceQuantity.amount * factor),
-      },
-    };
+      };
+    }
+    if (ing.displayQuantity) {
+      next.displayQuantity = {
+        ...ing.displayQuantity,
+        amount: round1(ing.displayQuantity.amount * factor),
+      };
+    }
+    return next;
   });
 }

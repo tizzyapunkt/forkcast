@@ -7,6 +7,7 @@ import { RecipeForm } from './recipe-form';
 import { RecipeDetail } from './recipe-detail';
 import { ImportRecipeScreen } from '../ai-recipe-import/import-recipe-screen';
 import { useImportConfigured } from '../ai-recipe-import/use-import-configured';
+import { computeRecipeTotals } from '../../domain/recipe-totals';
 import { de } from '../../i18n/de';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
@@ -76,19 +77,35 @@ export function RecipesScreen() {
 
       {recipes && recipes.length > 0 && (
         <ul className="divide-y rounded-lg border bg-card">
-          {recipes.map((recipe) => (
-            <li key={recipe.id}>
-              <button
-                onClick={() => setView({ mode: 'detail', id: recipe.id })}
-                className="flex w-full items-center justify-between gap-2 px-3 py-3 text-left text-sm hover:bg-muted/40"
-              >
-                <span className="min-w-0 flex-1 truncate font-medium">{recipe.name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
-                </span>
-              </button>
-            </li>
-          ))}
+          {recipes.map((recipe) => {
+            const { perServing } = computeRecipeTotals(recipe.ingredients, recipe.yield);
+            return (
+              <li key={recipe.id}>
+                <button
+                  onClick={() => setView({ mode: 'detail', id: recipe.id })}
+                  className="flex w-full items-start justify-between gap-2 px-3 py-3 text-left text-sm hover:bg-muted/40"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{recipe.name}</span>
+                    <span
+                      data-testid={`recipe-macro-line-${recipe.id}`}
+                      className="mt-0.5 block text-xs text-muted-foreground tabular-nums"
+                    >
+                      {de.recipes.macroLine(
+                        Math.round(perServing.calories),
+                        Math.round(perServing.protein),
+                        Math.round(perServing.carbs),
+                        Math.round(perServing.fat),
+                      )}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

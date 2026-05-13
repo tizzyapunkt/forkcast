@@ -94,4 +94,71 @@ describe('RecipesScreen', () => {
     await screen.findByText(/noch keine rezepte/i);
     expect(await screen.findByRole('button', { name: /aus fotos/i })).toBeInTheDocument();
   });
+
+  it('renders a per-serving macro line on each recipe row', async () => {
+    server.use(
+      http.get('/api/recipes', () =>
+        HttpResponse.json([
+          {
+            id: '1',
+            name: 'Bolognese',
+            yield: 2,
+            ingredients: [
+              {
+                name: 'Hackfleisch',
+                unit: 'g',
+                macrosPerUnit: { calories: 2.5, protein: 0.2, carbs: 0, fat: 0.18 },
+                amount: 400,
+              },
+            ],
+            steps: [],
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]),
+      ),
+    );
+    renderWithProviders(<RecipesScreen />);
+    await screen.findByText('Bolognese');
+    // total 1000 kcal / yield 2 = 500 kcal per serving
+    expect(screen.getByTestId('recipe-macro-line-1')).toHaveTextContent(/^500 kcal · 40 P \/ 0 C \/ 36 F$/);
+    // existing meta line still rendered
+    expect(screen.getByText(/1 Zutat · 2 Port\./)).toBeInTheDocument();
+  });
+
+  it('excludes untracked rows from the macro line rollup', async () => {
+    server.use(
+      http.get('/api/recipes', () =>
+        HttpResponse.json([
+          {
+            id: '1',
+            name: 'Salted Beef',
+            yield: 1,
+            ingredients: [
+              {
+                name: 'Beef',
+                unit: 'g',
+                macrosPerUnit: { calories: 2.5, protein: 0.26, carbs: 0, fat: 0.15 },
+                amount: 200,
+              },
+              {
+                name: 'Salz',
+                unit: 'g',
+                macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+                amount: 5,
+                untracked: true,
+              },
+            ],
+            steps: [],
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]),
+      ),
+    );
+    renderWithProviders(<RecipesScreen />);
+    await screen.findByText('Salted Beef');
+    // 200 × 2.5 = 500 kcal (salt's 5×9 = 45 kcal must be excluded)
+    expect(screen.getByTestId('recipe-macro-line-1')).toHaveTextContent(/^500 kcal/);
+  });
 });

@@ -13,6 +13,11 @@ export interface PieceQuantity {
   gramsPerPiece: number;
 }
 
+export interface DisplayQuantity {
+  amount: number;
+  unitLabel: string;
+}
+
 export interface RecipeIngredient {
   name: string;
   unit: MeasurementUnit;
@@ -20,6 +25,7 @@ export interface RecipeIngredient {
   amount: number;
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
+  displayQuantity?: DisplayQuantity;
 }
 
 export interface Recipe {

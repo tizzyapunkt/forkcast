@@ -175,4 +175,36 @@ describe('updateRecipe', () => {
     const updated = await updateRecipe(repo, { id: 'rec-1', name: 'Renamed' });
     expect(updated.ingredients[0]?.untracked).toBeUndefined();
   });
+
+  it('updates ingredients with a displayQuantity on an untracked row', async () => {
+    const { repo, saved } = makeRepo(base);
+    const ingredients = [
+      {
+        name: 'Salz',
+        unit: 'g' as const,
+        macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        amount: 0,
+        untracked: true,
+        displayQuantity: { amount: 1, unitLabel: 'TL' },
+      },
+    ];
+    const updated = await updateRecipe(repo, { id: 'rec-1', ingredients });
+    expect(updated.ingredients[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
+    expect(saved).toEqual([updated]);
+  });
+
+  it('rejects update placing displayQuantity on a tracked row', async () => {
+    const { repo, saved } = makeRepo(base);
+    const ingredients = [
+      {
+        name: 'Oats',
+        unit: 'g' as const,
+        macrosPerUnit: { calories: 3.7, protein: 0.13, carbs: 0.66, fat: 0.07 },
+        amount: 80,
+        displayQuantity: { amount: 1, unitLabel: 'TL' },
+      },
+    ];
+    await expect(updateRecipe(repo, { id: 'rec-1', ingredients })).rejects.toThrow(/untracked/i);
+    expect(saved).toEqual([]);
+  });
 });
