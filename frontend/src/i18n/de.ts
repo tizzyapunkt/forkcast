@@ -229,6 +229,11 @@ export const de = {
     deleting: 'Wird gelöscht…',
     save: 'Speichern',
     create: 'Anlegen',
+    servingsLabel: 'Portionen',
+    servingsDecrement: 'Eine Portion weniger',
+    servingsIncrement: 'Eine Portion mehr',
+    servingsReset: 'Zurücksetzen',
+    servingsResetAria: (n: number) => `Auf ${n} Portion${n === 1 ? '' : 'en'} zurücksetzen`,
   },
 
   recipeForm: {

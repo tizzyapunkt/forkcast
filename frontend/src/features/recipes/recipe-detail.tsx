@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecipe } from '../../queries/use-recipe';
 import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
 import { RecipeForm } from './recipe-form';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
 
 interface Props {
   id: string;
@@ -18,6 +19,12 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
   const deleteMutation = useDeleteRecipe();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [servings, setServings] = useState<number | null>(null);
+
+  const baseYield = recipe?.yield ?? null;
+  useEffect(() => {
+    if (baseYield !== null && servings === null) setServings(baseYield);
+  }, [baseYield, servings]);
 
   if (isLoading) return <p className="p-4 text-sm text-muted-foreground">{de.recipes.loading}</p>;
   if (error) return <ErrorBanner error={error} />;
@@ -77,10 +84,52 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
       </div>
 
       <section>
-        <h3 className="mb-2 text-sm font-medium">{de.recipes.ingredients}</h3>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
+          <div className="flex items-center gap-2">
+            {(servings ?? recipe.yield) !== recipe.yield && (
+              <button
+                type="button"
+                onClick={() => setServings(recipe.yield)}
+                aria-label={de.recipes.servingsResetAria(recipe.yield)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                {de.recipes.servingsReset}
+              </button>
+            )}
+            <div className="flex items-center gap-1 rounded-md border px-1 py-0.5">
+              <button
+                type="button"
+                onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) - 1))}
+                aria-label={de.recipes.servingsDecrement}
+                className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
+                disabled={(servings ?? recipe.yield) <= 1}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                readOnly
+                value={servings ?? recipe.yield}
+                aria-label={de.recipes.servingsLabel}
+                className="w-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <button
+                type="button"
+                onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) + 1))}
+                aria-label={de.recipes.servingsIncrement}
+                className="px-2 py-0.5 text-sm leading-none"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
         <ul className="divide-y">
           {recipe.ingredients.map((ing, idx) => {
             const untracked = ing.untracked === true;
+            const factor = (servings ?? recipe.yield) / recipe.yield;
+            const scaled = scaleIngredient(ing, factor);
             return (
               <li
                 key={`${ing.name}|${idx}`}
@@ -100,14 +149,9 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                   )}
                 </span>
                 <span className="text-muted-foreground">
-                  {ing.pieceQuantity
-                    ? de.recipeIngredientEditor.pieceSummary(
-                        ing.pieceQuantity.amount,
-                        ing.pieceQuantity.unitLabel,
-                        ing.amount,
-                        ing.unit,
-                      )
-                    : `${ing.amount} ${ing.unit}`}
+                  {scaled.pieceQuantity
+                    ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
+                    : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
                 </span>
               </li>
             );
