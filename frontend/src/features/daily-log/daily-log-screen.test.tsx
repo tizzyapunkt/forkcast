@@ -93,8 +93,41 @@ describe('DailyLogScreen', () => {
     });
     server.use(http.get('/api/daily-log/:date', () => HttpResponse.json(log)));
     render();
-    expect(await screen.findByText(/62\s*g\s*P/i)).toBeInTheDocument();
-    expect(screen.getByText(/7\s*g\s*F/i)).toBeInTheDocument();
+    const lunchHeading = await screen.findByRole('heading', { name: 'Mittagessen' });
+    const lunchSlot = lunchHeading.closest('section');
+    expect(lunchSlot).not.toBeNull();
+    expect(lunchSlot!.textContent ?? '').toMatch(/62\s*g\s*P/i);
+    expect(lunchSlot!.textContent ?? '').toMatch(/7\s*g\s*F/i);
+  });
+
+  it('suppresses the slot macro line when totals.macrosPartial is true', async () => {
+    const entry = makeLogEntry({
+      slot: 'breakfast',
+      ingredient: { type: 'quick', label: 'Coffee', calories: 5 },
+    });
+    const log = makeDailyLog({
+      slots: [
+        {
+          slot: 'breakfast',
+          entries: [entry],
+          totals: { calories: 5, protein: 0, carbs: 0, fat: 0, macrosPartial: true },
+        },
+        { slot: 'lunch', entries: [], totals: { calories: 0, protein: 0, carbs: 0, fat: 0, macrosPartial: false } },
+        { slot: 'dinner', entries: [], totals: { calories: 0, protein: 0, carbs: 0, fat: 0, macrosPartial: false } },
+        { slot: 'snack', entries: [], totals: { calories: 0, protein: 0, carbs: 0, fat: 0, macrosPartial: false } },
+      ],
+      totals: { calories: 5, protein: 0, carbs: 0, fat: 0, macrosPartial: true },
+    });
+    server.use(http.get('/api/daily-log/:date', () => HttpResponse.json(log)));
+    render();
+
+    expect(await screen.findByText('Coffee')).toBeInTheDocument();
+    const breakfastHeading = screen.getByRole('heading', { name: 'Frühstück' });
+    const breakfastSlot = breakfastHeading.closest('section');
+    expect(breakfastSlot).not.toBeNull();
+    expect(breakfastSlot!.textContent ?? '').not.toMatch(/g\s*P\b/i);
+    expect(breakfastSlot!.textContent ?? '').not.toMatch(/g\s*K\b/i);
+    expect(breakfastSlot!.textContent ?? '').not.toMatch(/g\s*F\b/i);
   });
 
   it('shows loading skeleton before data arrives', () => {

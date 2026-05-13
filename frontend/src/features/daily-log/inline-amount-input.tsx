@@ -10,9 +10,15 @@ type FullEntry = LogEntry & { ingredient: FullIngredientEntry };
 
 interface InlineAmountInputProps {
   entry: FullEntry;
+  /**
+   * Fired with the parsed positive amount on every keystroke, or `null` when the
+   * input is empty or below the minimum. Lets the parent reflect the typed amount
+   * (e.g. calorie/macro readouts) before the debounced PATCH lands.
+   */
+  onLiveAmount?: (parsed: number | null) => void;
 }
 
-export function InlineAmountInput({ entry }: InlineAmountInputProps) {
+export function InlineAmountInput({ entry, onLiveAmount }: InlineAmountInputProps) {
   const { amount, unit, name } = entry.ingredient;
   const [value, setValue] = useState(String(amount));
   const { mutate } = useEditLogEntry();
@@ -20,6 +26,20 @@ export function InlineAmountInput({ entry }: InlineAmountInputProps) {
   useEffect(() => {
     setValue((current) => (Number(current) === amount ? current : String(amount)));
   }, [amount]);
+
+  useEffect(() => {
+    if (!onLiveAmount) return;
+    if (value.trim() === '') {
+      onLiveAmount(null);
+      return;
+    }
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < MIN_AMOUNT) {
+      onLiveAmount(null);
+      return;
+    }
+    onLiveAmount(parsed);
+  }, [value, onLiveAmount]);
 
   useEffect(() => {
     if (value.trim() === '') return;

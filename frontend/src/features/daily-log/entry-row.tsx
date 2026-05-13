@@ -13,15 +13,26 @@ interface EntryRowProps {
 export function EntryRow({ entry }: EntryRowProps) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [liveAmount, setLiveAmount] = useState<number | null>(null);
   const { ingredient } = entry;
   const { data: recipes } = useRecipes();
   const recipeName = entry.recipeId ? recipes?.find((r) => r.id === entry.recipeId)?.name : undefined;
 
   const label = ingredient.type === 'quick' ? ingredient.label : ingredient.name;
+  const effectiveAmount = ingredient.type === 'full' ? (liveAmount ?? ingredient.amount) : 0;
   const calories =
-    ingredient.type === 'quick'
-      ? ingredient.calories
-      : Math.round(ingredient.macrosPerUnit.calories * ingredient.amount);
+    ingredient.type === 'quick' ? ingredient.calories : Math.round(ingredient.macrosPerUnit.calories * effectiveAmount);
+
+  const macros =
+    ingredient.type === 'full'
+      ? {
+          protein: ingredient.macrosPerUnit.protein * effectiveAmount,
+          carbs: ingredient.macrosPerUnit.carbs * effectiveAmount,
+          fat: ingredient.macrosPerUnit.fat * effectiveAmount,
+        }
+      : ingredient.protein !== undefined && ingredient.carbs !== undefined && ingredient.fat !== undefined
+        ? { protein: ingredient.protein, carbs: ingredient.carbs, fat: ingredient.fat }
+        : null;
 
   return (
     <>
@@ -34,13 +45,21 @@ export function EntryRow({ entry }: EntryRowProps) {
             </span>
           )}
           {ingredient.type === 'full' && (
-            <InlineAmountInput entry={entry as LogEntry & { ingredient: FullIngredientEntry }} />
+            <InlineAmountInput
+              entry={entry as LogEntry & { ingredient: FullIngredientEntry }}
+              onLiveAmount={setLiveAmount}
+            />
           )}
         </div>
         <div className="flex items-center gap-2">
           <span className="shrink-0 text-muted-foreground">
             {calories}
             {de.dailyLog.kcalSuffix}
+            {macros && (
+              <span className="ml-1.5 text-xs">
+                {de.dailyLog.macroInline(macros.protein, macros.carbs, macros.fat)}
+              </span>
+            )}
           </span>
           {ingredient.type === 'quick' && (
             <button

@@ -29,6 +29,85 @@ const pieceTracked: RecipeIngredient = {
   pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
 };
 
+describe('RecipeIngredientEditor — per-row calories and macros', () => {
+  const tracked200: RecipeIngredient = {
+    name: 'Hähnchen',
+    unit: 'g',
+    macrosPerUnit: { calories: 2.5, protein: 0.26, carbs: 0, fat: 0.15 },
+    amount: 200,
+  };
+
+  it('renders kcal + macros for a tracked row (200g × macrosPerUnit → 500/52/0/30)', () => {
+    render(<Harness initial={[tracked200]} />);
+    const macroLine = screen.getByTestId('row-macros-0');
+    expect(macroLine).toHaveTextContent(/500 kcal · 52g P · 0g K · 30g F/);
+  });
+
+  it('hides the macro sub-line entirely for an untracked row', () => {
+    const untracked: RecipeIngredient = { ...tracked200, untracked: true };
+    render(<Harness initial={[untracked]} />);
+    expect(screen.queryByTestId('row-macros-0')).not.toBeInTheDocument();
+    const row = screen.getByText('Hähnchen').closest('li')!;
+    expect(row).not.toHaveTextContent(/kcal/);
+    expect(row).not.toHaveTextContent(/g P/);
+    expect(row).not.toHaveTextContent(/g K/);
+    expect(row).not.toHaveTextContent(/g F/);
+  });
+
+  it('updates the macro sub-line live as the amount input changes (100 → 250)', () => {
+    const row: RecipeIngredient = {
+      name: 'Lachs',
+      unit: 'g',
+      macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 },
+      amount: 100,
+    };
+    render(<Harness initial={[row]} />);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/165 kcal · 31g P · 0g K · 4g F/);
+    fireEvent.change(screen.getByLabelText(/menge für lachs/i), { target: { value: '250' } });
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/413 kcal · 78g P · 0g K · 9g F/);
+  });
+
+  it('updates the macro sub-line live as the piece count changes', () => {
+    const row: RecipeIngredient = {
+      name: 'Zwiebel',
+      unit: 'g',
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 150,
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    render(<Harness initial={[row]} />);
+    // 150 × 0.4 = 60 kcal · 150 × 0.011 = 1.65 → 2g P · 150 × 0.093 = 13.95 → 14g K · 150 × 0.001 = 0.15 → 0g F
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/60 kcal · 2g P · 14g K · 0g F/);
+    fireEvent.change(screen.getByLabelText(/stückzahl für zwiebel/i), { target: { value: '2' } });
+    // amount becomes 300 → 120 kcal · 3.3 → 3g P · 27.9 → 28g K · 0.3 → 0g F
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/120 kcal · 3g P · 28g K · 0g F/);
+  });
+
+  it('updates the macro sub-line live as grams-per-piece changes', () => {
+    const row: RecipeIngredient = {
+      name: 'Zwiebel',
+      unit: 'g',
+      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
+      amount: 150,
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+    };
+    render(<Harness initial={[row]} />);
+    fireEvent.change(screen.getByLabelText(/gewicht pro stück.*zwiebel/i), { target: { value: '200' } });
+    // amount becomes 200 → 80 kcal · 2.2 → 2g P · 18.6 → 19g K · 0.2 → 0g F
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/80 kcal · 2g P · 19g K · 0g F/);
+  });
+
+  it('toggling a tracked row to untracked removes the macro sub-line; toggling back restores it', async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={[tracked200]} />);
+    expect(screen.getByTestId('row-macros-0')).toBeInTheDocument();
+    await user.click(screen.getByTestId('untracked-toggle-0'));
+    expect(screen.queryByTestId('row-macros-0')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('untracked-toggle-0'));
+    expect(screen.getByTestId('row-macros-0')).toBeInTheDocument();
+  });
+});
+
 describe('RecipeIngredientEditor — piece quantities', () => {
   it('renders a piece-tracked row with both count and grams-per-piece editable', () => {
     render(<Harness initial={[pieceTracked]} />);

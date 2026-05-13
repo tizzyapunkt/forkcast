@@ -17,5 +17,23 @@
       },
       "amount": 200
     }
+  },
+  {
+    "id": "15b052f7-c5d1-48dc-b352-0fb341f6e9ec",
+    "date": "2026-05-13",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Mais",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 0.79,
+        "protein": 0.024,
+        "carbs": 0.13,
+        "fat": 0.016
+      },
+      "amount": 403
+    },
+    "loggedAt": "2026-05-13T15:32:47.444Z"
   }
 ]

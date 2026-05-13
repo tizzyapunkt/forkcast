@@ -18,28 +18,30 @@ export function SlotCard({ summary, date }: SlotCardProps) {
   return (
     <>
       <section className="rounded-lg border bg-card p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-semibold">{slotLabelsDe[summary.slot]}</h2>
-          <div className="flex items-center gap-2">
-            {totals.calories > 0 && (
-              <span className="text-sm text-muted-foreground">
-                {Math.round(totals.calories)}
-                {de.dailyLog.kcalSuffix}
-                {hasMacros && (
-                  <span className="ml-1.5 text-xs">
-                    {de.dailyLog.macroInline(totals.protein, totals.carbs, totals.fat)}
-                  </span>
-                )}
-              </span>
-            )}
-            <button
-              onClick={() => openDrawer(summary.slot)}
-              aria-label={de.dailyLog.add}
-              className="rounded-full px-1 text-xl leading-none text-muted-foreground hover:text-foreground"
-            >
-              +
-            </button>
+        <div className="mb-2">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">{slotLabelsDe[summary.slot]}</h2>
+            <div className="flex items-center gap-2">
+              {totals.calories > 0 && (
+                <span className="text-sm text-muted-foreground">
+                  {Math.round(totals.calories)}
+                  {de.dailyLog.kcalSuffix}
+                </span>
+              )}
+              <button
+                onClick={() => openDrawer(summary.slot)}
+                aria-label={de.dailyLog.add}
+                className="rounded-full px-1 text-xl leading-none text-muted-foreground hover:text-foreground"
+              >
+                +
+              </button>
+            </div>
           </div>
+          {hasMacros && (
+            <div className="text-xs text-muted-foreground">
+              {de.dailyLog.macroInline(totals.protein, totals.carbs, totals.fat).replace(/^·\s*/, '')}
+            </div>
+          )}
         </div>
         {summary.entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">{de.dailyLog.nothingLogged}</p>
