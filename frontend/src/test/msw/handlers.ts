@@ -69,4 +69,28 @@ export const handlers = [
   http.get('/api/recently-used-ingredients', () => {
     return HttpResponse.json([]);
   }),
+
+  http.get('/api/body-profile', () => {
+    return new HttpResponse(null, { status: 404 });
+  }),
+
+  http.put('/api/body-profile', async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({
+      profile: body,
+      computed: {
+        ree: 1800,
+        tdee: 2790,
+        targetCalories: 2790,
+        proteinGrams: 160,
+        fatGrams: 78,
+        carbsGrams: 343,
+        proteinFatExceedsTarget: false,
+      },
+    });
+  }),
+
+  http.post('/api/body-profile/apply-as-goals', () => {
+    return HttpResponse.json({ calories: 2790, protein: 160, carbs: 343, fat: 78 });
+  }),
 ];

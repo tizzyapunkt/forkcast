@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server';
 import { bootstrap } from './bootstrap.ts';
 import { JsonLogEntryRepository } from './infrastructure/meal-log/json-log-entry.repository.ts';
 import { JsonNutritionGoalRepository } from './infrastructure/nutrition/json-nutrition-goal.repository.ts';
+import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-body-profile.repository.ts';
 import { JsonRecipeRepository } from './infrastructure/recipes/json-recipe.repository.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
@@ -10,6 +11,11 @@ import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
 import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
+import {
+  makeGetBodyProfileHandler,
+  makeSaveBodyProfileHandler,
+  makeApplyBodyProfileAsGoalsHandler,
+} from './http/body-profile/body-profile.handler.ts';
 import { OpenFoodFactsService } from './infrastructure/ingredient-search/open-food-facts.service.ts';
 import { InMemoryFoodsService } from './infrastructure/ingredient-search/in-memory-foods.service.ts';
 import { CompositeIngredientSearchService } from './infrastructure/ingredient-search/composite-ingredient-search.service.ts';
@@ -54,11 +60,12 @@ if (!config.ai.anthropicApiKey) {
 
 const logEntryRepo = new JsonLogEntryRepository('./data/log-entries.json');
 const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal.json');
+const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
 const foodsService = new InMemoryFoodsService('./data/foods.json');
 const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoodFactsService(), foodsService);
 
-await bootstrap([logEntryRepo, nutritionGoalRepo, recipeRepo, foodsService]);
+await bootstrap([logEntryRepo, nutritionGoalRepo, bodyProfileRepo, recipeRepo, foodsService]);
 
 const app = new Hono();
 
@@ -75,6 +82,9 @@ app.delete('/log-entry/:id', makeRemoveLogEntryHandler(logEntryRepo));
 app.get('/recently-used-ingredients', makeListRecentlyUsedIngredientsHandler(logEntryRepo));
 app.put('/nutrition-goal', makeSetNutritionGoalHandler(nutritionGoalRepo));
 app.get('/nutrition-goal', makeGetNutritionGoalHandler(nutritionGoalRepo));
+app.get('/body-profile', makeGetBodyProfileHandler(bodyProfileRepo));
+app.put('/body-profile', makeSaveBodyProfileHandler(bodyProfileRepo));
+app.post('/body-profile/apply-as-goals', makeApplyBodyProfileAsGoalsHandler(bodyProfileRepo, nutritionGoalRepo));
 app.get('/search-ingredients', makeSearchIngredientsByNameHandler(ingredientSearchService));
 app.get('/search-ingredients/barcode/:barcode', makeSearchIngredientsByBarcodeHandler(ingredientSearchService));
 

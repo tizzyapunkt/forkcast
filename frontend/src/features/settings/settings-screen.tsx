@@ -1,4 +1,5 @@
 import { NutritionGoalForm } from './nutrition-goal-form';
+import { BodyProfileForm } from '../body-profile/body-profile-form';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 
@@ -11,6 +12,7 @@ export function SettingsScreen() {
         {de.settings.title}
       </h2>
       <NutritionGoalForm />
+      <BodyProfileForm />
       <div className="pt-4">
         <button
           type="button"
