@@ -21,7 +21,18 @@ const ZERO_TOTALS: DayTotals = {
 
 export function App() {
   const [view, setView] = useState<AppView>('log');
+  const [settingsInitialView, setSettingsInitialView] = useState<'main' | 'weight-tracker'>('main');
   const { date, goPrev, goNext, goToday } = useActiveDate();
+
+  function openWeightTracker() {
+    setSettingsInitialView('weight-tracker');
+    setView('settings');
+  }
+
+  function changeView(next: AppView) {
+    if (next === 'settings') setSettingsInitialView('main');
+    setView(next);
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -29,11 +40,11 @@ export function App() {
         {view === 'log' && <DateNav date={date} onPrev={goPrev} onNext={goNext} onToday={goToday} />}
       </AppHeader>
       <main className="flex-1 pb-16">
-        {view === 'log' && <DailyLogScreen date={date} />}
+        {view === 'log' && <DailyLogScreen date={date} onOpenWeightTracker={openWeightTracker} />}
         {view === 'recipes' && <RecipesScreen />}
-        {view === 'settings' && <SettingsScreen />}
+        {view === 'settings' && <SettingsScreen initialView={settingsInitialView} />}
       </main>
-      <BottomNav active={view} onChange={setView} />
+      <BottomNav active={view} onChange={changeView} />
     </div>
   );
 }

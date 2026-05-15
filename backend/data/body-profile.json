@@ -1,0 +1,11 @@
+{
+  "weightKg": 80,
+  "heightCm": 180,
+  "ageYears": 30,
+  "sex": "male",
+  "activityFactor": 1.55,
+  "goalPhase": "recomposition",
+  "proteinPerKg": 2,
+  "fatPercent": 25,
+  "adjustmentPercent": 0
+}

@@ -6,7 +6,7 @@ import { makeDailyLog, makeLogEntry } from '../../test/msw/fixtures';
 import { DailyLogScreen } from './daily-log-screen';
 
 function render(date = '2026-04-20') {
-  renderWithProviders(<DailyLogScreen date={date} />);
+  renderWithProviders(<DailyLogScreen date={date} onOpenWeightTracker={() => {}} />);
 }
 
 describe('DailyLogScreen', () => {

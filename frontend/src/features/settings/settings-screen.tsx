@@ -1,10 +1,23 @@
+import { useState } from 'react';
 import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
+import { WeightTrackerScreen } from '../weight-log/weight-tracker-screen';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 
-export function SettingsScreen() {
+type View = 'main' | 'weight-tracker';
+
+interface SettingsScreenProps {
+  initialView?: View;
+}
+
+export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {}) {
+  const [view, setView] = useState<View>(initialView);
   const { logout } = useAuth();
+
+  if (view === 'weight-tracker') {
+    return <WeightTrackerScreen onBack={() => setView('main')} />;
+  }
 
   return (
     <div className="space-y-4 p-4">
@@ -13,6 +26,17 @@ export function SettingsScreen() {
       </h2>
       <NutritionGoalForm />
       <BodyProfileForm />
+      <button
+        type="button"
+        onClick={() => setView('weight-tracker')}
+        className="flex w-full items-center justify-between rounded-md border border-input bg-card px-4 py-3 text-left text-sm hover:bg-accent"
+      >
+        <span>
+          <span className="font-medium">{de.weightLog.settingsLink}</span>
+          <span className="ml-2 text-xs text-muted-foreground">{de.weightLog.settingsLinkHint}</span>
+        </span>
+        <span aria-hidden="true">→</span>
+      </button>
       <div className="pt-4">
         <button
           type="button"

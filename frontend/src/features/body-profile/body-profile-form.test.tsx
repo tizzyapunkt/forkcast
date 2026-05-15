@@ -42,7 +42,7 @@ describe('BodyProfileForm', () => {
     await waitFor(() => expect(screen.getByText('160 g')).toBeInTheDocument());
   });
 
-  it('pre-fills fields from a saved profile', async () => {
+  it('pre-fills fields from a saved profile and renders deficit direction + positive magnitude', async () => {
     server.use(
       http.get('/api/body-profile', () =>
         HttpResponse.json({
@@ -53,17 +53,123 @@ describe('BodyProfileForm', () => {
     );
     renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
     expect(await screen.findByDisplayValue('75')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('-20')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /defizit/i })).toBeChecked();
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(20);
   });
 
-  it('selecting fat-loss phase pre-fills protein 2.2, fat 25%, adjustment -20', async () => {
+  it('selecting fat-loss phase pre-fills protein 2.2, fat 25%, deficit direction + magnitude 20', async () => {
     server.use(http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })));
     renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
     await screen.findByRole('heading', { name: /makro-rechner/i });
     await userEvent.selectOptions(screen.getByLabelText(/ziel-phase/i), 'fat-loss');
     await waitFor(() => expect(screen.getByLabelText(/eiweiß \(g\/kg\)/i)).toHaveValue(2.2));
     expect(screen.getByLabelText(/fett \(% tdee\)/i)).toHaveValue(25);
-    expect(screen.getByLabelText(/kalorien-anpassung/i)).toHaveValue(-20);
+    expect(screen.getByRole('radio', { name: /defizit/i })).toBeChecked();
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(20);
+  });
+
+  it('selecting Defizit + magnitude 20 saves adjustmentPercent: -20', async () => {
+    let savedBody: Record<string, unknown> | null = null;
+    server.use(
+      http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })),
+      http.put('/api/body-profile', async ({ request }) => {
+        savedBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ profile: savedBody, computed: computedFixture() });
+      }),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    await userEvent.click(screen.getByRole('radio', { name: /defizit/i }));
+    const magnitude = screen.getByLabelText(/anpassung \(%\)/i);
+    await userEvent.clear(magnitude);
+    await userEvent.type(magnitude, '20');
+    await userEvent.click(screen.getByRole('button', { name: /profil speichern/i }));
+    await waitFor(() => expect(savedBody?.adjustmentPercent).toBe(-20));
+  });
+
+  it('selecting Überschuss + magnitude 10 saves adjustmentPercent: 10', async () => {
+    let savedBody: Record<string, unknown> | null = null;
+    server.use(
+      http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })),
+      http.put('/api/body-profile', async ({ request }) => {
+        savedBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ profile: savedBody, computed: computedFixture() });
+      }),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    await userEvent.click(screen.getByRole('radio', { name: /überschuss/i }));
+    const magnitude = screen.getByLabelText(/anpassung \(%\)/i);
+    await userEvent.clear(magnitude);
+    await userEvent.type(magnitude, '10');
+    await userEvent.click(screen.getByRole('button', { name: /profil speichern/i }));
+    await waitFor(() => expect(savedBody?.adjustmentPercent).toBe(10));
+  });
+
+  it('switching from Erhalt to Defizit clears the magnitude input so the user can type immediately', async () => {
+    server.use(http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })));
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(0);
+    await userEvent.click(screen.getByRole('radio', { name: /defizit/i }));
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(null);
+    await userEvent.click(screen.getByRole('radio', { name: /erhalt/i }));
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(0);
+  });
+
+  it('switching from Defizit with a non-zero magnitude to Überschuss preserves the magnitude', async () => {
+    server.use(http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })));
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    await userEvent.click(screen.getByRole('radio', { name: /defizit/i }));
+    const magnitude = screen.getByLabelText(/anpassung \(%\)/i);
+    await userEvent.clear(magnitude);
+    await userEvent.type(magnitude, '15');
+    await userEvent.click(screen.getByRole('radio', { name: /überschuss/i }));
+    expect(magnitude).toHaveValue(15);
+  });
+
+  it('selecting Erhalt disables the magnitude input and saves adjustmentPercent: 0', async () => {
+    let savedBody: Record<string, unknown> | null = null;
+    server.use(
+      http.get('/api/body-profile', () =>
+        HttpResponse.json({
+          profile: profileFixture({ adjustmentPercent: -20 }),
+          computed: computedFixture(),
+        }),
+      ),
+      http.put('/api/body-profile', async ({ request }) => {
+        savedBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ profile: savedBody, computed: computedFixture() });
+      }),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    expect(await screen.findByLabelText(/anpassung \(%\)/i)).toHaveValue(20);
+    await userEvent.click(screen.getByRole('radio', { name: /erhalt/i }));
+    expect(screen.getByLabelText(/anpassung \(%\)/i)).toBeDisabled();
+    await userEvent.click(screen.getByRole('button', { name: /profil speichern/i }));
+    await waitFor(() => expect(savedBody?.adjustmentPercent).toBe(0));
+  });
+
+  it('out-of-range magnitude surfaces the existing adjustmentRange error and blocks save', async () => {
+    let putCalled = false;
+    server.use(
+      http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })),
+      http.put('/api/body-profile', () => {
+        putCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    await userEvent.click(screen.getByRole('radio', { name: /defizit/i }));
+    const magnitude = screen.getByLabelText(/anpassung \(%\)/i);
+    await userEvent.clear(magnitude);
+    await userEvent.type(magnitude, '50');
+    await userEvent.click(screen.getByRole('button', { name: /profil speichern/i }));
+    expect(await screen.findByText(/zwischen −40 und \+40/i)).toBeInTheDocument();
+    expect(putCalled).toBe(false);
   });
 
   it('manual override after phase select is preserved', async () => {
@@ -101,9 +207,10 @@ describe('BodyProfileForm', () => {
     const fat = screen.getByLabelText(/fett \(% tdee\)/i);
     await userEvent.clear(fat);
     await userEvent.type(fat, '60');
-    const adj = screen.getByLabelText(/kalorien-anpassung/i);
-    await userEvent.clear(adj);
-    await userEvent.type(adj, '-40');
+    await userEvent.click(screen.getByRole('radio', { name: /defizit/i }));
+    const magnitude = screen.getByLabelText(/anpassung \(%\)/i);
+    await userEvent.clear(magnitude);
+    await userEvent.type(magnitude, '40');
     await waitFor(() => expect(screen.getByText(/eiweiß \+ fett überschreiten bereits/i)).toBeInTheDocument());
   });
 
@@ -144,5 +251,49 @@ describe('BodyProfileForm', () => {
     );
     renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
     expect(await screen.findByText(/aktives ziel weicht ab/i)).toBeInTheDocument();
+  });
+
+  it('renders the trailing-7d-avg hint and applies the value when clicked', async () => {
+    server.use(
+      http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })),
+      http.get('/api/weight-log/trend', () =>
+        HttpResponse.json({
+          current: 78.4,
+          movingAverage7d: 78.2,
+          weeklyRatePercent: -0.5,
+          changePercent28d: null,
+          totalChangePercent: null,
+          firstEntryDate: '2026-05-08',
+          lastEntryDate: '2026-05-15',
+          totalEntries: 7,
+        }),
+      ),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    expect(screen.getByText(/7-Tage-Trend: 78\.2 kg/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /trend-gewicht in formular übernehmen/i }));
+    expect(screen.getByLabelText(/gewicht \(kg\)/i)).toHaveValue(78.2);
+  });
+
+  it('hides the trailing-7d-avg hint when MA is null', async () => {
+    server.use(
+      http.get('/api/body-profile', () => new HttpResponse(null, { status: 404 })),
+      http.get('/api/weight-log/trend', () =>
+        HttpResponse.json({
+          current: null,
+          movingAverage7d: null,
+          weeklyRatePercent: null,
+          changePercent28d: null,
+          totalChangePercent: null,
+          firstEntryDate: null,
+          lastEntryDate: null,
+          totalEntries: 0,
+        }),
+      ),
+    );
+    renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
+    await screen.findByRole('heading', { name: /makro-rechner/i });
+    expect(screen.queryByText(/7-Tage-Trend/)).not.toBeInTheDocument();
   });
 });

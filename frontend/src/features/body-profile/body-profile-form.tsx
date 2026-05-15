@@ -6,6 +6,7 @@ import { useBodyProfile } from '../../queries/use-body-profile';
 import { useSaveBodyProfile } from '../../queries/use-save-body-profile';
 import { useApplyBodyProfileAsGoals } from '../../queries/use-apply-body-profile-as-goals';
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
+import { useWeightTrend } from '../../queries/use-weight-trend';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
@@ -73,12 +74,38 @@ const PHASE_OPTIONS: { value: GoalPhase; label: string }[] = [
   { value: 'gain', label: de.bodyProfile.phaseOptions.gain },
 ];
 
+type AdjustmentDirection = 'deficit' | 'maintenance' | 'surplus';
+
+const DIRECTION_OPTIONS: { value: AdjustmentDirection; label: string }[] = [
+  { value: 'deficit', label: de.bodyProfile.adjustmentDirection.deficit },
+  { value: 'maintenance', label: de.bodyProfile.adjustmentDirection.maintenance },
+  { value: 'surplus', label: de.bodyProfile.adjustmentDirection.surplus },
+];
+
+function directionOf(adjustmentPercent: number): AdjustmentDirection {
+  if (adjustmentPercent < 0) return 'deficit';
+  if (adjustmentPercent > 0) return 'surplus';
+  return 'maintenance';
+}
+
+function deriveAdjustment(direction: AdjustmentDirection, magnitude: number): number {
+  if (direction === 'maintenance') return 0;
+  return direction === 'deficit' ? -magnitude : magnitude;
+}
+
 export function BodyProfileForm() {
   const { data: existing, isLoading } = useBodyProfile();
   const { data: activeGoal } = useNutritionGoal();
+  const { data: weightTrend } = useWeightTrend();
   const saveMutation = useSaveBodyProfile();
   const applyMutation = useApplyBodyProfileAsGoals();
   const [savedFlash, setSavedFlash] = useState<'profile' | 'goals' | null>(null);
+  // UI-only state for the adjustment composite control. Not part of the zod schema —
+  // the persisted value is the derived `adjustmentPercent` written via setValue.
+  const [adjustmentDirection, setAdjustmentDirection] = useState<AdjustmentDirection>(
+    directionOf(DEFAULTS.adjustmentPercent),
+  );
+  const [adjustmentMagnitude, setAdjustmentMagnitude] = useState<number | ''>(Math.abs(DEFAULTS.adjustmentPercent));
 
   const {
     register,
@@ -94,7 +121,11 @@ export function BodyProfileForm() {
   });
 
   useEffect(() => {
-    if (existing) reset(existing.profile);
+    if (existing) {
+      reset(existing.profile);
+      setAdjustmentDirection(directionOf(existing.profile.adjustmentPercent));
+      setAdjustmentMagnitude(Math.abs(existing.profile.adjustmentPercent));
+    }
   }, [existing, reset]);
 
   const values = watch();
@@ -106,6 +137,32 @@ export function BodyProfileForm() {
     setValue('adjustmentPercent', preset.adjustmentPercent, { shouldValidate: true });
     setValue('proteinPerKg', preset.proteinPerKg, { shouldValidate: true });
     setValue('fatPercent', preset.fatPercent, { shouldValidate: true });
+    setAdjustmentDirection(directionOf(preset.adjustmentPercent));
+    setAdjustmentMagnitude(Math.abs(preset.adjustmentPercent));
+  }
+
+  function onDirectionChange(direction: AdjustmentDirection) {
+    setAdjustmentDirection(direction);
+    if (direction === 'maintenance') {
+      setAdjustmentMagnitude(0);
+      setValue('adjustmentPercent', 0, { shouldValidate: true });
+      return;
+    }
+    const magnitudeNumber = adjustmentMagnitude === '' ? 0 : adjustmentMagnitude;
+    if (magnitudeNumber === 0) setAdjustmentMagnitude('');
+    setValue('adjustmentPercent', deriveAdjustment(direction, magnitudeNumber), { shouldValidate: true });
+  }
+
+  function onMagnitudeChange(rawValue: string) {
+    if (rawValue === '') {
+      setAdjustmentMagnitude('');
+      setValue('adjustmentPercent', 0, { shouldValidate: true });
+      return;
+    }
+    const parsed = Number(rawValue);
+    if (!Number.isFinite(parsed)) return;
+    setAdjustmentMagnitude(parsed);
+    setValue('adjustmentPercent', deriveAdjustment(adjustmentDirection, parsed), { shouldValidate: true });
   }
 
   async function onSaveProfile(values: FormValues) {
@@ -175,6 +232,21 @@ export function BodyProfileForm() {
             {...register('weightKg')}
             className={inputCls}
           />
+          {weightTrend?.movingAverage7d !== null && weightTrend?.movingAverage7d !== undefined && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {de.weightLog.averageHint(weightTrend.movingAverage7d.toFixed(1))}{' '}
+              <button
+                type="button"
+                aria-label={de.weightLog.useTrailingAvgAria}
+                onClick={() =>
+                  setValue('weightKg', Number(weightTrend.movingAverage7d!.toFixed(1)), { shouldValidate: true })
+                }
+                className="text-primary underline-offset-2 hover:underline"
+              >
+                {de.weightLog.useTrailingAvg}
+              </button>
+            </p>
+          )}
         </Field>
         <Field id="bp-height" label={de.bodyProfile.height} error={errors.heightCm?.message}>
           <input
@@ -271,14 +343,38 @@ export function BodyProfileForm() {
         </Field>
       </div>
 
-      <Field id="bp-adjustment" label={de.bodyProfile.adjustment} error={errors.adjustmentPercent?.message}>
+      <Field id="bp-adjustment-magnitude" label={de.bodyProfile.adjustment} error={errors.adjustmentPercent?.message}>
+        <div role="radiogroup" aria-label={de.bodyProfile.adjustmentDirectionLabel} className="mb-2 flex gap-2">
+          {DIRECTION_OPTIONS.map((opt) => (
+            <label
+              key={opt.value}
+              className={`flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${
+                adjustmentDirection === opt.value ? 'border-primary bg-primary/10' : 'border-input'
+              }`}
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                name="bp-adjustment-direction"
+                value={opt.value}
+                checked={adjustmentDirection === opt.value}
+                onChange={() => onDirectionChange(opt.value)}
+              />
+              {opt.label}
+            </label>
+          ))}
+        </div>
         <input
-          id="bp-adjustment"
+          id="bp-adjustment-magnitude"
           type="number"
           inputMode="numeric"
-          step="1"
-          {...register('adjustmentPercent')}
-          className={inputCls}
+          min={0}
+          max={40}
+          step={1}
+          value={adjustmentMagnitude}
+          onChange={(e) => onMagnitudeChange(e.target.value)}
+          disabled={adjustmentDirection === 'maintenance'}
+          className={`${inputCls} disabled:opacity-50`}
         />
         <p className="mt-1 text-xs text-muted-foreground">{de.bodyProfile.adjustmentHint}</p>
       </Field>

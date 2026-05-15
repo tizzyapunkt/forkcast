@@ -93,4 +93,42 @@ export const handlers = [
   http.post('/api/body-profile/apply-as-goals', () => {
     return HttpResponse.json({ calories: 2790, protein: 160, carbs: 343, fat: 78 });
   }),
+
+  http.get('/api/weight-log', () => {
+    return HttpResponse.json({ entries: [] });
+  }),
+
+  http.post('/api/weight-log', async ({ request }) => {
+    const body = (await request.json()) as { date: string; weightKg: number };
+    return HttpResponse.json({
+      entry: { date: body.date, weightKg: body.weightKg },
+      trend: {
+        current: body.weightKg,
+        movingAverage7d: null,
+        weeklyRatePercent: null,
+        changePercent28d: null,
+        totalChangePercent: null,
+        firstEntryDate: body.date,
+        lastEntryDate: body.date,
+        totalEntries: 1,
+      },
+    });
+  }),
+
+  http.get('/api/weight-log/trend', () => {
+    return HttpResponse.json({
+      current: null,
+      movingAverage7d: null,
+      weeklyRatePercent: null,
+      changePercent28d: null,
+      totalChangePercent: null,
+      firstEntryDate: null,
+      lastEntryDate: null,
+      totalEntries: 0,
+    });
+  }),
+
+  http.delete('/api/weight-log/:date', () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
