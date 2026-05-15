@@ -11,9 +11,10 @@ function Consumer() {
 }
 
 describe('useDeleteRecipe', () => {
-  it('DELETEs /recipe/:id and invalidates list + single', async () => {
+  it('DELETEs /recipe/:id, invalidates the list, and drops the single from cache', async () => {
     const queryClient = createTestQueryClient();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const remove = vi.spyOn(queryClient, 'removeQueries');
 
     server.use(http.delete('/api/recipe/r1', () => new HttpResponse(null, { status: 204 })));
 
@@ -21,6 +22,6 @@ describe('useDeleteRecipe', () => {
     await userEvent.click(screen.getByRole('button', { name: 'delete' }));
     expect(await screen.findByText('deleted')).toBeInTheDocument();
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['recipes'] });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['recipe', 'r1'] });
+    expect(remove).toHaveBeenCalledWith({ queryKey: ['recipe', 'r1'] });
   });
 });

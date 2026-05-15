@@ -8,7 +8,7 @@ export function useDeleteRecipe() {
     mutationFn: (id: string) => deleteRecipe(id),
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.recipes() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.recipe(id) });
+      queryClient.removeQueries({ queryKey: queryKeys.recipe(id) });
     },
   });
 }

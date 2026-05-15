@@ -49,7 +49,7 @@ export function updateRecipe(id: string, patch: UpdateRecipeInput): Promise<Reci
 
 export async function deleteRecipe(id: string): Promise<void> {
   const res = await fetch(`/api/recipe/${id}`, { method: 'DELETE' });
-  if (!res.ok && res.status !== 204) {
+  if (!res.ok) {
     let message = res.statusText;
     try {
       const body = (await res.json()) as { error?: string };
