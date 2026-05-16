@@ -2,6 +2,7 @@ import type { RecipeIngredient } from './types.ts';
 
 const VALID_UNITS: readonly RecipeIngredient['unit'][] = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp', 'piece'];
 export const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
+export const NOTE_MAX_LENGTH = 80;
 
 export function validateIngredientShape(ingredient: RecipeIngredient): void {
   const label = ingredient?.name ? `"${ingredient.name}"` : '(unnamed)';
@@ -43,6 +44,19 @@ export function validateIngredientShape(ingredient: RecipeIngredient): void {
       throw new Error(
         `Ingredient ${label}: displayQuantity.unitLabel must be at most ${DISPLAY_QUANTITY_UNIT_LABEL_MAX} characters`,
       );
+    }
+  }
+
+  if (ingredient.note !== undefined) {
+    if (typeof ingredient.note !== 'string') {
+      throw new Error(`Ingredient ${label}: note must be a string`);
+    }
+    const trimmed = ingredient.note.trim();
+    if (trimmed.length === 0) {
+      throw new Error(`Ingredient ${label}: note must be a non-empty string when present`);
+    }
+    if (trimmed.length > NOTE_MAX_LENGTH) {
+      throw new Error(`Ingredient ${label}: note must be at most ${NOTE_MAX_LENGTH} characters`);
     }
   }
 }

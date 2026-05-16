@@ -135,3 +135,83 @@ describe('parseToolInput — piece quantities', () => {
     expect(ing.pieceQuantity).toBeUndefined();
   });
 });
+
+describe('parseToolInput — note field', () => {
+  it('preserves a non-empty note on the raw ingredient', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Ingwer', amount: 5, unit: 'g', note: 'fein gehackt' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBe('fein gehackt');
+  });
+
+  it('trims surrounding whitespace on the note', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Knoblauch', amount: 6, unit: 'g', note: '  in Scheiben  ' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBe('in Scheiben');
+  });
+
+  it('drops an empty-string note', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Salz', amount: 5, unit: 'g', note: '' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBeUndefined();
+  });
+
+  it('drops a whitespace-only note', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Salz', amount: 5, unit: 'g', note: '   ' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBeUndefined();
+  });
+
+  it('drops a note whose trimmed length exceeds 80 chars, leaves the rest of the ingredient intact', () => {
+    const overlong = 'a'.repeat(81);
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Mehl', amount: 200, unit: 'g', note: overlong }],
+      steps: [],
+    });
+    const ing = draft.ingredients[0]!;
+    expect(ing.note).toBeUndefined();
+    expect(ing.name).toBe('Mehl');
+    expect(ing.amount).toBe(200);
+    expect(ing.unit).toBe('g');
+  });
+
+  it('accepts a note exactly 80 chars long', () => {
+    const exact = 'a'.repeat(80);
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Mehl', amount: 200, unit: 'g', note: exact }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBe(exact);
+  });
+
+  it('omits note from the raw ingredient when the input does not carry it', () => {
+    const draft = parseToolInput({
+      name: 'Cake',
+      ingredients: [{ name: 'flour', amount: 200, unit: 'g' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!).not.toHaveProperty('note');
+  });
+
+  it('ignores a non-string note', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Salz', amount: 5, unit: 'g', note: 42 }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.note).toBeUndefined();
+  });
+});

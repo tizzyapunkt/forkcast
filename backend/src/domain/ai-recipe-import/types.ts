@@ -14,6 +14,7 @@ export interface RawIngredient {
   pieceQuantity?: PieceQuantity;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  note?: string;
 }
 
 export interface ExtractedDraft {
@@ -34,6 +35,7 @@ export interface MatchedDraftIngredient {
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
+  note?: string;
 }
 
 export interface UnmatchedDraftIngredient {
@@ -42,6 +44,7 @@ export interface UnmatchedDraftIngredient {
   amount: number | null;
   unit: MeasurementUnit | null;
   pieceQuantity?: PieceQuantity;
+  note?: string;
 }
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;

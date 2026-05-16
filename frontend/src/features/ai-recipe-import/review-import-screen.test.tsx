@@ -474,6 +474,113 @@ describe('ReviewImportScreen', () => {
     });
   });
 
+  describe('ingredient note', () => {
+    it('renders a note subtitle on an unmatched draft row', () => {
+      const draftWithUnmatchedNote: RecipeDraft = {
+        name: 'X',
+        yield: 1,
+        steps: [],
+        ingredients: [
+          {
+            matched: false,
+            name: 'Yuzu-Schale',
+            amount: 2,
+            unit: 'g',
+            note: 'fein abgerieben',
+          },
+        ],
+      };
+      renderWithProviders(<ReviewImportScreen draft={draftWithUnmatchedNote} onSaved={() => {}} onCancel={() => {}} />);
+      const note = screen.getByTestId('unmatched-note-Yuzu-Schale');
+      expect(note).toBeInTheDocument();
+      expect(note).toHaveTextContent(/^fein abgerieben$/);
+    });
+
+    it('threads matched-row note through to the add-recipe payload on save', async () => {
+      const draftWithMatchedNote: RecipeDraft = {
+        name: 'Soup',
+        yield: 1,
+        steps: [],
+        ingredients: [
+          {
+            matched: true,
+            name: 'Ingwer',
+            unit: 'g',
+            macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
+            amount: 5,
+            unitOverridden: false,
+            source: 'FOODS',
+            note: 'fein gehackt',
+          },
+        ],
+      };
+      let captured: { ingredients: Array<{ name: string; note?: string }> } | null = null;
+      server.use(
+        http.post('/api/add-recipe', async ({ request }) => {
+          captured = (await request.json()) as typeof captured;
+          return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+        }),
+      );
+
+      const onSaved = vi.fn<() => void>();
+      renderWithProviders(<ReviewImportScreen draft={draftWithMatchedNote} onSaved={onSaved} onCancel={() => {}} />);
+      await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+      expect(captured!.ingredients[0]!.note).toBe('fein gehackt');
+    });
+
+    it('clears the note when an unmatched row is resolved via the picker', async () => {
+      const draftWithUnmatchedNote: RecipeDraft = {
+        name: 'X',
+        yield: 1,
+        steps: [],
+        ingredients: [
+          {
+            matched: false,
+            name: 'Yuzu-Schale',
+            amount: 2,
+            unit: 'g',
+            note: 'fein abgerieben',
+          },
+        ],
+      };
+      let captured: { ingredients: Array<{ name: string; note?: string }> } | null = null;
+      server.use(
+        http.get('/api/search-ingredients', () =>
+          HttpResponse.json([
+            {
+              id: 'zitronen-schale',
+              source: 'FOODS',
+              name: 'Zitronenschale',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.5, protein: 0.015, carbs: 0.16, fat: 0.003 },
+            },
+          ]),
+        ),
+        http.post('/api/add-recipe', async ({ request }) => {
+          captured = (await request.json()) as typeof captured;
+          return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+        }),
+      );
+
+      const onSaved = vi.fn<() => void>();
+      renderWithProviders(<ReviewImportScreen draft={draftWithUnmatchedNote} onSaved={onSaved} onCancel={() => {}} />);
+
+      await userEvent.click(screen.getByLabelText(/yuzu-schale.*zuordnen/i));
+      await userEvent.type(screen.getByRole('searchbox'), 'zitr');
+      const result = await screen.findByRole('button', { name: /zitronenschale/i });
+      await userEvent.click(result);
+      // The picker now shows the amount step; enter an amount and confirm.
+      await userEvent.type(screen.getByLabelText(/menge pro rezept/i), '2');
+      await userEvent.click(screen.getByRole('button', { name: /^hinzufügen$/i }));
+
+      await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+      expect(captured!.ingredients[0]!.name).toBe('Zitronenschale');
+      expect(captured!.ingredients[0]).not.toHaveProperty('note');
+    });
+  });
+
   it('submits via POST /add-recipe and calls onSaved', async () => {
     server.use(
       http.post('/api/add-recipe', async ({ request }) => {

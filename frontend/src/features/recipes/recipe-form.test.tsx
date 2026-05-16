@@ -97,3 +97,61 @@ describe('RecipeForm — live totals strip', () => {
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^680 kcal · 20 P \/ 140 C \/ 2 F$/);
   });
 });
+
+describe('RecipeForm — ingredient note on submit', () => {
+  it('submits note only on rows that have a non-empty note; omits the field elsewhere', async () => {
+    const user = userEvent.setup();
+    const flourWithNote: RecipeIngredient = { ...flour, note: 'gesiebt' };
+    const recipe: Recipe = {
+      id: '',
+      name: 'Dough',
+      yield: 1,
+      ingredients: [flourWithNote, flour],
+      steps: [],
+      createdAt: '',
+      updatedAt: '',
+    };
+    const { onSubmit } = setup(recipe);
+    await user.click(screen.getByRole('button', { name: /speichern/i }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const payload = onSubmit.mock.calls[0]![0];
+    expect(payload.ingredients[0]?.note).toBe('gesiebt');
+    expect(payload.ingredients[1]).not.toHaveProperty('note');
+  });
+
+  it('trims surrounding whitespace from note on submit', async () => {
+    const user = userEvent.setup();
+    const flourWithPadding: RecipeIngredient = { ...flour, note: '  gesiebt  ' };
+    const recipe: Recipe = {
+      id: '',
+      name: 'Dough',
+      yield: 1,
+      ingredients: [flourWithPadding],
+      steps: [],
+      createdAt: '',
+      updatedAt: '',
+    };
+    const { onSubmit } = setup(recipe);
+    await user.click(screen.getByRole('button', { name: /speichern/i }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0]![0].ingredients[0]?.note).toBe('gesiebt');
+  });
+
+  it('drops a whitespace-only note from the payload', async () => {
+    const user = userEvent.setup();
+    const flourWithBlank: RecipeIngredient = { ...flour, note: '   ' };
+    const recipe: Recipe = {
+      id: '',
+      name: 'Dough',
+      yield: 1,
+      ingredients: [flourWithBlank],
+      steps: [],
+      createdAt: '',
+      updatedAt: '',
+    };
+    const { onSubmit } = setup(recipe);
+    await user.click(screen.getByRole('button', { name: /speichern/i }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0]![0].ingredients[0]).not.toHaveProperty('note');
+  });
+});

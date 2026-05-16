@@ -768,4 +768,109 @@ describe('importRecipeFromPhotos', () => {
       // No throw, no side effect to assert beyond absence — passing without recorder is the contract.
     });
   });
+
+  describe('ingredient note pass-through', () => {
+    it('carries the note onto a matched ingredient', async () => {
+      const extractor = makeExtractor({
+        name: 'Soup',
+        yield: 1,
+        ingredients: [{ name: 'Ingwer', amount: 5, unit: 'g', note: 'fein gehackt' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        ingwer: [
+          foodsResult({ name: 'Ingwer', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 } }),
+        ],
+      });
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      const ing = draft.ingredients[0]!;
+      expect(ing.matched).toBe(true);
+      expect(ing.note).toBe('fein gehackt');
+    });
+
+    it('carries the note onto an unmatched ingredient', async () => {
+      const extractor = makeExtractor({
+        name: 'Curry',
+        yield: 1,
+        ingredients: [{ name: 'Yuzu-Schale', amount: 2, unit: 'g', note: 'fein abgerieben' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      const ing = draft.ingredients[0]!;
+      expect(ing.matched).toBe(false);
+      expect(ing.note).toBe('fein abgerieben');
+    });
+
+    it('omits note from matched and unmatched rows when extractor did not supply one', async () => {
+      const extractor = makeExtractor({
+        name: 'Mix',
+        yield: 1,
+        ingredients: [
+          { name: 'Olivenöl', amount: 30, unit: 'ml' }, // matched, no note
+          { name: 'unicorn dust', amount: 1, unit: 'tsp' }, // unmatched, no note
+        ],
+        steps: [],
+      });
+      const search = makeSearch({ olivenöl: [foodsResult({ name: 'Olivenöl', unit: 'ml' })] });
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      expect(draft.ingredients[0]!).not.toHaveProperty('note');
+      expect(draft.ingredients[1]!).not.toHaveProperty('note');
+    });
+
+    it('note presence does not affect normalization fallback, recorder, or match flags', async () => {
+      // raw name with comma suffix forces the normalize-and-retry path; recorder receives normalized name.
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          {
+            name: 'Rindertatar, frisch gewolft',
+            amount: 200,
+            unit: 'tbsp', // forces unitOverridden against a 'g' match below
+            pieceAmount: 2,
+            pieceUnitLabel: 'Stück',
+            gramsPerPiece: 100,
+            note: 'frisch',
+          },
+        ],
+        steps: [],
+      });
+      // No match for the raw nor normalized name (test the recorder branch).
+      const search = makeSearch({});
+      const record = vi.fn<(raw: { name: string; note?: string }) => Promise<void>>().mockResolvedValue(undefined);
+      const draft = await importRecipeFromPhotos({ extractor, search, recorder: { record } }, oneImage());
+      const ing = draft.ingredients[0]!;
+      expect(ing.matched).toBe(false);
+      expect(ing.note).toBe('frisch');
+      // Recorder received the *normalized* name and the note rides along verbatim.
+      expect(record).toHaveBeenCalledTimes(1);
+      const recorded = record.mock.calls[0]![0];
+      expect(recorded.name).toBe('Rindertatar');
+      expect(recorded.note).toBe('frisch');
+    });
+
+    it('matched row with note still carries unitOverridden and other flags as usual', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'tomato paste', amount: 2, unit: 'tbsp', note: 'doppelt konzentriert' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        'tomato paste': [
+          foodsResult({
+            name: 'Tomatenmark',
+            unit: 'g',
+            macrosPerUnit: { calories: 0.82, protein: 0.044, carbs: 0.179, fat: 0.005 },
+          }),
+        ],
+      });
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.unitOverridden).toBe(true);
+      expect(ing.note).toBe('doppelt konzentriert');
+    });
+  });
 });

@@ -5,6 +5,7 @@ import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { de } from '../../i18n/de';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
+const NOTE_MAX_LENGTH = 80;
 
 interface Props {
   ingredients: RecipeIngredient[];
@@ -169,6 +170,18 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
     setEditingDisplayQuantityFor(null);
   }
 
+  function handleEditNote(index: number, raw: string) {
+    update(index, (ing) => {
+      const next: RecipeIngredient = { ...ing };
+      if (raw.trim().length === 0) {
+        delete next.note;
+      } else {
+        next.note = raw;
+      }
+      return next;
+    });
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -270,6 +283,23 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                       .replace(/^·\s*/, '')}
                   </div>
                 )}
+
+                <div className="pl-2">
+                  <input
+                    aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
+                    data-testid={`ingredient-note-${idx}`}
+                    type="text"
+                    maxLength={NOTE_MAX_LENGTH}
+                    value={ing.note ?? ''}
+                    placeholder={de.recipeIngredientEditor.notePlaceholder}
+                    onChange={(e) => handleEditNote(idx, e.target.value)}
+                    onBlur={(e) => {
+                      const trimmed = e.target.value.trim();
+                      if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
+                    }}
+                    className="w-full bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
+                  />
+                </div>
 
                 {editingDisplayQuantity && (
                   <DisplayQuantityForm

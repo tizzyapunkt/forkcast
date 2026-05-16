@@ -234,6 +234,12 @@ export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   { key: 'dill', untracked: true },
   { key: 'chiliflocken', untracked: true },
   { key: 'muskat', untracked: true },
+  'ingwer',
+  'rindertatar',
+  'sojasauce',
+  'speisestärke',
+  'sushireis',
+  'zuckerfreier-ahornsirup',
 ];
 
 export interface NormalizedFoodSeedKey {

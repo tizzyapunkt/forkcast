@@ -2,6 +2,7 @@ import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
 import { validatePieceQuantity } from './validate-piece-quantity.ts';
 import { validateIngredientShape } from './validate-ingredient-shape.ts';
+import { normalizeIngredient } from './normalize-ingredient.ts';
 
 export interface UpdateRecipeCommand {
   id: string;
@@ -33,7 +34,7 @@ export async function updateRecipe(repo: RecipeRepository, command: UpdateRecipe
       validateIngredientShape(ingredient);
       validatePieceQuantity(ingredient);
     }
-    next.ingredients = command.ingredients;
+    next.ingredients = command.ingredients.map(normalizeIngredient);
   }
   if (command.steps !== undefined) {
     if (!Array.isArray(command.steps)) throw new Error('Recipe steps must be an array');

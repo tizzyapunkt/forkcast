@@ -2,6 +2,7 @@ import type { Recipe, RecipeIngredient } from './types.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
 import { validatePieceQuantity } from './validate-piece-quantity.ts';
 import { validateIngredientShape } from './validate-ingredient-shape.ts';
+import { normalizeIngredient } from './normalize-ingredient.ts';
 
 export interface AddRecipeCommand {
   name: string;
@@ -18,7 +19,7 @@ export async function addRecipe(repo: RecipeRepository, command: AddRecipeComman
     id: crypto.randomUUID(),
     name: command.name.trim(),
     yield: command.yield,
-    ingredients: command.ingredients,
+    ingredients: command.ingredients.map(normalizeIngredient),
     steps: command.steps,
     createdAt: now,
     updatedAt: now,

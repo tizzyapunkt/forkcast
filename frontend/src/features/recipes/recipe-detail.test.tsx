@@ -61,6 +61,38 @@ describe('RecipeDetail — dual-form rendering', () => {
     expect(await screen.findByText('Mehl')).toBeInTheDocument();
     expect(screen.getByText('200 g')).toBeInTheDocument();
   });
+
+  it('renders the ingredient note as a subtitle when present', async () => {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          name: 'Soup',
+          ingredients: [
+            {
+              name: 'Ingwer',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
+              amount: 5,
+              note: 'fein gehackt',
+            },
+            {
+              name: 'Mehl',
+              unit: 'g',
+              macrosPerUnit: { calories: 3.4, protein: 0.1, carbs: 0.7, fat: 0.01 },
+              amount: 200,
+            },
+          ],
+        }),
+      ),
+    );
+
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+    expect(await screen.findByText('Ingwer')).toBeInTheDocument();
+    expect(screen.getByTestId('ingredient-note-0')).toHaveTextContent(/^fein gehackt$/);
+    // Row without a note has no subtitle test-id.
+    expect(screen.queryByTestId('ingredient-note-1')).not.toBeInTheDocument();
+  });
 });
 
 describe('RecipeDetail — untracked rendering', () => {

@@ -238,6 +238,44 @@ describe('addRecipe', () => {
     expect(repo.save).not.toHaveBeenCalled();
   });
 
+  it('trims note on persistence', async () => {
+    const repo = makeRepo();
+    const ginger = {
+      name: 'Ingwer',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
+      amount: 5,
+      note: '  fein gehackt  ',
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [ginger], steps: [] });
+    expect(recipe.ingredients[0]?.note).toBe('fein gehackt');
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
+  it('omits note from the persisted ingredient when the payload does not carry one', async () => {
+    const repo = makeRepo();
+    const recipe = await addRecipe(repo, {
+      name: 'Soup',
+      yield: 1,
+      ingredients: [validIngredient],
+      steps: [],
+    });
+    expect(recipe.ingredients[0]).not.toHaveProperty('note');
+  });
+
+  it('persists a clean note as-is', async () => {
+    const repo = makeRepo();
+    const ginger = {
+      name: 'Ingwer',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
+      amount: 5,
+      note: 'fein gehackt',
+    };
+    const recipe = await addRecipe(repo, { name: 'Soup', yield: 1, ingredients: [ginger], steps: [] });
+    expect(recipe.ingredients[0]?.note).toBe('fein gehackt');
+  });
+
   it('persists a recipe with mixed tracked and untracked ingredients', async () => {
     const repo = makeRepo();
     const recipe = await addRecipe(repo, {

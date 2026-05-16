@@ -51,6 +51,7 @@ function buildInitialMatchedIngredients(draft: RecipeDraft): {
     if (ing.untracked === true && ing.displayQuantity) {
       row.displayQuantity = ing.displayQuantity;
     }
+    if (ing.note !== undefined) row.note = ing.note;
     matched.push(row);
     if (ing.unitOverridden) {
       overrideMap.set(idx, { extractedUnit: ing.unit });
@@ -109,13 +110,23 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
         <ul className="mt-2 space-y-1">
           {unmatched.map((u) => (
             <li key={u.name} className="flex items-center justify-between gap-2 text-sm">
-              <span className="min-w-0 flex-1 truncate">
-                <span className="font-medium">{u.name}</span>
-                {u.amount !== null || u.unit !== null ? (
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {u.amount ?? '—'} {u.unit ?? ''}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">
+                  <span className="font-medium">{u.name}</span>
+                  {u.amount !== null || u.unit !== null ? (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {u.amount ?? '—'} {u.unit ?? ''}
+                    </span>
+                  ) : null}
+                </span>
+                {u.note !== undefined && (
+                  <span
+                    data-testid={`unmatched-note-${u.name}`}
+                    className="block truncate text-xs italic text-muted-foreground"
+                  >
+                    {u.note}
                   </span>
-                ) : null}
+                )}
               </span>
               <button
                 type="button"

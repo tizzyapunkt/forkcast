@@ -6,6 +6,8 @@ export const EXTRACT_RECIPE_TOOL_NAME = 'extract_recipe';
 
 const SUPPORTED_UNITS: MeasurementUnit[] = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp', 'piece'];
 
+const NOTE_MAX_LENGTH = 80;
+
 export const EXTRACT_RECIPE_TOOL = {
   name: EXTRACT_RECIPE_TOOL_NAME,
   description:
@@ -71,6 +73,11 @@ export const EXTRACT_RECIPE_TOOL = {
               description:
                 'Literal textual unit as written in the recipe, when outside the canonical enum (e.g. "TL", "EL", "Teelöffel", "Esslöffel", "Prise", "Schuss", "Spritzer", "n. Geschmack"). OMIT when the recipe uses a canonical unit. Capture the original language and casing.',
             },
+            note: {
+              type: 'string',
+              description:
+                'A short preparation, cut, or quality modifier that the source recipe bundled inline with this ingredient (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft", "geröstet", "abgerieben"). In the original language of the recipe. OMIT when the source recipe states no such modifier on the ingredient line. Do NOT use this field for the ingredient name, brand, supplier, or general commentary. Keep it short — at most 80 characters.',
+            },
           },
         },
       },
@@ -94,9 +101,9 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
   '- When the recipe states no quantity at all for an ingredient ("Salz n. Geschmack"), you MAY populate rawDisplayUnitLabel alone with the qualitative phrase and omit rawDisplayAmount, amount, and unit.',
   'Keep the original language for names and steps.',
   'Naming rules:',
-  '- The ingredient name field is the food noun only. Preparation, cut, and quality modifiers (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft") MUST NOT appear in name; they belong in steps.',
-  '- Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs", "Gemahlener Zimt") MUST be preserved on name — they affect the nutrition profile.',
-  '- If you strip a prep modifier from name, make sure the corresponding instruction appears somewhere in steps (add a short step or append to an existing one) so the user does not lose the prep info.',
+  '- The ingredient name field is the food noun only. Preparation, cut, and quality modifiers (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft") MUST NOT appear in name; populate the ingredient\'s `note` field with that modifier instead.',
+  '- Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs", "Gemahlener Zimt") MUST be preserved on name — they affect the nutrition profile and do not belong in `note`.',
+  '- The `note` field is for the inline prep/cut/quality modifier only. Omit `note` when the source recipe states no such modifier on the ingredient line. Do NOT duplicate a prep modifier into `steps` once it is on the ingredient `note`; `steps` carries the cooking process.',
 ].join(' ');
 
 interface RawToolInputIngredient {
@@ -108,6 +115,7 @@ interface RawToolInputIngredient {
   gramsPerPiece?: unknown;
   rawDisplayAmount?: unknown;
   rawDisplayUnitLabel?: unknown;
+  note?: unknown;
 }
 interface RawToolInput {
   name?: unknown;
@@ -207,6 +215,12 @@ export function parseToolInput(input: unknown): ExtractedDraft {
     if (typeof ing.rawDisplayUnitLabel === 'string') {
       const trimmed = ing.rawDisplayUnitLabel.trim();
       if (trimmed.length > 0) result.rawDisplayUnitLabel = trimmed;
+    }
+    if (typeof ing.note === 'string') {
+      const trimmed = ing.note.trim();
+      if (trimmed.length > 0 && trimmed.length <= NOTE_MAX_LENGTH) {
+        result.note = trimmed;
+      }
     }
     return result;
   });

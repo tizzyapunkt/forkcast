@@ -322,7 +322,8 @@
     "name": "Brokkoli",
     "synonyms": [
       "Spargelkohl",
-      "broccoli"
+      "broccoli",
+      "Stielbrokkoli"
     ],
     "unit": "g",
     "macrosPer100": {
@@ -1289,6 +1290,37 @@
     }
   },
   {
+    "id": "ingwer",
+    "name": "Ingwer",
+    "synonyms": [
+      "Ingwerwurzel",
+      "ginger",
+      "ginger root",
+      "Ingwer, fein gehackt"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 80,
+      "protein": 1.8,
+      "carbs": 17.8,
+      "fat": 0.8
+    },
+    "pieces": [
+      {
+        "label": "Stück klein",
+        "grams": 15
+      },
+      {
+        "label": "Stück mittel",
+        "grams": 30
+      },
+      {
+        "label": "Knolle",
+        "grams": 60
+      }
+    ]
+  },
+  {
     "id": "joghurt-natur",
     "name": "Naturjoghurt (3,5 % Fett)",
     "synonyms": [
@@ -1466,7 +1498,8 @@
     "id": "knoblauch",
     "name": "Knoblauch",
     "synonyms": [
-      "garlic"
+      "garlic",
+      "Knoblauchzehe, fein gehackt"
     ],
     "unit": "g",
     "macrosPer100": {
@@ -2690,6 +2723,30 @@
     }
   },
   {
+    "id": "rindertatar",
+    "name": "Rindertatar",
+    "synonyms": [
+      "Tatar",
+      "Beefsteak Tatar",
+      "Schabefleisch",
+      "beef tartare",
+      "steak tartare"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 137,
+      "protein": 21.5,
+      "carbs": 0,
+      "fat": 5.5
+    },
+    "pieces": [
+      {
+        "label": "Portion",
+        "grams": 120
+      }
+    ]
+  },
+  {
     "id": "rindfleisch-filet",
     "name": "Rinderfilet",
     "synonyms": [
@@ -3285,6 +3342,22 @@
     }
   },
   {
+    "id": "sojasauce",
+    "name": "Sojasauce",
+    "synonyms": [
+      "Sojasoße",
+      "Shoyu",
+      "soy sauce"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 60,
+      "protein": 8,
+      "carbs": 5,
+      "fat": 0.1
+    }
+  },
+  {
     "id": "sonnenblumenkern",
     "name": "Sonnenblumenkerne",
     "synonyms": [
@@ -3397,6 +3470,25 @@
     ]
   },
   {
+    "id": "speisestärke",
+    "name": "Speisestärke",
+    "synonyms": [
+      "Maisstärke",
+      "Kartoffelstärke",
+      "Stärkemehl",
+      "Mondamin",
+      "cornstarch",
+      "corn starch"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 381,
+      "protein": 0.6,
+      "carbs": 91,
+      "fat": 0.1
+    }
+  },
+  {
     "id": "spinat",
     "name": "Spinat",
     "synonyms": [
@@ -3461,6 +3553,24 @@
         "grams": 350
       }
     ]
+  },
+  {
+    "id": "sushireis",
+    "name": "Sushireis",
+    "synonyms": [
+      "Reis für Sushi",
+      "japanischer Reis",
+      "Rundkornreis",
+      "sushi rice",
+      "japanese rice"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 355,
+      "protein": 6.5,
+      "carbs": 78,
+      "fat": 0.9
+    }
   },
   {
     "id": "tempeh",
@@ -3862,6 +3972,24 @@
         "grams": 400
       }
     ]
+  },
+  {
+    "id": "zuckerfreier-ahornsirup",
+    "name": "Zuckerfreier Ahornsirup",
+    "synonyms": [
+      "Ahornsirup zuckerfrei",
+      "kalorienarmer Ahornsirup",
+      "Ahornsirup light",
+      "sugar-free maple syrup",
+      "maple syrup zero"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 15,
+      "protein": 0,
+      "carbs": 3,
+      "fat": 0
+    }
   },
   {
     "id": "zuckerschote",

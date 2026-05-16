@@ -387,6 +387,8 @@ export const de = {
     removeDisplayQuantity: 'Menge entfernen',
     confirmDisplayQuantity: 'OK',
     cancelDisplayQuantity: 'Abbrechen',
+    notePlaceholder: 'Notiz, z. B. fein gehackt',
+    noteAriaFor: (name: string) => `Notiz für ${name}`,
   },
 
   aiRecipeImport: {

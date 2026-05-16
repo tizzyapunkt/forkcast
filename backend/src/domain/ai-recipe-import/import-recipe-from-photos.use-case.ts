@@ -96,6 +96,7 @@ async function matchIngredient(
       unit: raw.unit ?? null,
     };
     if (raw.pieceQuantity) unmatched.pieceQuantity = raw.pieceQuantity;
+    if (raw.note !== undefined) unmatched.note = raw.note;
     return {
       ingredient: unmatched,
       debug: includeDebug
@@ -124,6 +125,7 @@ async function matchIngredient(
     source: top.source,
   };
   if (raw.pieceQuantity && matchedUnitIsMass) matched.pieceQuantity = raw.pieceQuantity;
+  if (raw.note !== undefined) matched.note = raw.note;
   if (isUntracked) {
     matched.untracked = true;
     const rawLabel = raw.rawDisplayUnitLabel?.trim();

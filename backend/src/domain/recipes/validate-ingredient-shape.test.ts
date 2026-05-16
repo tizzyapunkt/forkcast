@@ -99,4 +99,46 @@ describe('validateIngredientShape', () => {
   it('accepts a legacy tracked row without displayQuantity', () => {
     expect(() => validateIngredientShape(tracked())).not.toThrow();
   });
+
+  it('accepts a tracked row with a note', () => {
+    expect(() => validateIngredientShape(tracked({ name: 'Ingwer', note: 'fein gehackt' }))).not.toThrow();
+  });
+
+  it('accepts an untracked row with both displayQuantity and note', () => {
+    expect(() =>
+      validateIngredientShape(
+        untracked({
+          name: 'Pfeffer',
+          amount: 0,
+          displayQuantity: { amount: 1, unitLabel: 'Prise' },
+          note: 'frisch gemahlen',
+        }),
+      ),
+    ).not.toThrow();
+  });
+
+  it('rejects an empty note', () => {
+    expect(() => validateIngredientShape(tracked({ note: '' }))).toThrow(/note/i);
+  });
+
+  it('rejects a whitespace-only note', () => {
+    expect(() => validateIngredientShape(tracked({ note: '   ' }))).toThrow(/note/i);
+  });
+
+  it('rejects a note longer than 80 chars after trim', () => {
+    expect(() => validateIngredientShape(tracked({ note: 'a'.repeat(81) }))).toThrow(/80/);
+  });
+
+  it('accepts a note exactly 80 chars long', () => {
+    expect(() => validateIngredientShape(tracked({ note: 'a'.repeat(80) }))).not.toThrow();
+  });
+
+  it('accepts a note with surrounding whitespace (caller may pre-trim or not)', () => {
+    // Convention: validator checks the trimmed length; trimming on persist is the use-case's job.
+    expect(() => validateIngredientShape(tracked({ note: '  fein gehackt  ' }))).not.toThrow();
+  });
+
+  it('rejects a non-string note', () => {
+    expect(() => validateIngredientShape(tracked({ note: 42 as unknown as string }))).toThrow(/note/i);
+  });
 });

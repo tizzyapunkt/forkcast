@@ -193,6 +193,63 @@ describe('updateRecipe', () => {
     expect(saved).toEqual([updated]);
   });
 
+  it('adds, replaces, and drops ingredient notes across an update', async () => {
+    const seeded: Recipe = {
+      ...base,
+      ingredients: [
+        // row 0: no note — will gain one
+        {
+          name: 'Mehl',
+          unit: 'g',
+          macrosPerUnit: { calories: 3.6, protein: 0.1, carbs: 0.76, fat: 0.01 },
+          amount: 200,
+        },
+        // row 1: has a note — will be changed
+        {
+          name: 'Knoblauch',
+          unit: 'g',
+          macrosPerUnit: { calories: 1.49, protein: 0.064, carbs: 0.331, fat: 0.005 },
+          amount: 6,
+          note: 'fein gehackt',
+        },
+        // row 2: has a note — will be dropped
+        {
+          name: 'Petersilie',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.36, protein: 0.03, carbs: 0.063, fat: 0.008 },
+          amount: 10,
+          note: 'gehackt',
+        },
+      ],
+    };
+    const { repo, saved } = makeRepo(seeded);
+    const updated = await updateRecipe(repo, {
+      id: 'rec-1',
+      ingredients: [
+        { ...seeded.ingredients[0]!, note: 'gesiebt' }, // gain
+        { ...seeded.ingredients[1]!, note: 'grob gehackt' }, // replace
+        // drop: copy without note
+        (() => {
+          const { note: _, ...rest } = seeded.ingredients[2]!;
+          return rest;
+        })(),
+      ],
+    });
+    expect(updated.ingredients[0]?.note).toBe('gesiebt');
+    expect(updated.ingredients[1]?.note).toBe('grob gehackt');
+    expect(updated.ingredients[2]).not.toHaveProperty('note');
+    expect(saved).toEqual([updated]);
+  });
+
+  it('trims note on update', async () => {
+    const { repo } = makeRepo(base);
+    const updated = await updateRecipe(repo, {
+      id: 'rec-1',
+      ingredients: [{ ...base.ingredients[0]!, note: '  geröstet  ' }],
+    });
+    expect(updated.ingredients[0]?.note).toBe('geröstet');
+  });
+
   it('rejects update placing displayQuantity on a tracked row', async () => {
     const { repo, saved } = makeRepo(base);
     const ingredients = [

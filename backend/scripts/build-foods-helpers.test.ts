@@ -24,8 +24,8 @@ describe('chunkKeys', () => {
   });
 
   it('throws on non-positive batch size', () => {
-    expect(() => chunkKeys(['a'], 0)).toThrow();
-    expect(() => chunkKeys(['a'], -1)).toThrow();
+    expect(() => chunkKeys(['a'], 0)).toThrow('batchSize must be > 0');
+    expect(() => chunkKeys(['a'], -1)).toThrow('batchSize must be > 0');
   });
 });
 

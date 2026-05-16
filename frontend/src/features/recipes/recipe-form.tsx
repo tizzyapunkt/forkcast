@@ -58,7 +58,17 @@ export function RecipeForm({
       return;
     }
     const trimmedSteps = steps.map((s) => s.trim()).filter((s) => s.length > 0);
-    onSubmit({ name: name.trim(), yield: recipeYield, ingredients, steps: trimmedSteps });
+    const normalizedIngredients = ingredients.map((ing) => {
+      if (ing.note === undefined) return ing;
+      const trimmed = ing.note.trim();
+      if (trimmed.length === 0) {
+        const { note: _omit, ...rest } = ing;
+        return rest;
+      }
+      if (trimmed === ing.note) return ing;
+      return { ...ing, note: trimmed };
+    });
+    onSubmit({ name: name.trim(), yield: recipeYield, ingredients: normalizedIngredients, steps: trimmedSteps });
   }
 
   function addStep() {

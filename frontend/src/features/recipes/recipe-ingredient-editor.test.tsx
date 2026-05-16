@@ -269,6 +269,35 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
     expect(screen.getByRole('heading', { name: /zutat ersetzen/i })).toBeInTheDocument();
   });
 
+  it('clears the note when an ingredient is replaced via the picker', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'sonnenblumenoel',
+            source: 'FOODS',
+            name: 'Sonnenblumenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+    );
+    const user = userEvent.setup();
+    const rowWithNote: RecipeIngredient = { ...oilRow, note: 'fein angeschwitzt' };
+    renderWithProviders(<Capture initial={[rowWithNote]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+    await user.type(screen.getByRole('searchbox'), 'sonne');
+    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    await user.click(result);
+
+    const state = readState();
+    expect(state).toHaveLength(1);
+    expect(state[0]?.name).toBe('Sonnenblumenöl');
+    expect(state[0]).not.toHaveProperty('note');
+  });
+
   it('replaces a tracked row, keeping the amount and replacing name/unit/macros', async () => {
     server.use(
       http.get('/api/search-ingredients', () =>
@@ -586,5 +615,70 @@ describe('RecipeIngredientEditor — displayQuantity', () => {
     const state = readState();
     expect(state[0]?.untracked).toBeUndefined();
     expect(state[0]?.displayQuantity).toBeUndefined();
+  });
+});
+
+describe('RecipeIngredientEditor — ingredient note', () => {
+  function Capture({ initial }: { initial: RecipeIngredient[] }) {
+    const [ingredients, setIngredients] = useState(initial);
+    return (
+      <>
+        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
+        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
+      </>
+    );
+  }
+
+  function readState(): RecipeIngredient[] {
+    const el = screen.getByTestId('captured-state');
+    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
+  }
+
+  const ginger: RecipeIngredient = {
+    name: 'Ingwer',
+    unit: 'g',
+    macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
+    amount: 5,
+  };
+
+  it('renders an empty note input when the row has no note', () => {
+    render(<Capture initial={[ginger]} />);
+    const input = screen.getByTestId('ingredient-note-0') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+    expect(input.value).toBe('');
+  });
+
+  it('typing into the note input writes a `note` onto the row', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[ginger]} />);
+    await user.type(screen.getByTestId('ingredient-note-0'), 'fein gehackt');
+    const state = readState();
+    expect(state[0]?.note).toBe('fein gehackt');
+  });
+
+  it('clearing the note input removes the `note` field from the row', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[{ ...ginger, note: 'fein gehackt' }]} />);
+    const input = screen.getByTestId('ingredient-note-0');
+    await user.clear(input);
+    const state = readState();
+    expect(state[0]).not.toHaveProperty('note');
+  });
+
+  it('renders the existing note on initial mount', () => {
+    render(<Capture initial={[{ ...ginger, note: 'gerieben' }]} />);
+    const input = screen.getByTestId('ingredient-note-0') as HTMLInputElement;
+    expect(input.value).toBe('gerieben');
+  });
+
+  it('trims surrounding whitespace on blur', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[ginger]} />);
+    const input = screen.getByTestId('ingredient-note-0');
+    await user.type(input, '  in Scheiben  ');
+    // Move focus away to trigger blur.
+    await user.tab();
+    const state = readState();
+    expect(state[0]?.note).toBe('in Scheiben');
   });
 });

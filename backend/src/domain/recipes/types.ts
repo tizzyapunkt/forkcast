@@ -26,6 +26,7 @@ export interface RecipeIngredient {
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
+  note?: string;
 }
 
 export interface Recipe {

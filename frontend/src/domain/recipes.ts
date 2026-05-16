@@ -19,6 +19,7 @@ export interface RecipeIngredient {
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
+  note?: string;
 }
 
 export interface Recipe {
@@ -42,6 +43,7 @@ export interface MatchedDraftIngredient {
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
+  note?: string;
 }
 
 export interface UnmatchedDraftIngredient {
@@ -50,6 +52,7 @@ export interface UnmatchedDraftIngredient {
   amount: number | null;
   unit: MeasurementUnit | null;
   pieceQuantity?: PieceQuantity;
+  note?: string;
 }
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
@@ -61,6 +64,7 @@ export interface RawIngredientDebug {
   pieceQuantity?: PieceQuantity;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  note?: string;
 }
 
 export interface SearchCandidateDebug {
