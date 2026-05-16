@@ -123,8 +123,14 @@ if (config.ai.anthropicApiKey) {
         maxImageBytes: config.ai.recipeImport.maxImageBytes,
         maxTotalBytes: config.ai.recipeImport.maxTotalBytes,
       },
+      includeDebug: config.ai.recipeImport.debug,
     }),
   );
+  if (config.ai.recipeImport.debug) {
+    console.warn(
+      'RECIPE_IMPORT_DEBUG is enabled — POST /import-recipe-from-photos responses include a debug payload (dev only)',
+    );
+  }
 } else {
   app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
 }

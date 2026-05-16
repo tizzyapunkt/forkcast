@@ -46,9 +46,32 @@ export interface UnmatchedDraftIngredient {
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
 
+export interface SearchCandidateDebug {
+  name: string;
+  source: 'FOODS' | 'OFF';
+  unit: MeasurementUnit;
+  untracked: boolean;
+}
+
+export interface IngredientMatchDebug {
+  raw: RawIngredient;
+  candidates: SearchCandidateDebug[];
+  chosen: SearchCandidateDebug | null;
+  flags: {
+    unitOverridden: boolean;
+    pieceQuantityDropped: boolean;
+    untrackedInherited: boolean;
+  };
+}
+
+export interface RecipeDraftDebug {
+  ingredients: IngredientMatchDebug[];
+}
+
 export interface RecipeDraft {
   name: string;
   yield: number;
   ingredients: DraftIngredient[];
   steps: string[];
+  debug?: RecipeDraftDebug;
 }

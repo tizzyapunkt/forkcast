@@ -460,6 +460,136 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'n. Geschmack' });
   });
 
+  describe('debug payload', () => {
+    it('omits debug when includeDebug is not passed', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
+        steps: [],
+      });
+      const search = makeSearch({ 'olive oil': [foodsResult()] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      expect('debug' in draft).toBe(false);
+    });
+
+    it('populates raw, candidates, chosen, and unitOverridden flag for a matched ingredient', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'tomato paste', amount: 2, unit: 'tbsp' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        'tomato paste': [
+          foodsResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' }),
+          foodsResult({ id: 'foods-tom', name: 'Tomaten', unit: 'g' }),
+        ],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      expect(draft.debug).toBeDefined();
+      expect(draft.debug!.ingredients).toHaveLength(1);
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.raw).toEqual({ name: 'tomato paste', amount: 2, unit: 'tbsp' });
+      expect(entry.candidates).toHaveLength(2);
+      expect(entry.candidates[0]).toEqual({ name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false });
+      expect(entry.candidates[1]).toEqual({ name: 'Tomaten', source: 'FOODS', unit: 'g', untracked: false });
+      expect(entry.chosen).toEqual(entry.candidates[0]);
+      expect(entry.flags.unitOverridden).toBe(true);
+      expect(entry.flags.pieceQuantityDropped).toBe(false);
+      expect(entry.flags.untrackedInherited).toBe(false);
+    });
+
+    it('sets chosen=null, empty candidates, and all flags false for an unmatched ingredient', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'unicorn dust', amount: 1, unit: 'tsp' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.chosen).toBeNull();
+      expect(entry.candidates).toEqual([]);
+      expect(entry.flags.unitOverridden).toBe(false);
+      expect(entry.flags.pieceQuantityDropped).toBe(false);
+      expect(entry.flags.untrackedInherited).toBe(false);
+    });
+
+    it('flags pieceQuantityDropped when the catalog unit is non-mass', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          {
+            name: 'Knoblauch',
+            amount: 6,
+            unit: 'g',
+            pieceQuantity: { amount: 2, unitLabel: 'Zehe', gramsPerPiece: 3 },
+          },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({ knoblauch: [foodsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.flags.pieceQuantityDropped).toBe(true);
+      expect(entry.flags.unitOverridden).toBe(true);
+    });
+
+    it('flags untrackedInherited when the FOODS match is untracked', async () => {
+      const extractor = makeExtractor({
+        name: 'Pasta',
+        yield: 1,
+        ingredients: [{ name: 'salt', amount: 5, unit: 'g' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        salt: [
+          foodsResult({
+            name: 'Salz',
+            unit: 'g',
+            macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+            untracked: true,
+          }),
+        ],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.flags.untrackedInherited).toBe(true);
+      expect(entry.candidates[0]?.untracked).toBe(true);
+    });
+
+    it('caps candidates at 5 even when the search returns more', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'tomato', amount: 1, unit: 'g' }],
+        steps: [],
+      });
+      const many: IngredientSearchResult[] = Array.from({ length: 9 }, (_, i) =>
+        foodsResult({ id: `f-${i}`, name: `Tomate ${i}`, unit: 'g' }),
+      );
+      const search = makeSearch({ tomato: many });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.candidates).toHaveLength(5);
+      expect(entry.candidates.map((c) => c.name)).toEqual(['Tomate 0', 'Tomate 1', 'Tomate 2', 'Tomate 3', 'Tomate 4']);
+    });
+  });
+
   it('does not write to the recipe repository', async () => {
     const extractor = makeExtractor({
       name: 'X',

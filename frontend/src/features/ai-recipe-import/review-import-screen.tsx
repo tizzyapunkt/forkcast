@@ -10,6 +10,7 @@ import type {
   UnmatchedDraftIngredient,
 } from '../../domain/recipes';
 import { de } from '../../i18n/de';
+import { DebugBox } from './debug-box';
 
 interface Props {
   draft: RecipeDraft;
@@ -184,6 +185,8 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
           if (pickerForName) resolveUnmatched(pickerForName, picked);
         }}
       />
+
+      {draft.debug && <DebugBox debug={draft.debug} />}
     </>
   );
 }

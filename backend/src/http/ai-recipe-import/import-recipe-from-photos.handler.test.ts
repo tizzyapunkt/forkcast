@@ -21,6 +21,7 @@ function makeApp(opts: {
   extractor?: { extract: (images: RecipeImage[]) => Promise<ExtractedDraft> } | null;
   search?: IngredientSearchService;
   limits?: ImportRecipeFromPhotosLimits;
+  includeDebug?: boolean;
 }) {
   const app = new Hono();
   if (opts.extractor === null) {
@@ -49,7 +50,12 @@ function makeApp(opts: {
   };
   app.post(
     '/import-recipe-from-photos',
-    makeImportRecipeFromPhotosHandler({ extractor, search, limits: opts.limits ?? DEFAULT_LIMITS }),
+    makeImportRecipeFromPhotosHandler({
+      extractor,
+      search,
+      limits: opts.limits ?? DEFAULT_LIMITS,
+      includeDebug: opts.includeDebug,
+    }),
   );
   return app;
 }
@@ -205,6 +211,45 @@ describe('POST /import-recipe-from-photos', () => {
       ingredients: Array<{ pieceQuantity?: { amount: number; unitLabel: string; gramsPerPiece: number } }>;
     };
     expect(body.ingredients[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
+
+  it('omits the debug field from the response by default', async () => {
+    const app = makeApp({});
+    const res = await app.request('/import-recipe-from-photos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images: [tinyJpeg(20)] }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect('debug' in body).toBe(false);
+  });
+
+  it('includes a debug.ingredients array on the response when includeDebug is true', async () => {
+    const app = makeApp({ includeDebug: true });
+    const res = await app.request('/import-recipe-from-photos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images: [tinyJpeg(20)] }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      debug?: {
+        ingredients: Array<{
+          raw: { name: string };
+          candidates: Array<{ name: string }>;
+          chosen: { name: string } | null;
+          flags: { unitOverridden: boolean; pieceQuantityDropped: boolean; untrackedInherited: boolean };
+        }>;
+      };
+    };
+    expect(body.debug).toBeDefined();
+    expect(body.debug!.ingredients).toHaveLength(1);
+    const entry = body.debug!.ingredients[0]!;
+    expect(entry.raw.name).toBe('olive oil');
+    expect(entry.candidates[0]?.name).toBe('Olivenöl');
+    expect(entry.chosen?.name).toBe('Olivenöl');
+    expect(entry.flags).toEqual({ unitOverridden: false, pieceQuantityDropped: false, untrackedInherited: false });
   });
 
   it('returns 400 on invalid JSON', async () => {

@@ -433,6 +433,47 @@ describe('ReviewImportScreen', () => {
     expect(captured!.ingredients[0]!.displayQuantity).toBeUndefined();
   });
 
+  describe('debug box', () => {
+    it('does not render the debug box when draft.debug is undefined', () => {
+      renderWithProviders(<ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />);
+      expect(screen.queryByTestId('import-debug-box')).not.toBeInTheDocument();
+    });
+
+    it('renders the debug box (collapsed) and reveals raw/chosen/candidates/flags when toggled', async () => {
+      const draftWithDebug: RecipeDraft = {
+        ...draft,
+        debug: {
+          ingredients: [
+            {
+              raw: { name: 'tomato paste', amount: 2, unit: 'tbsp' },
+              candidates: [
+                { name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false },
+                { name: 'Tomaten', source: 'FOODS', unit: 'g', untracked: false },
+                { name: 'Tomate, getrocknet', source: 'FOODS', unit: 'g', untracked: false },
+              ],
+              chosen: { name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false },
+              flags: { unitOverridden: true, pieceQuantityDropped: false, untrackedInherited: false },
+            },
+          ],
+        },
+      };
+      renderWithProviders(<ReviewImportScreen draft={draftWithDebug} onSaved={() => {}} onCancel={() => {}} />);
+
+      const box = screen.getByTestId('import-debug-box');
+      expect(box).toBeInTheDocument();
+      expect(screen.queryByTestId('import-debug-entry-0')).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByTestId('import-debug-toggle'));
+
+      const entry = screen.getByTestId('import-debug-entry-0');
+      expect(entry).toHaveTextContent('tomato paste');
+      expect(entry).toHaveTextContent('Tomatenmark');
+      expect(entry).toHaveTextContent('Tomaten');
+      expect(entry).toHaveTextContent('Tomate, getrocknet');
+      expect(entry).toHaveTextContent(/unitOverridden/i);
+    });
+  });
+
   it('submits via POST /add-recipe and calls onSaved', async () => {
     server.use(
       http.post('/api/add-recipe', async ({ request }) => {
