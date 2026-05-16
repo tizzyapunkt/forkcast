@@ -54,4 +54,4 @@
 
 - [x] 7.1 Run lint: `pnpm --filter @forkcast/frontend lint` and `pnpm --filter @forkcast/backend lint`
 - [x] 7.2 Run format: `pnpm --filter @forkcast/frontend format` and `pnpm --filter @forkcast/backend format`
-- [ ] 7.3 Commit in logical chunks: (a) i18n helpers + tests, (b) component test updates, (c) type rename
+- [x] 7.3 Commit in logical chunks: (a) i18n helpers + tests, (b) component test updates, (c) type rename — folded into a single commit (`show ingredient nutrients per 100g/100ml in picker`) at apply time, per user request
