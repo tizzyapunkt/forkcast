@@ -11,6 +11,8 @@ import type {
 import type { IngredientSearchService } from '../ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../ingredient-search/types.ts';
 import type { RecipeRepository } from '../recipes/recipe.repository.ts';
+import type { UnmatchedIngredientRecorder } from '../unmatched-ingredients/types.ts';
+import { normalizeIngredientName } from './normalize-ingredient-name.ts';
 
 const DEBUG_CANDIDATE_CAP = 5;
 
@@ -21,6 +23,8 @@ export interface ImportRecipeFromPhotosDeps {
   repo?: RecipeRepository;
   /** When true, the returned draft carries a `debug` payload describing the per-ingredient match. */
   includeDebug?: boolean;
+  /** Optional sink that captures every strict-unmatched ingredient as a side effect. */
+  recorder?: UnmatchedIngredientRecorder;
 }
 
 interface MatchOutput {
@@ -39,7 +43,7 @@ export async function importRecipeFromPhotos(
   const extracted = await deps.extractor.extract(images);
 
   const matched = await Promise.all(
-    extracted.ingredients.map((raw) => matchIngredient(raw, deps.search, deps.includeDebug === true)),
+    extracted.ingredients.map((raw) => matchIngredient(raw, deps.search, deps.includeDebug === true, deps.recorder)),
   );
 
   const draft: RecipeDraft = {
@@ -63,11 +67,28 @@ async function matchIngredient(
   raw: RawIngredient,
   search: IngredientSearchService,
   includeDebug: boolean,
+  recorder: UnmatchedIngredientRecorder | undefined,
 ): Promise<MatchOutput> {
-  const results = await search.searchByName(raw.name, new Set(['FOODS']));
+  let results = await search.searchByName(raw.name, new Set(['FOODS']));
+  let normalizedName: string | null = null;
+  if (results.length === 0) {
+    const normalized = normalizeIngredientName(raw.name);
+    if (normalized !== raw.name) {
+      normalizedName = normalized;
+      results = await search.searchByName(normalized, new Set(['FOODS']));
+    }
+  }
   const top = results[0];
 
   if (!top) {
+    if (recorder) {
+      const toRecord: RawIngredient = normalizedName !== null ? { ...raw, name: normalizedName } : raw;
+      try {
+        await recorder.record(toRecord);
+      } catch (err) {
+        console.error('unmatched-ingredients: recorder failed', err);
+      }
+    }
     const unmatched: DraftIngredient = {
       matched: false,
       name: raw.name,

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
 import { WeightTrackerScreen } from '../weight-log/weight-tracker-screen';
+import { UnmatchedIngredientsPanel } from '../unmatched-ingredients/unmatched-ingredients-panel';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 
@@ -26,6 +27,7 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
       </h2>
       <NutritionGoalForm />
       <BodyProfileForm />
+      <UnmatchedIngredientsPanel />
       <button
         type="button"
         onClick={() => setView('weight-tracker')}

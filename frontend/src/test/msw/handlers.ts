@@ -131,4 +131,12 @@ export const handlers = [
   http.delete('/api/weight-log/:date', () => {
     return new HttpResponse(null, { status: 204 });
   }),
+
+  http.get('/api/unmatched-ingredients/export', () => {
+    return HttpResponse.json({ entries: [] });
+  }),
+
+  http.post('/api/unmatched-ingredients/clear', () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

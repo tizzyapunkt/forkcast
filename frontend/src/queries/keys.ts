@@ -9,4 +9,5 @@ export const queryKeys = {
   recipe: (id: string) => ['recipe', id] as const,
   weightLog: () => ['weight-log'] as const,
   weightTrend: () => ['weight-trend'] as const,
+  unmatchedIngredients: () => ['unmatched-ingredients'] as const,
 };

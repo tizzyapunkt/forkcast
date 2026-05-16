@@ -6,6 +6,7 @@ import { JsonNutritionGoalRepository } from './infrastructure/nutrition/json-nut
 import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-body-profile.repository.ts';
 import { JsonWeightLogRepository } from './infrastructure/weight-log/json-weight-log.repository.ts';
 import { JsonRecipeRepository } from './infrastructure/recipes/json-recipe.repository.ts';
+import { JsonUnmatchedIngredientStore } from './infrastructure/unmatched-ingredients/json-unmatched-store.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
@@ -47,6 +48,10 @@ import {
   makeImportRecipeFromPhotosHandler,
   makeUnconfiguredImportRecipeFromPhotosHandler,
 } from './http/ai-recipe-import/import-recipe-from-photos.handler.ts';
+import {
+  makeExportUnmatchedIngredientsHandler,
+  makeClearUnmatchedIngredientsHandler,
+} from './http/unmatched-ingredients/unmatched-ingredients.handler.ts';
 import { loadAppConfig } from './config/app-config.ts';
 import { DotenvEnvSource } from './infrastructure/config/dotenv-env-source.ts';
 
@@ -70,10 +75,19 @@ const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal
 const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json');
 const weightLogRepo = new JsonWeightLogRepository('./data/weight-log.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
+const unmatchedIngredientStore = new JsonUnmatchedIngredientStore('./data/unmatched-ingredients.json');
 const foodsService = new InMemoryFoodsService('./data/foods.json');
 const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoodFactsService(), foodsService);
 
-await bootstrap([logEntryRepo, nutritionGoalRepo, bodyProfileRepo, weightLogRepo, recipeRepo, foodsService]);
+await bootstrap([
+  logEntryRepo,
+  nutritionGoalRepo,
+  bodyProfileRepo,
+  weightLogRepo,
+  recipeRepo,
+  unmatchedIngredientStore,
+  foodsService,
+]);
 
 const app = new Hono();
 
@@ -107,6 +121,9 @@ app.patch('/recipe/:id', makeUpdateRecipeHandler(recipeRepo));
 app.delete('/recipe/:id', makeDeleteRecipeHandler(recipeRepo));
 app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
 
+app.get('/unmatched-ingredients/export', makeExportUnmatchedIngredientsHandler(unmatchedIngredientStore));
+app.post('/unmatched-ingredients/clear', makeClearUnmatchedIngredientsHandler(unmatchedIngredientStore));
+
 if (config.ai.anthropicApiKey) {
   const anthropicClient = new Anthropic({ apiKey: config.ai.anthropicApiKey });
   const recipeDraftExtractor = new AnthropicRecipeDraftExtractor({
@@ -124,6 +141,7 @@ if (config.ai.anthropicApiKey) {
         maxTotalBytes: config.ai.recipeImport.maxTotalBytes,
       },
       includeDebug: config.ai.recipeImport.debug,
+      recorder: unmatchedIngredientStore,
     }),
   );
   if (config.ai.recipeImport.debug) {

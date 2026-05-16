@@ -58,6 +58,21 @@ export const de = {
     calculatorTitle: 'Makro-Rechner',
   },
 
+  unmatchedIngredients: {
+    title: 'Unbekannte Zutaten aus Foto-Import',
+    countLabel: (n: number) => (n === 1 ? '1 gesammelter Eintrag' : `${n} gesammelte Einträge`),
+    countEmpty: 'Noch nichts gesammelt',
+    hint: 'Beim Foto-Import nicht erkannte Zutaten landen hier. Exportieren, ergänzen, dann leeren.',
+    exportButton: 'Exportieren',
+    exportTooltipEmpty: 'Nichts zu exportieren',
+    clearButton: 'Leeren',
+    clearTooltipEmpty: 'Bereits leer',
+    confirmTitle: 'Sammlung leeren?',
+    confirmBody: (n: number) => `${n} gesammelte ${n === 1 ? 'Zutat wird' : 'Zutaten werden'} endgültig entfernt.`,
+    confirmCancel: 'Abbrechen',
+    confirmConfirm: 'Leeren',
+  },
+
   bodyProfile: {
     loading: 'Laden…',
     saved: 'Profil gespeichert',

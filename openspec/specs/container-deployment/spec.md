@@ -1,3 +1,11 @@
+# container-deployment
+
+## Purpose
+
+Package the forkcast backend and frontend as container images that can be built locally and orchestrated together via Docker Compose, so the full stack runs reproducibly on the user's home server (and any future deploy target) without bespoke per-host installation steps. The backend image bundles the curated `foods.json` so it boots without external data dependencies; the frontend image serves the built React app via nginx and proxies `/api` to the backend over a shared internal network.
+
+## Requirements
+
 ### Requirement: Backend Docker image is buildable and self-contained
 The system SHALL provide a `backend/Dockerfile` that produces a runnable image containing the Hono server, all production dependencies, and the curated `foods.json` food database. The image SHALL start the server on port 3000 using `node --experimental-transform-types`.
 

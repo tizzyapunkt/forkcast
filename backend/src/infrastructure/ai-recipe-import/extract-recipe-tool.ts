@@ -32,7 +32,8 @@ export const EXTRACT_RECIPE_TOOL = {
           properties: {
             name: {
               type: 'string',
-              description: 'Ingredient name in the original language (e.g. "Olivenöl").',
+              description:
+                'Ingredient name in the original language (e.g. "Olivenöl"). MUST be the food noun only — no preparation, cut, or quality modifiers (e.g. write "Ingwer" not "Ingwer, fein gehackt"; "Tomaten" not "Tomaten, geschält"). Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs") MUST be kept since they affect the nutrition profile. If the recipe text bundles a prep modifier into the ingredient line, move that prep instruction into the appropriate entry in steps.',
             },
             amount: {
               type: 'number',
@@ -92,6 +93,10 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
   '- When the recipe uses a unit outside the canonical enum (typical for seasonings/spices/herbs, e.g. "1 TL Salz", "2 EL Olivenöl", "Prise Pfeffer", "Schuss Zitronensaft", "Salz n. Geschmack"), populate rawDisplayAmount and rawDisplayUnitLabel with the literal numeric amount and textual unit as written in the original language. Still attempt to populate amount and unit with a sensible canonical conversion if obvious, but never guess if the conversion is uncertain — omit amount/unit in that case.',
   '- When the recipe states no quantity at all for an ingredient ("Salz n. Geschmack"), you MAY populate rawDisplayUnitLabel alone with the qualitative phrase and omit rawDisplayAmount, amount, and unit.',
   'Keep the original language for names and steps.',
+  'Naming rules:',
+  '- The ingredient name field is the food noun only. Preparation, cut, and quality modifiers (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft") MUST NOT appear in name; they belong in steps.',
+  '- Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs", "Gemahlener Zimt") MUST be preserved on name — they affect the nutrition profile.',
+  '- If you strip a prep modifier from name, make sure the corresponding instruction appears somewhere in steps (add a short step or append to an existing one) so the user does not lose the prep info.',
 ].join(' ');
 
 interface RawToolInputIngredient {

@@ -606,4 +606,166 @@ describe('importRecipeFromPhotos', () => {
     expect(repo.update).not.toHaveBeenCalled();
     expect(repo.remove).not.toHaveBeenCalled();
   });
+
+  describe('name normalization fallback', () => {
+    it('retries the search with the normalized name when the raw name produces zero hits', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'Ingwer, fein gehackt', amount: 5, unit: 'g' }],
+        steps: [],
+      });
+      const search = makeSearch({ ingwer: [foodsResult({ name: 'Ingwer', unit: 'g' })] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(search.searchByName).toHaveBeenCalledTimes(2);
+      const [first, second] = (search.searchByName as ReturnType<typeof vi.fn>).mock.calls;
+      expect((first as [string])[0]).toBe('Ingwer, fein gehackt');
+      expect((second as [string])[0]).toBe('Ingwer');
+
+      const [ing] = draft.ingredients;
+      if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.name).toBe('Ingwer');
+      expect(ing.amount).toBe(5);
+    });
+
+    it('records the NORMALIZED name when both raw and normalized produce zero hits', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'Rindertatar, frisch gewolft', amount: 200, unit: 'g' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+      const record = vi.fn<(r: { name: string }) => Promise<void>>().mockResolvedValue(undefined);
+
+      await importRecipeFromPhotos({ extractor, search, recorder: { record } }, oneImage());
+
+      expect(record).toHaveBeenCalledTimes(1);
+      const [recorded] = (record as ReturnType<typeof vi.fn>).mock.calls[0] as [{ name: string }];
+      expect(recorded.name).toBe('Rindertatar');
+    });
+
+    it('does not retry when the raw name already matches (single search call)', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'Ingwer', amount: 5, unit: 'g' }],
+        steps: [],
+      });
+      const search = makeSearch({ ingwer: [foodsResult({ name: 'Ingwer', unit: 'g' })] });
+
+      await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(search.searchByName).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not retry when normalization yields the same string', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'unicorn dust', amount: 1, unit: 'tsp' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+
+      await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      // Only one search call: the normalized form equals the raw form, so no retry.
+      expect(search.searchByName).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('unmatched-ingredient recorder', () => {
+    it('forwards the original RawIngredient to the recorder for a strict-unmatched row', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'unicorn dust', amount: 1, unit: 'tsp' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+      const record = vi.fn<(r: { name: string }) => Promise<void>>().mockResolvedValue(undefined);
+
+      await importRecipeFromPhotos({ extractor, search, recorder: { record } }, oneImage());
+
+      expect(record).toHaveBeenCalledTimes(1);
+      expect(record).toHaveBeenCalledWith({ name: 'unicorn dust', amount: 1, unit: 'tsp' });
+    });
+
+    it('does not invoke the recorder for matched rows (including unit-overridden, piece-dropped, untracked-inherited)', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          { name: 'tomato paste', amount: 2, unit: 'tbsp' }, // unit overridden
+          {
+            name: 'Knoblauch',
+            amount: 6,
+            unit: 'g',
+            pieceQuantity: { amount: 2, unitLabel: 'Zehe', gramsPerPiece: 3 },
+          }, // piece dropped
+          { name: 'salt', amount: 5, unit: 'g' }, // untracked inherited
+        ],
+        steps: [],
+      });
+      const search = makeSearch({
+        'tomato paste': [foodsResult({ name: 'Tomatenmark', unit: 'g' })],
+        knoblauch: [foodsResult({ name: 'Knoblauch', unit: 'tbsp' })],
+        salt: [
+          foodsResult({
+            name: 'Salz',
+            unit: 'g',
+            macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+            untracked: true,
+          }),
+        ],
+      });
+      const record = vi.fn<(r: { name: string }) => Promise<void>>().mockResolvedValue(undefined);
+
+      await importRecipeFromPhotos({ extractor, search, recorder: { record } }, oneImage());
+
+      expect(record).not.toHaveBeenCalled();
+    });
+
+    it('continues processing remaining ingredients when the recorder throws', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          { name: 'unicorn dust', amount: 1, unit: 'tsp' },
+          { name: 'olive oil', amount: 30, unit: 'ml' },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({ 'olive oil': [foodsResult()] });
+      const record = vi.fn<(r: { name: string }) => Promise<void>>().mockRejectedValue(new Error('disk full'));
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      const draft = await importRecipeFromPhotos({ extractor, search, recorder: { record } }, oneImage());
+
+      expect(draft.ingredients).toHaveLength(2);
+      expect(draft.ingredients[0]?.matched).toBe(false);
+      expect(draft.ingredients[1]?.matched).toBe(true);
+      expect(record).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalled();
+      errorSpy.mockRestore();
+    });
+
+    it('does nothing recorder-related when deps.recorder is absent', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'unicorn dust', amount: 1, unit: 'tsp' }],
+        steps: [],
+      });
+      const search = makeSearch({});
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.ingredients[0]?.matched).toBe(false);
+      // No throw, no side effect to assert beyond absence — passing without recorder is the contract.
+    });
+  });
 });
