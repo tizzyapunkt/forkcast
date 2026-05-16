@@ -15,13 +15,14 @@ const chicken: IngredientSearchResult = {
 };
 
 describe('FullEntryConfirm', () => {
-  it('shows the selected ingredient name and unit', () => {
+  it('shows the selected ingredient name and a per-100g readout', () => {
     renderWithProviders(
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
     expect(screen.getByText('Chicken breast')).toBeInTheDocument();
-    expect(screen.getByText(/pro g/i)).toBeInTheDocument();
+    // chicken: 1.65 kcal/g, 0.31g/g P, 0g/g K, 0.036g/g F → ×100 + Math.round
+    expect(screen.getByText('pro 100g — 165 kcal · 31g P · 0g K · 4g F')).toBeInTheDocument();
   });
 
   it('requires amount > 0', async () => {

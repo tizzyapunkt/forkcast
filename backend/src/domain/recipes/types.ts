@@ -1,6 +1,6 @@
 export type MeasurementUnit = 'g' | 'ml' | 'oz' | 'cup' | 'tbsp' | 'tsp' | 'piece';
 
-export interface MacrosPer100 {
+export interface MacrosPerUnit {
   calories: number;
   protein: number;
   carbs: number;
@@ -21,7 +21,7 @@ export interface DisplayQuantity {
 export interface RecipeIngredient {
   name: string;
   unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
+  macrosPerUnit: MacrosPerUnit;
   amount: number;
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;

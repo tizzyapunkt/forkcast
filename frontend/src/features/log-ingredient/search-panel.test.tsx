@@ -67,11 +67,11 @@ describe('SearchPanel', () => {
     expect(await screen.findByText('Oats')).toBeInTheDocument();
   });
 
-  it('shows calorie hint alongside each result', async () => {
+  it('shows calorie hint per 100g alongside each result', async () => {
     server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'oa');
-    expect(await screen.findByText(/3\.89 kcal/)).toBeInTheDocument();
+    expect(await screen.findByText('389 kcal / 100g')).toBeInTheDocument();
   });
 
   it('renders a source badge for each result', async () => {

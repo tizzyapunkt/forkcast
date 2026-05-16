@@ -39,6 +39,14 @@ describe('RecentPanel', () => {
     expect(screen.getByText('Chicken Breast')).toBeInTheDocument();
   });
 
+  it('shows kcal per 100g on each row for g-unit ingredients', async () => {
+    server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])));
+    renderWithProviders(<RecentPanel onSelect={() => {}} />);
+    await screen.findByText('Oats');
+    // oats: 3.89 kcal/g → 389 kcal / 100g
+    expect(screen.getByText('389 kcal / 100g')).toBeInTheDocument();
+  });
+
   it('shows an empty state when there is no history', async () => {
     server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([])));
     renderWithProviders(<RecentPanel onSelect={() => {}} />);

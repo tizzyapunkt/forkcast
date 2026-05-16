@@ -1,12 +1,12 @@
-import type { MacrosPer100 } from './meal-log';
+import type { MacrosPerUnit } from './meal-log';
 import type { RecipeIngredient } from './recipes';
 
 export interface RecipeTotals {
-  total: MacrosPer100;
-  perServing: MacrosPer100;
+  total: MacrosPerUnit;
+  perServing: MacrosPerUnit;
 }
 
-const zero = (): MacrosPer100 => ({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+const zero = (): MacrosPerUnit => ({ calories: 0, protein: 0, carbs: 0, fat: 0 });
 
 export function computeRecipeTotals(ingredients: RecipeIngredient[], yieldValue: number): RecipeTotals {
   const total = zero();
@@ -18,7 +18,7 @@ export function computeRecipeTotals(ingredients: RecipeIngredient[], yieldValue:
     total.fat += ing.macrosPerUnit.fat * ing.amount;
   }
   const divisor = Number.isFinite(yieldValue) && yieldValue > 0 ? yieldValue : 1;
-  const perServing: MacrosPer100 = {
+  const perServing: MacrosPerUnit = {
     calories: total.calories / divisor,
     protein: total.protein / divisor,
     carbs: total.carbs / divisor,

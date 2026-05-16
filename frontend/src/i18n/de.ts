@@ -1,4 +1,4 @@
-import type { MealSlot } from '../domain/meal-log';
+import type { MealSlot, MeasurementUnit } from '../domain/meal-log';
 
 export const slotLabelsDe: Record<MealSlot, string> = {
   breakfast: 'Frühstück',
@@ -6,6 +6,15 @@ export const slotLabelsDe: Record<MealSlot, string> = {
   dinner: 'Abendessen',
   snack: 'Snack',
 };
+
+// Picker rows display nutrient density per 100 for mass/volume units (g, ml), where
+// nutrition labels are conventionally read. Other units (piece, oz, cup, …) fall back
+// to per-unit display because "100piece" is not meaningful. Underlying storage stays
+// per-unit either way — the multiplication is purely presentational.
+function per100Display(unit: MeasurementUnit): { mul: number; label: string } {
+  if (unit === 'g' || unit === 'ml') return { mul: 100, label: `100${unit}` };
+  return { mul: 1, label: unit };
+}
 
 /** German UI copy for the forkcast frontend. */
 export const de = {
@@ -218,8 +227,10 @@ export const de = {
   },
 
   fullEntry: {
-    perUnit: (unit: string, cals: number, p: number, cb: number, f: number) =>
-      `pro ${unit} — ${cals} kcal · ${p}g P · ${cb}g K · ${f}g F`,
+    perUnit: (unit: MeasurementUnit, cals: number, p: number, cb: number, f: number) => {
+      const { mul, label } = per100Display(unit);
+      return `pro ${label} — ${Math.round(cals * mul)} kcal · ${Math.round(p * mul)}g P · ${Math.round(cb * mul)}g K · ${Math.round(f * mul)}g F`;
+    },
     totalIntro: (amount: number, unit: string) => `${amount} ${unit} gesamt — `,
     macroKcal: 'kcal',
     macroProtein: 'Eiweiß',
@@ -260,7 +271,10 @@ export const de = {
     scanBarcode: 'Barcode scannen',
     searching: 'Suche läuft…',
     noResults: (q: string) => `Keine Treffer für „${q}“`,
-    kcalPer: (kcal: number, unit: string) => `${kcal} kcal / ${unit}`,
+    kcalPer: (kcal: number, unit: MeasurementUnit) => {
+      const { mul, label } = per100Display(unit);
+      return `${Math.round(kcal * mul)} kcal / ${label}`;
+    },
     untrackedHint: 'Würzmittel — nicht getrackt. In Rezepten verwendbar.',
   },
 
@@ -269,7 +283,10 @@ export const de = {
     loading: 'Laden…',
     empty: 'Noch keine Zutaten — erfasse eine über die Suche, dann erscheint sie hier.',
     noMatches: (q: string) => `Keine Treffer für „${q}“`,
-    kcalPer: (kcal: number, unit: string) => `${kcal} kcal / ${unit}`,
+    kcalPer: (kcal: number, unit: MeasurementUnit) => {
+      const { mul, label } = per100Display(unit);
+      return `${Math.round(kcal * mul)} kcal / ${label}`;
+    },
   },
 
   recipePanel: {
@@ -483,8 +500,10 @@ export const de = {
     cancel: 'Abbrechen',
     search: 'Suche',
     recent: 'Zuletzt',
-    perUnit: (unit: string, cals: number, p: number, cb: number, f: number) =>
-      `pro ${unit} — ${cals} kcal · ${p}g P · ${cb}g K · ${f}g F`,
+    perUnit: (unit: MeasurementUnit, cals: number, p: number, cb: number, f: number) => {
+      const { mul, label } = per100Display(unit);
+      return `pro ${label} — ${Math.round(cals * mul)} kcal · ${Math.round(p * mul)}g P · ${Math.round(cb * mul)}g K · ${Math.round(f * mul)}g F`;
+    },
     amountLabel: (unit: string) => `Menge pro Rezept (${unit})`,
     amountPlaceholder: 'z. B. 100',
     back: 'Zurück',

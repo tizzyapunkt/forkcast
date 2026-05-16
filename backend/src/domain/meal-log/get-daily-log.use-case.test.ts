@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { getDailyLog } from './get-daily-log.use-case.ts';
 import type { LogEntryRepository } from './log-entry.repository.ts';
-import type { LogEntry, MacrosPer100, MealSlot } from './types.ts';
+import type { LogEntry, MacrosPerUnit, MealSlot } from './types.ts';
 
 let idCounter = 0;
 
-function makeFullEntry(slot: MealSlot, macrosPerUnit: MacrosPer100, amount: number): LogEntry {
+function makeFullEntry(slot: MealSlot, macrosPerUnit: MacrosPerUnit, amount: number): LogEntry {
   return {
     id: `entry-${++idCounter}`,
     date: '2026-04-19',

@@ -1,4 +1,4 @@
-import type { MeasurementUnit, MacrosPer100 } from './meal-log';
+import type { MeasurementUnit, MacrosPerUnit } from './meal-log';
 
 export interface PieceQuantity {
   amount: number;
@@ -14,7 +14,7 @@ export interface DisplayQuantity {
 export interface RecipeIngredient {
   name: string;
   unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
+  macrosPerUnit: MacrosPerUnit;
   amount: number;
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
@@ -36,7 +36,7 @@ export interface MatchedDraftIngredient {
   matched: true;
   name: string;
   unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
+  macrosPerUnit: MacrosPerUnit;
   amount: number | null;
   unitOverridden: boolean;
   source: 'FOODS' | 'OFF';

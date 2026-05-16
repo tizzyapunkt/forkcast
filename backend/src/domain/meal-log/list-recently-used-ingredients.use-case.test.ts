@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { listRecentlyUsedIngredients } from './list-recently-used-ingredients.use-case.ts';
 import type { LogEntryRepository } from './log-entry.repository.ts';
-import type { LogEntry, MacrosPer100, MeasurementUnit } from './types.ts';
+import type { LogEntry, MacrosPerUnit, MeasurementUnit } from './types.ts';
 
 function makeFullEntry(
   name: string,
   unit: MeasurementUnit,
   loggedAt: string,
-  macrosPerUnit: MacrosPer100 = { calories: 1, protein: 0.1, carbs: 0.1, fat: 0.05 },
+  macrosPerUnit: MacrosPerUnit = { calories: 1, protein: 0.1, carbs: 0.1, fat: 0.05 },
   amount = 100,
 ): LogEntry {
   return {
@@ -55,7 +55,7 @@ describe('listRecentlyUsedIngredients', () => {
   });
 
   it('returns a single result for a single full entry', async () => {
-    const macros: MacrosPer100 = { calories: 1.5, protein: 0.13, carbs: 0.66, fat: 0.07 };
+    const macros: MacrosPerUnit = { calories: 1.5, protein: 0.13, carbs: 0.66, fat: 0.07 };
     const result = await listRecentlyUsedIngredients(
       makeRepo([makeFullEntry('Oats', 'g', '2026-04-20T08:00:00.000Z', macros)]),
     );
@@ -69,8 +69,8 @@ describe('listRecentlyUsedIngredients', () => {
   });
 
   it('collapses duplicate (name, unit) entries — latest wins for macros and lastUsedAt', async () => {
-    const oldMacros: MacrosPer100 = { calories: 1.5, protein: 0.1, carbs: 0.6, fat: 0.05 };
-    const newMacros: MacrosPer100 = { calories: 1.55, protein: 0.13, carbs: 0.66, fat: 0.07 };
+    const oldMacros: MacrosPerUnit = { calories: 1.5, protein: 0.1, carbs: 0.6, fat: 0.05 };
+    const newMacros: MacrosPerUnit = { calories: 1.55, protein: 0.13, carbs: 0.66, fat: 0.07 };
 
     const result = await listRecentlyUsedIngredients(
       makeRepo([

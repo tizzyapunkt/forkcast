@@ -2,7 +2,7 @@ export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
 export type MeasurementUnit = 'g' | 'ml' | 'oz' | 'cup' | 'tbsp' | 'tsp' | 'piece';
 
-export interface MacrosPer100 {
+export interface MacrosPerUnit {
   calories: number; // kcal
   protein: number; // g
   carbs: number; // g
@@ -30,7 +30,7 @@ export interface FullIngredientEntry {
   type: 'full';
   name: string;
   unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
+  macrosPerUnit: MacrosPerUnit;
   amount: number;
 }
 
@@ -71,6 +71,6 @@ export interface DailyLog {
 export interface RecentlyUsedIngredient {
   name: string;
   unit: MeasurementUnit;
-  macrosPerUnit: MacrosPer100;
+  macrosPerUnit: MacrosPerUnit;
   lastUsedAt: string; // ISO datetime, max(loggedAt) across collapsed entries
 }
