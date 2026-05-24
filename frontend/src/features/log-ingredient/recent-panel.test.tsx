@@ -12,6 +12,7 @@ const oats: RecentlyUsedIngredient = {
   unit: 'g',
   macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
   lastUsedAt: '2026-04-22T08:00:00.000Z',
+  lastAmount: 80,
 };
 
 const skyr: RecentlyUsedIngredient = {
@@ -19,6 +20,7 @@ const skyr: RecentlyUsedIngredient = {
   unit: 'g',
   macrosPerUnit: { calories: 0.65, protein: 0.11, carbs: 0.04, fat: 0.002 },
   lastUsedAt: '2026-04-21T08:00:00.000Z',
+  lastAmount: 150,
 };
 
 const chicken: RecentlyUsedIngredient = {
@@ -26,6 +28,7 @@ const chicken: RecentlyUsedIngredient = {
   unit: 'g',
   macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 },
   lastUsedAt: '2026-04-15T08:00:00.000Z',
+  lastAmount: 200,
 };
 
 describe('RecentPanel', () => {
@@ -86,19 +89,20 @@ describe('RecentPanel', () => {
     expect(screen.getByText(/keine treffer für/i)).toBeInTheDocument();
   });
 
-  it('calls onSelect with an IngredientSearchResult shape when a row is clicked', async () => {
+  it('calls onSelect with an IngredientSearchResult shape and the lastAmount when a row is clicked', async () => {
     server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])));
-    const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+    const onSelect = vi.fn<(r: IngredientSearchResult, defaultAmount: number) => void>();
     renderWithProviders(<RecentPanel onSelect={onSelect} />);
 
     await userEvent.click(await screen.findByText('Oats'));
 
     expect(onSelect).toHaveBeenCalledTimes(1);
-    const arg = onSelect.mock.calls[0][0];
-    expect(arg.name).toBe('Oats');
-    expect(arg.unit).toBe('g');
-    expect(arg.macrosPerUnit).toEqual(oats.macrosPerUnit);
-    expect(arg.id).toMatch(/^recent:/);
-    expect(arg.source).toBe('RECENT');
+    const [result, defaultAmount] = onSelect.mock.calls[0];
+    expect(result.name).toBe('Oats');
+    expect(result.unit).toBe('g');
+    expect(result.macrosPerUnit).toEqual(oats.macrosPerUnit);
+    expect(result.id).toMatch(/^recent:/);
+    expect(result.source).toBe('RECENT');
+    expect(defaultAmount).toBe(80);
   });
 });

@@ -62,4 +62,5 @@ export interface RecentlyUsedIngredient {
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPerUnit;
   lastUsedAt: string;
+  lastAmount: number;
 }

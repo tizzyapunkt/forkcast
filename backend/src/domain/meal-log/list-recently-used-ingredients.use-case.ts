@@ -29,6 +29,7 @@ export async function listRecentlyUsedIngredients(repo: LogEntryRepository): Pro
       unit: entry.ingredient.unit,
       macrosPerUnit: entry.ingredient.macrosPerUnit,
       lastUsedAt: entry.loggedAt,
+      lastAmount: entry.ingredient.amount,
     });
   }
 

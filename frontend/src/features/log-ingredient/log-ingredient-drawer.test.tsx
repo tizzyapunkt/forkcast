@@ -21,6 +21,7 @@ const oats: RecentlyUsedIngredient = {
   unit: 'g',
   macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
   lastUsedAt: '2026-04-22T08:00:00.000Z',
+  lastAmount: 80,
 };
 
 describe('SlotCard Add button → drawer', () => {
@@ -152,7 +153,55 @@ describe('Recent tab', () => {
     expect(calls).toBe(1);
   });
 
-  it('logs a full entry with the picked ingredient + typed amount when picking from Recent', async () => {
+  it('pre-fills the confirm step with lastAmount when picking from Recent', async () => {
+    server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])));
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
+    await userEvent.click(await screen.findByText('Oats'));
+
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+  });
+
+  it('logs a full entry with the pre-filled lastAmount when picking from Recent and confirming unchanged', async () => {
+    let posted: Record<string, unknown> | undefined;
+    server.use(
+      http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])),
+      http.post('/api/log-ingredient', async ({ request }) => {
+        posted = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(
+          { id: 'x', date: '2026-04-21', slot: 'lunch', ingredient: posted['ingredient'], loggedAt: '' },
+          { status: 201 },
+        );
+      }),
+      http.get('/api/daily-log/:date', () => HttpResponse.json(makeDailyLog())),
+    );
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
+    await userEvent.click(await screen.findByText('Oats'));
+    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
+
+    await waitFor(() => expect(posted).toBeDefined());
+    const ingredient = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
+    expect(ingredient).toMatchObject({
+      type: 'full',
+      name: 'Oats',
+      unit: 'g',
+      macrosPerUnit: oats.macrosPerUnit,
+      amount: 80,
+    });
+  });
+
+  it('logs the edited amount when the user overrides the pre-filled value', async () => {
     let posted: Record<string, unknown> | undefined;
     server.use(
       http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])),
@@ -174,18 +223,40 @@ describe('Recent tab', () => {
     await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await userEvent.click(await screen.findByText('Oats'));
 
-    await userEvent.type(screen.getByLabelText(/menge/i), '50');
+    const amountInput = screen.getByLabelText(/menge/i);
+    await userEvent.clear(amountInput);
+    await userEvent.type(amountInput, '50');
     await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     const ingredient = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
-    expect(ingredient).toMatchObject({
-      type: 'full',
-      name: 'Oats',
-      unit: 'g',
-      macrosPerUnit: oats.macrosPerUnit,
-      amount: 50,
+    expect(ingredient['amount']).toBe(50);
+  });
+
+  it('does not pre-fill the amount when reaching confirm via the Search tab', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'foods-oats',
+            source: 'FOODS',
+            name: 'Oats',
+            unit: 'g',
+            macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
+          },
+        ]),
+      ),
+    );
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
     });
+    await openDrawer();
+
+    await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'oats');
+    await userEvent.click(await screen.findByText('Oats'));
+
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
   });
 
   it('returns to the Recent tab (not Search) when Back is pressed from confirm after a Recent pick', async () => {

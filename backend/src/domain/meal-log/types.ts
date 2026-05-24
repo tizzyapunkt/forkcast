@@ -73,4 +73,5 @@ export interface RecentlyUsedIngredient {
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPerUnit;
   lastUsedAt: string; // ISO datetime, max(loggedAt) across collapsed entries
+  lastAmount: number; // amount from the most-recent collapsed entry
 }

@@ -92,4 +92,91 @@ describe('FullEntryConfirm', () => {
     await userEvent.click(screen.getByRole('button', { name: /zurück/i }));
     expect(onBack).toHaveBeenCalled();
   });
+
+  it('renders the amount input pre-filled when defaultAmount is provided', () => {
+    renderWithProviders(
+      <FullEntryConfirm
+        result={chicken}
+        date="2026-04-21"
+        slot="lunch"
+        onSuccess={() => {}}
+        onBack={() => {}}
+        defaultAmount={80}
+      />,
+      { queryClient: createTestQueryClient() },
+    );
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+  });
+
+  it('submits the pre-filled amount unchanged when the user just hits Erfassen', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/log-ingredient', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json(
+          { id: 'x', date: '2026-04-21', slot: 'lunch', ingredient: {}, loggedAt: '' },
+          { status: 201 },
+        );
+      }),
+    );
+    const onSuccess = vi.fn<() => void>();
+    renderWithProviders(
+      <FullEntryConfirm
+        result={chicken}
+        date="2026-04-21"
+        slot="lunch"
+        onSuccess={onSuccess}
+        onBack={() => {}}
+        defaultAmount={80}
+      />,
+      { queryClient: createTestQueryClient() },
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    const ing = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
+    expect(ing['amount']).toBe(80);
+  });
+
+  it('submits the edited amount (not the pre-filled one) when the user changes the input', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/log-ingredient', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json(
+          { id: 'x', date: '2026-04-21', slot: 'lunch', ingredient: {}, loggedAt: '' },
+          { status: 201 },
+        );
+      }),
+    );
+    const onSuccess = vi.fn<() => void>();
+    renderWithProviders(
+      <FullEntryConfirm
+        result={chicken}
+        date="2026-04-21"
+        slot="lunch"
+        onSuccess={onSuccess}
+        onBack={() => {}}
+        defaultAmount={80}
+      />,
+      { queryClient: createTestQueryClient() },
+    );
+
+    await userEvent.clear(screen.getByLabelText(/menge/i));
+    await userEvent.type(screen.getByLabelText(/menge/i), '120');
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    const ing = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
+    expect(ing['amount']).toBe(120);
+  });
+
+  it('leaves the amount input empty when defaultAmount is omitted', () => {
+    renderWithProviders(
+      <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
+      { queryClient: createTestQueryClient() },
+    );
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+  });
 });

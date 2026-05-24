@@ -14,7 +14,7 @@ import { RecipeConfirm } from './recipe-confirm';
 type Tab = 'search' | 'recent' | 'recipes' | 'quick';
 type Step =
   | { kind: 'search' }
-  | { kind: 'confirm'; result: IngredientSearchResult }
+  | { kind: 'confirm'; result: IngredientSearchResult; defaultAmount?: number }
   | { kind: 'recipe-confirm'; recipe: Recipe };
 
 interface LogIngredientDrawerProps {
@@ -40,6 +40,10 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
 
   function handleSelect(result: IngredientSearchResult) {
     setStep({ kind: 'confirm', result });
+  }
+
+  function handleRecentSelect(result: IngredientSearchResult, defaultAmount: number) {
+    setStep({ kind: 'confirm', result, defaultAmount });
   }
 
   function handleRecipeSelect(recipe: Recipe) {
@@ -119,7 +123,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
           {tab === 'quick' && <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />}
 
           {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} disableUntracked />}
-          {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleSelect} />}
+          {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleRecentSelect} />}
           {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 
           {step.kind === 'confirm' && (
@@ -127,6 +131,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
               result={step.result}
               date={date}
               slot={slot}
+              defaultAmount={step.defaultAmount}
               onSuccess={handleClose}
               onBack={handleBack}
             />

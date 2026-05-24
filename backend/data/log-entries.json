@@ -35,5 +35,23 @@
       "amount": 403
     },
     "loggedAt": "2026-05-13T15:32:47.444Z"
+  },
+  {
+    "id": "370e1405-e62b-4794-a4e6-46868baff8c7",
+    "date": "2026-05-24",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Haferflocken",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 3.75,
+        "protein": 0.14,
+        "carbs": 0.59,
+        "fat": 0.07
+      },
+      "amount": 150
+    },
+    "loggedAt": "2026-05-24T19:42:37.073Z"
   }
 ]

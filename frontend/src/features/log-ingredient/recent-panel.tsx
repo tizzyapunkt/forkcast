@@ -6,7 +6,7 @@ import type { RecentlyUsedIngredient } from '../../domain/meal-log';
 import { de } from '../../i18n/de';
 
 interface RecentPanelProps {
-  onSelect: (result: IngredientSearchResult) => void;
+  onSelect: (result: IngredientSearchResult, defaultAmount: number) => void;
 }
 
 function toSearchResult(recent: RecentlyUsedIngredient): IngredientSearchResult {
@@ -63,7 +63,7 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
             <li key={`${recent.name.toLowerCase()}|${recent.unit}`} className="min-w-0">
               <button
                 type="button"
-                onClick={() => onSelect(toSearchResult(recent))}
+                onClick={() => onSelect(toSearchResult(recent), recent.lastAmount)}
                 className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recent.name}</span>

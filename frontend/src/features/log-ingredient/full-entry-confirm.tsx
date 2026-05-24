@@ -21,6 +21,7 @@ interface FullEntryConfirmProps {
   slot: MealSlot;
   onSuccess: () => void;
   onBack: () => void;
+  defaultAmount?: number;
 }
 
 function MacroChip({ value, label, unit = 'g' }: { value: number; label: string; unit?: string }) {
@@ -35,7 +36,7 @@ function MacroChip({ value, label, unit = 'g' }: { value: number; label: string;
   );
 }
 
-export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: FullEntryConfirmProps) {
+export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaultAmount }: FullEntryConfirmProps) {
   const { mutate, isPending, error } = useLogIngredient();
   const m = result.macrosPerUnit;
 
@@ -44,7 +45,10 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack }: Full
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: defaultAmount !== undefined ? { amount: defaultAmount } : undefined,
+  });
 
   const rawAmount = watch('amount');
   const parsed = Number(rawAmount);
