@@ -278,6 +278,28 @@ export const de = {
     untrackedHint: 'Würzmittel — nicht getrackt. In Rezepten verwendbar.',
   },
 
+  productCapture: {
+    cta: 'Verpackung fotografieren',
+    ctaAria: 'Produkt von der Verpackung erfassen',
+    notConfigured: 'KI-Erfassung ist auf dem Server nicht aktiviert.',
+    intro: 'Fotografiere die Vorderseite (Name) und die Nährwerttabelle (Rückseite).',
+    extract: 'Nährwerte auslesen',
+    extracting: 'Wird ausgelesen…',
+    reviewTitle: 'Produkt prüfen',
+    reviewHint: 'Prüfe die ausgelesenen Werte und korrigiere sie bei Bedarf.',
+    nameLabel: 'Name',
+    unitLabel: 'Grundeinheit',
+    per100: (unit: string) => `pro 100 ${unit}`,
+    caloriesLabel: 'Kalorien (kcal)',
+    proteinLabel: 'Eiweiß (g)',
+    carbsLabel: 'Kohlenhydrate (g)',
+    fatLabel: 'Fett (g)',
+    save: 'Speichern & übernehmen',
+    saving: 'Speichern…',
+    back: 'Zurück',
+    emptyName: 'Bitte einen Namen eingeben.',
+  },
+
   recentPanel: {
     placeholder: 'Zuletzt verwendet filtern…',
     loading: 'Laden…',

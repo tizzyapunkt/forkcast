@@ -7,6 +7,7 @@ import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-bo
 import { JsonWeightLogRepository } from './infrastructure/weight-log/json-weight-log.repository.ts';
 import { JsonRecipeRepository } from './infrastructure/recipes/json-recipe.repository.ts';
 import { JsonUnmatchedIngredientStore } from './infrastructure/unmatched-ingredients/json-unmatched-store.ts';
+import { JsonScannedProductStore } from './infrastructure/scanned-products/json-scanned-products.store.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
@@ -48,6 +49,12 @@ import {
   makeImportRecipeFromPhotosHandler,
   makeUnconfiguredImportRecipeFromPhotosHandler,
 } from './http/ai-recipe-import/import-recipe-from-photos.handler.ts';
+import { AnthropicProductDraftExtractor } from './infrastructure/barcode-product-capture/anthropic-product-draft-extractor.ts';
+import {
+  makeExtractProductFromPhotosHandler,
+  makeUnconfiguredExtractProductFromPhotosHandler,
+} from './http/barcode-product-capture/extract-product-from-photos.handler.ts';
+import { makeSaveScannedProductHandler } from './http/barcode-product-capture/save-scanned-product.handler.ts';
 import {
   makeExportUnmatchedIngredientsHandler,
   makeClearUnmatchedIngredientsHandler,
@@ -66,7 +73,7 @@ try {
 
 if (!config.ai.anthropicApiKey) {
   console.warn(
-    'ANTHROPIC_API_KEY is not set — POST /import-recipe-from-photos will return 503 ai-import-not-configured',
+    'ANTHROPIC_API_KEY is not set — POST /import-recipe-from-photos and POST /extract-product-from-photos will return 503 ai-import-not-configured',
   );
 }
 
@@ -76,8 +83,13 @@ const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json'
 const weightLogRepo = new JsonWeightLogRepository('./data/weight-log.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
 const unmatchedIngredientStore = new JsonUnmatchedIngredientStore('./data/unmatched-ingredients.json');
+const scannedProductStore = new JsonScannedProductStore('./data/scanned-products.json');
 const foodsService = new InMemoryFoodsService('./data/foods.json');
-const ingredientSearchService = new CompositeIngredientSearchService(new OpenFoodFactsService(), foodsService);
+const ingredientSearchService = new CompositeIngredientSearchService(
+  new OpenFoodFactsService(),
+  foodsService,
+  scannedProductStore,
+);
 
 await bootstrap([
   logEntryRepo,
@@ -86,6 +98,7 @@ await bootstrap([
   weightLogRepo,
   recipeRepo,
   unmatchedIngredientStore,
+  scannedProductStore,
   foodsService,
 ]);
 
@@ -113,6 +126,7 @@ app.get('/weight-log/trend', makeGetWeightTrendHandler(weightLogRepo));
 app.delete('/weight-log/:date', makeRemoveWeightHandler(weightLogRepo));
 app.get('/search-ingredients', makeSearchIngredientsByNameHandler(ingredientSearchService));
 app.get('/search-ingredients/barcode/:barcode', makeSearchIngredientsByBarcodeHandler(ingredientSearchService));
+app.post('/save-scanned-product', makeSaveScannedProductHandler(scannedProductStore));
 
 app.post('/add-recipe', makeAddRecipeHandler(recipeRepo));
 app.get('/recipes', makeListRecipesHandler(recipeRepo));
@@ -126,6 +140,11 @@ app.post('/unmatched-ingredients/clear', makeClearUnmatchedIngredientsHandler(un
 
 if (config.ai.anthropicApiKey) {
   const anthropicClient = new Anthropic({ apiKey: config.ai.anthropicApiKey });
+  const aiImageLimits = {
+    maxImages: config.ai.recipeImport.maxImages,
+    maxImageBytes: config.ai.recipeImport.maxImageBytes,
+    maxTotalBytes: config.ai.recipeImport.maxTotalBytes,
+  };
   const recipeDraftExtractor = new AnthropicRecipeDraftExtractor({
     client: anthropicClient,
     model: config.ai.model,
@@ -135,14 +154,18 @@ if (config.ai.anthropicApiKey) {
     makeImportRecipeFromPhotosHandler({
       extractor: recipeDraftExtractor,
       search: ingredientSearchService,
-      limits: {
-        maxImages: config.ai.recipeImport.maxImages,
-        maxImageBytes: config.ai.recipeImport.maxImageBytes,
-        maxTotalBytes: config.ai.recipeImport.maxTotalBytes,
-      },
+      limits: aiImageLimits,
       includeDebug: config.ai.recipeImport.debug,
       recorder: unmatchedIngredientStore,
     }),
+  );
+  const productDraftExtractor = new AnthropicProductDraftExtractor({
+    client: anthropicClient,
+    model: config.ai.model,
+  });
+  app.post(
+    '/extract-product-from-photos',
+    makeExtractProductFromPhotosHandler({ extractor: productDraftExtractor, limits: aiImageLimits }),
   );
   if (config.ai.recipeImport.debug) {
     console.warn(
@@ -151,6 +174,7 @@ if (config.ai.anthropicApiKey) {
   }
 } else {
   app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
+  app.post('/extract-product-from-photos', makeUnconfiguredExtractProductFromPhotosHandler());
 }
 
 serve({ fetch: app.fetch, port: 3000 }, () => {

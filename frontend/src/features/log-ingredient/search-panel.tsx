@@ -4,6 +4,8 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { BarcodeScanner } from './barcode-scanner';
 import { de } from '../../i18n/de';
 import { useLocalStorage } from '../../hooks/use-local-storage';
+import { CaptureProductFlow } from '../extract-product-from-photos/capture-product-flow';
+import { useProductCaptureConfigured } from '../extract-product-from-photos/use-product-capture-configured';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -17,7 +19,8 @@ type ScanState =
   | { mode: 'text' }
   | { mode: 'scanning' }
   | { mode: 'barcode-loading'; barcode: string }
-  | { mode: 'barcode-not-found' };
+  | { mode: 'barcode-not-found'; barcode: string }
+  | { mode: 'capturing-product'; barcode: string };
 
 const LEGACY_OFF_KEY = 'forkcast:off-enabled';
 const FOODS_KEY = 'forkcast:foods-enabled';
@@ -61,6 +64,9 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
     isSuccess: barcodeSuccess,
   } = useSearchBarcode(barcodeToLookup);
 
+  const captureRelevant = scanState.mode === 'barcode-not-found' || scanState.mode === 'capturing-product';
+  const { data: captureConfigured } = useProductCaptureConfigured(captureRelevant);
+
   useEffect(() => {
     if (scanState.mode !== 'barcode-loading') return;
     if (barcodeLoading) return;
@@ -68,9 +74,9 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
     if (barcodeResult) {
       onSelect(barcodeResult);
     } else {
-      setScanState({ mode: 'barcode-not-found' });
+      setScanState({ mode: 'barcode-not-found', barcode: scanState.barcode });
     }
-  }, [barcodeLoading, barcodeSuccess, barcodeResult, scanState.mode, onSelect]);
+  }, [barcodeLoading, barcodeSuccess, barcodeResult, scanState, onSelect]);
 
   useEffect(() => {
     if (scanState.mode === 'text') {
@@ -96,10 +102,33 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
     );
   }
 
+  if (scanState.mode === 'capturing-product') {
+    return (
+      <CaptureProductFlow
+        barcode={scanState.barcode}
+        onCancel={() => setScanState({ mode: 'text' })}
+        onCaptured={(result) => onSelect(result)}
+      />
+    );
+  }
+
   if (scanState.mode === 'barcode-not-found') {
+    const notFoundBarcode = scanState.barcode;
     return (
       <div className="flex flex-col gap-3 p-4">
         <p className="text-sm text-destructive">{de.searchPanel.notFound}</p>
+        {captureConfigured !== false ? (
+          <button
+            type="button"
+            onClick={() => setScanState({ mode: 'capturing-product', barcode: notFoundBarcode })}
+            aria-label={de.productCapture.ctaAria}
+            className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+          >
+            {de.productCapture.cta}
+          </button>
+        ) : (
+          <p className="text-xs text-muted-foreground">{de.productCapture.notConfigured}</p>
+        )}
         <button
           type="button"
           onClick={() => setScanState({ mode: 'scanning' })}

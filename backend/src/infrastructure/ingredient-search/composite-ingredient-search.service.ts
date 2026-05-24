@@ -3,6 +3,8 @@ import type {
   IngredientSource,
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
+import type { ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
+import { mapScannedProduct } from '../../domain/barcode-product-capture/map-scanned-product.ts';
 
 const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['OFF']);
 
@@ -10,6 +12,7 @@ export class CompositeIngredientSearchService implements IngredientSearchService
   constructor(
     private readonly off: IngredientSearchService,
     private readonly foods: IngredientSearchService,
+    private readonly scanned?: ScannedProductStore,
   ) {}
 
   async searchByName(
@@ -46,6 +49,10 @@ export class CompositeIngredientSearchService implements IngredientSearchService
   }
 
   async searchByBarcode(barcode: string): Promise<IngredientSearchResult | null> {
+    if (this.scanned) {
+      const stored = await this.scanned.findByBarcode(barcode);
+      if (stored) return mapScannedProduct(stored);
+    }
     return this.off.searchByBarcode(barcode);
   }
 }

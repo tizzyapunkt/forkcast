@@ -66,6 +66,34 @@ export const handlers = [
     return new HttpResponse(null, { status: 404 });
   }),
 
+  http.post('/api/extract-product-from-photos', async ({ request }) => {
+    const body = (await request.json()) as { barcode?: string };
+    if (!body.barcode) return HttpResponse.json({ error: 'barcode is required' }, { status: 400 });
+    return HttpResponse.json({
+      barcode: body.barcode,
+      name: 'Test Product',
+      unit: 'g',
+      macrosPer100: { calories: 50, protein: 1, carbs: 10, fat: 0.5 },
+    });
+  }),
+
+  http.post('/api/save-scanned-product', async ({ request }) => {
+    const body = (await request.json()) as {
+      barcode: string;
+      name: string;
+      unit: 'g' | 'ml';
+      macrosPer100: { calories: number; protein: number; carbs: number; fat: number };
+    };
+    const m = body.macrosPer100;
+    return HttpResponse.json({
+      id: body.barcode,
+      source: 'SCAN',
+      name: body.name,
+      unit: body.unit,
+      macrosPerUnit: { calories: m.calories / 100, protein: m.protein / 100, carbs: m.carbs / 100, fat: m.fat / 100 },
+    });
+  }),
+
   http.get('/api/recently-used-ingredients', () => {
     return HttpResponse.json([]);
   }),

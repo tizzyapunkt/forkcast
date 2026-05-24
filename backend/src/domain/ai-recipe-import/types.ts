@@ -1,4 +1,5 @@
 import type { DisplayQuantity, MacrosPerUnit, MeasurementUnit, PieceQuantity } from '../recipes/types.ts';
+import type { IngredientResultSource } from '../ingredient-search/types.ts';
 
 export type SupportedImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp';
 
@@ -31,7 +32,7 @@ export interface MatchedDraftIngredient {
   macrosPerUnit: MacrosPerUnit;
   amount: number | null;
   unitOverridden: boolean;
-  source: 'FOODS' | 'OFF';
+  source: IngredientResultSource;
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
@@ -51,7 +52,7 @@ export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
 
 export interface SearchCandidateDebug {
   name: string;
-  source: 'FOODS' | 'OFF';
+  source: IngredientResultSource;
   unit: MeasurementUnit;
   untracked: boolean;
 }

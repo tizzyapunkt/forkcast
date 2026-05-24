@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
@@ -6,6 +6,11 @@ import { renderWithProviders } from '../../test/harness';
 import { SearchPanel } from './search-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { BarcodeScannerProps } from './barcode-scanner';
+
+beforeAll(() => {
+  Object.defineProperty(URL, 'createObjectURL', { value: () => 'blob:mock', writable: true });
+  Object.defineProperty(URL, 'revokeObjectURL', { value: () => undefined, writable: true });
+});
 
 beforeEach(() => {
   localStorage.clear();
@@ -275,6 +280,87 @@ describe('SearchPanel', () => {
       await screen.findByText(/produkt nicht gefunden/i);
       await userEvent.click(screen.getByRole('button', { name: /erneut versuchen/i }));
       expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('packaging capture after barcode not-found', () => {
+    async function reachNotFound() {
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
+      await userEvent.click(screen.getByRole('button', { name: /trigger-detect/i }));
+      await screen.findByText(/produkt nicht gefunden/i);
+    }
+
+    it('offers the packaging-capture action when AI capture is configured', async () => {
+      // default extract handler returns 400 for the empty-barcode probe → configured
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await reachNotFound();
+      expect(await screen.findByRole('button', { name: /verpackung erfassen/i })).toBeInTheDocument();
+    });
+
+    it('hides the capture action and shows a hint when capture is not configured (503)', async () => {
+      server.use(
+        http.post('/api/extract-product-from-photos', () =>
+          HttpResponse.json({ error: 'ai-import-not-configured' }, { status: 503 }),
+        ),
+      );
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await reachNotFound();
+      expect(await screen.findByText(/nicht aktiviert/i)).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /verpackung erfassen/i })).not.toBeInTheDocument();
+    });
+
+    it('captures a product: photograph → extract → edit → save → onSelect with edited values', async () => {
+      let savedBody: { barcode: string; name: string; macrosPer100: { calories: number } } | null = null;
+      server.use(
+        http.post('/api/extract-product-from-photos', async ({ request }) => {
+          const body = (await request.json()) as { barcode?: string };
+          if (!body.barcode) return HttpResponse.json({ error: 'barcode is required' }, { status: 400 });
+          return HttpResponse.json({
+            barcode: body.barcode,
+            name: 'Himbeer-Heidelbeer-Mix',
+            unit: 'g',
+            macrosPer100: { calories: 54, protein: 0.9, carbs: 8.4, fat: 0.7 },
+          });
+        }),
+        http.post('/api/save-scanned-product', async ({ request }) => {
+          savedBody = (await request.json()) as typeof savedBody;
+          const m = savedBody!.macrosPer100;
+          return HttpResponse.json({
+            id: savedBody!.barcode,
+            source: 'SCAN',
+            name: savedBody!.name,
+            unit: 'g',
+            macrosPerUnit: { calories: m.calories / 100, protein: 0.009, carbs: 0.084, fat: 0.007 },
+          });
+        }),
+      );
+
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} />);
+      await reachNotFound();
+
+      await userEvent.click(await screen.findByRole('button', { name: /verpackung erfassen/i }));
+
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const file = new File([new Uint8Array(100)], 'back.jpg', { type: 'image/jpeg' });
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      await userEvent.click(screen.getByRole('button', { name: /nährwerte auslesen/i }));
+
+      const caloriesInput = (await screen.findByLabelText(/kalorien/i)) as HTMLInputElement;
+      expect(caloriesInput.value).toBe('54');
+      expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Himbeer-Heidelbeer-Mix');
+
+      await userEvent.clear(caloriesInput);
+      await userEvent.type(caloriesInput, '52');
+
+      await userEvent.click(screen.getByRole('button', { name: /speichern & übernehmen/i }));
+
+      await vi.waitFor(() => expect(onSelect).toHaveBeenCalled());
+      expect(savedBody!.macrosPer100.calories).toBe(52);
+      const result = onSelect.mock.calls[0]![0];
+      expect(result.source).toBe('SCAN');
+      expect(result.id).toBe('4006381333931');
     });
   });
 });

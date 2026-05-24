@@ -53,5 +53,23 @@
       "amount": 150
     },
     "loggedAt": "2026-05-24T19:42:37.073Z"
+  },
+  {
+    "id": "8d36fb4f-3349-4c94-8a16-eb1fa930609f",
+    "date": "2026-05-24",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Himbeer-Heidelbeer-Mix",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 0.54,
+        "protein": 0.01,
+        "carbs": 0.084,
+        "fat": 0.006999999999999999
+      },
+      "amount": 100
+    },
+    "loggedAt": "2026-05-24T21:59:56.306Z"
   }
 ]

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { CompositeIngredientSearchService } from './composite-ingredient-search.service.ts';
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
+import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
 
 function makeResult(id: string, source: 'FOODS' | 'OFF'): IngredientSearchResult {
   return {
@@ -109,5 +110,52 @@ describe('CompositeIngredientSearchService', () => {
     const svc = new CompositeIngredientSearchService(off, foods);
 
     expect(await svc.searchByBarcode('9999')).toBeNull();
+  });
+
+  it('resolves a barcode from the scanned store first, without querying OFF', async () => {
+    const stored: ScannedProduct = {
+      barcode: '4337256176103',
+      name: 'Himbeer-Heidelbeer-Mix',
+      unit: 'g',
+      macrosPer100: { calories: 54, protein: 0.9, carbs: 8.4, fat: 0.7 },
+      capturedAt: '2026-05-24T12:00:00.000Z',
+    };
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(stored),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+    };
+    const foods = makeMockService([]);
+    const off = makeMockService([], offResult);
+    const svc = new CompositeIngredientSearchService(off, foods, scanned);
+
+    const result = await svc.searchByBarcode('4337256176103');
+    expect(result).toMatchObject({ id: '4337256176103', source: 'SCAN', name: 'Himbeer-Heidelbeer-Mix' });
+    expect(off.searchByBarcode).not.toHaveBeenCalled();
+  });
+
+  it('falls back to OFF when the barcode is not in the scanned store', async () => {
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(null),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+    };
+    const foods = makeMockService([]);
+    const off = makeMockService([], offResult);
+    const svc = new CompositeIngredientSearchService(off, foods, scanned);
+
+    expect(await svc.searchByBarcode('1234567890')).toEqual(offResult);
+    expect(scanned.findByBarcode).toHaveBeenCalledWith('1234567890');
+    expect(off.searchByBarcode).toHaveBeenCalledWith('1234567890');
+  });
+
+  it('returns null when neither the scanned store nor OFF has the barcode', async () => {
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(null),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+    };
+    const foods = makeMockService([]);
+    const off = makeMockService([], null);
+    const svc = new CompositeIngredientSearchService(off, foods, scanned);
+
+    expect(await svc.searchByBarcode('0000')).toBeNull();
   });
 });
