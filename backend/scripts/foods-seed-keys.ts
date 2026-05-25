@@ -217,6 +217,9 @@ export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   'kokosoel',
   'leinoel',
 
+  // Beverages (ml)
+  'wasser',
+
   // Seasonings, herbs & spices — untracked (no macro contribution by definition)
   { key: 'salz', untracked: true },
   { key: 'pfeffer-schwarz', untracked: true },
