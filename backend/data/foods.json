@@ -3794,6 +3794,23 @@
     }
   },
   {
+    "id": "wasser",
+    "name": "Wasser",
+    "synonyms": [
+      "Trinkwasser",
+      "Leitungswasser",
+      "Mineralwasser",
+      "water"
+    ],
+    "unit": "ml",
+    "macrosPer100": {
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
+  },
+  {
     "id": "weintraube",
     "name": "Weintraube",
     "synonyms": [
