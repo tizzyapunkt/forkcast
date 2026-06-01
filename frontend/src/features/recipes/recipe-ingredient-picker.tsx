@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useScrollLock } from '../../hooks/use-scroll-lock';
+import { BottomSheet } from '../../components/app/bottom-sheet';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { RecentPanel } from '../log-ingredient/recent-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
@@ -38,8 +38,6 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
   const [tab, setTab] = useState<Tab>('search');
   const [step, setStep] = useState<Step>({ kind: 'pick' });
 
-  useScrollLock(open);
-
   if (!open) return null;
 
   function handleClose() {
@@ -65,15 +63,13 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
         : de.recipeIngredientPicker.titlePick;
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} aria-hidden="true" />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={de.recipeIngredientPicker.dialogAria}
-        className="fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-x-hidden overflow-y-auto rounded-t-xl bg-background shadow-lg"
-      >
-        <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted" />
+    <BottomSheet
+      open
+      onClose={handleClose}
+      ariaLabel={de.recipeIngredientPicker.dialogAria}
+      heightClassName="h-[82dvh]"
+    >
+      <div className="shrink-0">
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <h2 className="min-w-0 truncate text-sm font-semibold">{titleText}</h2>
           <button
@@ -86,24 +82,28 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
         </div>
 
         {step.kind === 'pick' && (
-          <>
-            <div className="flex gap-4 border-b px-4 text-sm">
-              <button
-                type="button"
-                onClick={() => setTab('search')}
-                className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-              >
-                {de.recipeIngredientPicker.search}
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab('recent')}
-                className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-              >
-                {de.recipeIngredientPicker.recent}
-              </button>
-            </div>
+          <div className="flex gap-4 border-b px-4 text-sm">
+            <button
+              type="button"
+              onClick={() => setTab('search')}
+              className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.recipeIngredientPicker.search}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab('recent')}
+              className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.recipeIngredientPicker.recent}
+            </button>
+          </div>
+        )}
+      </div>
 
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        {step.kind === 'pick' && (
+          <>
             {tab === 'search' && <SearchPanel onSelect={handleSelect} />}
             {tab === 'recent' && <RecentPanel onSelect={handleSelect} />}
           </>
@@ -127,7 +127,7 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
           />
         )}
       </div>
-    </>
+    </BottomSheet>
   );
 }
 

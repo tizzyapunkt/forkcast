@@ -71,5 +71,59 @@
       "amount": 100
     },
     "loggedAt": "2026-05-24T21:59:56.306Z"
+  },
+  {
+    "id": "6a82face-491f-4f67-a035-ab1973bfe0f7",
+    "date": "2026-06-01",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Himbeer-Heidelbeer-Mix",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 0.54,
+        "protein": 0.01,
+        "carbs": 0.084,
+        "fat": 0.006999999999999999
+      },
+      "amount": 100
+    },
+    "loggedAt": "2026-06-01T19:54:50.931Z"
+  },
+  {
+    "id": "7b06451d-453e-4239-9ace-76b996a008ed",
+    "date": "2026-06-01",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Haferflocken",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 3.75,
+        "protein": 0.14,
+        "carbs": 0.59,
+        "fat": 0.07
+      },
+      "amount": 150
+    },
+    "loggedAt": "2026-06-01T19:54:55.346Z"
+  },
+  {
+    "id": "9be338a2-e9e1-43fc-b695-05391f52feb1",
+    "date": "2026-06-01",
+    "slot": "breakfast",
+    "ingredient": {
+      "type": "full",
+      "name": "Himbeer-Heidelbeer-Mix",
+      "unit": "g",
+      "macrosPerUnit": {
+        "calories": 0.54,
+        "protein": 0.01,
+        "carbs": 0.084,
+        "fat": 0.006999999999999999
+      },
+      "amount": 100
+    },
+    "loggedAt": "2026-06-01T19:54:58.686Z"
   }
 ]

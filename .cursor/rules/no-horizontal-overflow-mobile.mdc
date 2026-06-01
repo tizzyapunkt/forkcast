@@ -58,12 +58,22 @@ fix it permanently.
    - For inputs that should fill remaining space inside a flex row use
      `min-w-0 flex-1` (not just `flex-1`).
 
-6. **Drawers and modals (`fixed inset-x-0 …`) must clip their own contents.**
-   Add `overflow-x-hidden` (or `overflow-x: clip`) to the scrollable body of
-   every drawer / dialog. Do not rely on the global `body` clip alone, because
-   internal scroll containers can still overflow visually inside the drawer.
+6. **Drawers/modals must render through the shared `BottomSheet` (bottom sheets)
+   or `Portal` (centered dialogs), never as inline `fixed` markup.** Both portal
+   into `<body>`. The scroll lock freezes the `#root` app shell with
+   `position: fixed`; on iOS Safari a fixed ancestor becomes the containing
+   block for fixed descendants, so a drawer left inside `#root` anchors to the
+   frozen shell instead of the viewport (it opens at the page bottom and the
+   background scrolls). `BottomSheet` also owns the scroll lock and the shared
+   sheet chrome (backdrop, drag handle, fixed height). See
+   `components/app/bottom-sheet.tsx` / `components/app/portal.tsx`.
 
-7. **Search/filter inputs use `appearance-none`.** Native search controls
+7. **Drawers and modals must clip their own contents.** Add `overflow-x-hidden`
+   (or `overflow-x: clip`) to the scrollable body of every drawer / dialog. Do
+   not rely on the global `body` clip alone, because internal scroll containers
+   can still overflow visually inside the drawer.
+
+8. **Search/filter inputs use `appearance-none`.** Native search controls
    render an inner cancel button on iOS that adds horizontal padding and
    defeats `w-full`. The established pattern is:
    ```tsx
@@ -98,14 +108,14 @@ fix it permanently.
 
 ### Drawer body
 
+`BottomSheet` owns the portal, scroll lock, backdrop, drag handle, and fixed
+height. Children supply a `shrink-0` header and a scrollable body.
+
 ```tsx
-<div
-  role="dialog"
-  className="fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden rounded-t-xl bg-background"
->
-  <div className="shrink-0">{/* header */}</div>
+<BottomSheet open={open} onClose={onClose} ariaLabel={de.x.dialogAria} heightClassName="h-[82dvh]">
+  <div className="shrink-0">{/* header + tabs */}</div>
   <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">{/* body */}</div>
-</div>
+</BottomSheet>
 ```
 
 ### List row with potentially long text

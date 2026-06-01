@@ -12,6 +12,34 @@ function PickerHarness({ onPicked }: { onPicked: (ing: RecipeIngredient) => void
   return <RecipeIngredientPicker open={open} onClose={() => setOpen(false)} onPicked={onPicked} />;
 }
 
+describe('RecipeIngredientPicker — overlay portal', () => {
+  // The picker is rendered deep inside RecipeForm's subtree, but the scroll lock
+  // freezes `#root` with `position: fixed`. On iOS a fixed ancestor becomes the
+  // containing block for fixed descendants, so the drawer must portal OUT of the
+  // app shell (into <body>) to stay anchored to the viewport. Guard that here.
+  it('renders the dialog into <body>, not inside the host subtree', () => {
+    const { container } = renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+
+    const dialog = screen.getByRole('dialog');
+    expect(container).not.toContainElement(dialog);
+    expect(dialog.parentElement).toBe(document.body);
+  });
+
+  it('does not render anything into the host subtree when closed', () => {
+    function ClosedHarness() {
+      return (
+        <RecipeIngredientPicker
+          open={false}
+          onClose={vi.fn<() => void>()}
+          onPicked={vi.fn<(ing: RecipeIngredient) => void>()}
+        />
+      );
+    }
+    renderWithProviders(<ClosedHarness />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+});
+
 describe('RecipeIngredientPicker — untracked propagation', () => {
   it('picking a FOODS-untracked result yields a row with untracked: true', async () => {
     server.use(
