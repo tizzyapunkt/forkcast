@@ -16,5 +16,6 @@ export function useSearchBarcode(barcode: string) {
     queryKey: ['ingredient-search-barcode', barcode],
     queryFn: () => searchBarcode(barcode),
     enabled: barcode.length > 0,
+    retry: false,
   });
 }

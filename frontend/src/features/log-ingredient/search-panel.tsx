@@ -62,6 +62,7 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
     data: barcodeResult,
     isLoading: barcodeLoading,
     isSuccess: barcodeSuccess,
+    isError: barcodeError,
   } = useSearchBarcode(barcodeToLookup);
 
   const captureRelevant = scanState.mode === 'barcode-not-found' || scanState.mode === 'capturing-product';
@@ -70,13 +71,17 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
   useEffect(() => {
     if (scanState.mode !== 'barcode-loading') return;
     if (barcodeLoading) return;
+    if (barcodeError) {
+      setScanState({ mode: 'barcode-not-found', barcode: scanState.barcode });
+      return;
+    }
     if (!barcodeSuccess) return;
     if (barcodeResult) {
       onSelect(barcodeResult);
     } else {
       setScanState({ mode: 'barcode-not-found', barcode: scanState.barcode });
     }
-  }, [barcodeLoading, barcodeSuccess, barcodeResult, scanState, onSelect]);
+  }, [barcodeLoading, barcodeSuccess, barcodeError, barcodeResult, scanState, onSelect]);
 
   useEffect(() => {
     if (scanState.mode === 'text') {

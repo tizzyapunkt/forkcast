@@ -273,6 +273,18 @@ describe('SearchPanel', () => {
       expect(await screen.findByText(/produkt nicht gefunden/i)).toBeInTheDocument();
     });
 
+    it('shows "Product not found" when barcode lookup returns a server error', async () => {
+      server.use(
+        http.get('/api/search-ingredients/barcode/:barcode', () =>
+          HttpResponse.json({ error: 'internal server error' }, { status: 500 }),
+        ),
+      );
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
+      await userEvent.click(screen.getByRole('button', { name: /trigger-detect/i }));
+      expect(await screen.findByText(/produkt nicht gefunden/i)).toBeInTheDocument();
+    });
+
     it('clicking "Try again" after not-found re-shows the scanner', async () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
       await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
