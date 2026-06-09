@@ -7,4 +7,8 @@ export interface IngredientSearchResult {
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPerUnit;
   untracked?: boolean;
+  /** Human-readable serving size from the source product, e.g. "1 slice (25g)". */
+  servingSize?: string;
+  /** Gram weight of one serving from the source product. */
+  servingQuantity?: number;
 }

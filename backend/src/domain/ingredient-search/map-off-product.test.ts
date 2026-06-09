@@ -68,4 +68,55 @@ describe('mapOffProduct', () => {
 
     expect(result).toBeNull();
   });
+
+  it('maps serving_size and serving_quantity without affecting macros', () => {
+    const result = mapOffProduct({
+      ...baseProduct,
+      serving_size: '1 slice (25g)',
+      serving_quantity: 25,
+    });
+
+    expect(result!.servingSize).toBe('1 slice (25g)');
+    expect(result!.servingQuantity).toBe(25);
+    expect(result!.macrosPerUnit.calories).toBeCloseTo(1.65);
+    expect(result!.macrosPerUnit.protein).toBeCloseTo(0.31);
+  });
+
+  it('coerces a numeric-string serving_quantity to a number', () => {
+    const result = mapOffProduct({ ...baseProduct, serving_quantity: '25' });
+
+    expect(result!.servingQuantity).toBe(25);
+  });
+
+  it('ignores _serving nutrient fields and reads calories from _100g', () => {
+    const result = mapOffProduct({
+      code: 'abc',
+      product_name: 'Bread',
+      nutriments: {
+        'energy-kcal_100g': 250,
+        'energy-kcal_serving': 999,
+      },
+    });
+
+    expect(result!.macrosPerUnit.calories).toBeCloseTo(2.5);
+  });
+
+  it('leaves serving fields undefined when the product omits them', () => {
+    const result = mapOffProduct(baseProduct);
+
+    expect(result!.servingSize).toBeUndefined();
+    expect(result!.servingQuantity).toBeUndefined();
+  });
+
+  it('leaves servingQuantity undefined for zero, negative, or non-numeric values', () => {
+    expect(mapOffProduct({ ...baseProduct, serving_quantity: 0 })!.servingQuantity).toBeUndefined();
+    expect(mapOffProduct({ ...baseProduct, serving_quantity: -5 })!.servingQuantity).toBeUndefined();
+    expect(mapOffProduct({ ...baseProduct, serving_quantity: 'not-a-number' })!.servingQuantity).toBeUndefined();
+  });
+
+  it('leaves servingSize undefined when it is an empty string', () => {
+    const result = mapOffProduct({ ...baseProduct, serving_size: '' });
+
+    expect(result!.servingSize).toBeUndefined();
+  });
 });

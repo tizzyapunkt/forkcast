@@ -40,6 +40,8 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
   const { mutate, isPending, error } = useLogIngredient();
   const m = result.macrosPerUnit;
 
+  const effectiveDefault = defaultAmount ?? result.servingQuantity;
+
   const {
     register,
     handleSubmit,
@@ -47,7 +49,7 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: defaultAmount !== undefined ? { amount: defaultAmount } : undefined,
+    defaultValues: effectiveDefault !== undefined ? { amount: effectiveDefault } : undefined,
   });
 
   const rawAmount = watch('amount');

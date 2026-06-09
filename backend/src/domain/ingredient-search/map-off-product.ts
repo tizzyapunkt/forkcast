@@ -11,6 +11,8 @@ interface OffProduct {
   code?: string;
   product_name?: string;
   product_name_de?: string;
+  serving_size?: string;
+  serving_quantity?: number | string;
   nutriments?: OffNutriments;
 }
 
@@ -21,6 +23,12 @@ export function mapOffProduct(product: OffProduct): IngredientSearchResult | nul
   const n = product.nutriments ?? {};
   const calories100 = n['energy-kcal_100g'];
   if (calories100 === undefined || calories100 === null) return null;
+
+  const servingSize =
+    typeof product.serving_size === 'string' && product.serving_size.length > 0 ? product.serving_size : undefined;
+  const servingQuantityNum = Number(product.serving_quantity);
+  const servingQuantity =
+    Number.isFinite(servingQuantityNum) && servingQuantityNum > 0 ? servingQuantityNum : undefined;
 
   return {
     id: product.code ?? '',
@@ -33,5 +41,7 @@ export function mapOffProduct(product: OffProduct): IngredientSearchResult | nul
       carbs: (n.carbohydrates_100g ?? 0) / 100,
       fat: (n.fat_100g ?? 0) / 100,
     },
+    ...(servingSize !== undefined ? { servingSize } : {}),
+    ...(servingQuantity !== undefined ? { servingQuantity } : {}),
   };
 }

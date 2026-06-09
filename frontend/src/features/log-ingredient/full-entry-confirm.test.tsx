@@ -179,4 +179,41 @@ describe('FullEntryConfirm', () => {
     );
     expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
   });
+
+  it('pre-fills the amount input with servingQuantity when no defaultAmount is given', () => {
+    renderWithProviders(
+      <FullEntryConfirm
+        result={{ ...chicken, servingQuantity: 25 }}
+        date="2026-04-21"
+        slot="lunch"
+        onSuccess={() => {}}
+        onBack={() => {}}
+      />,
+      { queryClient: createTestQueryClient() },
+    );
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(25);
+  });
+
+  it('prefers defaultAmount over servingQuantity', () => {
+    renderWithProviders(
+      <FullEntryConfirm
+        result={{ ...chicken, servingQuantity: 25 }}
+        date="2026-04-21"
+        slot="lunch"
+        onSuccess={() => {}}
+        onBack={() => {}}
+        defaultAmount={80}
+      />,
+      { queryClient: createTestQueryClient() },
+    );
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+  });
+
+  it('leaves the amount input empty when neither defaultAmount nor servingQuantity is present', () => {
+    renderWithProviders(
+      <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
+      { queryClient: createTestQueryClient() },
+    );
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+  });
 });

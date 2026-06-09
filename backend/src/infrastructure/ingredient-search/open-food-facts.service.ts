@@ -20,7 +20,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 export class OpenFoodFactsService implements IngredientSearchService {
   async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
     const q = `${query} lang:de`;
-    const url = `${SEARCH_BASE_URL}/search?q=${encodeURIComponent(q)}&langs=de&page_size=20&fields=code,product_name,product_name_de,nutriments`;
+    const url = `${SEARCH_BASE_URL}/search?q=${encodeURIComponent(q)}&langs=de&page_size=20&fields=code,product_name,product_name_de,serving_size,serving_quantity,nutriments`;
     const data = await fetchJson<{ hits?: unknown[] }>(url);
     const hits = data.hits ?? [];
     return hits.flatMap((p) => {
@@ -30,7 +30,7 @@ export class OpenFoodFactsService implements IngredientSearchService {
   }
 
   async searchByBarcode(barcode: string): Promise<IngredientSearchResult | null> {
-    const url = `${PRODUCT_BASE_URL}/api/v2/product/${encodeURIComponent(barcode)}?fields=code,product_name,product_name_de,nutriments`;
+    const url = `${PRODUCT_BASE_URL}/api/v2/product/${encodeURIComponent(barcode)}?fields=code,product_name,product_name_de,serving_size,serving_quantity,nutriments`;
     const data = await fetchJson<{ status: number; product?: unknown }>(url);
     if (data.status !== 1 || !data.product) return null;
     return mapOffProduct(data.product as Parameters<typeof mapOffProduct>[0]);
