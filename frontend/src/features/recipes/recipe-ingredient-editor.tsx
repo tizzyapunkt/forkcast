@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import type { DisplayQuantity, PieceQuantity, RecipeIngredient } from '../../domain/recipes';
+import type { RecipeIngredient } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
+import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
 import { de } from '../../i18n/de';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
@@ -22,9 +23,6 @@ function round1(n: number): number {
 export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices, onEstimateAcknowledged }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
-  const [pendingDetach, setPendingDetach] = useState<{ index: number; nextAmount: number } | null>(null);
-  const [addingPieceFor, setAddingPieceFor] = useState<number | null>(null);
-  const [editingDisplayQuantityFor, setEditingDisplayQuantityFor] = useState<number | null>(null);
 
   const isPickerOpen = pickerOpen || replacingIndex !== null;
   const pickerMode: 'add' | 'replace' = replacingIndex !== null ? 'replace' : 'add';
@@ -64,30 +62,13 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
     onChange(ingredients.map((ing, i) => (i === index ? mapper(ing) : ing)));
   }
 
+  function handleSetMode(index: number, mode: MeasurementMode) {
+    update(index, (ing) => seedMode(ing, mode));
+  }
+
   function handleEditMassAmount(index: number, nextAmount: number) {
     if (!Number.isFinite(nextAmount) || nextAmount <= 0) return;
-    const ing = ingredients[index];
-    if (!ing) return;
-    if (ing.pieceQuantity) {
-      setPendingDetach({ index, nextAmount });
-      return;
-    }
-    update(index, (i) => ({ ...i, amount: nextAmount }));
-  }
-
-  function confirmDetach() {
-    if (!pendingDetach) return;
-    const { index, nextAmount } = pendingDetach;
-    update(index, (ing) => {
-      const next: RecipeIngredient = { ...ing, amount: nextAmount };
-      delete next.pieceQuantity;
-      return next;
-    });
-    setPendingDetach(null);
-  }
-
-  function cancelDetach() {
-    setPendingDetach(null);
+    update(index, (ing) => ({ ...ing, amount: nextAmount }));
   }
 
   function handleEditPieceCount(index: number, nextCount: number) {
@@ -123,51 +104,29 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
     );
   }
 
-  function handleAttachPiece(index: number, draft: PieceQuantity) {
-    update(index, (ing) => {
-      if (ing.unit !== 'g' && ing.unit !== 'ml') return ing;
-      const nextAmount = round1(draft.amount * draft.gramsPerPiece);
-      return { ...ing, amount: nextAmount, pieceQuantity: draft };
-    });
-    setAddingPieceFor(null);
+  function handleEditFreeAmount(index: number, nextAmount: number) {
+    if (!Number.isFinite(nextAmount) || nextAmount < 0) return;
+    update(index, (ing) =>
+      ing.displayQuantity
+        ? { ...ing, displayQuantity: { ...ing.displayQuantity, amount: nextAmount } }
+        : { ...ing, amount: nextAmount },
+    );
   }
 
-  function handleDetachPiece(index: number) {
+  function handleEditFreeUnit(index: number, raw: string) {
     update(index, (ing) => {
-      const next: RecipeIngredient = { ...ing };
-      delete next.pieceQuantity;
-      return next;
-    });
-  }
-
-  function handleToggleUntracked(index: number, next: boolean) {
-    update(index, (ing) => {
-      const updated: RecipeIngredient = { ...ing };
-      if (next) {
-        updated.untracked = true;
-      } else {
-        delete updated.untracked;
-        delete updated.displayQuantity;
+      const trimmed = raw.trim();
+      if (trimmed.length === 0) {
+        const next: RecipeIngredient = { ...ing };
+        if (next.displayQuantity) {
+          next.amount = next.displayQuantity.amount;
+          delete next.displayQuantity;
+        }
+        return next;
       }
-      return updated;
+      const amount = ing.displayQuantity?.amount ?? ing.amount;
+      return { ...ing, displayQuantity: { amount, unitLabel: raw } };
     });
-    if (!next && editingDisplayQuantityFor === index) {
-      setEditingDisplayQuantityFor(null);
-    }
-  }
-
-  function handleSaveDisplayQuantity(index: number, draft: DisplayQuantity) {
-    update(index, (ing) => ({ ...ing, displayQuantity: draft }));
-    setEditingDisplayQuantityFor(null);
-  }
-
-  function handleRemoveDisplayQuantity(index: number) {
-    update(index, (ing) => {
-      const next: RecipeIngredient = { ...ing };
-      delete next.displayQuantity;
-      return next;
-    });
-    setEditingDisplayQuantityFor(null);
   }
 
   function handleEditNote(index: number, raw: string) {
@@ -201,15 +160,10 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
       ) : (
         <ul className="divide-y">
           {ingredients.map((ing, idx) => {
-            const piece = ing.pieceQuantity;
-            const isEstimate = piece !== undefined && (estimateIndices?.has(idx) ?? false);
-            const massEditable = ing.unit === 'g' || ing.unit === 'ml';
-            const showAddPiece = !piece && massEditable && addingPieceFor !== idx;
-
-            const untracked = ing.untracked === true;
-            const displayQuantity = untracked ? ing.displayQuantity : undefined;
-            const editingDisplayQuantity = editingDisplayQuantityFor === idx;
-            const showCanonicalAmount = !displayQuantity && !editingDisplayQuantity;
+            const mode = modeOf(ing);
+            const massAllowed = isMassUnit(ing.unit);
+            const isEstimate = mode === 'piece' && (estimateIndices?.has(idx) ?? false);
+            const untracked = mode === 'free';
 
             return (
               <li
@@ -230,37 +184,6 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                       ↻
                     </span>
                   </button>
-                  {showCanonicalAmount && (
-                    <>
-                      <input
-                        aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
-                        type="number"
-                        step="1"
-                        value={ing.amount}
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          if (Number.isFinite(v)) handleEditMassAmount(idx, v);
-                        }}
-                        className="h-10 w-20 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
-                      />
-                      <span className="w-10 text-xs text-muted-foreground">{ing.unit}</span>
-                    </>
-                  )}
-                  {displayQuantity && !editingDisplayQuantity && (
-                    <>
-                      <span data-testid={`display-quantity-${idx}`} className="text-sm text-muted-foreground">
-                        {formatDisplayAmount(displayQuantity.amount)} {displayQuantity.unitLabel}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setEditingDisplayQuantityFor(idx)}
-                        aria-label={de.recipeIngredientEditor.editDisplayQuantityAria(ing.name)}
-                        className="inline-flex h-9 w-9 items-center justify-center text-muted-foreground hover:text-foreground"
-                      >
-                        ✎
-                      </button>
-                    </>
-                  )}
                   <button
                     type="button"
                     onClick={() => handleRemove(idx)}
@@ -271,91 +194,39 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                   </button>
                 </div>
 
-                {!untracked && (
-                  <div data-testid={`row-macros-${idx}`} className="pl-2 text-xs text-muted-foreground">
-                    {Math.round(ing.macrosPerUnit.calories * ing.amount)} kcal ·{' '}
-                    {de.dailyLog
-                      .macroInline(
-                        ing.macrosPerUnit.protein * ing.amount,
-                        ing.macrosPerUnit.carbs * ing.amount,
-                        ing.macrosPerUnit.fat * ing.amount,
-                      )
-                      .replace(/^·\s*/, '')}
-                  </div>
-                )}
+                <ModeSegments
+                  name={ing.name}
+                  mode={mode}
+                  massAllowed={massAllowed}
+                  onSelect={(m) => handleSetMode(idx, m)}
+                />
 
-                <div className="pl-2">
-                  <input
-                    aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
-                    data-testid={`ingredient-note-${idx}`}
-                    type="text"
-                    maxLength={NOTE_MAX_LENGTH}
-                    value={ing.note ?? ''}
-                    placeholder={de.recipeIngredientEditor.notePlaceholder}
-                    onChange={(e) => handleEditNote(idx, e.target.value)}
-                    onBlur={(e) => {
-                      const trimmed = e.target.value.trim();
-                      if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
-                    }}
-                    className="w-full bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
-                  />
-                </div>
-
-                {editingDisplayQuantity && (
-                  <DisplayQuantityForm
-                    ingredient={ing}
-                    initial={displayQuantity ?? null}
-                    onSave={(dq) => handleSaveDisplayQuantity(idx, dq)}
-                    onCancel={() => setEditingDisplayQuantityFor(null)}
-                    onRemove={displayQuantity ? () => handleRemoveDisplayQuantity(idx) : undefined}
-                  />
-                )}
-
-                {untracked && !displayQuantity && !editingDisplayQuantity && (
-                  <div className="pl-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditingDisplayQuantityFor(idx)}
-                      aria-label={de.recipeIngredientEditor.addDisplayQuantityAria(ing.name)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      {de.recipeIngredientEditor.addDisplayQuantity}
-                    </button>
-                  </div>
-                )}
-
-                <div className="flex pl-2">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleUntracked(idx, !untracked)}
-                    aria-label={de.recipeIngredientEditor.untrackedToggleAria(ing.name)}
-                    aria-pressed={untracked}
-                    data-testid={`untracked-toggle-${idx}`}
-                    className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors ${
-                      untracked
-                        ? 'bg-muted text-foreground'
-                        : 'text-muted-foreground/70 hover:bg-muted/40 active:bg-muted/60'
-                    }`}
-                  >
-                    <span
-                      aria-hidden
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        untracked ? 'bg-foreground/70' : 'bg-muted-foreground/40'
-                      }`}
+                {mode === 'weight' && (
+                  <div className="flex items-center gap-2 pl-1">
+                    <input
+                      aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
+                      type="number"
+                      step="1"
+                      value={ing.amount}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        if (Number.isFinite(v)) handleEditMassAmount(idx, v);
+                      }}
+                      className="h-10 w-24 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
                     />
-                    {untracked ? de.recipeIngredientEditor.untrackedBadge : de.recipeIngredientEditor.untrackedToggle}
-                  </button>
-                </div>
+                    <span className="text-xs text-muted-foreground">{ing.unit}</span>
+                  </div>
+                )}
 
-                {piece && (
-                  <div className="flex flex-wrap items-center gap-2 pl-2 text-xs text-muted-foreground">
+                {mode === 'piece' && ing.pieceQuantity && (
+                  <div className="flex flex-wrap items-center gap-2 pl-1 text-xs text-muted-foreground">
                     <input
                       aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
                       type="number"
                       inputMode="decimal"
                       step="0.5"
                       min={0}
-                      value={piece.amount}
+                      value={ing.pieceQuantity.amount}
                       onChange={(e) => {
                         const v = Number(e.target.value);
                         if (Number.isFinite(v)) handleEditPieceCount(idx, v);
@@ -365,19 +236,20 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <input
                       aria-label={de.recipeIngredientEditor.pieceLabelFor(ing.name)}
                       type="text"
-                      value={piece.unitLabel}
+                      value={ing.pieceQuantity.unitLabel}
                       placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
                       onChange={(e) => handleEditUnitLabel(idx, e.target.value)}
                       className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
                     />
                     <span aria-hidden>×</span>
+                    <span className="whitespace-nowrap">{de.recipeIngredientEditor.perPiecePrefix}</span>
                     <input
                       aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
                       type="number"
                       inputMode="numeric"
                       step="1"
                       min={0}
-                      value={piece.gramsPerPiece}
+                      value={ing.pieceQuantity.gramsPerPiece}
                       onChange={(e) => {
                         const v = Number(e.target.value);
                         if (Number.isFinite(v)) handleEditGramsPerPiece(idx, v);
@@ -393,55 +265,69 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                         {de.recipeIngredientEditor.estimateBadge}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleDetachPiece(idx)}
-                      aria-label={de.recipeIngredientEditor.detachPieceAria(ing.name)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      {de.recipeIngredientEditor.detachPiece}
-                    </button>
                   </div>
                 )}
 
-                {showAddPiece && (
-                  <div className="pl-2">
-                    <button
-                      type="button"
-                      onClick={() => setAddingPieceFor(idx)}
-                      aria-label={de.recipeIngredientEditor.addPieceTrackingAria(ing.name)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      {de.recipeIngredientEditor.addPieceTracking}
-                    </button>
-                  </div>
-                )}
-
-                {addingPieceFor === idx && (
-                  <AttachPieceForm
-                    ingredient={ing}
-                    onAttach={(pq) => handleAttachPiece(idx, pq)}
-                    onCancel={() => setAddingPieceFor(null)}
-                  />
-                )}
-
-                {pendingDetach?.index === idx && (
-                  <div className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs dark:border-amber-700/60 dark:bg-amber-900/20">
-                    <p>{de.recipeIngredientEditor.massEditDetachHint}</p>
-                    <div className="mt-1 flex gap-2">
-                      <button type="button" onClick={cancelDetach} className="rounded-md border px-2 py-0.5">
-                        {de.recipeForm.cancel}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={confirmDetach}
-                        className="rounded-md bg-destructive px-2 py-0.5 text-white"
-                      >
-                        {de.recipeIngredientEditor.detachPiece}
-                      </button>
+                {mode === 'free' && (
+                  <div className="space-y-1 pl-1">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <input
+                        aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
+                        type="number"
+                        inputMode="decimal"
+                        step="0.5"
+                        min={0}
+                        value={ing.displayQuantity?.amount ?? ing.amount}
+                        placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          if (Number.isFinite(v)) handleEditFreeAmount(idx, v);
+                        }}
+                        className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
+                      />
+                      <input
+                        aria-label={de.recipeIngredientEditor.displayQuantityUnitAria(ing.name)}
+                        type="text"
+                        maxLength={DISPLAY_QUANTITY_UNIT_LABEL_MAX}
+                        value={ing.displayQuantity?.unitLabel ?? ''}
+                        placeholder={de.recipeIngredientEditor.freeUnitPlaceholder}
+                        onChange={(e) => handleEditFreeUnit(idx, e.target.value)}
+                        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
+                      />
                     </div>
+                    <p className="text-[11px] text-muted-foreground/80">{de.recipeIngredientEditor.freeCaption}</p>
                   </div>
                 )}
+
+                {mode !== 'free' && (
+                  <div data-testid={`row-macros-${idx}`} className="pl-1 text-xs text-muted-foreground">
+                    {Math.round(ing.macrosPerUnit.calories * ing.amount)} kcal ·{' '}
+                    {de.dailyLog
+                      .macroInline(
+                        ing.macrosPerUnit.protein * ing.amount,
+                        ing.macrosPerUnit.carbs * ing.amount,
+                        ing.macrosPerUnit.fat * ing.amount,
+                      )
+                      .replace(/^·\s*/, '')}
+                  </div>
+                )}
+
+                <div className="pl-1">
+                  <input
+                    aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
+                    data-testid={`ingredient-note-${idx}`}
+                    type="text"
+                    maxLength={NOTE_MAX_LENGTH}
+                    value={ing.note ?? ''}
+                    placeholder={de.recipeIngredientEditor.notePlaceholder}
+                    onChange={(e) => handleEditNote(idx, e.target.value)}
+                    onBlur={(e) => {
+                      const trimmed = e.target.value.trim();
+                      if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
+                    }}
+                    className="w-full bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
+                  />
+                </div>
               </li>
             );
           })}
@@ -461,126 +347,47 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
   );
 }
 
-function formatDisplayAmount(value: number): string {
-  if (!Number.isFinite(value)) return '0';
-  const rounded = Math.round(value * 100) / 100;
-  if (Number.isInteger(rounded)) return String(rounded);
-  return String(rounded).replace(/\.?0+$/, '');
+interface ModeSegmentsProps {
+  name: string;
+  mode: MeasurementMode;
+  massAllowed: boolean;
+  onSelect: (mode: MeasurementMode) => void;
 }
 
-interface DisplayQuantityFormProps {
-  ingredient: RecipeIngredient;
-  initial: DisplayQuantity | null;
-  onSave: (dq: DisplayQuantity) => void;
-  onCancel: () => void;
-  onRemove?: () => void;
-}
-
-function DisplayQuantityForm({ ingredient, initial, onSave, onCancel, onRemove }: DisplayQuantityFormProps) {
-  const [amount, setAmount] = useState<number>(initial?.amount ?? 1);
-  const [label, setLabel] = useState<string>(initial?.unitLabel ?? '');
-
-  const trimmed = label.trim();
-  const valid =
-    Number.isFinite(amount) && amount >= 0 && trimmed.length > 0 && trimmed.length <= DISPLAY_QUANTITY_UNIT_LABEL_MAX;
+function ModeSegments({ name, mode, massAllowed, onSelect }: ModeSegmentsProps) {
+  const segments: { key: MeasurementMode; label: string; disabled?: boolean }[] = [
+    { key: 'weight', label: de.recipeIngredientEditor.modeWeight },
+    { key: 'piece', label: de.recipeIngredientEditor.modePiece, disabled: !massAllowed },
+    { key: 'free', label: de.recipeIngredientEditor.modeFree },
+  ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 pl-2 text-xs">
-      <input
-        aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ingredient.name)}
-        type="number"
-        inputMode="decimal"
-        step="0.5"
-        min={0}
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-        className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
-      />
-      <input
-        aria-label={de.recipeIngredientEditor.displayQuantityUnitAria(ingredient.name)}
-        type="text"
-        maxLength={DISPLAY_QUANTITY_UNIT_LABEL_MAX}
-        value={label}
-        placeholder={de.recipeIngredientEditor.displayQuantityUnitPlaceholder}
-        onChange={(e) => setLabel(e.target.value)}
-        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
-      />
-      <button
-        type="button"
-        disabled={!valid}
-        onClick={() => onSave({ amount, unitLabel: trimmed })}
-        className="rounded-md border px-2 py-0.5 disabled:opacity-50"
-      >
-        {de.recipeIngredientEditor.confirmDisplayQuantity}
-      </button>
-      <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground">
-        {de.recipeIngredientEditor.cancelDisplayQuantity}
-      </button>
-      {onRemove && (
-        <button type="button" onClick={onRemove} className="text-muted-foreground hover:text-destructive">
-          {de.recipeIngredientEditor.removeDisplayQuantity}
-        </button>
-      )}
-    </div>
-  );
-}
-
-interface AttachPieceFormProps {
-  ingredient: RecipeIngredient;
-  onAttach: (pq: PieceQuantity) => void;
-  onCancel: () => void;
-}
-
-function AttachPieceForm({ ingredient, onAttach, onCancel }: AttachPieceFormProps) {
-  const [count, setCount] = useState<number>(1);
-  const [label, setLabel] = useState<string>('');
-  const [grams, setGrams] = useState<number>(ingredient.amount);
-
-  const valid = count > 0 && grams > 0 && label.trim().length > 0;
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 pl-2 text-xs">
-      <input
-        aria-label={de.recipeIngredientEditor.pieceCountFor(ingredient.name)}
-        type="number"
-        inputMode="decimal"
-        step="0.5"
-        min={0}
-        value={count}
-        onChange={(e) => setCount(Number(e.target.value))}
-        className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
-      />
-      <input
-        aria-label={de.recipeIngredientEditor.pieceLabelFor(ingredient.name)}
-        type="text"
-        value={label}
-        placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
-        onChange={(e) => setLabel(e.target.value)}
-        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
-      />
-      <span aria-hidden>×</span>
-      <input
-        aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ingredient.name)}
-        type="number"
-        inputMode="numeric"
-        step="1"
-        min={0}
-        value={grams}
-        onChange={(e) => setGrams(Number(e.target.value))}
-        className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
-      />
-      <span className="text-xs">{ingredient.unit}/Stk</span>
-      <button
-        type="button"
-        disabled={!valid}
-        onClick={() => onAttach({ amount: count, unitLabel: label.trim(), gramsPerPiece: grams })}
-        className="rounded-md border px-2 py-0.5 disabled:opacity-50"
-      >
-        OK
-      </button>
-      <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground">
-        {de.recipeForm.cancel}
-      </button>
+    <div
+      role="group"
+      aria-label={de.recipeIngredientEditor.modeGroupAria(name)}
+      className="flex gap-1 rounded-md bg-muted p-[3px]"
+    >
+      {segments.map((seg) => {
+        const active = seg.key === mode;
+        return (
+          <button
+            key={seg.key}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={seg.label}
+            disabled={seg.disabled}
+            onClick={() => onSelect(seg.key)}
+            // Transition `color` only — flipping background/shadow instantly avoids the stuck-segment bug.
+            style={{ transition: 'color 150ms' }}
+            className={`flex-1 rounded px-2 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
+              active ? 'bg-white text-primary shadow-sm' : 'bg-transparent text-muted-foreground'
+            }`}
+          >
+            {seg.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

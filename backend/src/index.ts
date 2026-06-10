@@ -10,6 +10,8 @@ import { JsonUnmatchedIngredientStore } from './infrastructure/unmatched-ingredi
 import { JsonScannedProductStore } from './infrastructure/scanned-products/json-scanned-products.store.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
+import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
+import { makeCopyLogDayHandler } from './http/meal-log/copy-log-day.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
 import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
@@ -112,6 +114,8 @@ app.use('*', makeAuthMiddleware(config.auth.jwtSecret));
 
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));
+app.get('/week-log/:startDate', makeGetWeekLogHandler(logEntryRepo));
+app.post('/copy-log-day', makeCopyLogDayHandler(logEntryRepo));
 app.patch('/log-entry/:id', makeEditLogEntryHandler(logEntryRepo));
 app.delete('/log-entry/:id', makeRemoveLogEntryHandler(logEntryRepo));
 app.get('/recently-used-ingredients', makeListRecentlyUsedIngredientsHandler(logEntryRepo));

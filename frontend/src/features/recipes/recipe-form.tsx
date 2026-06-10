@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
-import { RecipeTotalsStrip } from './recipe-totals-strip';
+import { PerPortionHero } from './per-portion-hero';
 import { de } from '../../i18n/de';
 
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
   /** When provided, ingredient state is controlled by the parent (used by AI recipe import). */
   ingredients?: RecipeIngredient[];
   onIngredientsChange?: (next: RecipeIngredient[]) => void;
+  /** Title shown with a header back-arrow (chevron-left) that invokes `onCancel`. Omitted when a custom `headerSlot` is given. */
+  title?: string;
   headerSlot?: React.ReactNode;
   /** Indices whose `gramsPerPiece` came from an AI estimate; the editor renders an estimate badge for them. */
   estimateIndices?: ReadonlySet<number>;
@@ -30,6 +33,7 @@ export function RecipeForm({
   onSubmit,
   ingredients: controlledIngredients,
   onIngredientsChange,
+  title,
   headerSlot,
   estimateIndices,
   onEstimateAcknowledged,
@@ -93,6 +97,19 @@ export function RecipeForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
       {headerSlot}
+      {title && (
+        <div className="-ml-2 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onCancel}
+            aria-label={de.recipeForm.backAria}
+            className="inline-flex h-10 w-10 items-center justify-center text-primary"
+          >
+            <ChevronLeft size={24} aria-hidden="true" />
+          </button>
+          <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+        </div>
+      )}
       {error && <ErrorBanner error={error} />}
       {validationError && <p className="text-sm text-destructive">{validationError}</p>}
 
@@ -109,21 +126,11 @@ export function RecipeForm({
         />
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="recipe-yield" className="text-sm font-medium">
-          {de.recipeForm.yield}
-        </label>
-        <input
-          id="recipe-yield"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          value={recipeYield}
-          onChange={(e) => setRecipeYield(Number(e.target.value))}
-          className="w-24 rounded-md border px-3 py-2 text-base sm:text-sm"
-        />
-      </div>
+      <PerPortionHero
+        ingredients={ingredients}
+        servings={recipeYield}
+        onServingsChange={(next) => setRecipeYield(next)}
+      />
 
       <RecipeIngredientEditor
         ingredients={ingredients}
@@ -131,8 +138,6 @@ export function RecipeForm({
         estimateIndices={estimateIndices}
         onEstimateAcknowledged={onEstimateAcknowledged}
       />
-
-      <RecipeTotalsStrip ingredients={ingredients} yield={recipeYield} />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">

@@ -8,6 +8,7 @@ export function useLogRecipe() {
     mutationFn: logRecipe,
     onSuccess: (_data, variables: LogRecipeInput) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.dailyLog(variables.date) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.weekLogAll() });
       queryClient.invalidateQueries({ queryKey: queryKeys.recentlyUsedIngredients() });
     },
   });

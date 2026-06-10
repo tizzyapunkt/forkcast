@@ -25,5 +25,7 @@ describe('useLogRecipe', () => {
     await userEvent.click(screen.getByRole('button', { name: 'log' }));
     expect(await screen.findByText('logged')).toBeInTheDocument();
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['daily-log', '2026-04-28'] });
+    // The planner shares the same data, so the week-log cache is invalidated too.
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['week-log'] });
   });
 });

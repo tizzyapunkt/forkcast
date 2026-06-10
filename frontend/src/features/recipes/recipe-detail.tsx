@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { useRecipe } from '../../queries/use-recipe';
 import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
@@ -35,6 +36,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
     return (
       <RecipeForm
         initial={recipe}
+        title={de.recipeForm.titleEdit}
         submitLabel={de.recipes.save}
         isSubmitting={updateMutation.isPending}
         error={updateMutation.error}
@@ -53,35 +55,35 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
 
   return (
     <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setEditing(true)}
+          className="rounded-md border px-3 py-1 text-sm"
+          aria-label={de.recipes.editAria}
+        >
+          {de.recipes.edit}
+        </button>
+        <button
+          onClick={() => setConfirmDelete(true)}
+          className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
+          aria-label={de.recipes.deleteAria}
+        >
+          {de.recipes.delete}
+        </button>
+      </div>
+
+      <div className="-ml-2 flex items-start gap-1">
         <button
           onClick={onBack}
           aria-label={de.recipes.backAria}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-primary"
         >
-          ← {de.recipes.back}
+          <ChevronLeft size={24} aria-hidden="true" />
         </button>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setEditing(true)}
-            className="rounded-md border px-3 py-1 text-sm"
-            aria-label={de.recipes.editAria}
-          >
-            {de.recipes.edit}
-          </button>
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
-            aria-label={de.recipes.deleteAria}
-          >
-            {de.recipes.delete}
-          </button>
+        <div className="min-w-0 pt-1.5">
+          <h2 className="text-xl font-bold tracking-tight [overflow-wrap:break-word]">{recipe.name}</h2>
+          <p className="text-xs text-muted-foreground">{de.recipes.yields(recipe.yield)}</p>
         </div>
-      </div>
-
-      <div>
-        <h2 className="text-lg font-semibold">{recipe.name}</h2>
-        <p className="text-xs text-muted-foreground">{de.recipes.yields(recipe.yield)}</p>
       </div>
 
       <RecipeTotalsStrip

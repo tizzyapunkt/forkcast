@@ -21,7 +21,8 @@ interface Props {
   date: string;
   slot: MealSlot;
   onSuccess: () => void;
-  onBack: () => void;
+  /** When provided, renders a footer back button. In the add-food sheet the back affordance lives in the header instead. */
+  onBack?: () => void;
 }
 
 export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) {
@@ -113,9 +114,11 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
       )}
 
       <div className="flex gap-2">
-        <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
-          {de.recipeConfirm.back}
-        </button>
+        {onBack && (
+          <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
+            {de.recipeConfirm.back}
+          </button>
+        )}
         <button
           type="submit"
           disabled={isPending}

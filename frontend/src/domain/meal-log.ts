@@ -57,6 +57,21 @@ export interface DailyLog {
   totals: DayTotals;
 }
 
+export interface MacroAverages {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+/** A week of the meal log: seven consecutive days from `startDate`, the week total, and per-day averages. */
+export interface WeekLog {
+  startDate: string;
+  days: DailyLog[];
+  totals: DayTotals;
+  averages: MacroAverages;
+}
+
 export interface RecentlyUsedIngredient {
   name: string;
   unit: MeasurementUnit;

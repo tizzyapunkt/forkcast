@@ -68,6 +68,24 @@ export interface DailyLog {
   totals: DayTotals;
 }
 
+export interface MacroAverages {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+/**
+ * A week of the meal log — seven consecutive days from `startDate`, the week's total, and the
+ * per-day averages. A read model purpose-built for the weekly planner; reads the same log store.
+ */
+export interface WeekLog {
+  startDate: string;
+  days: DailyLog[]; // exactly 7, startDate .. startDate+6
+  totals: DayTotals; // sum across the seven days
+  averages: MacroAverages; // totals / 7
+}
+
 export interface RecentlyUsedIngredient {
   name: string;
   unit: MeasurementUnit;

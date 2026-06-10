@@ -64,7 +64,8 @@ describe('RecipesScreen', () => {
     await screen.findByText(/noch keine rezepte/i);
     await userEvent.click(screen.getByRole('button', { name: /neues rezept/i }));
     await waitFor(() => expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument());
-    expect(screen.getByLabelText(/ergibt/i)).toBeInTheDocument();
+    // The servings stepper lives in the Pro-Portion hero at the top of the form.
+    expect(screen.getByTestId('per-portion-hero')).toBeInTheDocument();
   });
 
   it('hides the "Aus Fotos" button when the import endpoint returns 503', async () => {

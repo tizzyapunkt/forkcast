@@ -1,10 +1,15 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
 import { ReviewImportScreen } from './review-import-screen';
 import type { RecipeDraft } from '../../domain/recipes';
+
+function segment(rowName: string, label: string): HTMLElement {
+  const group = screen.getByRole('group', { name: new RegExp(`Maß-Steuerung für ${rowName}`, 'i') });
+  return within(group).getByRole('radio', { name: label });
+}
 
 const draft: RecipeDraft = {
   name: 'Test Pasta',
@@ -152,12 +157,8 @@ describe('ReviewImportScreen', () => {
     };
     renderWithProviders(<ReviewImportScreen draft={untrackedDraft} onSaved={() => {}} onCancel={() => {}} />);
 
-    const oilToggle = screen.getByTestId('untracked-toggle-0');
-    const saltToggle = screen.getByTestId('untracked-toggle-1');
-    expect(oilToggle).toHaveAttribute('aria-pressed', 'false');
-    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
-    expect(oilToggle).toHaveTextContent(/nicht zählen/i);
-    expect(saltToggle).toHaveTextContent(/nicht gezählt/i);
+    expect(segment('Olivenöl', 'Gewicht')).toHaveAttribute('aria-checked', 'true');
+    expect(segment('Salz', 'Frei')).toHaveAttribute('aria-checked', 'true');
   });
 
   it('persists the user-edited untracked state in the POST /add-recipe payload', async () => {
@@ -198,8 +199,8 @@ describe('ReviewImportScreen', () => {
     const onSaved = vi.fn<() => void>();
     renderWithProviders(<ReviewImportScreen draft={untrackedDraft} onSaved={onSaved} onCancel={() => {}} />);
 
-    // Toggle Olivenöl ON (override tracked → untracked) and leave Salz as-is.
-    await userEvent.click(screen.getByLabelText(/olivenöl nicht in nährwerten zählen/i));
+    // Switch Olivenöl to Frei (override tracked → untracked) and leave Salz as-is.
+    await userEvent.click(segment('Olivenöl', 'Frei'));
 
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
@@ -343,8 +344,9 @@ describe('ReviewImportScreen', () => {
     const onSaved = vi.fn<() => void>();
     renderWithProviders(<ReviewImportScreen draft={draftWithDQ} onSaved={onSaved} onCancel={() => {}} />);
 
-    // Row should render `1 TL` (not `0 g`).
-    expect(screen.getByTestId('display-quantity-0')).toHaveTextContent(/^1 TL$/);
+    // The Frei row prefills the display amount/unit inputs (1 / TL), not the canonical 0 g.
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
 
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
@@ -382,11 +384,10 @@ describe('ReviewImportScreen', () => {
     const { fireEvent } = await import('@testing-library/react');
     renderWithProviders(<ReviewImportScreen draft={draftMissingDQ} onSaved={onSaved} onCancel={() => {}} />);
 
-    await userEvent.click(screen.getByRole('button', { name: /menge für salz ergänzen/i }));
+    // The row is already in Frei mode (untracked); the free amount/unit inputs are inline.
     fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '1' } });
     await userEvent.clear(screen.getByLabelText(/anzeige-einheit für salz/i));
     await userEvent.type(screen.getByLabelText(/anzeige-einheit für salz/i), 'EL');
-    await userEvent.click(screen.getByRole('button', { name: /^ok$/i }));
 
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
@@ -424,8 +425,8 @@ describe('ReviewImportScreen', () => {
     const onSaved = vi.fn<() => void>();
     renderWithProviders(<ReviewImportScreen draft={draftWithDQ} onSaved={onSaved} onCancel={() => {}} />);
 
-    // Toggle untracked → tracked (clears displayQuantity per the editor rules).
-    await userEvent.click(screen.getByTestId('untracked-toggle-0'));
+    // Switch Frei → Gewicht (clears untracked + displayQuantity per the seeding rules).
+    await userEvent.click(segment('Salz', 'Gewicht'));
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
 

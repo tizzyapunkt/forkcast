@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>forkcast — Redesign Prototype</title>
+<link rel="stylesheet" href="fc-tokens.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #e9e7f2;
+    background-image: radial-gradient(circle at 30% 20%, #efedf8, #e2e0ee 70%);
+    font-family: -apple-system, system-ui, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px; box-sizing: border-box;
+  }
+  #root { display: flex; align-items: center; justify-content: center; }
+  /* the forkcast app fills the iOS frame content area */
+  .fc-app { height: 100%; }
+  @media (max-width: 460px) {
+    body { padding: 0; background: #000; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="22" fill="#4a4596"/>
+    <g stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M38 28v18a6 6 0 0 0 6 6h0a6 6 0 0 0 6-6V28M44 28v44M62 28c-3 0-5 4-5 10s2 9 5 9v25"/>
+    </g>
+  </svg>
+</template>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="fc-data.js"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="frames/ios-frame.jsx"></script>
+<script type="text/babel" src="fc-icons.jsx"></script>
+<script type="text/babel" src="fc-ui.jsx"></script>
+<script type="text/babel" src="fc-diary.jsx"></script>
+<script type="text/babel" src="fc-addfood.jsx"></script>
+<script type="text/babel" src="fc-recipes.jsx"></script>
+<script type="text/babel" src="fc-planner.jsx"></script>
+<script type="text/babel" src="fc-settings.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+const D = window.FC_DATA;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "plannerLayout": "Liste",
+  "measureStyle": "Segmentiert",
+  "zeroTone": "Neutral"
+}/*EDITMODE-END*/;
+
+const PLANNER_MAP = { 'Liste': 'list', 'Agenda': 'agenda', 'Raster': 'grid' };
+const MEASURE_MAP = { 'Segmentiert': 'segmented', 'Menü': 'menu' };
+
+function App() {
+  const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+  const [tab, setTab] = useState('diary');
+
+  // diary state
+  const [log, setLog] = useState(() => D.makeLog());
+  const [dayOffset, setDayOffset] = useState(0);
+  const [addSlot, setAddSlot] = useState(null);
+
+  // recipes nav
+  const [recipes, setRecipes] = useState(D.RECIPES);
+  const [recipeMode, setRecipeMode] = useState('list'); // list | detail | editor
+  const [activeRecipe, setActiveRecipe] = useState(null);
+
+  const dateLabels = ['Di. 2. Juni', 'Mi. 3. Juni', 'Do. 4. Juni', 'Mo. 1. Juni'];
+  const dateLabel = dayOffset === 0 ? 'Di. 2. Juni' : (dayOffset > 0 ? `${2 + dayOffset}. Juni`.replace(/^(\d)\./, 'Mi. $1.') : `${2 + dayOffset}. Juni`);
+
+  function addEntry(entry) { setAddSlot((slot) => { setLog((L) => ({ ...L, [slot]: [...L[slot], entry] })); return null; }); }
+
+  function renderTab() {
+    if (tab === 'diary') {
+      return <window.DiaryScreen goal={D.GOAL} log={log} setLog={setLog} alarm={t.zeroTone === 'Alarm-Rot'}
+        dateLabel={dateLabel} onPrev={() => setDayOffset((d) => d - 1)} onNext={() => setDayOffset((d) => d + 1)}
+        openAdd={(slot) => setAddSlot(slot)} />;
+    }
+    if (tab === 'plan') return <window.PlannerScreen goal={D.GOAL} layout={PLANNER_MAP[t.plannerLayout]} />;
+    if (tab === 'recipes') {
+      if (recipeMode === 'detail' && activeRecipe) {
+        return <window.RecipeDetail recipe={activeRecipe} onBack={() => setRecipeMode('list')}
+          onEdit={() => setRecipeMode('editor')}
+          onDelete={() => { setRecipes((rs) => rs.filter((r) => r.id !== activeRecipe.id)); setRecipeMode('list'); }} />;
+      }
+      if (recipeMode === 'editor') {
+        return <window.RecipeEditor recipe={activeRecipe} measureStyle={MEASURE_MAP[t.measureStyle]}
+          onCancel={() => setRecipeMode(activeRecipe ? 'detail' : 'list')}
+          onSave={() => setRecipeMode(activeRecipe ? 'detail' : 'list')} />;
+      }
+      return <window.RecipesScreen recipes={recipes}
+        onOpen={(r) => { setActiveRecipe(r); setRecipeMode('detail'); }}
+        onNew={() => { setActiveRecipe(null); setRecipeMode('editor'); }}
+        onImport={() => { setActiveRecipe(null); setRecipeMode('editor'); }} />;
+    }
+    if (tab === 'settings') return <window.SettingsScreen />;
+    return null;
+  }
+
+  // hide bottom nav while inside a recipe sub-screen (detail/editor) for focus
+  const showNav = !(tab === 'recipes' && recipeMode !== 'list');
+
+  return (
+    <window.IOSDevice width={402} height={874} statusBarDark={true}>
+      <div className="fc-app">
+        {renderTab()}
+        {showNav && <window.BottomNav active={tab} onChange={(id) => { setTab(id); if (id === 'recipes') setRecipeMode('list'); }} />}
+        <window.AddFoodSheet open={!!addSlot} slot={addSlot} onClose={() => setAddSlot(null)} onAdd={addEntry} />
+      </div>
+
+      <window.TweaksPanel>
+        <window.TweakSection label="Wochenplan" />
+        <window.TweakRadio label="Layout" value={t.plannerLayout} options={['Liste', 'Agenda', 'Raster']}
+          onChange={(v) => setTweak('plannerLayout', v)} />
+        <window.TweakSection label="Rezept-Editor" />
+        <window.TweakRadio label="Maß-Steuerung" value={t.measureStyle} options={['Segmentiert', 'Menü']}
+          onChange={(v) => setTweak('measureStyle', v)} />
+        <window.TweakSection label="Tagebuch" />
+        <window.TweakRadio label="Status bei Defizit" value={t.zeroTone} options={['Neutral', 'Alarm-Rot']}
+          onChange={(v) => setTweak('zeroTone', v)} />
+      </window.TweaksPanel>
+    </window.IOSDevice>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
