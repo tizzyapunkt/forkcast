@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
@@ -12,6 +12,21 @@ function Harness({ initial, estimateIndices }: { initial: RecipeIngredient[]; es
   return (
     <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} estimateIndices={estimateIndices} />
   );
+}
+
+function Capture({ initial }: { initial: RecipeIngredient[] }) {
+  const [ingredients, setIngredients] = useState(initial);
+  return (
+    <>
+      <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
+      <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
+    </>
+  );
+}
+
+function readState(): RecipeIngredient[] {
+  const el = screen.getByTestId('captured-state');
+  return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
 }
 
 const massOnly: RecipeIngredient = {
@@ -29,6 +44,80 @@ const pieceTracked: RecipeIngredient = {
   pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
 };
 
+const freeSalt: RecipeIngredient = {
+  name: 'Salz',
+  unit: 'g',
+  macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  amount: 5,
+  untracked: true,
+};
+
+function segment(rowName: string, label: string): HTMLElement {
+  const group = screen.getByRole('group', { name: new RegExp(`Maß-Steuerung für ${rowName}`, 'i') });
+  return within(group).getByRole('radio', { name: label });
+}
+
+describe('RecipeIngredientEditor — measurement-mode control', () => {
+  it('derives the active segment from each row’s data', () => {
+    render(<Harness initial={[massOnly, freeSalt, pieceTracked]} />);
+    expect(segment('Mehl', 'Gewicht')).toHaveAttribute('aria-checked', 'true');
+    expect(segment('Salz', 'Frei')).toHaveAttribute('aria-checked', 'true');
+    expect(segment('Zwiebel', 'Stück')).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('switching to Stück seeds piece tracking and recomputes the mass from the current amount', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[{ ...massOnly, name: 'Ei', amount: 60 }]} />);
+    await user.click(segment('Ei', 'Stück'));
+    const state = readState();
+    expect(state[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Stück', gramsPerPiece: 60 });
+    expect(state[0]?.amount).toBe(60);
+    expect(screen.getByLabelText(/stückzahl für ei/i)).toBeInTheDocument();
+  });
+
+  it('switching to Stück on an amount-zero row uses the fallback grams-per-piece of 50', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[{ ...massOnly, name: 'Ei', amount: 0 }]} />);
+    await user.click(segment('Ei', 'Stück'));
+    const state = readState();
+    expect(state[0]?.pieceQuantity?.gramsPerPiece).toBe(50);
+    expect(state[0]?.amount).toBe(50);
+  });
+
+  it('switching to Frei marks the row untracked, clears the piece, and shows the caption', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[pieceTracked]} />);
+    await user.click(segment('Zwiebel', 'Frei'));
+    const state = readState();
+    expect(state[0]?.untracked).toBe(true);
+    expect(state[0]?.pieceQuantity).toBeUndefined();
+    expect(screen.getByText(/zählt nicht in die nährwerte/i)).toBeInTheDocument();
+  });
+
+  it('switching back to Gewicht clears piece and untracked, keeping the current amount', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[pieceTracked]} />);
+    await user.click(segment('Zwiebel', 'Gewicht'));
+    const state = readState();
+    expect(state[0]?.pieceQuantity).toBeUndefined();
+    expect(state[0]?.untracked).toBeUndefined();
+    expect(state[0]?.amount).toBe(150);
+  });
+
+  it('disables the Stück segment on a non-mass unit', () => {
+    render(<Harness initial={[{ ...massOnly, name: 'Tomatenmark', unit: 'tbsp' }]} />);
+    expect(segment('Tomatenmark', 'Stück')).toBeDisabled();
+    expect(segment('Tomatenmark', 'Gewicht')).not.toBeDisabled();
+  });
+
+  it('renders only the active mode’s inputs', () => {
+    render(<Harness initial={[massOnly]} />);
+    expect(screen.getByLabelText(/menge für mehl/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/stückzahl/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/anzeige-einheit/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('RecipeIngredientEditor — per-row calories and macros', () => {
   const tracked200: RecipeIngredient = {
     name: 'Hähnchen',
@@ -39,22 +128,15 @@ describe('RecipeIngredientEditor — per-row calories and macros', () => {
 
   it('renders kcal + macros for a tracked row (200g × macrosPerUnit → 500/52/0/30)', () => {
     render(<Harness initial={[tracked200]} />);
-    const macroLine = screen.getByTestId('row-macros-0');
-    expect(macroLine).toHaveTextContent(/500 kcal · 52g P · 0g K · 30g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/500 kcal · 52g P · 0g K · 30g F/);
   });
 
-  it('hides the macro sub-line entirely for an untracked row', () => {
-    const untracked: RecipeIngredient = { ...tracked200, untracked: true };
-    render(<Harness initial={[untracked]} />);
+  it('hides the macro sub-line entirely for a Frei row', () => {
+    render(<Harness initial={[{ ...tracked200, untracked: true }]} />);
     expect(screen.queryByTestId('row-macros-0')).not.toBeInTheDocument();
-    const row = screen.getByText('Hähnchen').closest('li')!;
-    expect(row).not.toHaveTextContent(/kcal/);
-    expect(row).not.toHaveTextContent(/g P/);
-    expect(row).not.toHaveTextContent(/g K/);
-    expect(row).not.toHaveTextContent(/g F/);
   });
 
-  it('updates the macro sub-line live as the amount input changes (100 → 250)', () => {
+  it('updates the macro sub-line live as the weight amount changes (100 → 250)', () => {
     const row: RecipeIngredient = {
       name: 'Lachs',
       unit: 'g',
@@ -68,176 +150,100 @@ describe('RecipeIngredientEditor — per-row calories and macros', () => {
   });
 
   it('updates the macro sub-line live as the piece count changes', () => {
-    const row: RecipeIngredient = {
-      name: 'Zwiebel',
-      unit: 'g',
-      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
-      amount: 150,
-      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
-    };
-    render(<Harness initial={[row]} />);
-    // 150 × 0.4 = 60 kcal · 150 × 0.011 = 1.65 → 2g P · 150 × 0.093 = 13.95 → 14g K · 150 × 0.001 = 0.15 → 0g F
+    render(<Harness initial={[pieceTracked]} />);
     expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/60 kcal · 2g P · 14g K · 0g F/);
     fireEvent.change(screen.getByLabelText(/stückzahl für zwiebel/i), { target: { value: '2' } });
-    // amount becomes 300 → 120 kcal · 3.3 → 3g P · 27.9 → 28g K · 0.3 → 0g F
     expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/120 kcal · 3g P · 28g K · 0g F/);
   });
 
   it('updates the macro sub-line live as grams-per-piece changes', () => {
-    const row: RecipeIngredient = {
-      name: 'Zwiebel',
-      unit: 'g',
-      macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
-      amount: 150,
-      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
-    };
-    render(<Harness initial={[row]} />);
+    render(<Harness initial={[pieceTracked]} />);
     fireEvent.change(screen.getByLabelText(/gewicht pro stück.*zwiebel/i), { target: { value: '200' } });
-    // amount becomes 200 → 80 kcal · 2.2 → 2g P · 18.6 → 19g K · 0.2 → 0g F
     expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/80 kcal · 2g P · 19g K · 0g F/);
   });
 
-  it('toggling a tracked row to untracked removes the macro sub-line; toggling back restores it', async () => {
+  it('switching a tracked row to Frei removes the macro sub-line; switching back restores it', async () => {
     const user = userEvent.setup();
     render(<Harness initial={[tracked200]} />);
     expect(screen.getByTestId('row-macros-0')).toBeInTheDocument();
-    await user.click(screen.getByTestId('untracked-toggle-0'));
+    await user.click(segment('Hähnchen', 'Frei'));
     expect(screen.queryByTestId('row-macros-0')).not.toBeInTheDocument();
-    await user.click(screen.getByTestId('untracked-toggle-0'));
+    await user.click(segment('Hähnchen', 'Gewicht'));
     expect(screen.getByTestId('row-macros-0')).toBeInTheDocument();
   });
 });
 
-describe('RecipeIngredientEditor — piece quantities', () => {
+describe('RecipeIngredientEditor — Stück mode', () => {
   it('renders a piece-tracked row with both count and grams-per-piece editable', () => {
     render(<Harness initial={[pieceTracked]} />);
-    const countInput = screen.getByLabelText(/stückzahl für zwiebel/i);
-    const gramsInput = screen.getByLabelText(/gewicht pro stück.*zwiebel/i);
-    expect(countInput).toHaveValue(1);
-    expect(gramsInput).toHaveValue(150);
+    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue(150);
   });
 
-  it('editing the piece count recomputes the mass amount', () => {
-    render(<Harness initial={[pieceTracked]} />);
-    const countInput = screen.getByLabelText(/stückzahl für zwiebel/i);
-    fireEvent.change(countInput, { target: { value: '2' } });
-    const massInput = screen.getByLabelText(/menge für zwiebel/i);
-    expect(massInput).toHaveValue(300);
+  it('editing the piece count recomputes the mass amount in state', () => {
+    render(<Capture initial={[pieceTracked]} />);
+    fireEvent.change(screen.getByLabelText(/stückzahl für zwiebel/i), { target: { value: '2' } });
+    expect(readState()[0]?.amount).toBe(300);
   });
 
-  it('editing grams-per-piece recomputes the mass amount', () => {
+  it('editing grams-per-piece recomputes the mass amount in state', () => {
+    render(<Capture initial={[pieceTracked]} />);
+    fireEvent.change(screen.getByLabelText(/gewicht pro stück.*zwiebel/i), { target: { value: '200' } });
+    expect(readState()[0]?.amount).toBe(200);
+  });
+
+  it('renders the estimate badge for an AI-estimated piece row', () => {
     render(<Harness initial={[pieceTracked]} estimateIndices={new Set([0])} />);
     expect(screen.getByTestId('piece-estimate-0')).toBeInTheDocument();
-    const gramsInput = screen.getByLabelText(/gewicht pro stück.*zwiebel/i);
-    fireEvent.change(gramsInput, { target: { value: '200' } });
-    const massInput = screen.getByLabelText(/menge für zwiebel/i);
-    expect(massInput).toHaveValue(200);
-  });
-
-  it('editing the mass amount on a piece-tracked row prompts to detach piece info', async () => {
-    const user = userEvent.setup();
-    render(<Harness initial={[pieceTracked]} />);
-    const massInput = screen.getByLabelText(/menge für zwiebel/i);
-    fireEvent.change(massInput, { target: { value: '120' } });
-    expect(screen.getByText(/Direktes Bearbeiten/i)).toBeInTheDocument();
-
-    const detachBtns = screen.getAllByRole('button', { name: /Stückzählung entfernen$/ });
-    const confirmBtn = detachBtns.find((b) => !b.getAttribute('aria-label')) as HTMLButtonElement;
-    await user.click(confirmBtn);
-    expect(screen.queryByLabelText(/stückzahl für zwiebel/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/menge für zwiebel/i)).toHaveValue(120);
-  });
-
-  it('renders mass-only rows without piece UI', () => {
-    render(<Harness initial={[massOnly]} />);
-    expect(screen.queryByLabelText(/stückzahl/i)).not.toBeInTheDocument();
-    const addPiece = screen.getByRole('button', { name: /Stückgewicht für Mehl hinterlegen/i });
-    expect(addPiece).toBeInTheDocument();
-  });
-
-  it('attach-piece flow: clicking + pro Stück opens form, submit attaches pieceQuantity', async () => {
-    const user = userEvent.setup();
-    render(<Harness initial={[{ ...massOnly, name: 'Tomate', amount: 200 }]} />);
-    await user.click(screen.getByRole('button', { name: /Stückgewicht für Tomate hinterlegen/i }));
-    const labelInput = screen.getByLabelText(/Bezeichnung pro Stück für Tomate/i);
-    await user.type(labelInput, 'Tomate');
-    await user.click(screen.getByRole('button', { name: /^OK$/ }));
-    // After attach: row shows the count input
-    expect(screen.getByLabelText(/Stückzahl für Tomate/i)).toBeInTheDocument();
   });
 });
 
-describe('RecipeIngredientEditor — untracked toggle', () => {
-  const salt: RecipeIngredient = {
+describe('RecipeIngredientEditor — Frei mode', () => {
+  const untrackedNoDQ: RecipeIngredient = {
     name: 'Salz',
     unit: 'g',
     macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    amount: 5,
+    amount: 0,
     untracked: true,
   };
+  const untrackedWithDQ: RecipeIngredient = { ...untrackedNoDQ, displayQuantity: { amount: 1, unitLabel: 'TL' } };
 
-  it('renders an inherited-untracked row with the toggle pressed and the "Nicht gezählt" label', () => {
-    render(<Harness initial={[salt]} />);
-    const toggle = screen.getByTestId('untracked-toggle-0');
-    expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    expect(toggle).toHaveAccessibleName(/salz nicht in nährwerten zählen/i);
-    expect(toggle).toHaveTextContent(/nicht gezählt/i);
+  it('shows the free amount + unit inputs and the caption', () => {
+    render(<Harness initial={[untrackedNoDQ]} />);
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toBeInTheDocument();
+    expect(screen.getByText(/zählt nicht in die nährwerte/i)).toBeInTheDocument();
   });
 
-  it('renders a tracked row with the toggle unpressed and the "Nicht zählen" label', () => {
-    render(<Harness initial={[massOnly]} />);
-    const toggle = screen.getByTestId('untracked-toggle-0');
-    expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(toggle).toHaveTextContent(/nicht zählen/i);
-  });
-
-  it('toggling a tracked row to untracked flips aria-pressed and the label', async () => {
+  it('entering an amount and a unit writes displayQuantity to state', async () => {
     const user = userEvent.setup();
-    render(<Harness initial={[massOnly]} />);
-    const toggle = screen.getByTestId('untracked-toggle-0');
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    expect(toggle).toHaveTextContent(/nicht gezählt/i);
+    render(<Capture initial={[untrackedNoDQ]} />);
+    fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '1' } });
+    await user.type(screen.getByLabelText(/anzeige-einheit für salz/i), 'TL');
+    expect(readState()[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
   });
 
-  it('toggling an inherited-untracked row off flips aria-pressed and the label back', async () => {
-    const user = userEvent.setup();
-    render(<Harness initial={[salt]} />);
-    const toggle = screen.getByTestId('untracked-toggle-0');
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(toggle).toHaveTextContent(/nicht zählen/i);
+  it('a free row with an empty unit writes no displayQuantity', () => {
+    render(<Capture initial={[untrackedNoDQ]} />);
+    fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '2' } });
+    expect(readState()[0]?.displayQuantity).toBeUndefined();
   });
 
-  it('handles mixed tracked and untracked rows independently', async () => {
+  it('a free row with displayQuantity prefills the inputs', () => {
+    render(<Harness initial={[untrackedWithDQ]} />);
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
+  });
+
+  it('clearing the unit on a row with displayQuantity removes it from state', async () => {
     const user = userEvent.setup();
-    render(<Harness initial={[massOnly, salt]} />);
-    const flourToggle = screen.getByTestId('untracked-toggle-0');
-    const saltToggle = screen.getByTestId('untracked-toggle-1');
-    expect(flourToggle).toHaveAttribute('aria-pressed', 'false');
-    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
-    await user.click(flourToggle);
-    expect(flourToggle).toHaveAttribute('aria-pressed', 'true');
-    expect(saltToggle).toHaveAttribute('aria-pressed', 'true');
+    render(<Capture initial={[untrackedWithDQ]} />);
+    await user.clear(screen.getByLabelText(/anzeige-einheit für salz/i));
+    expect(readState()[0]?.displayQuantity).toBeUndefined();
   });
 });
 
 describe('RecipeIngredientEditor — replace ingredient via picker', () => {
-  function Capture({ initial }: { initial: RecipeIngredient[] }) {
-    const [ingredients, setIngredients] = useState(initial);
-    return (
-      <>
-        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
-        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
-      </>
-    );
-  }
-
-  function readState(): RecipeIngredient[] {
-    const el = screen.getByTestId('captured-state');
-    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
-  }
-
   const oilRow: RecipeIngredient = {
     name: 'Olivenöl',
     unit: 'ml',
@@ -447,7 +453,6 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     expect(screen.getByRole('heading', { name: /zutat ersetzen/i })).toBeInTheDocument();
-    // The picker has a top-right "Abbrechen" button
     const cancelButtons = screen.getAllByRole('button', { name: /^abbrechen$/i });
     await user.click(cancelButtons[0]!);
 
@@ -504,136 +509,12 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
     const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
     await user.click(result);
 
-    // After picking, the picker dialog should be closed — no amount input visible.
     expect(screen.queryByLabelText(/menge pro rezept/i)).not.toBeInTheDocument();
-    // Replace title also gone.
     expect(screen.queryByRole('heading', { name: /zutat ersetzen/i })).not.toBeInTheDocument();
   });
 });
 
-describe('RecipeIngredientEditor — displayQuantity', () => {
-  function Capture({ initial }: { initial: RecipeIngredient[] }) {
-    const [ingredients, setIngredients] = useState(initial);
-    return (
-      <>
-        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
-        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
-      </>
-    );
-  }
-  function readState(): RecipeIngredient[] {
-    const el = screen.getByTestId('captured-state');
-    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
-  }
-
-  const tracked: RecipeIngredient = {
-    name: 'Mehl',
-    unit: 'g',
-    macrosPerUnit: { calories: 3.4, protein: 0.1, carbs: 0.7, fat: 0.01 },
-    amount: 200,
-  };
-
-  const untrackedNoDQ: RecipeIngredient = {
-    name: 'Salz',
-    unit: 'g',
-    macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    amount: 0,
-    untracked: true,
-  };
-
-  const untrackedWithDQ: RecipeIngredient = {
-    ...untrackedNoDQ,
-    displayQuantity: { amount: 1, unitLabel: 'TL' },
-  };
-
-  it('tracked row does not show the + Menge ergänzen affordance', () => {
-    render(<Capture initial={[tracked]} />);
-    expect(screen.queryByRole('button', { name: /menge für mehl ergänzen/i })).not.toBeInTheDocument();
-  });
-
-  it('untracked row without displayQuantity shows + Menge ergänzen', () => {
-    render(<Capture initial={[untrackedNoDQ]} />);
-    expect(screen.getByRole('button', { name: /menge für salz ergänzen/i })).toBeInTheDocument();
-  });
-
-  it('clicking + Menge ergänzen, entering values, and confirming writes displayQuantity to state', async () => {
-    const user = userEvent.setup();
-    render(<Capture initial={[untrackedNoDQ]} />);
-    await user.click(screen.getByRole('button', { name: /menge für salz ergänzen/i }));
-
-    const amountInput = screen.getByLabelText(/anzeige-menge für salz/i);
-    const unitInput = screen.getByLabelText(/anzeige-einheit für salz/i);
-    fireEvent.change(amountInput, { target: { value: '1' } });
-    await user.clear(unitInput);
-    await user.type(unitInput, 'TL');
-    await user.click(screen.getByRole('button', { name: /^ok$/i }));
-
-    const state = readState();
-    expect(state[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
-  });
-
-  it('untracked row with displayQuantity renders {amount} {unitLabel} in place of canonical', () => {
-    render(<Capture initial={[untrackedWithDQ]} />);
-    expect(screen.getByTestId('display-quantity-0')).toHaveTextContent(/^1 TL$/);
-    // canonical amount input for that row should be absent (exact label, not the edit button)
-    expect(screen.queryByLabelText('Menge für Salz')).not.toBeInTheDocument();
-  });
-
-  it('clicking the edit affordance opens a prefilled inline editor', async () => {
-    const user = userEvent.setup();
-    render(<Capture initial={[untrackedWithDQ]} />);
-    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
-    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
-    expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
-  });
-
-  it('"Menge entfernen" clears the displayQuantity from state', async () => {
-    const user = userEvent.setup();
-    render(<Capture initial={[untrackedWithDQ]} />);
-    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
-    await user.click(screen.getByRole('button', { name: /^menge entfernen$/i }));
-    const state = readState();
-    expect(state[0]?.displayQuantity).toBeUndefined();
-  });
-
-  it('canceling the editor leaves the row state unchanged', async () => {
-    const user = userEvent.setup();
-    render(<Capture initial={[untrackedWithDQ]} />);
-    await user.click(screen.getByRole('button', { name: /menge für salz bearbeiten/i }));
-    const unitInput = screen.getByLabelText(/anzeige-einheit für salz/i);
-    await user.clear(unitInput);
-    await user.type(unitInput, 'EL');
-    await user.click(screen.getByRole('button', { name: /^abbrechen$/i }));
-    const state = readState();
-    expect(state[0]?.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
-  });
-
-  it('toggling an untracked row with displayQuantity to tracked clears displayQuantity', async () => {
-    const user = userEvent.setup();
-    render(<Capture initial={[untrackedWithDQ]} />);
-    await user.click(screen.getByTestId('untracked-toggle-0'));
-    const state = readState();
-    expect(state[0]?.untracked).toBeUndefined();
-    expect(state[0]?.displayQuantity).toBeUndefined();
-  });
-});
-
 describe('RecipeIngredientEditor — ingredient note', () => {
-  function Capture({ initial }: { initial: RecipeIngredient[] }) {
-    const [ingredients, setIngredients] = useState(initial);
-    return (
-      <>
-        <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} />
-        <pre data-testid="captured-state">{JSON.stringify(ingredients)}</pre>
-      </>
-    );
-  }
-
-  function readState(): RecipeIngredient[] {
-    const el = screen.getByTestId('captured-state');
-    return JSON.parse(el.textContent ?? '[]') as RecipeIngredient[];
-  }
-
   const ginger: RecipeIngredient = {
     name: 'Ingwer',
     unit: 'g',
@@ -652,33 +533,26 @@ describe('RecipeIngredientEditor — ingredient note', () => {
     const user = userEvent.setup();
     render(<Capture initial={[ginger]} />);
     await user.type(screen.getByTestId('ingredient-note-0'), 'fein gehackt');
-    const state = readState();
-    expect(state[0]?.note).toBe('fein gehackt');
+    expect(readState()[0]?.note).toBe('fein gehackt');
   });
 
   it('clearing the note input removes the `note` field from the row', async () => {
     const user = userEvent.setup();
     render(<Capture initial={[{ ...ginger, note: 'fein gehackt' }]} />);
-    const input = screen.getByTestId('ingredient-note-0');
-    await user.clear(input);
-    const state = readState();
-    expect(state[0]).not.toHaveProperty('note');
+    await user.clear(screen.getByTestId('ingredient-note-0'));
+    expect(readState()[0]).not.toHaveProperty('note');
   });
 
   it('renders the existing note on initial mount', () => {
     render(<Capture initial={[{ ...ginger, note: 'gerieben' }]} />);
-    const input = screen.getByTestId('ingredient-note-0') as HTMLInputElement;
-    expect(input.value).toBe('gerieben');
+    expect((screen.getByTestId('ingredient-note-0') as HTMLInputElement).value).toBe('gerieben');
   });
 
   it('trims surrounding whitespace on blur', async () => {
     const user = userEvent.setup();
     render(<Capture initial={[ginger]} />);
-    const input = screen.getByTestId('ingredient-note-0');
-    await user.type(input, '  in Scheiben  ');
-    // Move focus away to trigger blur.
+    await user.type(screen.getByTestId('ingredient-note-0'), '  in Scheiben  ');
     await user.tab();
-    const state = readState();
-    expect(state[0]?.note).toBe('in Scheiben');
+    expect(readState()[0]?.note).toBe('in Scheiben');
   });
 });

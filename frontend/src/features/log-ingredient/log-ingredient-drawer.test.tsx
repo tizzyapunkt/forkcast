@@ -188,7 +188,7 @@ describe('Recent tab', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await userEvent.click(await screen.findByText('Oats'));
-    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     const ingredient = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
@@ -226,7 +226,7 @@ describe('Recent tab', () => {
     const amountInput = screen.getByLabelText(/menge/i);
     await userEvent.clear(amountInput);
     await userEvent.type(amountInput, '50');
-    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     const ingredient = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
@@ -257,6 +257,49 @@ describe('Recent tab', () => {
     await userEvent.click(await screen.findByText('Oats'));
 
     expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+  });
+
+  it('hides the tab bar and shows a header back-arrow on the amount sub-step', async () => {
+    server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats])));
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+    await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
+    await userEvent.click(await screen.findByText('Oats'));
+
+    // On the AmountStep: tabs are gone, header back-arrow present.
+    expect(screen.queryByRole('button', { name: /^suche$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^rezepte$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^zurück$/i })).toBeInTheDocument();
+    // Back restores the tab bar.
+    await userEvent.click(screen.getByRole('button', { name: /^zurück$/i }));
+    expect(screen.getByRole('button', { name: /^suche$/i })).toBeInTheDocument();
+  });
+
+  it('lets a quick-amount chip set the Menge on the amount sub-step', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'foods-oats',
+            source: 'FOODS',
+            name: 'Oats',
+            unit: 'g',
+            macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
+          },
+        ]),
+      ),
+    );
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+    await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'oats');
+    await userEvent.click(await screen.findByText('Oats'));
+
+    await userEvent.click(screen.getByRole('button', { name: '150 g' }));
+    expect(screen.getByLabelText(/menge/i)).toHaveValue(150);
   });
 
   it('returns to the Recent tab (not Search) when Back is pressed from confirm after a Recent pick', async () => {

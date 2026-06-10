@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RecipeForm } from './recipe-form';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
@@ -54,10 +54,19 @@ const salt: RecipeIngredient = {
 };
 
 describe('RecipeForm — live totals strip', () => {
-  it('renders the totals strip with zeros when there are no ingredients', () => {
+  it('places the Pro-Portion hero at the top of the form with a co-located servings stepper', () => {
+    setup({ id: '', name: 'X', yield: 2, ingredients: [flour], steps: [], createdAt: '', updatedAt: '' });
+    const hero = screen.getByTestId('per-portion-hero');
+    expect(within(hero).getByLabelText('Portionen')).toHaveValue(2);
+    expect(within(hero).getByRole('button', { name: /eine portion mehr/i })).toBeInTheDocument();
+    // The hero precedes the ingredient editor's "Zutaten" heading in the document.
+    const rel = hero.compareDocumentPosition(screen.getByRole('heading', { name: 'Zutaten' }));
+    expect(rel & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders the Pro-Portion hero with zeros when there are no ingredients', () => {
     setup(undefined, []);
-    const strip = screen.getByTestId('recipe-totals-strip');
-    expect(strip).toBeInTheDocument();
+    expect(screen.getByTestId('per-portion-hero')).toBeInTheDocument();
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^0 kcal · 0 P \/ 0 C \/ 0 F$/);
   });
 
@@ -71,7 +80,7 @@ describe('RecipeForm — live totals strip', () => {
     const user = userEvent.setup();
     setup({ id: '', name: 'X', yield: 1, ingredients: [flour], steps: [], createdAt: '', updatedAt: '' });
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^680 kcal/);
-    await user.click(screen.getByTestId('untracked-toggle-0'));
+    await user.click(screen.getByRole('radio', { name: 'Frei' }));
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^0 kcal · 0 P \/ 0 C \/ 0 F$/);
   });
 
@@ -82,14 +91,15 @@ describe('RecipeForm — live totals strip', () => {
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^340 kcal · 10 P \/ 70 C \/ 1 F$/);
   });
 
-  it('updates the strip when the yield changes (per-serving divides; total invariant)', () => {
+  it('updates the hero when the servings stepper changes (per-serving divides; total invariant)', async () => {
+    const user = userEvent.setup();
     setup({ id: '', name: 'X', yield: 1, ingredients: [flour], steps: [], createdAt: '', updatedAt: '' });
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^680 kcal/);
-    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^680 kcal/);
-    const yieldInput = screen.getByLabelText(/ergibt/i);
-    fireEvent.change(yieldInput, { target: { value: '2' } });
+    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/680 kcal/);
+    await user.click(screen.getByRole('button', { name: /eine portion mehr/i }));
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^340 kcal/);
-    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^680 kcal/);
+    // Total is invariant under the servings change.
+    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/680 kcal/);
   });
 
   it('excludes untracked rows from the rollup', () => {

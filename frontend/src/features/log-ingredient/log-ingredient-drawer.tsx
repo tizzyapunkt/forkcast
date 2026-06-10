@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import type { MealSlot } from '../../domain/meal-log';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { Recipe } from '../../domain/recipes';
@@ -58,9 +59,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
   }
 
   const slotLabel = slotLabelsDe[slot];
-
-  const headerSuffix =
-    step.kind === 'confirm' ? ` — ${step.result.name}` : step.kind === 'recipe-confirm' ? ` — ${step.recipe.name}` : '';
+  const inSubStep = step.kind !== 'search';
 
   const drawerHeight = tab === 'quick' ? 'h-[55dvh]' : 'h-[82dvh]';
 
@@ -68,10 +67,19 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
     <BottomSheet open onClose={handleClose} ariaLabel={de.logIngredient.dialogAria} heightClassName={drawerHeight}>
       <div className="shrink-0">
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
-          <h2 className="min-w-0 truncate text-sm font-semibold">
-            {de.logIngredient.addToSlot(slotLabel)}
-            {headerSuffix}
-          </h2>
+          <div className="flex min-w-0 items-center gap-1">
+            {inSubStep && (
+              <button
+                type="button"
+                onClick={handleBack}
+                aria-label={de.logIngredient.back}
+                className="-ml-2 inline-flex h-9 w-9 shrink-0 items-center justify-center text-primary"
+              >
+                <ChevronLeft size={22} aria-hidden="true" />
+              </button>
+            )}
+            <h2 className="min-w-0 truncate text-sm font-semibold">{de.logIngredient.addToSlot(slotLabel)}</h2>
+          </div>
           <button
             type="button"
             onClick={handleClose}
@@ -81,36 +89,40 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
           </button>
         </div>
 
-        <div className="flex gap-4 border-b px-4 text-sm">
-          <button
-            onClick={() => handleTabChange('search')}
-            className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-          >
-            {de.logIngredient.search}
-          </button>
-          <button
-            onClick={() => handleTabChange('recent')}
-            className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-          >
-            {de.logIngredient.recent}
-          </button>
-          <button
-            onClick={() => handleTabChange('recipes')}
-            className={`pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-          >
-            {de.logIngredient.recipesTab}
-          </button>
-          <button
-            onClick={() => handleTabChange('quick')}
-            className={`pb-2 ${tab === 'quick' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
-          >
-            {de.logIngredient.quick}
-          </button>
-        </div>
+        {!inSubStep && (
+          <div className="flex gap-4 border-b px-4 text-sm">
+            <button
+              onClick={() => handleTabChange('search')}
+              className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.logIngredient.search}
+            </button>
+            <button
+              onClick={() => handleTabChange('recent')}
+              className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.logIngredient.recent}
+            </button>
+            <button
+              onClick={() => handleTabChange('recipes')}
+              className={`pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.logIngredient.recipesTab}
+            </button>
+            <button
+              onClick={() => handleTabChange('quick')}
+              className={`pb-2 ${tab === 'quick' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.logIngredient.quick}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        {tab === 'quick' && <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />}
+        {tab === 'quick' && step.kind === 'search' && (
+          <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />
+        )}
 
         {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} disableUntracked />}
         {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleRecentSelect} />}
@@ -123,12 +135,11 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
             slot={slot}
             defaultAmount={step.defaultAmount}
             onSuccess={handleClose}
-            onBack={handleBack}
           />
         )}
 
         {step.kind === 'recipe-confirm' && (
-          <RecipeConfirm recipe={step.recipe} date={date} slot={slot} onSuccess={handleClose} onBack={handleBack} />
+          <RecipeConfirm recipe={step.recipe} date={date} slot={slot} onSuccess={handleClose} />
         )}
       </div>
     </BottomSheet>

@@ -13,6 +13,51 @@ const baseRecipe = {
   updatedAt: '',
 };
 
+describe('RecipeDetail — header back-arrow', () => {
+  it('renders a chevron-left back-arrow (no "← Zurück" text) that calls onBack', async () => {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          name: 'Soup',
+          ingredients: [
+            { name: 'Mehl', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 }, amount: 100 },
+          ],
+        }),
+      ),
+    );
+    const onBack = vi.fn<() => void>();
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={onBack} onDeleted={() => undefined} />);
+    await screen.findByText('Soup');
+    expect(screen.queryByText(/←\s*Zurück/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^zurück/i }));
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the editor with a title + back-arrow that cancels back to read view (no × button)', async () => {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          name: 'Soup',
+          ingredients: [
+            { name: 'Mehl', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 }, amount: 100 },
+          ],
+        }),
+      ),
+    );
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+    await screen.findByText('Soup');
+    await userEvent.click(screen.getByRole('button', { name: /rezept bearbeiten/i }));
+    expect(screen.getByRole('heading', { name: /rezept bearbeiten/i })).toBeInTheDocument();
+    // No "×" close affordance in the editor header.
+    expect(screen.queryByRole('button', { name: '×' })).not.toBeInTheDocument();
+    // The header back-arrow cancels back to the read view (title heading gone).
+    await userEvent.click(screen.getAllByRole('button', { name: /^zurück/i })[0]!);
+    expect(screen.queryByRole('heading', { name: /rezept bearbeiten/i })).not.toBeInTheDocument();
+  });
+});
+
 describe('RecipeDetail — dual-form rendering', () => {
   it('renders piece-tracked rows with both count and weight', async () => {
     server.use(

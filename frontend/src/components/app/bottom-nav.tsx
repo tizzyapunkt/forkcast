@@ -1,7 +1,7 @@
-import { BookOpen, ListChecks, Settings } from 'lucide-react';
+import { BookOpen, CalendarDays, ListChecks, Settings } from 'lucide-react';
 import { de } from '../../i18n/de';
 
-export type AppView = 'log' | 'recipes' | 'settings';
+export type AppView = 'log' | 'planner' | 'recipes' | 'settings';
 
 interface Props {
   active: AppView;
@@ -16,6 +16,7 @@ interface Tab {
 
 const TABS: Tab[] = [
   { view: 'log', label: de.nav.log, Icon: ListChecks },
+  { view: 'planner', label: de.nav.planner, Icon: CalendarDays },
   { view: 'recipes', label: de.nav.recipes, Icon: BookOpen },
   { view: 'settings', label: de.nav.settings, Icon: Settings },
 ];
@@ -25,7 +26,7 @@ export function BottomNav({ active, onChange }: Props) {
     <nav
       role="navigation"
       aria-label={de.nav.primary}
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-background"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background"
     >
       {TABS.map(({ view, label, Icon }) => {
         const isActive = view === active;

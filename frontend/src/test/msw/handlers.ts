@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { makeDailyLog, makeGoal } from './fixtures';
+import { makeDailyLog, makeGoal, makeWeekLog } from './fixtures';
 
 export { http };
 
@@ -24,6 +24,14 @@ export const handlers = [
 
   http.get('/api/daily-log/:date', () => {
     return HttpResponse.json(makeDailyLog());
+  }),
+
+  http.get('/api/week-log/:startDate', ({ params }) => {
+    return HttpResponse.json(makeWeekLog(params['startDate'] as string));
+  }),
+
+  http.post('/api/copy-log-day', () => {
+    return HttpResponse.json([], { status: 201 });
   }),
 
   http.get('/api/nutrition-goal', () => {

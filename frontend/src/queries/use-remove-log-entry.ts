@@ -13,6 +13,7 @@ export function useRemoveLogEntry() {
     mutationFn: ({ id }: RemoveLogEntryInput) => removeLogEntry(id),
     onSuccess: (_data, variables: RemoveLogEntryInput) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.dailyLog(variables.date) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.weekLogAll() });
       queryClient.invalidateQueries({ queryKey: queryKeys.recentlyUsedIngredients() });
     },
   });

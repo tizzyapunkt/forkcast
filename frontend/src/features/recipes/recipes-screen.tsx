@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecipes } from '../../queries/use-recipes';
 import { useAddRecipe } from '../../queries/use-add-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
@@ -12,15 +12,25 @@ import { de } from '../../i18n/de';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
 
-export function RecipesScreen() {
+interface Props {
+  /** Notifies the app shell when a recipe sub-screen (detail/create/edit/import) is active so it can hide the bottom nav. */
+  onSubScreenChange?: (active: boolean) => void;
+}
+
+export function RecipesScreen({ onSubScreenChange }: Props = {}) {
   const [view, setView] = useState<View>({ mode: 'list' });
   const { data: recipes, isLoading, error } = useRecipes();
   const { data: importConfigured } = useImportConfigured();
   const addMutation = useAddRecipe();
 
+  useEffect(() => {
+    onSubScreenChange?.(view.mode !== 'list');
+  }, [view.mode, onSubScreenChange]);
+
   if (view.mode === 'create') {
     return (
       <RecipeForm
+        title={de.recipeForm.titleNew}
         submitLabel={de.recipes.create}
         isSubmitting={addMutation.isPending}
         error={addMutation.error}

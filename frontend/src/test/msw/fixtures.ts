@@ -1,5 +1,6 @@
-import type { DailyLog, LogEntry, MealSlot } from '../../domain/meal-log';
+import type { DailyLog, DayTotals, LogEntry, MealSlot, WeekLog } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
+import { addDays } from '../../domain/date';
 
 export function makeGoal(overrides: Partial<DailyGoal> = {}): DailyGoal {
   return { calories: 2000, protein: 150, carbs: 200, fat: 70, ...overrides };
@@ -27,5 +28,30 @@ export function makeDailyLog(overrides: Partial<DailyLog> = {}): DailyLog {
     slots,
     totals: { calories: 0, protein: 0, carbs: 0, fat: 0, macrosPartial: false },
     ...overrides,
+  };
+}
+
+export function makeWeekLog(startDate = '2026-06-08', days?: DailyLog[]): WeekLog {
+  const ds = days ?? Array.from({ length: 7 }, (_, i) => makeDailyLog({ date: addDays(startDate, i) }));
+  const totals = ds.reduce<DayTotals>(
+    (a, d) => ({
+      calories: a.calories + d.totals.calories,
+      protein: a.protein + d.totals.protein,
+      carbs: a.carbs + d.totals.carbs,
+      fat: a.fat + d.totals.fat,
+      macrosPartial: a.macrosPartial || d.totals.macrosPartial,
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0, macrosPartial: false },
+  );
+  return {
+    startDate,
+    days: ds,
+    totals,
+    averages: {
+      calories: totals.calories / 7,
+      protein: totals.protein / 7,
+      carbs: totals.carbs / 7,
+      fat: totals.fat / 7,
+    },
   };
 }
