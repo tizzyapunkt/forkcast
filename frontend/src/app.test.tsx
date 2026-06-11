@@ -89,4 +89,43 @@ describe('App', () => {
     expect(screen.queryByText(/kcal offen/)).not.toBeInTheDocument();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
+
+  describe('screen headers — the header names where you are', () => {
+    it('Tagebuch keeps the forkcast wordmark in the header', () => {
+      renderWithProviders(<App />);
+      const wordmark = screen.getByRole('heading', { name: 'forkcast' });
+      expect(wordmark.closest('header')).not.toBeNull();
+    });
+
+    it('Rezepte names itself in the header with no duplicate body heading', async () => {
+      server.use(http.get('/api/recipes', () => HttpResponse.json([])));
+      renderWithProviders(<App />);
+      await userEvent.click(screen.getByRole('button', { name: /Rezepte/i }));
+
+      const headings = await screen.findAllByRole('heading', { name: 'Rezepte' });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]!.closest('header')).not.toBeNull();
+      expect(screen.queryByRole('heading', { name: 'forkcast' })).not.toBeInTheDocument();
+    });
+
+    it('Einstellungen names itself in the header with no duplicate body heading', async () => {
+      renderWithProviders(<App />);
+      await userEvent.click(screen.getByRole('button', { name: /Einstellungen/i }));
+
+      const headings = await screen.findAllByRole('heading', { name: 'Einstellungen' });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]!.closest('header')).not.toBeNull();
+      // Body section headings (e.g. Ernährungsziel) are unaffected.
+      expect(screen.getByRole('heading', { name: /ernährungsziel/i }).closest('header')).toBeNull();
+    });
+
+    it('Wochenplan names itself in the header with no duplicate body heading', async () => {
+      renderWithProviders(<App />);
+      await userEvent.click(screen.getByRole('button', { name: /Planen/i }));
+
+      const headings = await screen.findAllByRole('heading', { name: 'Wochenplan' });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]!.closest('header')).not.toBeNull();
+    });
+  });
 });

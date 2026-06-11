@@ -3,7 +3,7 @@ import type { RecipeIngredient } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
-import { de } from '../../i18n/de';
+import { de, formatMacroTriplet } from '../../i18n/de';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
 const NOTE_MAX_LENGTH = 80;
@@ -302,13 +302,11 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                 {mode !== 'free' && (
                   <div data-testid={`row-macros-${idx}`} className="pl-1 text-xs text-muted-foreground">
                     {Math.round(ing.macrosPerUnit.calories * ing.amount)} kcal ·{' '}
-                    {de.dailyLog
-                      .macroInline(
-                        ing.macrosPerUnit.protein * ing.amount,
-                        ing.macrosPerUnit.carbs * ing.amount,
-                        ing.macrosPerUnit.fat * ing.amount,
-                      )
-                      .replace(/^·\s*/, '')}
+                    {formatMacroTriplet(
+                      ing.macrosPerUnit.protein * ing.amount,
+                      ing.macrosPerUnit.carbs * ing.amount,
+                      ing.macrosPerUnit.fat * ing.amount,
+                    )}
                   </div>
                 )}
 

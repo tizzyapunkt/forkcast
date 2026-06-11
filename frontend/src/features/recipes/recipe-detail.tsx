@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import { useRecipe } from '../../queries/use-recipe';
 import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
 import { RecipeForm } from './recipe-form';
 import { RecipeTotalsStrip } from './recipe-totals-strip';
+import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
@@ -28,8 +28,22 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
     if (baseYield !== null && servings === null) setServings(baseYield);
   }, [baseYield, servings]);
 
-  if (isLoading) return <p className="p-4 text-sm text-muted-foreground">{de.recipes.loading}</p>;
-  if (error) return <ErrorBanner error={error} />;
+  if (isLoading) {
+    return (
+      <>
+        <AppHeader onBack={onBack} backAria={de.recipes.backAria} />
+        <p className="p-4 text-sm text-muted-foreground">{de.recipes.loading}</p>
+      </>
+    );
+  }
+  if (error) {
+    return (
+      <>
+        <AppHeader onBack={onBack} backAria={de.recipes.backAria} />
+        <ErrorBanner error={error} />
+      </>
+    );
+  }
   if (!recipe) return null;
 
   if (editing) {
@@ -54,164 +68,154 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={() => setEditing(true)}
-          className="rounded-md border px-3 py-1 text-sm"
-          aria-label={de.recipes.editAria}
-        >
-          {de.recipes.edit}
-        </button>
-        <button
-          onClick={() => setConfirmDelete(true)}
-          className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
-          aria-label={de.recipes.deleteAria}
-        >
-          {de.recipes.delete}
-        </button>
-      </div>
-
-      <div className="-ml-2 flex items-start gap-1">
-        <button
-          onClick={onBack}
-          aria-label={de.recipes.backAria}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-primary"
-        >
-          <ChevronLeft size={24} aria-hidden="true" />
-        </button>
-        <div className="min-w-0 pt-1.5">
-          <h2 className="text-xl font-bold tracking-tight [overflow-wrap:break-word]">{recipe.name}</h2>
-          <p className="text-xs text-muted-foreground">{de.recipes.yields(recipe.yield)}</p>
-        </div>
-      </div>
-
-      <RecipeTotalsStrip
-        ingredients={recipe.ingredients}
-        yield={recipe.yield}
-        chosenServings={servings ?? recipe.yield}
+    <>
+      <AppHeader
+        title={recipe.name}
+        subtitle={de.recipes.yields(recipe.yield)}
+        onBack={onBack}
+        backAria={de.recipes.backAria}
       />
+      <div className="space-y-4 p-4">
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setEditing(true)}
+            className="rounded-md border px-3 py-1 text-sm"
+            aria-label={de.recipes.editAria}
+          >
+            {de.recipes.edit}
+          </button>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
+            aria-label={de.recipes.deleteAria}
+          >
+            {de.recipes.delete}
+          </button>
+        </div>
 
-      <section>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
-          <div className="flex items-center gap-2">
-            {(servings ?? recipe.yield) !== recipe.yield && (
-              <button
-                type="button"
-                onClick={() => setServings(recipe.yield)}
-                aria-label={de.recipes.servingsResetAria(recipe.yield)}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {de.recipes.servingsReset}
-              </button>
-            )}
-            <div className="flex items-center gap-1 rounded-md border px-1 py-0.5">
-              <button
-                type="button"
-                onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) - 1))}
-                aria-label={de.recipes.servingsDecrement}
-                className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
-                disabled={(servings ?? recipe.yield) <= 1}
-              >
-                −
-              </button>
-              <input
-                type="number"
-                readOnly
-                value={servings ?? recipe.yield}
-                aria-label={de.recipes.servingsLabel}
-                className="w-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
-              <button
-                type="button"
-                onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) + 1))}
-                aria-label={de.recipes.servingsIncrement}
-                className="px-2 py-0.5 text-sm leading-none"
-              >
-                +
-              </button>
+        <RecipeTotalsStrip ingredients={recipe.ingredients} yield={recipe.yield} />
+
+        <section>
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
+            <div className="flex items-center gap-2">
+              {(servings ?? recipe.yield) !== recipe.yield && (
+                <button
+                  type="button"
+                  onClick={() => setServings(recipe.yield)}
+                  aria-label={de.recipes.servingsResetAria(recipe.yield)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {de.recipes.servingsReset}
+                </button>
+              )}
+              <div className="flex items-center gap-1 rounded-md border px-1 py-0.5">
+                <button
+                  type="button"
+                  onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) - 1))}
+                  aria-label={de.recipes.servingsDecrement}
+                  className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
+                  disabled={(servings ?? recipe.yield) <= 1}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  readOnly
+                  value={servings ?? recipe.yield}
+                  aria-label={de.recipes.servingsLabel}
+                  className="w-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) + 1))}
+                  aria-label={de.recipes.servingsIncrement}
+                  className="px-2 py-0.5 text-sm leading-none"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <ul className="divide-y">
-          {recipe.ingredients.map((ing, idx) => {
-            const untracked = ing.untracked === true;
-            const factor = (servings ?? recipe.yield) / recipe.yield;
-            const scaled = scaleIngredient(ing, factor);
-            return (
-              <li
-                key={`${ing.name}|${idx}`}
-                data-untracked={untracked || undefined}
-                className={`flex items-start justify-between gap-2 py-2 text-sm ${untracked ? 'text-muted-foreground' : ''}`}
-              >
-                <span className="flex min-w-0 flex-col">
-                  <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="font-medium">{ing.name}</span>
-                    {untracked && (
-                      <span
-                        data-testid={`untracked-badge-${idx}`}
-                        className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium"
-                      >
-                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-foreground/60" />
-                        {de.recipeIngredientEditor.untrackedBadge}
+          <ul className="divide-y">
+            {recipe.ingredients.map((ing, idx) => {
+              const untracked = ing.untracked === true;
+              const factor = (servings ?? recipe.yield) / recipe.yield;
+              const scaled = scaleIngredient(ing, factor);
+              return (
+                <li
+                  key={`${ing.name}|${idx}`}
+                  data-untracked={untracked || undefined}
+                  className={`flex items-start justify-between gap-2 py-2 text-sm ${untracked ? 'text-muted-foreground' : ''}`}
+                >
+                  <span className="flex min-w-0 flex-col">
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="font-medium">{ing.name}</span>
+                      {untracked && (
+                        <span
+                          data-testid={`untracked-badge-${idx}`}
+                          className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium"
+                        >
+                          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-foreground/60" />
+                          {de.recipeIngredientEditor.untrackedBadge}
+                        </span>
+                      )}
+                    </span>
+                    {ing.note !== undefined && (
+                      <span data-testid={`ingredient-note-${idx}`} className="text-xs italic text-muted-foreground">
+                        {ing.note}
                       </span>
                     )}
                   </span>
-                  {ing.note !== undefined && (
-                    <span data-testid={`ingredient-note-${idx}`} className="text-xs italic text-muted-foreground">
-                      {ing.note}
-                    </span>
-                  )}
-                </span>
-                <span className="shrink-0 text-muted-foreground">
-                  {untracked && scaled.displayQuantity
-                    ? `${formatPieceCount(scaled.displayQuantity.amount)} ${scaled.displayQuantity.unitLabel}`
-                    : scaled.pieceQuantity
-                      ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
-                      : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+                  <span className="shrink-0 text-muted-foreground">
+                    {untracked && scaled.displayQuantity
+                      ? `${formatPieceCount(scaled.displayQuantity.amount)} ${scaled.displayQuantity.unitLabel}`
+                      : scaled.pieceQuantity
+                        ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
+                        : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
 
-      <section>
-        <h3 className="mb-2 text-sm font-medium">{de.recipes.steps}</h3>
-        {recipe.steps.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{de.recipes.noSteps}</p>
-        ) : (
-          <ol className="list-decimal space-y-2 pl-5 text-sm">
-            {recipe.steps.map((s, idx) => (
-              <li key={idx}>{s}</li>
-            ))}
-          </ol>
-        )}
-      </section>
+        <section>
+          <h3 className="mb-2 text-sm font-medium">{de.recipes.steps}</h3>
+          {recipe.steps.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{de.recipes.noSteps}</p>
+          ) : (
+            <ol className="list-decimal space-y-2 pl-5 text-sm">
+              {recipe.steps.map((s, idx) => (
+                <li key={idx}>{s}</li>
+              ))}
+            </ol>
+          )}
+        </section>
 
-      {confirmDelete && (
-        <div className="rounded-md border border-destructive bg-destructive/5 p-3">
-          <p className="mb-2 text-sm">{de.recipes.deleteConfirm(recipe.name)}</p>
-          {deleteMutation.error && <ErrorBanner error={deleteMutation.error} />}
-          <div className="flex gap-2">
-            <button onClick={() => setConfirmDelete(false)} className="flex-1 rounded-md border px-3 py-2 text-sm">
-              {de.recipeForm.cancel}
-            </button>
-            <button
-              onClick={() =>
-                deleteMutation.mutate(id, {
-                  onSuccess: () => onDeleted(),
-                })
-              }
-              disabled={deleteMutation.isPending}
-              className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
-              {deleteMutation.isPending ? de.recipes.deleting : de.recipes.deleteBtn}
-            </button>
+        {confirmDelete && (
+          <div className="rounded-md border border-destructive bg-destructive/5 p-3">
+            <p className="mb-2 text-sm">{de.recipes.deleteConfirm(recipe.name)}</p>
+            {deleteMutation.error && <ErrorBanner error={deleteMutation.error} />}
+            <div className="flex gap-2">
+              <button onClick={() => setConfirmDelete(false)} className="flex-1 rounded-md border px-3 py-2 text-sm">
+                {de.recipeForm.cancel}
+              </button>
+              <button
+                onClick={() =>
+                  deleteMutation.mutate(id, {
+                    onSuccess: () => onDeleted(),
+                  })
+                }
+                disabled={deleteMutation.isPending}
+                className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? de.recipes.deleting : de.recipes.deleteBtn}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

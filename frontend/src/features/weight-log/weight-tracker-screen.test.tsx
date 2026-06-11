@@ -117,7 +117,7 @@ describe('WeightTrackerScreen', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Gewicht-Tracker/i })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole('button', { name: /←/ }));
+    await user.click(screen.getByRole('button', { name: /zurück/i }));
     expect(onBack).toHaveBeenCalled();
   });
 });

@@ -10,6 +10,8 @@ Define the canonical display format for nutrient density in ingredient picker UI
 
 Ingredient picker UIs (search results, recent items, and the full-entry confirm step) SHALL display nutrient density per 100 of the row's unit when that unit is a base mass (`g`) or volume (`ml`). The numeric value displayed MUST equal the underlying per-unit value multiplied by 100. The denominator label MUST be `100g` or `100ml` respectively.
 
+On the full-entry confirm step, the per-100 macro values MUST be presented as the unified macro triplet `{P} P · {KH} KH · {F} F` (middot separators, carbs labelled `KH`, integer-rounded values without a `g` suffix) following the kcal-rate figure. The kcal-rate figure itself keeps the slash denominator (`{kcal} kcal / 100{unit}`) — it is a rate, not a macro triplet.
+
 #### Scenario: Solid food in search results
 
 - **WHEN** an ingredient with `unit: 'g'` and `macrosPerUnit.calories: 3.7` is rendered in the search-panel row
@@ -28,7 +30,7 @@ Ingredient picker UIs (search results, recent items, and the full-entry confirm 
 #### Scenario: Full-entry confirm shows all four macros per 100
 
 - **WHEN** the confirm step renders an ingredient with `unit: 'g'` and `macrosPerUnit: { calories: 3.7, protein: 0.13, carbs: 0.66, fat: 0.07 }`
-- **THEN** the per-unit readout displays kcal as `370`, protein as `13g`, carbs as `66g`, and fat as `7g`, with denominator `100g`
+- **THEN** the per-unit readout displays `370 kcal / 100g · 13 P · 66 KH · 7 F`
 
 ### Requirement: Picker rows fall back to per-unit display for non-mass/volume units
 

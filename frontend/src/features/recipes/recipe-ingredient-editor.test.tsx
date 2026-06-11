@@ -128,7 +128,7 @@ describe('RecipeIngredientEditor — per-row calories and macros', () => {
 
   it('renders kcal + macros for a tracked row (200g × macrosPerUnit → 500/52/0/30)', () => {
     render(<Harness initial={[tracked200]} />);
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/500 kcal · 52g P · 0g K · 30g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/500 kcal · 52 P · 0 KH · 30 F/);
   });
 
   it('hides the macro sub-line entirely for a Frei row', () => {
@@ -144,22 +144,22 @@ describe('RecipeIngredientEditor — per-row calories and macros', () => {
       amount: 100,
     };
     render(<Harness initial={[row]} />);
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/165 kcal · 31g P · 0g K · 4g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/165 kcal · 31 P · 0 KH · 4 F/);
     fireEvent.change(screen.getByLabelText(/menge für lachs/i), { target: { value: '250' } });
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/413 kcal · 78g P · 0g K · 9g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/413 kcal · 78 P · 0 KH · 9 F/);
   });
 
   it('updates the macro sub-line live as the piece count changes', () => {
     render(<Harness initial={[pieceTracked]} />);
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/60 kcal · 2g P · 14g K · 0g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/60 kcal · 2 P · 14 KH · 0 F/);
     fireEvent.change(screen.getByLabelText(/stückzahl für zwiebel/i), { target: { value: '2' } });
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/120 kcal · 3g P · 28g K · 0g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/120 kcal · 3 P · 28 KH · 0 F/);
   });
 
   it('updates the macro sub-line live as grams-per-piece changes', () => {
     render(<Harness initial={[pieceTracked]} />);
     fireEvent.change(screen.getByLabelText(/gewicht pro stück.*zwiebel/i), { target: { value: '200' } });
-    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/80 kcal · 2g P · 19g K · 0g F/);
+    expect(screen.getByTestId('row-macros-0')).toHaveTextContent(/80 kcal · 2 P · 19 KH · 0 F/);
   });
 
   it('switching a tracked row to Frei removes the macro sub-line; switching back restores it', async () => {

@@ -1,22 +1,6 @@
-# meal-log-display Specification
+# meal-log-display — delta
 
-## Purpose
-TBD - created by archiving change show-per-entry-macros-in-meal-log. Update Purpose after archive.
-## Requirements
-### Requirement: Daily log shows per-entry calories
-The system SHALL display the calorie contribution of every log entry on the daily log screen, on the trailing side of the entry row. Values MUST be rounded to the nearest integer and suffixed with the localized `kcal` unit.
-
-For `full` entries the calorie value MUST be computed as `ingredient.macrosPerUnit.calories * ingredient.amount` (rounded). For `quick` entries the calorie value MUST be the stored `ingredient.calories`.
-
-#### Scenario: Full entry shows computed calories
-- **GIVEN** a full entry with `macrosPerUnit.calories = 2.5` and `amount = 200`
-- **WHEN** the entry row renders
-- **THEN** the row shows `500 kcal` on the trailing side
-
-#### Scenario: Quick entry shows stored calories
-- **GIVEN** a quick entry with `calories = 80`
-- **WHEN** the entry row renders
-- **THEN** the row shows `80 kcal` on the trailing side
+## MODIFIED Requirements
 
 ### Requirement: Daily log shows per-entry macros when available
 
@@ -99,13 +83,3 @@ When the macro total is suppressed due to `macrosPartial`, the calorie total MUS
 - **GIVEN** a slot containing at least one quick entry with no macro fields, totals `{ calories: 340, protein: 10, carbs: 0, fat: 0, macrosPartial: true }`
 - **WHEN** the slot card renders
 - **THEN** the header shows `340 kcal` and no macro line
-
-### Requirement: Daily log display reuses computed totals, never recomputes
-The system SHALL use the `SlotSummary.totals` returned by the `GET /daily-log` response when rendering slot-level kcal and macros. The frontend MUST NOT independently re-sum entries to derive slot totals, because slot totals and the `macrosPartial` flag are an authoritative concern of the backend `getDailyLog` use case.
-
-Per-entry rendering (kcal and macros) MAY be computed in the UI from the entry's own `ingredient` fields, because no equivalent per-entry pre-computed shape exists on the wire.
-
-#### Scenario: Slot totals come from the API response
-- **WHEN** the daily log screen renders a slot
-- **THEN** the kcal and macro values displayed in the slot header are taken directly from `SlotSummary.totals` returned by the API
-

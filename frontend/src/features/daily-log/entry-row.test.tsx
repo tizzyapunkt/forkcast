@@ -65,9 +65,9 @@ describe('EntryRow macros', () => {
     renderWithProviders(<EntryRow entry={entry} />);
 
     expect(await screen.findByText(/500\s*kcal/i)).toBeInTheDocument();
-    expect(screen.getByText(/52\s*g\s*P/i)).toBeInTheDocument();
-    expect(screen.getByText(/0\s*g\s*K/i)).toBeInTheDocument();
-    expect(screen.getByText(/30\s*g\s*F/i)).toBeInTheDocument();
+    expect(screen.getByText(/52\s*P/i)).toBeInTheDocument();
+    expect(screen.getByText(/0\s*KH/i)).toBeInTheDocument();
+    expect(screen.getByText(/30\s*F/i)).toBeInTheDocument();
   });
 
   it('renders calories and macros for a quick entry that has all three macro fields', async () => {
@@ -83,9 +83,9 @@ describe('EntryRow macros', () => {
     renderWithProviders(<EntryRow entry={entry} />);
 
     expect(await screen.findByText(/250\s*kcal/i)).toBeInTheDocument();
-    expect(screen.getByText(/20\s*g\s*P/i)).toBeInTheDocument();
-    expect(screen.getByText(/15\s*g\s*K/i)).toBeInTheDocument();
-    expect(screen.getByText(/10\s*g\s*F/i)).toBeInTheDocument();
+    expect(screen.getByText(/20\s*P/i)).toBeInTheDocument();
+    expect(screen.getByText(/15\s*KH/i)).toBeInTheDocument();
+    expect(screen.getByText(/10\s*F/i)).toBeInTheDocument();
   });
 
   it('renders calories only for a quick entry with no macro fields', async () => {
@@ -127,15 +127,15 @@ describe('EntryRow macros', () => {
       renderWithProviders(<EntryRow entry={entry} />);
 
       expect(await screen.findByText(/165\s*kcal/i)).toBeInTheDocument();
-      expect(screen.getByText(/31\s*g\s*P/i)).toBeInTheDocument();
+      expect(screen.getByText(/31\s*P/i)).toBeInTheDocument();
 
       const input = screen.getByRole('spinbutton');
       fireEvent.change(input, { target: { value: '250' } });
 
       // No timer advancement → no PATCH yet, but the row must reflect the typed amount.
       expect(await screen.findByText(/413\s*kcal/i)).toBeInTheDocument();
-      expect(screen.getByText(/78\s*g\s*P/i)).toBeInTheDocument();
-      expect(screen.getByText(/9\s*g\s*F/i)).toBeInTheDocument();
+      expect(screen.getByText(/78\s*P/i)).toBeInTheDocument();
+      expect(screen.getByText(/9\s*F/i)).toBeInTheDocument();
       expect(screen.queryByText(/165\s*kcal/i)).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
+import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
 import { PerPortionHero } from './per-portion-hero';
@@ -95,114 +95,104 @@ export function RecipeForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4">
-      {headerSlot}
-      {title && (
-        <div className="-ml-2 flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onCancel}
-            aria-label={de.recipeForm.backAria}
-            className="inline-flex h-10 w-10 items-center justify-center text-primary"
-          >
-            <ChevronLeft size={24} aria-hidden="true" />
-          </button>
-          <h1 className="text-xl font-bold tracking-tight">{title}</h1>
-        </div>
-      )}
-      {error && <ErrorBanner error={error} />}
-      {validationError && <p className="text-sm text-destructive">{validationError}</p>}
+    <>
+      {title && <AppHeader title={title} onBack={onCancel} backAria={de.recipeForm.backAria} />}
+      <form onSubmit={handleSubmit} className="space-y-4 p-4">
+        {headerSlot}
+        {error && <ErrorBanner error={error} />}
+        {validationError && <p className="text-sm text-destructive">{validationError}</p>}
 
-      <div className="space-y-1">
-        <label htmlFor="recipe-name" className="text-sm font-medium">
-          {de.recipeForm.name}
-        </label>
-        <input
-          id="recipe-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-          placeholder={de.recipeForm.namePlaceholder}
+        <div className="space-y-1">
+          <label htmlFor="recipe-name" className="text-sm font-medium">
+            {de.recipeForm.name}
+          </label>
+          <input
+            id="recipe-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+            placeholder={de.recipeForm.namePlaceholder}
+          />
+        </div>
+
+        <PerPortionHero
+          ingredients={ingredients}
+          servings={recipeYield}
+          onServingsChange={(next) => setRecipeYield(next)}
         />
-      </div>
 
-      <PerPortionHero
-        ingredients={ingredients}
-        servings={recipeYield}
-        onServingsChange={(next) => setRecipeYield(next)}
-      />
+        <RecipeIngredientEditor
+          ingredients={ingredients}
+          onChange={setIngredients}
+          estimateIndices={estimateIndices}
+          onEstimateAcknowledged={onEstimateAcknowledged}
+        />
 
-      <RecipeIngredientEditor
-        ingredients={ingredients}
-        onChange={setIngredients}
-        estimateIndices={estimateIndices}
-        onEstimateAcknowledged={onEstimateAcknowledged}
-      />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">{de.recipeForm.steps}</h3>
+            <button type="button" onClick={addStep} className="rounded-md border px-3 py-1 text-xs">
+              {de.recipeForm.addStep}
+            </button>
+          </div>
+          {steps.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{de.recipeForm.noStepsOptional}</p>
+          ) : (
+            <ol className="space-y-2">
+              {steps.map((s, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="pt-2 text-xs text-muted-foreground">{idx + 1}.</span>
+                  <textarea
+                    aria-label={de.recipeForm.stepAria(idx + 1)}
+                    value={s}
+                    onChange={(e) => updateStep(idx, e.target.value)}
+                    className="min-h-[3rem] min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      aria-label={de.recipeForm.moveStepUp(idx + 1)}
+                      onClick={() => moveStep(idx, -1)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={de.recipeForm.moveStepDown(idx + 1)}
+                      onClick={() => moveStep(idx, 1)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={de.recipeForm.removeStep(idx + 1)}
+                      onClick={() => removeStep(idx)}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">{de.recipeForm.steps}</h3>
-          <button type="button" onClick={addStep} className="rounded-md border px-3 py-1 text-xs">
-            {de.recipeForm.addStep}
+        <div className="flex gap-2">
+          <button type="button" onClick={onCancel} className="flex-1 rounded-md border px-4 py-2 text-sm">
+            {de.recipeForm.cancel}
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          >
+            {isSubmitting ? de.recipeForm.saving : submitLabel}
           </button>
         </div>
-        {steps.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{de.recipeForm.noStepsOptional}</p>
-        ) : (
-          <ol className="space-y-2">
-            {steps.map((s, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="pt-2 text-xs text-muted-foreground">{idx + 1}.</span>
-                <textarea
-                  aria-label={de.recipeForm.stepAria(idx + 1)}
-                  value={s}
-                  onChange={(e) => updateStep(idx, e.target.value)}
-                  className="min-h-[3rem] min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm"
-                />
-                <div className="flex flex-col gap-1">
-                  <button
-                    type="button"
-                    aria-label={de.recipeForm.moveStepUp(idx + 1)}
-                    onClick={() => moveStep(idx, -1)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={de.recipeForm.moveStepDown(idx + 1)}
-                    onClick={() => moveStep(idx, 1)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={de.recipeForm.removeStep(idx + 1)}
-                    onClick={() => removeStep(idx)}
-                    className="text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
-
-      <div className="flex gap-2">
-        <button type="button" onClick={onCancel} className="flex-1 rounded-md border px-4 py-2 text-sm">
-          {de.recipeForm.cancel}
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {isSubmitting ? de.recipeForm.saving : submitLabel}
-        </button>
-      </div>
-    </form>
+      </form>
+    </>
   );
 }

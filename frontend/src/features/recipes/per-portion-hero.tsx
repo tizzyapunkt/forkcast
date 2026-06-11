@@ -1,6 +1,6 @@
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import type { RecipeIngredient } from '../../domain/recipes';
-import { de } from '../../i18n/de';
+import { de, formatMacroTriplet } from '../../i18n/de';
 
 interface Props {
   ingredients: RecipeIngredient[];
@@ -66,7 +66,7 @@ export function PerPortionHero({ ingredients, servings, onServingsChange }: Prop
         <span className="text-3xl font-extrabold tracking-tight text-foreground">{r(perServing.calories)}</span>{' '}
         <span className="text-sm text-muted-foreground">{de.recipeTotals.kcalUnit}</span>{' '}
         <span className="text-sm text-muted-foreground">
-          · {r(perServing.protein)} P / {r(perServing.carbs)} C / {r(perServing.fat)} F
+          · {formatMacroTriplet(perServing.protein, perServing.carbs, perServing.fat)}
         </span>
       </p>
 

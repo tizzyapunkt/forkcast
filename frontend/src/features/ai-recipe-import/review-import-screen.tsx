@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { AppHeader } from '../../components/app/app-header';
 import { useAddRecipe } from '../../queries/use-add-recipe';
 import { RecipeForm } from '../recipes/recipe-form';
 import { RecipeIngredientPicker } from '../recipes/recipe-ingredient-picker';
@@ -152,6 +153,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
 
   return (
     <>
+      <AppHeader title={de.aiRecipeImport.reviewTitle} onBack={onCancel} backAria={de.aiRecipeImport.back} />
       <RecipeForm
         initial={initialRecipe}
         ingredients={ingredients}

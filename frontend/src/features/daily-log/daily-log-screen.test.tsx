@@ -6,7 +6,15 @@ import { makeDailyLog, makeLogEntry } from '../../test/msw/fixtures';
 import { DailyLogScreen } from './daily-log-screen';
 
 function render(date = '2026-04-20') {
-  renderWithProviders(<DailyLogScreen date={date} onOpenWeightTracker={() => {}} />);
+  renderWithProviders(
+    <DailyLogScreen
+      date={date}
+      onPrev={() => {}}
+      onNext={() => {}}
+      onToday={() => {}}
+      onOpenWeightTracker={() => {}}
+    />,
+  );
 }
 
 describe('DailyLogScreen', () => {
@@ -96,8 +104,8 @@ describe('DailyLogScreen', () => {
     const lunchHeading = await screen.findByRole('heading', { name: 'Mittagessen' });
     const lunchSlot = lunchHeading.closest('section');
     expect(lunchSlot).not.toBeNull();
-    expect(lunchSlot!.textContent ?? '').toMatch(/62\s*g\s*P/i);
-    expect(lunchSlot!.textContent ?? '').toMatch(/7\s*g\s*F/i);
+    expect(lunchSlot!.textContent ?? '').toMatch(/62\s*P/i);
+    expect(lunchSlot!.textContent ?? '').toMatch(/7\s*F/i);
   });
 
   it('suppresses the slot macro line when totals.macrosPartial is true', async () => {

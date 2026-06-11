@@ -459,67 +459,79 @@ The replace action MUST be available on every row in the editor — both in the 
 - **THEN** the row updates per the rules above and the recipe can be saved via the existing update-recipe flow with the swapped row reflected in the payload
 
 ### Requirement: Recipes UI — serving multiplier on read view
+
 The recipe read (cooking) view SHALL expose a servings multiplier control that lets the user pick the number of effective servings for which ingredient amounts are displayed. The control MUST default to the recipe's stored `yield`. When the chosen value differs from the stored `yield`, the view MUST render every ingredient row at the scaled value, where the scale factor is `chosenServings / recipe.yield`.
 
 The scaling rule MUST match the existing `Yield scaling preserves piece quantities` requirement: each ingredient row's `amount`, (if present) `pieceQuantity.amount`, and (if present) `displayQuantity.amount` MUST be multiplied by the factor; `pieceQuantity.gramsPerPiece`, `pieceQuantity.unitLabel`, `displayQuantity.unitLabel`, `unit`, `name`, `macrosPerUnit`, and `untracked` MUST be invariant under scaling. Untracked rows MUST scale the same way as tracked rows; only the macro-rollup ignores `macrosPerUnit` for untracked rows.
 
-The recipe's nutrition totals strip (see "Recipe read view displays nutrition totals reactive to multiplier") MUST react to the multiplier: the per-serving line is invariant under scaling, the "total at current multiplier" line is `perServing * chosenServings`.
+The recipe's nutrition totals strip (see "Recipe read view displays per-serving nutrition totals") is **invariant under the multiplier** — the multiplier scales only the ingredient rows.
 
 The chosen serving count MUST be ephemeral view state: it MUST NOT mutate the persisted recipe, MUST NOT trigger an API call, and MUST NOT survive navigating away from the read view. The control MUST allow the user to reset the value to the recipe's stored `yield` whenever the value differs.
 
 The minimum selectable value MUST be `1`. There is no enforced maximum.
 
-The cooking-step text MUST NOT be rescaled or modified — only the ingredient rows and the totals strip reflect the multiplier.
+The cooking-step text MUST NOT be rescaled or modified — only the ingredient rows reflect the multiplier.
 
 #### Scenario: Default matches stored yield
+
 - **WHEN** the user opens a recipe with `yield = 2` in read mode and has not interacted with the multiplier
 - **THEN** the multiplier control displays `2` and every ingredient row is rendered at its stored `amount`, `pieceQuantity.amount`, and `displayQuantity.amount` (no scaling applied)
 
 #### Scenario: Doubling scales mass and piece count
+
 - **GIVEN** a recipe with `yield = 2` and an ingredient `{ amount: 150, unit: "g", pieceQuantity: { amount: 1, unitLabel: "Zwiebel", gramsPerPiece: 150 } }`
 - **WHEN** the user sets the multiplier to `4`
 - **THEN** the row renders `2 Zwiebel (≈ 300 g)` (i.e. `pieceQuantity.amount = 2`, `amount = 300`), and `gramsPerPiece` remains `150`
 
 #### Scenario: Halving scales mass and piece count
+
 - **GIVEN** the same recipe with `yield = 2`
 - **WHEN** the user sets the multiplier to `1`
 - **THEN** the row renders `0.5 Zwiebel (≈ 75 g)` (i.e. `pieceQuantity.amount = 0.5`, `amount = 75`), and `gramsPerPiece` remains `150`
 
 #### Scenario: Mass-only row scales without piece info
+
 - **GIVEN** a recipe with `yield = 2` and a row `{ amount: 100, unit: "g" }` (no `pieceQuantity`)
 - **WHEN** the user sets the multiplier to `5`
 - **THEN** the row renders `250 g`
 
 #### Scenario: Untracked row with displayQuantity scales the displayed amount
+
 - **GIVEN** a recipe with `yield = 2` and a row `{ amount: 0, unit: "g", untracked: true, displayQuantity: { amount: 1, unitLabel: "TL" } }`
 - **WHEN** the user sets the multiplier to `4`
 - **THEN** the row renders `2 TL` (muted, with untracked badge), and `displayQuantity.unitLabel` remains "TL"
 
 #### Scenario: Untracked row without displayQuantity scales identically and stays muted
+
 - **GIVEN** a recipe with `yield = 2` and a row `{ amount: 5, unit: "g", untracked: true }`
 - **WHEN** the user sets the multiplier to `4`
 - **THEN** the row renders `10 g`, retains its muted styling, and retains the untracked badge
 
 #### Scenario: Multiplier minimum is 1
+
 - **WHEN** the user attempts to decrement the multiplier below `1`
 - **THEN** the value stays at `1` (the decrement is a no-op at the floor)
 
 #### Scenario: Reset returns to stored yield
+
 - **GIVEN** a recipe with `yield = 2` and the user has set the multiplier to `6`
 - **WHEN** the user invokes the reset control
 - **THEN** the multiplier returns to `2` and every ingredient row renders at its stored `amount`
 
 #### Scenario: Steps are not rescaled
+
 - **GIVEN** a recipe whose first step text is `"Add 1 chopped onion."`
 - **WHEN** the user sets the multiplier to `4`
-- **THEN** the step text still reads `"Add 1 chopped onion."` (only ingredient rows and the totals strip reflect the new portion count)
+- **THEN** the step text still reads `"Add 1 chopped onion."` (only the ingredient rows reflect the new portion count)
 
 #### Scenario: Multiplier does not mutate the persisted recipe
+
 - **GIVEN** a recipe with `yield = 2`
 - **WHEN** the user sets the multiplier to `4`, then leaves the read view and reopens the same recipe
 - **THEN** no API call to update the recipe occurred, and on reopen the multiplier defaults to `2` again
 
 #### Scenario: Multiplier does not affect logging or other features
+
 - **GIVEN** a recipe with `yield = 2`
 - **WHEN** the user sets the multiplier to `4` on the read view and then logs the recipe from elsewhere in the app
 - **THEN** logging behaves exactly as before — the multiplier is purely a view-side concept on the read view
@@ -552,6 +564,7 @@ This helper MUST be the single source of truth used by the recipes list row, the
 - **THEN** `perServing` equals `total` (the helper defensively divides by `1`)
 
 ### Requirement: Recipe form displays live nutrition totals
+
 The recipe create/edit form SHALL render the recipe's per-serving macros as a **Pro-Portion hero card at
 the top of the form** (directly under the Name field), computed from the current in-memory `ingredients`
 and `yield` state via `computeRecipeTotals`. The hero card MUST show:
@@ -567,31 +580,37 @@ switching an ingredient's measurement mode, or changing the servings count. Per-
 `total / max(1, servings)`. The strip MUST NOT trigger any network call; computation is fully client-side.
 
 #### Scenario: Hero renders at the top of the form with a servings stepper
+
 - **WHEN** the recipe form is open
 - **THEN** the Pro-Portion hero card is the first block under the Name field, and the servings count is
   adjusted via a stepper inside that card
 
 #### Scenario: Totals update when an ingredient is added
-- **GIVEN** the recipe form is open with an empty ingredient list and the hero shows `0 kcal · 0 P / 0 C / 0 F`
+
+- **GIVEN** the recipe form is open with an empty ingredient list and the hero shows `0 kcal` with macros `0 P · 0 KH · 0 F`
 - **WHEN** the user adds an ingredient `{ amount: 100, macrosPerUnit: { calories: 2, protein: 0.2, carbs: 0, fat: 0 } }` to a recipe with `yield = 1`
-- **THEN** the hero updates to `200 kcal · 20 P / 0 C / 0 F` per serving
+- **THEN** the hero updates to `200 kcal` with macros `20 P · 0 KH · 0 F` per serving
 
 #### Scenario: Totals update when an ingredient is switched to Frei
+
 - **GIVEN** the form contains one tracked ingredient contributing 200 kcal per serving
 - **WHEN** the user selects the **Frei** segment on that row
-- **THEN** the hero updates to `0 kcal · 0 P / 0 C / 0 F` per serving (untracked rows are excluded)
+- **THEN** the hero updates to `0 kcal` with macros `0 P · 0 KH · 0 F` per serving (untracked rows are excluded)
 
 #### Scenario: Totals update when an ingredient amount is edited
+
 - **GIVEN** the form contains one tracked ingredient with `amount: 100` contributing 200 kcal per serving (yield 1)
 - **WHEN** the user changes the amount to `150`
-- **THEN** the hero updates to `300 kcal · 30 P / 0 C / 0 F` per serving
+- **THEN** the hero updates to `300 kcal` with macros `30 P · 0 KH · 0 F` per serving
 
 #### Scenario: Totals update when the servings stepper changes
+
 - **GIVEN** the form contains a recipe with `total = 400 kcal` and `servings = 2`, showing `200 kcal` per serving
 - **WHEN** the user increments the hero's servings stepper to `4`
 - **THEN** the hero updates to `100 kcal` per serving (total unchanged) and the footer reads "Gesamt 400 kcal für 4 Portionen"
 
 #### Scenario: Strip computation does not call the API
+
 - **WHEN** the user interacts with any field in the recipe form
 - **THEN** no request is sent to the backend solely to compute totals
 
@@ -666,57 +685,67 @@ Toggling a row from tracked → untracked MUST leave any future displayQuantity 
 - **THEN** no `+ Menge ergänzen` button is rendered on that row
 
 ### Requirement: Recipes list row displays per-serving macros
-The Recipes list (the screen reachable from the bottom navigation) SHALL render, for each recipe row, a one-line per-serving macro summary derived from `computeRecipeTotals(recipe.ingredients, recipe.yield).perServing`. The summary MUST display calories and the three macro grams in the format `{kcal} kcal · {protein} P / {carbs} C / {fat} F` (German: `kcal`, `P`, `C`, `F` per the existing i18n shorthand). Untracked rows MUST NOT contribute to this rollup.
 
-The macro line MUST appear in addition to (not in place of) the existing meta line (`X Zutaten · Y Portionen`). The macro line MUST be readable at mobile width; numbers MUST use tabular alignment so long names do not collapse the column.
+The Recipes list (the screen reachable from the bottom navigation) SHALL render, for each recipe
+row, a one-line per-serving macro summary derived from
+`computeRecipeTotals(recipe.ingredients, recipe.yield).perServing`. The summary MUST display
+calories and the three macro grams in the format
+`{kcal} kcal · {P} P · {KH} KH · {F} F / Portion` — middot separators between the macro items,
+the carbs label `KH`, integer-rounded values without a `g` suffix, and the trailing `/ Portion`
+rate suffix. Untracked rows MUST NOT contribute to this rollup.
+
+The macro line MUST appear in addition to (not in place of) the existing meta line
+(`X Zutaten · Y Portionen`). The macro line MUST be readable at mobile width; numbers MUST use
+tabular alignment so long names do not collapse the column.
 
 #### Scenario: Recipe with tracked ingredients shows non-zero macros
-- **GIVEN** a recipe with `yield = 2` whose tracked ingredients sum to `400 kcal · 40 P / 20 C / 20 F` total
+
+- **GIVEN** a recipe with `yield = 2` whose tracked ingredients sum to `400 kcal · 40 P · 20 KH · 20 F` total
 - **WHEN** the user opens the Recipes list
-- **THEN** that recipe's row renders the macro line `200 kcal · 20 P / 10 C / 10 F` per serving
+- **THEN** that recipe's row renders the macro line `200 kcal · 20 P · 10 KH · 10 F / Portion`
 
 #### Scenario: Recipe with only untracked ingredients shows zero macros
+
 - **GIVEN** a recipe whose every ingredient is untracked
 - **WHEN** the user opens the Recipes list
-- **THEN** that recipe's row renders the macro line `0 kcal · 0 P / 0 C / 0 F`
+- **THEN** that recipe's row renders the macro line `0 kcal · 0 P · 0 KH · 0 F / Portion`
 
 #### Scenario: Existing meta line still rendered
+
 - **WHEN** the Recipes list is shown
 - **THEN** every row still renders the existing `X Zutaten · Y Portionen` meta line in addition to the new macro line
 
-### Requirement: Recipe read view displays nutrition totals reactive to multiplier
-The recipe read (cooking) view SHALL render a nutrition totals strip near the top of the view (above or below the recipe name/yield block, above the ingredients section). The strip MUST show:
+### Requirement: Recipe read view displays per-serving nutrition totals
 
-- A primary per-serving line: `Pro Portion: {kcal} kcal · {protein} P / {carbs} C / {fat} F`.
-- A secondary "total at current multiplier" line: `Bei {chosenServings} Portionen: {kcal} kcal · {protein} P / {carbs} C / {fat} F` where `chosenServings` is the value of the existing servings multiplier on this view.
+The recipe read (cooking) view SHALL render a Pro-Portion strip near the top of the view (above the
+ingredients section) showing the per-serving totals in the format
+`{kcal} kcal · {P} P · {KH} KH · {F} F`, where the values equal
+`computeRecipeTotals(recipe.ingredients, recipe.yield).perServing` (integer-rounded). The strip is
+**invariant under the servings multiplier** — it always shows per-serving values for the stored
+`yield`. Untracked ingredients MUST NOT contribute to the strip. The strip MUST NOT trigger any
+API call; computation is purely client-side.
 
-The per-serving values MUST equal `computeRecipeTotals(recipe.ingredients, recipe.yield).perServing` — invariant under the multiplier. The "total at current multiplier" values MUST equal `perServing * chosenServings`.
+#### Scenario: Per-serving totals shown
 
-The strip MUST update reactively when the user changes the servings multiplier control; no API call MAY be triggered as a result of multiplier changes (purely client-side).
+- **GIVEN** a recipe with `yield = 2` whose tracked ingredients sum to `400 kcal · 40 P · 20 KH · 20 F` total
+- **WHEN** the user opens the recipe in read mode
+- **THEN** the strip shows `200 kcal · 20 P · 10 KH · 10 F`
 
-Untracked ingredients MUST NOT contribute to either line regardless of multiplier value.
+#### Scenario: Strip is invariant under the multiplier
 
-#### Scenario: Totals match per-serving values at default multiplier
-- **GIVEN** a recipe with `yield = 2` whose tracked ingredients sum to `400 kcal` total
-- **WHEN** the user opens the recipe in read mode without touching the multiplier
-- **THEN** the strip shows `Pro Portion: 200 kcal · …` and `Bei 2 Portionen: 400 kcal · …`
+- **GIVEN** the same recipe open in read mode
+- **WHEN** the user sets the servings multiplier to `4`
+- **THEN** the strip still shows `200 kcal · 20 P · 10 KH · 10 F` (only the ingredient rows scale)
 
-#### Scenario: Totals scale when multiplier changes
-- **GIVEN** the same recipe with default multiplier of 2
-- **WHEN** the user sets the multiplier to `4`
-- **THEN** the strip shows `Pro Portion: 200 kcal · …` (unchanged) and `Bei 4 Portionen: 800 kcal · …`
+#### Scenario: Untracked rows excluded
 
-#### Scenario: Multiplier does not trigger API call
-- **WHEN** the user changes the multiplier on the read view
-- **THEN** no request is sent to the backend solely to recompute totals
-
-#### Scenario: Untracked rows ignored regardless of multiplier
-- **GIVEN** a recipe with one tracked row contributing 200 kcal per serving and one untracked row that would notionally contribute 100 kcal per serving if counted
-- **WHEN** the user sets the multiplier to `3`
-- **THEN** the strip shows `Pro Portion: 200 kcal` and `Bei 3 Portionen: 600 kcal` (the untracked row is excluded regardless of multiplier)
+- **GIVEN** a recipe with one tracked row contributing 200 kcal per serving and one untracked row whose `macrosPerUnit` would notionally contribute 100 kcal per serving
+- **WHEN** the user opens the recipe in read mode
+- **THEN** the strip shows `200 kcal` (the untracked row is excluded)
 
 ### Requirement: Recipe ingredient editor shows per-row calories and macros for tracked ingredients
-The recipe ingredient editor SHALL display each tracked ingredient row's calorie and macro contribution as a dedicated sub-line within the row. The sub-line MUST follow the format `{kcal} kcal · {P}g P · {C}g K · {F}g F`, where each value is integer-rounded.
+
+The recipe ingredient editor SHALL display each tracked ingredient row's calorie and macro contribution as a dedicated sub-line within the row. The sub-line MUST follow the format `{kcal} kcal · {P} P · {KH} KH · {F} F` — middot separators, carbs labelled `KH`, each value integer-rounded without a `g` suffix.
 
 Per-row values MUST be derived as `ingredient.macrosPerUnit.{calories,protein,carbs,fat} * ingredient.amount`. The values MUST update synchronously when the user edits the amount input, the piece-count input, or the grams-per-piece input — no debounce, no save, no network call. The editor is already fully controlled by the parent form's state, so each valid keystroke that updates `ingredient.amount` MUST also produce the corresponding update of the per-row line on the same render.
 
@@ -725,39 +754,28 @@ The sub-line MUST NOT be rendered for any row whose `untracked === true`. Untrac
 This requirement applies to the editor as used in both the manual recipe form (create + edit) and the AI-import review screen (which mounts the same component).
 
 #### Scenario: Tracked row shows kcal and macros
+
 - **GIVEN** the recipe form contains a tracked ingredient with `macrosPerUnit = { calories: 2.5, protein: 0.26, carbs: 0, fat: 0.15 }` and `amount = 200`
 - **WHEN** the editor renders
-- **THEN** the row displays `500 kcal · 52g P · 0g K · 30g F` as a sub-line under the name/amount row
+- **THEN** the row displays `500 kcal · 52 P · 0 KH · 30 F` as a sub-line under the name/amount row
 
 #### Scenario: Untracked row hides the macro line entirely
+
 - **GIVEN** the recipe form contains an ingredient with `untracked = true` and any `macrosPerUnit` / `amount`
 - **WHEN** the editor renders
 - **THEN** no calorie or macro sub-line is shown for that row — neither the stored values nor zero placeholders
 
 #### Scenario: Macro line updates live as the amount input changes
-- **GIVEN** a tracked ingredient with `macrosPerUnit = { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 }` and `amount = 100`, showing `165 kcal · 31g P · 0g K · 4g F`
+
+- **GIVEN** a tracked ingredient with `macrosPerUnit = { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 }` and `amount = 100`, showing `165 kcal · 31 P · 0 KH · 4 F`
 - **WHEN** the user changes the amount input to `250`
-- **THEN** the row's sub-line immediately reads `413 kcal · 78g P · 0g K · 9g F`, on the same render as the input change — without any debounce, save, or network call
+- **THEN** the row's sub-line immediately reads `413 kcal · 78 P · 0 KH · 9 F`, on the same render as the input change — without any debounce, save, or network call
 
 #### Scenario: Macro line updates live as the piece count changes
+
 - **GIVEN** a tracked ingredient with `pieceQuantity = { amount: 1, unitLabel: "Zwiebel", gramsPerPiece: 150 }`, `unit: 'g'`, `amount: 150`, `macrosPerUnit = { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 }`
 - **WHEN** the user changes the piece count to `2` (which sets `amount = 300`)
 - **THEN** the row's sub-line immediately reads the kcal+macro values derived from `amount = 300`
-
-#### Scenario: Macro line updates live as grams-per-piece changes
-- **GIVEN** a tracked ingredient with `pieceQuantity = { amount: 1, unitLabel: "Zwiebel", gramsPerPiece: 150 }`, `unit: 'g'`, `amount: 150`
-- **WHEN** the user changes grams-per-piece to `200` (which sets `amount = 200`)
-- **THEN** the row's sub-line immediately reads the kcal+macro values derived from `amount = 200`
-
-#### Scenario: Toggling an ingredient to untracked hides its macro line
-- **GIVEN** a tracked ingredient is rendering its kcal+macro sub-line
-- **WHEN** the user activates the row's untracked toggle (`untracked` becomes `true`)
-- **THEN** the macro sub-line disappears on the next render
-
-#### Scenario: Toggling an ingredient back to tracked restores its macro line
-- **GIVEN** an untracked ingredient with `macrosPerUnit` and `amount` set, currently rendering no macro sub-line
-- **WHEN** the user deactivates the untracked toggle (`untracked` becomes `false` / removed)
-- **THEN** the macro sub-line reappears, derived from the row's current `macrosPerUnit * amount`
 
 ### Requirement: Recipe form ingredient measurement-mode control
 The recipe ingredient editor (used by both the manual recipe form and the AI-import review screen) SHALL
@@ -863,21 +881,31 @@ The active-segment styling (white segment, card shadow) MUST change instantly on
   present in the DOM
 
 ### Requirement: Recipe detail and editor header back navigation
-The Recipe Detail (read) view and the Recipe Editor SHALL present their back/close affordance as a single
-**header back-arrow**: an arrow-only icon button (chevron-left) rendered inline to the **left of the
-heading**, aligned to the content edge. This REPLACES the Recipe Detail's text `← Zurück` link and the
-Recipe Editor's close `×` button. There MUST be no `×` close button in these headers.
 
-On the Recipe Detail the back-arrow returns to the recipes list. On the Recipe Editor the back-arrow
-invokes the cancel handler (discarding the in-progress edit, with the existing unsaved-changes guard if
-any). The arrow MUST have an accessible label.
+The Recipe Detail (read) view and the Recipe Editor SHALL present their back/close affordance as a
+single **header back-arrow**: a white arrow-only icon button (chevron-left) rendered inside the
+indigo app header, to the **left of the in-header title** (see the `screen-headers` capability for
+the header shape: entity title + optional subtitle live in the header, never as a body heading).
+This REPLACES the previous in-content placement (arrow inline-left of a body heading). There MUST
+be no `×` close button on these screens.
+
+On the Recipe Detail the back-arrow returns to the recipes list. On the Recipe Editor the
+back-arrow invokes the cancel handler (discarding the in-progress edit, with the existing
+unsaved-changes guard if any). The arrow MUST have an accessible label.
 
 #### Scenario: Recipe detail back-arrow returns to the list
+
 - **WHEN** the user opens a recipe in read mode and activates the header back-arrow
 - **THEN** the recipes list is shown again
 
 #### Scenario: Recipe editor back-arrow cancels
+
 - **WHEN** the user is in the Recipe Editor and activates the header back-arrow
 - **THEN** the editor's cancel handler runs (the same as the existing "Abbrechen" action) and no `×`
   close button is present in the header
 
+#### Scenario: Back arrow sits in the app header, not the body
+
+- **WHEN** the user opens a recipe in read mode
+- **THEN** the back arrow is rendered inside the indigo app header to the left of the recipe-name
+  title, and the scroll body contains neither a back arrow nor a recipe-name heading

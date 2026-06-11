@@ -22,7 +22,7 @@ describe('FullEntryConfirm', () => {
     );
     expect(screen.getByText('Chicken breast')).toBeInTheDocument();
     // chicken: 1.65 kcal/g, 0.31g/g P, 0g/g K, 0.036g/g F → ×100 + Math.round
-    expect(screen.getByText('pro 100g — 165 kcal · 31g P · 0g K · 4g F')).toBeInTheDocument();
+    expect(screen.getByText('165 kcal / 100g · 31 P · 0 KH · 4 F')).toBeInTheDocument();
   });
 
   it('requires amount > 0', async () => {
@@ -68,10 +68,9 @@ describe('FullEntryConfirm', () => {
       { queryClient: createTestQueryClient() },
     );
     await userEvent.type(screen.getByLabelText(/menge/i), '200');
-    // 1.65 * 200 = 330 kcal, 0.31 * 200 = 62g protein
-    // Values are split across spans, so we look for them individually
-    expect(await screen.findByText('330')).toBeInTheDocument();
-    expect(screen.getByText('62g')).toBeInTheDocument();
+    // 1.65 * 200 = 330 kcal, 0.31 * 200 = 62 protein — rendered as the unified triplet
+    expect(await screen.findByText(/330 kcal/)).toBeInTheDocument();
+    expect(screen.getByText(/62 P · 0 KH · 7 F/)).toBeInTheDocument();
   });
 
   it('hides calculated row when amount is empty', () => {

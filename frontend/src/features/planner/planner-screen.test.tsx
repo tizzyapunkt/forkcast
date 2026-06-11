@@ -58,13 +58,19 @@ describe('PlannerScreen', () => {
     expect(screen.getByText('Mittagessen')).toBeInTheDocument();
   });
 
-  it('shows the week range and header rollups (avg per day + planned days)', async () => {
+  it('shows the week range and rollups inside the app header (avg per day + planned days)', async () => {
     useWeek(weekWithWednesday());
     renderWithProviders(<PlannerScreen />);
 
     expect(await screen.findByText('8.–14. Juni')).toBeInTheDocument();
-    expect(await screen.findByText(/Ø 264 kcal\/Tag/)).toBeInTheDocument(); // 1846 / 7
+    const avg = await screen.findByText(/Ø 264 kcal\/Tag/); // 1846 / 7
+    expect(avg).toBeInTheDocument();
     expect(screen.getByText('1/7 Tage geplant')).toBeInTheDocument();
+    // The rollups and the week stepper live INSIDE the indigo header, next to the "Wochenplan" title.
+    const header = screen.getByRole('heading', { name: 'Wochenplan' }).closest('header');
+    expect(header).not.toBeNull();
+    expect(header).toContainElement(avg);
+    expect(header).toContainElement(screen.getByText('8.–14. Juni'));
   });
 
   it('shows the day total against the goal and marks empty days "leer"', async () => {

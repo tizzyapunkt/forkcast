@@ -16,6 +16,15 @@ function per100Display(unit: MeasurementUnit): { mul: number; label: string } {
   return { mul: 1, label: unit };
 }
 
+/**
+ * The ONE app-wide macro-triplet format: `{P} P · {KH} KH · {F} F` — middot separators,
+ * carbs labelled `KH`, integer-rounded values without a `g` suffix. Every macro triplet
+ * in the UI MUST go through this helper so the format cannot drift per screen.
+ */
+export function formatMacroTriplet(protein: number, carbs: number, fat: number): string {
+  return `${Math.round(protein)} P · ${Math.round(carbs)} KH · ${Math.round(fat)} F`;
+}
+
 /** German UI copy for the forkcast frontend. */
 export const de = {
   appTitle: 'forkcast',
@@ -83,8 +92,7 @@ export const de = {
     nothingLogged: 'Noch nichts erfasst',
     add: 'Hinzufügen',
     kcalSuffix: ' kcal',
-    macroInline: (p: number, c: number, f: number) =>
-      `· ${Math.round(p)}g P · ${Math.round(c)}g K · ${Math.round(f)}g F`,
+    macroInline: (p: number, c: number, f: number) => `· ${formatMacroTriplet(p, c, f)}`,
   },
 
   entryRow: {
@@ -267,7 +275,7 @@ export const de = {
   fullEntry: {
     perUnit: (unit: MeasurementUnit, cals: number, p: number, cb: number, f: number) => {
       const { mul, label } = per100Display(unit);
-      return `pro ${label} — ${Math.round(cals * mul)} kcal · ${Math.round(p * mul)}g P · ${Math.round(cb * mul)}g K · ${Math.round(f * mul)}g F`;
+      return `${Math.round(cals * mul)} kcal / ${label} · ${formatMacroTriplet(p * mul, cb * mul, f * mul)}`;
     },
     totalIntro: (amount: number, unit: string) => `${amount} ${unit} gesamt — `,
     macroKcal: 'kcal',
@@ -291,7 +299,7 @@ export const de = {
     summaryLine: (yield_: number, ingCount: number) =>
       `Rezept ergibt ${yield_} Portion${yield_ === 1 ? '' : 'en'} · ${ingCount} Zutat${ingCount === 1 ? '' : 'en'}`,
     totalLine: (cals: number, p: number, cb: number, f: number) =>
-      `Gesamt: ${Math.round(cals)} kcal · ${Math.round(p)}g P · ${Math.round(cb)}g K · ${Math.round(f)}g F`,
+      `Gesamt: ${Math.round(cals)} kcal · ${formatMacroTriplet(p, cb, f)}`,
     portionsLabel: 'Zu erfassende Portionen',
     willLogHeading: (n: number) => `Es werden ${n} Zutat${n === 1 ? '' : 'en'} erfasst:`,
     back: 'Zurück',
@@ -401,18 +409,14 @@ export const de = {
     servingsIncrement: 'Eine Portion mehr',
     servingsReset: 'Zurücksetzen',
     servingsResetAria: (n: number) => `Auf ${n} Portion${n === 1 ? '' : 'en'} zurücksetzen`,
-    macroLine: (kcal: number, p: number, c: number, f: number) => `${kcal} kcal · ${p} P / ${c} C / ${f} F`,
+    macroLine: (kcal: number, p: number, c: number, f: number) =>
+      `${kcal} kcal · ${formatMacroTriplet(p, c, f)} / Portion`,
   },
 
   recipeTotals: {
     perServingLabel: 'Pro Portion',
-    totalLabel: 'Gesamt',
-    forServingsLabel: (n: number) => `Bei ${n} Portion${n === 1 ? '' : 'en'}`,
     kcalUnit: 'kcal',
-    proteinShort: 'P',
-    carbsShort: 'C',
-    fatShort: 'F',
-    summary: (kcal: number, p: number, c: number, f: number) => `${kcal} kcal · ${p} P / ${c} C / ${f} F`,
+    summary: (kcal: number, p: number, c: number, f: number) => `${kcal} kcal · ${formatMacroTriplet(p, c, f)}`,
     sectionAria: 'Nährwerte',
     heroServingsPrefix: 'Ergibt',
     heroServingsSuffix: 'Portionen',
@@ -578,7 +582,7 @@ export const de = {
     recent: 'Zuletzt',
     perUnit: (unit: MeasurementUnit, cals: number, p: number, cb: number, f: number) => {
       const { mul, label } = per100Display(unit);
-      return `pro ${label} — ${Math.round(cals * mul)} kcal · ${Math.round(p * mul)}g P · ${Math.round(cb * mul)}g K · ${Math.round(f * mul)}g F`;
+      return `${Math.round(cals * mul)} kcal / ${label} · ${formatMacroTriplet(p * mul, cb * mul, f * mul)}`;
     },
     amountLabel: (unit: string) => `Menge pro Rezept (${unit})`,
     amountPlaceholder: 'z. B. 100',

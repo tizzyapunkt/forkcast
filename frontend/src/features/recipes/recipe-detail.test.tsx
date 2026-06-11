@@ -56,6 +56,52 @@ describe('RecipeDetail — header back-arrow', () => {
     await userEvent.click(screen.getAllByRole('button', { name: /^zurück/i })[0]!);
     expect(screen.queryByRole('heading', { name: /rezept bearbeiten/i })).not.toBeInTheDocument();
   });
+
+  it('puts the recipe name + yield subtitle inside the app header, never as a body heading', async () => {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          yield: 4,
+          name: 'Soup',
+          ingredients: [
+            { name: 'Mehl', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 }, amount: 100 },
+          ],
+        }),
+      ),
+    );
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    const titles = await screen.findAllByRole('heading', { name: 'Soup' });
+    // The recipe name appears exactly once — inside the indigo header.
+    expect(titles).toHaveLength(1);
+    const header = titles[0]!.closest('header');
+    expect(header).not.toBeNull();
+    // Subtitle and back arrow live in the same header.
+    expect(header).toHaveTextContent('Ergibt 4 Portionen');
+    expect(screen.getByRole('button', { name: /^zurück/i }).closest('header')).toBe(header);
+  });
+
+  it('puts the editor title inside the app header, never as a body heading', async () => {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          name: 'Soup',
+          ingredients: [
+            { name: 'Mehl', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 }, amount: 100 },
+          ],
+        }),
+      ),
+    );
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+    await screen.findByText('Soup');
+    await userEvent.click(screen.getByRole('button', { name: /rezept bearbeiten/i }));
+
+    const titles = screen.getAllByRole('heading', { name: /rezept bearbeiten/i });
+    expect(titles).toHaveLength(1);
+    expect(titles[0]!.closest('header')).not.toBeNull();
+  });
 });
 
 describe('RecipeDetail — dual-form rendering', () => {
@@ -326,18 +372,19 @@ describe('RecipeDetail — totals strip & displayQuantity', () => {
     );
   }
 
-  it('renders the totals strip with per-serving and "Bei N Portionen" lines', async () => {
+  it('renders the totals strip as a single per-serving line with the unified triplet', async () => {
     mockRecipeWithDisplayQuantity();
     renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
 
     await screen.findByText('Bolognese');
-    // 400 g × 2.5 = 1000 kcal total / yield 2 = 500 kcal per serving
-    expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal/);
-    // "Bei 2 Portionen" at default: 1000 kcal
-    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^1000 kcal/);
+    // 400 g × 2.5 = 1000 kcal total / yield 2 = 500 kcal per serving; 40 P · 0 KH · 36 F per serving
+    expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal · 40 P · 0 KH · 36 F$/);
+    // The "Bei N Portionen" scaled-total line is gone.
+    expect(screen.queryByTestId('totals-secondary')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Bei \d+ Portionen/)).not.toBeInTheDocument();
   });
 
-  it('rescales the secondary totals line when the multiplier changes', async () => {
+  it('keeps the per-serving strip invariant when the multiplier changes', async () => {
     mockRecipeWithDisplayQuantity();
     renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
 
@@ -346,9 +393,9 @@ describe('RecipeDetail — totals strip & displayQuantity', () => {
     await userEvent.click(inc);
     await userEvent.click(inc);
 
-    // Per serving unchanged at 500, total at 4 servings = 2000
+    // Only the ingredient rows scale — the strip stays per-serving.
     expect(screen.getByTestId('totals-per-serving')).toHaveTextContent(/^500 kcal/);
-    expect(screen.getByTestId('totals-secondary')).toHaveTextContent(/^2000 kcal/);
+    expect(screen.queryByTestId('totals-secondary')).not.toBeInTheDocument();
   });
 
   it('excludes untracked rows from the totals regardless of multiplier', async () => {

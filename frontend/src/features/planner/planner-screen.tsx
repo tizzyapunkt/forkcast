@@ -5,6 +5,7 @@ import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useRemoveLogEntry } from '../../queries/use-remove-log-entry';
 import { useCopyLogDay } from '../../queries/use-copy-log-day';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
+import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { addDays, mondayOf, today } from '../../domain/date';
@@ -89,108 +90,110 @@ export function PlannerScreen() {
   }
 
   return (
-    <div className="space-y-3 p-4">
-      <div className="rounded-lg border bg-card p-3">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-base font-semibold">{de.planner.title}</h2>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={goPrevWeek}
-              aria-label={de.planner.prevWeek}
-              className="inline-flex h-9 w-9 items-center justify-center text-muted-foreground hover:text-foreground"
-            >
-              <ChevronLeft size={20} aria-hidden="true" />
-            </button>
-            <span className="min-w-[7rem] text-center text-sm font-medium tabular-nums">
-              {weekRangeLabel(weekStart, weekEnd)}
-            </span>
-            <button
-              type="button"
-              onClick={goNextWeek}
-              aria-label={de.planner.nextWeek}
-              className="inline-flex h-9 w-9 items-center justify-center text-muted-foreground hover:text-foreground"
-            >
-              <ChevronRight size={20} aria-hidden="true" />
-            </button>
-          </div>
+    <>
+      <AppHeader
+        title={de.planner.title}
+        bottom={
+          week ? (
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
+              <span>{de.planner.avgPerDay(r(week.averages.calories))}</span>
+              <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
+              <span>
+                {de.planner.avgMacrosLabel}:{' '}
+                {de.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
+              </span>
+            </div>
+          ) : null
+        }
+      >
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={goPrevWeek}
+            aria-label={de.planner.prevWeek}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 hover:text-white"
+          >
+            <ChevronLeft size={20} aria-hidden="true" />
+          </button>
+          <span className="min-w-[7rem] text-center text-sm font-medium tabular-nums">
+            {weekRangeLabel(weekStart, weekEnd)}
+          </span>
+          <button
+            type="button"
+            onClick={goNextWeek}
+            aria-label={de.planner.nextWeek}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 hover:text-white"
+          >
+            <ChevronRight size={20} aria-hidden="true" />
+          </button>
         </div>
+      </AppHeader>
+      <div className="space-y-3 p-4">
+        {error && <ErrorBanner error={error} />}
+        {isLoading && <ListSkeleton rows={7} />}
+
         {week && (
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground tabular-nums">
-            <span>{de.planner.avgPerDay(r(week.averages.calories))}</span>
-            <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
-            <span>
-              {de.planner.avgMacrosLabel}:{' '}
-              {de.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
-            </span>
+          <ul className="space-y-2">
+            {week.days.map((day, i) => (
+              <DaySection
+                key={day.date}
+                day={day}
+                index={i}
+                open={expanded === i}
+                goalKcal={goalKcal}
+                onToggle={() => setExpanded((cur) => (cur === i ? -1 : i))}
+                onAdd={(slot) => setTarget({ date: day.date, slot })}
+                onRemove={(id) => removeMutation.mutate({ id, date: day.date })}
+                onCopy={() =>
+                  setCopyConfirm({
+                    fromDate: day.date,
+                    toDate: addDays(day.date, 1),
+                    dayLabel: de.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? dateLabel(day.date),
+                  })
+                }
+              />
+            ))}
+          </ul>
+        )}
+
+        {copyConfirm && (
+          <div className="rounded-md border bg-card p-3">
+            <p className="mb-1 text-sm font-medium">{de.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
+            <p className="mb-2 text-xs text-muted-foreground">{de.planner.copyDayBody}</p>
+            {copyMutation.error && <ErrorBanner error={copyMutation.error} />}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCopyConfirm(null)}
+                className="flex-1 rounded-md border px-3 py-2 text-sm"
+              >
+                {de.recipeForm.cancel}
+              </button>
+              <button
+                type="button"
+                disabled={copyMutation.isPending}
+                onClick={() =>
+                  copyMutation.mutate(
+                    { fromDate: copyConfirm.fromDate, toDate: copyConfirm.toDate },
+                    { onSuccess: () => setCopyConfirm(null) },
+                  )
+                }
+                className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              >
+                {de.planner.copyDayConfirm(de.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
+              </button>
+            </div>
           </div>
         )}
+
+        <LogIngredientDrawer
+          open={target !== null}
+          slot={target?.slot ?? null}
+          date={target?.date ?? todayStr}
+          onClose={() => setTarget(null)}
+        />
       </div>
-
-      {error && <ErrorBanner error={error} />}
-      {isLoading && <ListSkeleton rows={7} />}
-
-      {week && (
-        <ul className="space-y-2">
-          {week.days.map((day, i) => (
-            <DaySection
-              key={day.date}
-              day={day}
-              index={i}
-              open={expanded === i}
-              goalKcal={goalKcal}
-              onToggle={() => setExpanded((cur) => (cur === i ? -1 : i))}
-              onAdd={(slot) => setTarget({ date: day.date, slot })}
-              onRemove={(id) => removeMutation.mutate({ id, date: day.date })}
-              onCopy={() =>
-                setCopyConfirm({
-                  fromDate: day.date,
-                  toDate: addDays(day.date, 1),
-                  dayLabel: de.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? dateLabel(day.date),
-                })
-              }
-            />
-          ))}
-        </ul>
-      )}
-
-      {copyConfirm && (
-        <div className="rounded-md border bg-card p-3">
-          <p className="mb-1 text-sm font-medium">{de.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
-          <p className="mb-2 text-xs text-muted-foreground">{de.planner.copyDayBody}</p>
-          {copyMutation.error && <ErrorBanner error={copyMutation.error} />}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setCopyConfirm(null)}
-              className="flex-1 rounded-md border px-3 py-2 text-sm"
-            >
-              {de.recipeForm.cancel}
-            </button>
-            <button
-              type="button"
-              disabled={copyMutation.isPending}
-              onClick={() =>
-                copyMutation.mutate(
-                  { fromDate: copyConfirm.fromDate, toDate: copyConfirm.toDate },
-                  { onSuccess: () => setCopyConfirm(null) },
-                )
-              }
-              className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-            >
-              {de.planner.copyDayConfirm(de.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      <LogIngredientDrawer
-        open={target !== null}
-        slot={target?.slot ?? null}
-        date={target?.date ?? todayStr}
-        onClose={() => setTarget(null)}
-      />
-    </div>
+    </>
   );
 }
 

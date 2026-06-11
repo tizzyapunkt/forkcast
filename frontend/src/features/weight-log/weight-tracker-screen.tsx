@@ -3,6 +3,7 @@ import { useWeightTrend } from '../../queries/use-weight-trend';
 import { WeightChart } from './weight-chart';
 import { WeightStats } from './weight-stats';
 import { WeightHistoryList } from './weight-history-list';
+import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { de } from '../../i18n/de';
@@ -17,21 +18,28 @@ export function WeightTrackerScreen({ onBack }: WeightTrackerScreenProps) {
   const entriesQuery = useWeightLog();
   const trendQuery = useWeightTrend();
 
+  const header = <AppHeader title={de.weightLog.screenTitle} onBack={onBack} backAria={de.recipes.back} />;
+
   if (entriesQuery.isLoading || trendQuery.isLoading) {
     return (
-      <div className="space-y-3 p-4">
-        <ListSkeleton rows={4} />
-      </div>
+      <>
+        {header}
+        <div className="space-y-3 p-4">
+          <ListSkeleton rows={4} />
+        </div>
+      </>
     );
   }
 
   const error = entriesQuery.error ?? trendQuery.error;
   if (error) {
     return (
-      <div className="space-y-3 p-4">
-        <BackBar onBack={onBack} />
-        <ErrorBanner error={error} />
-      </div>
+      <>
+        {header}
+        <div className="space-y-3 p-4">
+          <ErrorBanner error={error} />
+        </div>
+      </>
     );
   }
 
@@ -48,25 +56,18 @@ export function WeightTrackerScreen({ onBack }: WeightTrackerScreenProps) {
   };
 
   return (
-    <div className="space-y-4 p-4">
-      <BackBar onBack={onBack} />
-      <h2 className="text-base font-semibold">{de.weightLog.screenTitle}</h2>
-      {trend.firstEntryDate && (
-        <p className="text-xs text-muted-foreground">
-          {de.weightLog.coverage(trend.totalEntries, trend.firstEntryDate)}
-        </p>
-      )}
-      <WeightStats trend={trend} />
-      <WeightChart entries={entries} asOf={asOf} />
-      <WeightHistoryList entries={entries} />
-    </div>
-  );
-}
-
-function BackBar({ onBack }: { onBack: () => void }) {
-  return (
-    <button type="button" onClick={onBack} className="text-sm text-primary">
-      ← {de.recipes.back}
-    </button>
+    <>
+      {header}
+      <div className="space-y-4 p-4">
+        {trend.firstEntryDate && (
+          <p className="text-xs text-muted-foreground">
+            {de.weightLog.coverage(trend.totalEntries, trend.firstEntryDate)}
+          </p>
+        )}
+        <WeightStats trend={trend} />
+        <WeightChart entries={entries} asOf={asOf} />
+        <WeightHistoryList entries={entries} />
+      </div>
+    </>
   );
 }

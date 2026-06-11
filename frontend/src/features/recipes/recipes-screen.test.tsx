@@ -122,7 +122,7 @@ describe('RecipesScreen', () => {
     renderWithProviders(<RecipesScreen />);
     await screen.findByText('Bolognese');
     // total 1000 kcal / yield 2 = 500 kcal per serving
-    expect(screen.getByTestId('recipe-macro-line-1')).toHaveTextContent(/^500 kcal · 40 P \/ 0 C \/ 36 F$/);
+    expect(screen.getByTestId('recipe-macro-line-1')).toHaveTextContent(/^500 kcal · 40 P · 0 KH · 36 F \/ Portion$/);
     // existing meta line still rendered
     expect(screen.getByText(/1 Zutat · 2 Port\./)).toBeInTheDocument();
   });

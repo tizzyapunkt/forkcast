@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ImportNotConfiguredError } from '../../api/import-recipe-from-photos';
 import type { RecipeDraft } from '../../domain/recipes';
@@ -49,37 +50,28 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
+    <>
+      <AppHeader title={de.aiRecipeImport.screenTitle} onBack={onCancel} backAria={de.aiRecipeImport.back} />
+      <div className="space-y-4 p-4">
+        <PhotoStaging
+          photos={photos}
+          onChange={setPhotos}
+          maxImages={maxImages ?? DEFAULT_MAX_IMAGES}
+          maxImageBytes={maxImageBytes ?? DEFAULT_MAX_IMAGE_BYTES}
+          disabled={importMutation.isPending}
+        />
+
+        {error && <ErrorBanner error={error} />}
+
         <button
-          onClick={onCancel}
-          aria-label={de.aiRecipeImport.back}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          type="button"
+          onClick={handleSubmit}
+          disabled={photos.length === 0 || importMutation.isPending}
+          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          ← {de.aiRecipeImport.back}
+          {importMutation.isPending ? de.aiRecipeImport.submitting : de.aiRecipeImport.submit}
         </button>
-        <h2 className="text-base font-semibold">{de.aiRecipeImport.screenTitle}</h2>
-        <span className="w-12" />
       </div>
-
-      <PhotoStaging
-        photos={photos}
-        onChange={setPhotos}
-        maxImages={maxImages ?? DEFAULT_MAX_IMAGES}
-        maxImageBytes={maxImageBytes ?? DEFAULT_MAX_IMAGE_BYTES}
-        disabled={importMutation.isPending}
-      />
-
-      {error && <ErrorBanner error={error} />}
-
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={photos.length === 0 || importMutation.isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-      >
-        {importMutation.isPending ? de.aiRecipeImport.submitting : de.aiRecipeImport.submit}
-      </button>
-    </div>
+    </>
   );
 }
