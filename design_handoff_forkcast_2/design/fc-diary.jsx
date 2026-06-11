@@ -2,7 +2,7 @@
 (function () {
   const { useState } = React;
   const Icon = window.Icon;
-  const { IconBtn, MacroTriple, fmt } = window;
+  const { IconBtn, MacroTriple, EntryList, fmt } = window;
   const D = window.FC_DATA;
 
   function kcalState(consumed, goal) {
@@ -13,59 +13,7 @@
     return { badge: `${fmt.r(-remaining)} kcal über Ziel`, tone: 'over', pct: 100 };
   }
 
-  // inline-editable amount (tap to edit) — recomputes entry
-  function InlineAmount({ amount, unit, onChange }) {
-    const [editing, setEditing] = useState(false);
-    const [val, setVal] = useState(String(amount));
-    if (editing) {
-      return (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-          <input autoFocus type="number" inputMode="decimal" value={val}
-            onChange={(e) => setVal(e.target.value)}
-            onBlur={() => { const n = Number(val); if (Number.isFinite(n) && n > 0) onChange(n); setEditing(false); }}
-            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
-            style={{ width: 58, height: 34, border: '1px solid var(--accent)', borderRadius: 8, padding: '0 8px',
-              fontSize: 15, textAlign: 'right', fontFamily: 'inherit', boxShadow: '0 0 0 3px var(--accent-soft)' }} />
-          <span className="fc-faint" style={{ fontSize: 13 }}>{unit}</span>
-        </span>
-      );
-    }
-    return (
-      <button onClick={() => { setVal(String(amount)); setEditing(true); }}
-        style={{ background: 'var(--muted)', border: 'none', borderRadius: 8, padding: '4px 9px', cursor: 'pointer',
-          fontSize: 13, fontWeight: 600, color: 'var(--muted-fg)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-        <span className="fc-num">{amount}</span> {unit}
-        <Icon name="pencil" size={12} style={{ opacity: .5, marginLeft: 1 }} />
-      </button>
-    );
-  }
-
-  // entry row — two-column layout so the macro line can NEVER overflow off-screen
-  function EntryRow({ entry, onAmount, onRemove }) {
-    const m = D.entryMacros(entry);
-    const sub = m.kind === 'recipe'
-      ? <span className="fc-chip" style={{ background: 'var(--accent-soft)', color: 'var(--primary)' }}><Icon name="book" size={12} /> {m.portions} Portion{m.portions === 1 ? '' : 'en'}</span>
-      : m.kind === 'quick'
-        ? <span className="fc-chip">Schnell</span>
-        : <InlineAmount amount={entry.amount} unit={m.unit} onChange={onAmount} />;
-    return (
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '11px 0' }}>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.25, color: 'var(--fg)', textWrap: 'pretty' }}>{m.name}</div>
-          <div style={{ marginTop: 7 }}>{sub}</div>
-        </div>
-        <div style={{ textAlign: 'right', flexShrink: 0, paddingTop: 1 }}>
-          <div className="fc-num" style={{ fontSize: 15, fontWeight: 700, color: 'var(--fg)' }}>{m.kcal} kcal</div>
-          <div className="fc-num fc-faint" style={{ fontSize: 12, marginTop: 3, whiteSpace: 'nowrap' }}>
-            {fmt.macroStr(m.p, m.c, m.f)}
-          </div>
-        </div>
-        <IconBtn name="x" size={18} label="Eintrag entfernen" danger onClick={onRemove} style={{ width: 38, height: 38, minWidth: 38, marginRight: -6 }} />
-      </div>
-    );
-  }
-
-  function SlotCard({ slot, entries, onAdd, onAmount, onRemove }) {
+  function SlotCard({ slot, entries, onAdd, onAmount, onRemove, onRemoveMany }) {
     let kcal = 0, p = 0, c = 0, f = 0;
     entries.forEach((e) => { const m = D.entryMacros(e); kcal += m.kcal; p += m.p; c += m.c; f += m.f; });
     return (
@@ -84,10 +32,10 @@
         {entries.length === 0 ? (
           <p className="fc-faint" style={{ fontSize: 14, marginTop: 8 }}>Noch nichts erfasst</p>
         ) : (
-          <div className="fc-divide" style={{ marginTop: 6 }}>
-            {entries.map((e) => (
-              <EntryRow key={e.id} entry={e} onAmount={(a) => onAmount(e.id, a)} onRemove={() => onRemove(e.id)} />
-            ))}
+          <div style={{ marginTop: 6 }}>
+            <EntryList entries={entries}
+              onAmount={(e, a) => onAmount(e.id, a)} onRemove={(e) => onRemove(e.id)}
+              onRemoveGroup={(items) => onRemoveMany(items.map((x) => x.id))} />
           </div>
         )}
       </section>
@@ -100,7 +48,7 @@
     return (
       <section className="fc-card" style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <h2 className="fc-h2" style={{ fontSize: 16, display: 'flex', alignItems: 'center', gap: 7 }}>
+          <h2 className="fc-h2" style={{ fontSize: 16.5, display: 'flex', alignItems: 'center', gap: 7 }}>
             <Icon name="weight" size={18} color="var(--primary)" /> Heutiges Gewicht
           </h2>
           <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>
@@ -120,7 +68,7 @@
     );
   }
 
-  function DiaryScreen({ goal, log, setLog, dateLabel, onPrev, onNext, openAdd, alarm }) {
+  function DiaryScreen({ goal, log, setLog, dateLabel, onPrev, onNext, openAdd, alarm, headerMacroColor }) {
     let consumed = 0, p = 0, c = 0, f = 0;
     D.SLOTS.forEach((s) => log[s].forEach((e) => { const m = D.entryMacros(e); consumed += m.kcal; p += m.p; c += m.c; f += m.f; }));
     const st = kcalState(consumed, goal.calories);
@@ -132,6 +80,7 @@
 
     function amount(slot, id, a) { setLog((L) => ({ ...L, [slot]: L[slot].map((e) => e.id === id ? { ...e, amount: a } : e) })); }
     function remove(slot, id) { setLog((L) => ({ ...L, [slot]: L[slot].filter((e) => e.id !== id) })); }
+    function removeMany(slot, ids) { const drop = new Set(ids); setLog((L) => ({ ...L, [slot]: L[slot].filter((e) => !drop.has(e.id)) })); }
 
     return (
       <>
@@ -155,14 +104,14 @@
           <div style={{ height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden', margin: '12px 0 16px' }}>
             <div style={{ height: '100%', width: st.pct + '%', background: barFill, borderRadius: 99, transition: 'width .5s' }} />
           </div>
-          <MacroTriple totals={{ p, c, f }} goal={goal} light />
+          <MacroTriple totals={{ p, c, f }} goal={goal} light colored={headerMacroColor} />
         </header>
 
         <div className="fc-scroll" style={{ padding: '14px 16px 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <WeightCard />
           {D.SLOTS.map((slot) => (
             <SlotCard key={slot} slot={slot} entries={log[slot]}
-              onAdd={() => openAdd(slot)} onAmount={(id, a) => amount(slot, id, a)} onRemove={(id) => remove(slot, id)} />
+              onAdd={() => openAdd(slot)} onAmount={(id, a) => amount(slot, id, a)} onRemove={(id) => remove(slot, id)} onRemoveMany={(ids) => removeMany(slot, ids)} />
           ))}
         </div>
       </>

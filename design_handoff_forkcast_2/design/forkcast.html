@@ -56,11 +56,20 @@ const D = window.FC_DATA;
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "plannerLayout": "Liste",
   "measureStyle": "Segmentiert",
-  "zeroTone": "Neutral"
+  "zeroTone": "Neutral",
+  "headerMacroColor": "An",
+  "proteinColor": "Grün"
 }/*EDITMODE-END*/;
 
 const PLANNER_MAP = { 'Liste': 'list', 'Agenda': 'agenda', 'Raster': 'grid' };
 const MEASURE_MAP = { 'Segmentiert': 'segmented', 'Menü': 'menu' };
+// Eiweiß (protein) color presets — overrides --macro-p / --macro-p-on app-wide.
+// Green separates protein from the brand indigo & the blue fat for better contrast.
+const PROTEIN_COLORS = {
+  'Grün':   { base: 'hsl(146 52% 43%)', on: 'hsl(145 60% 62%)' },
+  'Teal':   { base: 'hsl(176 58% 38%)', on: 'hsl(174 62% 58%)' },
+  'Indigo': { base: 'hsl(244 50% 56%)', on: 'hsl(250 95% 80%)' },
+};
 
 function App() {
   const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
@@ -79,15 +88,16 @@ function App() {
   const dateLabels = ['Di. 2. Juni', 'Mi. 3. Juni', 'Do. 4. Juni', 'Mo. 1. Juni'];
   const dateLabel = dayOffset === 0 ? 'Di. 2. Juni' : (dayOffset > 0 ? `${2 + dayOffset}. Juni`.replace(/^(\d)\./, 'Mi. $1.') : `${2 + dayOffset}. Juni`);
 
-  function addEntry(entry) { setAddSlot((slot) => { setLog((L) => ({ ...L, [slot]: [...L[slot], entry] })); return null; }); }
+  function addEntry(entry) { setAddSlot((slot) => { const items = Array.isArray(entry) ? entry : [entry]; setLog((L) => ({ ...L, [slot]: [...L[slot], ...items] })); return null; }); }
 
   function renderTab() {
     if (tab === 'diary') {
       return <window.DiaryScreen goal={D.GOAL} log={log} setLog={setLog} alarm={t.zeroTone === 'Alarm-Rot'}
+        headerMacroColor={t.headerMacroColor === 'An'}
         dateLabel={dateLabel} onPrev={() => setDayOffset((d) => d - 1)} onNext={() => setDayOffset((d) => d + 1)}
         openAdd={(slot) => setAddSlot(slot)} />;
     }
-    if (tab === 'plan') return <window.PlannerScreen goal={D.GOAL} layout={PLANNER_MAP[t.plannerLayout]} />;
+    if (tab === 'plan') return <window.PlannerScreen goal={D.GOAL} layout={PLANNER_MAP[t.plannerLayout]} headerMacroColor={t.headerMacroColor === 'An'} />;
     if (tab === 'recipes') {
       if (recipeMode === 'detail' && activeRecipe) {
         return <window.RecipeDetail recipe={activeRecipe} onBack={() => setRecipeMode('list')}
@@ -110,13 +120,14 @@ function App() {
 
   // hide bottom nav while inside a recipe sub-screen (detail/editor) for focus
   const showNav = !(tab === 'recipes' && recipeMode !== 'list');
+  const pc = PROTEIN_COLORS[t.proteinColor] || PROTEIN_COLORS['Grün'];
 
   return (
     <window.IOSDevice width={402} height={874} statusBarDark={true}>
-      <div className="fc-app">
+      <div className="fc-app" style={{ '--macro-p': pc.base, '--macro-p-on': pc.on }}>
         {renderTab()}
         {showNav && <window.BottomNav active={tab} onChange={(id) => { setTab(id); if (id === 'recipes') setRecipeMode('list'); }} />}
-        <window.AddFoodSheet open={!!addSlot} slot={addSlot} onClose={() => setAddSlot(null)} onAdd={addEntry} />
+        <window.AddFoodSheet open={!!addSlot} slot={addSlot} onClose={() => setAddSlot(null)} onAdd={addEntry} expandRecipes />
       </div>
 
       <window.TweaksPanel>
@@ -129,6 +140,11 @@ function App() {
         <window.TweakSection label="Tagebuch" />
         <window.TweakRadio label="Status bei Defizit" value={t.zeroTone} options={['Neutral', 'Alarm-Rot']}
           onChange={(v) => setTweak('zeroTone', v)} />
+        <window.TweakSection label="Anzeige" />
+        <window.TweakRadio label="Makrofarben im Header" value={t.headerMacroColor} options={['An', 'Aus']}
+          onChange={(v) => setTweak('headerMacroColor', v)} />
+        <window.TweakRadio label="Eiweiß-Farbe" value={t.proteinColor} options={['Grün', 'Teal', 'Indigo']}
+          onChange={(v) => setTweak('proteinColor', v)} />
       </window.TweaksPanel>
     </window.IOSDevice>
   );

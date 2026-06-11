@@ -107,9 +107,24 @@
     );
   }
 
-  function RecipePortionStep({ recipe, totals, onConfirm }) {
+  function RecipePortionStep({ recipe, totals, onConfirm, expand }) {
     const [portions, setPortions] = useState(1);
     const per = portions / recipe.servings;
+    function confirm() {
+      if (expand) {
+        // expand the recipe into individual ingredient entries, scaled to the chosen
+        // portions and flagged with recipeRef so the plan can group/identify them.
+        const factor = portions / recipe.servings;
+        const round = (n) => Math.round(n * 10) / 10;
+        const entries = recipe.ingredients.map((ing) => ({
+          id: D.nextId(), key: ing.key, amount: round(ing.amount * factor),
+          recipeRef: { id: recipe.id, name: recipe.name, portions },
+        }));
+        onConfirm(entries);
+      } else {
+        onConfirm({ id: D.nextId(), recipe: recipe.id, portions });
+      }
+    }
     return (
       <div className="fc-anim-pop">
         <h3 style={{ fontSize: 19, fontWeight: 700, lineHeight: 1.2, textWrap: 'pretty' }}>{recipe.name}</h3>
@@ -121,9 +136,14 @@
           <span className="fc-num" style={{ fontSize: 24, fontWeight: 800, color: 'var(--primary)' }}>{Math.round(totals.kcal * per)} <span style={{ fontSize: 15, fontWeight: 600 }}>kcal</span></span>
           <span className="fc-num fc-muted" style={{ fontSize: 13.5, fontWeight: 600 }}>{fmt.macroStr(totals.p * per, totals.c * per, totals.f * per)}</span>
         </div>
-        <button className="fc-btn fc-btn-primary" style={{ width: '100%', marginTop: 16, height: 50 }}
-          onClick={() => onConfirm({ id: D.nextId(), recipe: recipe.id, portions })}>
-          <Icon name="check" size={19} /> Erfassen
+        {expand && (
+          <p className="fc-faint" style={{ fontSize: 12.5, lineHeight: 1.4, marginTop: 10, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+            <Icon name="book" size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
+            Alle {recipe.ingredients.length} Zutaten werden einzeln in den Plan übernommen – jede lässt sich danach anpassen.
+          </p>
+        )}
+        <button className="fc-btn fc-btn-primary" style={{ width: '100%', marginTop: 16, height: 50 }} onClick={confirm}>
+          <Icon name="check" size={19} /> {expand ? 'Zutaten übernehmen' : 'Erfassen'}
         </button>
       </div>
     );
@@ -152,7 +172,7 @@
     );
   }
 
-  function AddFoodSheet({ open, slot, onClose, onAdd }) {
+  function AddFoodSheet({ open, slot, onClose, onAdd, expandRecipes }) {
     const [tab, setTab] = useState('recent');
     const [amountItem, setAmountItem] = useState(null);
     const [recipeItem, setRecipeItem] = useState(null);
@@ -176,7 +196,7 @@
         {amountItem ? (
           <AmountStep item={amountItem} onConfirm={finish} />
         ) : recipeItem ? (
-          <RecipePortionStep recipe={recipeItem} totals={D.recipeTotals(recipeItem)} onConfirm={finish} />
+          <RecipePortionStep recipe={recipeItem} totals={D.recipeTotals(recipeItem)} onConfirm={finish} expand={expandRecipes} />
         ) : (
           <>
             <Tabs tabs={TABS} active={tab} onChange={setTab} />

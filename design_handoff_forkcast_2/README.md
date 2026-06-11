@@ -114,9 +114,12 @@ No build step; React/Babel load from unpkg.
 
 - **Frame / canvas:** content area 402×874 px (iPhone-class). The app is a single full-height
   flex column (`.fc-app`): scrolling content region (`.fc-scroll`) + fixed bottom nav.
-- **Header:** indigo gradient (`--header-grad`), white text, wordmark "forkcast" at 21px/700.
-  Some screens (Diary, Planner) add a date stepper and a daily totals summary in the header;
-  Recipes / Settings / the editor use a minimal header with just the wordmark.
+- **Header (ONE rule app-wide — see "Header system" below):** indigo gradient (`--header-grad`),
+  white text. **The header always names where you are.** Top-level tabs put their own name in it
+  (Tagebuch shows the "forkcast" wordmark as the home anchor; Planen → "Wochenplan", Rezepte →
+  "Rezepte", Einstellungen → "Einstellungen"). Sub-screens (recipe detail / editor) put a **white
+  back arrow + the entity title** in the header. The title is **never** repeated as a separate `<h1>`
+  in the scroll body.
 - **Bottom nav (`BottomNav`):** 4 tabs — **Tagebuch** (diary), **Planen** (planner),
   **Rezepte** (recipes), **Einstellungen** (settings). Icon + label; active tab in `--primary`.
   The nav is **hidden** whenever the user is inside a recipe sub-screen (detail or editor) for focus.
@@ -124,13 +127,37 @@ No build step; React/Babel load from unpkg.
 
 ---
 
-## Screens / Views
+## Header system — the ONE consistency rule (recently unified — verify this first)
+
+The single most important consistency rule in this app, and the focus of the latest iteration:
+
+> **The purple header always names where you are.** The screen title lives **inside** the indigo
+> header bar, never as a separate heading in the scroll body.
+
+Two header shapes, nothing else:
+
+| Header type | Used by | Contents |
+|---|---|---|
+| **Tab header** | Tagebuch, Planen, Rezepte, Einstellungen | Screen name on the left (Tagebuch shows the **"forkcast"** wordmark as the home anchor; the others show **"Wochenplan" / "Rezepte" / "Einstellungen"**). Diary & Planner additionally carry a date stepper / daily-totals block. |
+| **Sub-screen header** | Recipe Detail, Recipe Editor | **White back arrow** (chevron-left, 22px) on the **left** + the **entity title** (e.g. the recipe name) + optional subtitle ("Ergibt 4 Portionen"). Optional right-aligned slot. |
+
+Shared component: `SimpleHeader({ title, subtitle, onBack, right })` in `fc-recipes.jsx` — title
+21px/700 (`-0.02em`), subtitle 13px/500 at 72% white, back arrow is a 36px white icon button.
+Both shapes use the same `--header-grad` background and `52px 18px 16px` padding.
+
+**What this replaced (so you recognize the old pattern if you see it anywhere):** previously
+Rezepte/Einstellungen/Detail/Editor had a thin wordmark-only header **plus** a redundant `<h1>` (and
+on Detail, a purple back arrow) inside the content. That duplication is gone — if you find a screen
+repeating its title below the header, it's a regression.
+
+---
 
 ### 1. Recipe List (`RecipesScreen`)
 - **Purpose:** browse saved recipes; entry points to create / import.
-- **Layout:** scroll view, 16px padding. Title row "Rezepte" (h1) with two right-aligned buttons:
-  ghost **"Aus Fotos"** (camera icon) and primary **"Neu"** (plus icon). Below: vertical stack
-  of recipe cards, 10px gap.
+- **Header:** tab header titled **"Rezepte"** (no actions in the header).
+- **Layout:** scroll view, 16px padding. A **toolbar row** of two equal-width (flex:1) buttons:
+  ghost **"Aus Fotos"** (camera icon) and primary **"Neu"** (plus icon), 8px gap, 14px bottom margin.
+  Below: vertical stack of recipe cards, 10px gap.
 - **Recipe card:** `.fc-card`, 14×16px padding, flex row: 44×44 rounded icon tile
   (`--accent-soft` bg, cook glyph in `--primary`) · title (15.5px/650, truncated) · per-portion
   line `"{kcal} kcal · {P}/{KH}/{F} / Portion"` (kcal in `--primary`/700, macros muted) ·
@@ -138,15 +165,14 @@ No build step; React/Babel load from unpkg.
 
 ### 2. Recipe Detail (`RecipeDetail`)
 - **Purpose:** read a recipe, scale servings, edit/delete.
-- **Header (two stacked rows — avoids the long-title/actions collision):**
-  - **Row 1 — actions, right-aligned:** ghost **"Bearbeiten"** (pencil) + danger trash icon button
-    (opens delete confirm). On their own row so a long title never overlaps them.
-  - **Row 2 — back arrow + title:** an **arrow-only icon button** (chevron-left, `--primary`, 24px)
-    sitting inline to the **left of the title** (negative left margin -12 to align to the content
-    edge). Title block = recipe name (h1, 23px, `overflow-wrap:break-word` so it wraps cleanly) +
-    "Ergibt N Portionen" (faint, 14px). The arrow is the back affordance and sits next to the heading.
+- **Header (sub-screen header):** white back arrow + recipe name as the title + subtitle
+  "Ergibt N Portionen". `<SimpleHeader title={recipe.name} subtitle={…} onBack={…} />`.
+  The long title wraps cleanly inside the header (`overflow-wrap:break-word`); it is **not** repeated
+  in the body.
+- **Actions row (first thing in the scroll body, right-aligned):** ghost **"Bearbeiten"** (pencil) +
+  danger trash icon button (opens delete confirm).
 - **Pro-Portion card:** `.fc-card`, header strip with `--accent-soft` bg: eyebrow "Pro Portion"
-  (in `--primary`) + `"{kcal} kcal · {P} P / {KH} KH / {F} F"` (tabular nums).
+  (in `--primary`) + `"{kcal} kcal · {P} P · {KH} KH · {F} F"` (tabular nums, **middot separators**).
 - **Zutaten (ingredients):** "Zutaten" h2 + a **Portionen** stepper on the right that **scales all
   quantities live**. Divided list (`.fc-divide`): each row = name (15px/550) + optional
   "Nicht gezählt" chip + optional italic note; right-aligned quantity. Quantity display logic:
@@ -156,15 +182,14 @@ No build step; React/Babel load from unpkg.
   `--primary`) + step text (14.5px, line-height 1.5).
 
 ### 3. Recipe Editor (`RecipeEditor`) — PRIMARY SCREEN
-Reached via "Neu" (empty) or "Bearbeiten" (seeded from a recipe). The purple header shows only the
-"forkcast" wordmark; **the back/close affordance is an arrow-only icon button inline to the left of
-the "Neues Rezept" / "Rezept bearbeiten" heading** (chevron-left, `--primary`, 24px) — it calls the
-cancel handler. This matches the Recipe Detail and Add-food sheet pattern (no "x" in the header).
+Reached via "Neu" (empty) or "Bearbeiten" (seeded from a recipe). **Sub-screen header:** white back
+arrow + title **"Neues Rezept" / "Rezept bearbeiten"** (`<SimpleHeader title={…} onBack={onCancel} />`).
+The back arrow calls the cancel handler — same header pattern as Recipe Detail (no "x", no duplicate
+title in the body).
 
-Top-to-bottom:
-1. **Title** — "Neues Rezept" / "Rezept bearbeiten" (h1).
-2. **Name field** — labeled text input, placeholder "z. B. Bolognese".
-3. **Pro-Portion HERO card (top of the form — this placement is intentional & important):**
+Top-to-bottom (scroll body):
+1. **Name field** — labeled text input, placeholder "z. B. Bolognese".
+2. **Pro-Portion HERO card (top of the form — this placement is intentional & important):**
    - `.fc-card` with a subtle `linear-gradient(180deg, --accent-soft, --card)` fill.
    - Header row: eyebrow "Pro Portion" (in `--primary`) on the left; on the right a compact
      "Ergibt [stepper] Portionen" group (servings stepper co-located here).
@@ -173,11 +198,11 @@ Top-to-bottom:
      Dot hues: P = `hsl(244 60% 55%)`, KH = `hsl(28 60% 55%)`, Fett = `hsl(199 60% 55%)`.
    - Footer line (top border): "Gesamt {kcal} kcal für {n} Portion(en)".
    - **All values recompute live** from the ingredient rows ÷ servings.
-4. **Zutaten section:** "Zutaten · N" h2 + ghost "Hinzufügen" button. Divided list of
+3. **Zutaten section:** "Zutaten · N" h2 + ghost "Hinzufügen" button. Divided list of
    **ingredient rows** (see below).
-5. **Schritte section:** "Schritte" h2 + ghost "Schritt" button. Each step: index badge + text
+4. **Schritte section:** "Schritte" h2 + ghost "Schritt" button. Each step: index badge + text
    input + remove icon button. Empty state text when none.
-6. **Actions:** ghost "Abbrechen" + primary "Speichern"/"Anlegen" (flex 1 / 1.4, 50px tall).
+5. **Actions:** ghost "Abbrechen" + primary "Speichern"/"Anlegen" (flex 1 / 1.4, 50px tall).
 
 #### Ingredient row (`IngredientRow`) — the core interaction
 Each row is a vertical stack (10px gap):
@@ -286,14 +311,39 @@ ruled out.
 > `ModeSegments`, never `ModeMenu`) rather than carrying the prop through.
 
 ## Screenshots
-In `screenshots/` (PNG, captured from the reference, 450×920 device frame):
-- `annotated-recipe-editor.png` — **the Recipe Editor with numbered callouts + legend** (start here).
-- `annotated-addfood-sheet.png` — **the Add-food sheet sub-step with callouts + legend.**
-- `01-diary.png`, `02-recipes-list.png`, `03-recipe-detail.png`, `04-recipe-editor-top.png`,
-  `05-editor-modes.png` (Stück mode active), `06-editor-free.png` (Frei mode active),
-  `07-addfood-sheet.png` (root tabs), `08-addfood-amount.png` (food amount step),
-  `09-addfood-recipe-portion.png` (recipe portion step), `10-planner.png`, `11-settings.png`.
-All screenshots reflect the **selected** variants above (Segmentiert / Liste / Neutral).
+In `screenshots/` (PNG, captured from the current reference, ~450×920 device frame). These reflect
+the **selected** variants (Segmentiert / Liste / Neutral) and the **unified header system**:
+- `01-diary.png` — Tagebuch (tab header = "forkcast" wordmark + date stepper + daily totals).
+- `02-recipes-list.png` — Rezepte list (tab header "Rezepte"; two-button toolbar in the body).
+- `03-recipe-detail.png` — Recipe Detail (sub-screen header: back arrow + recipe name + "Ergibt 4
+  Portionen"; Pro-Portion line uses middot separators).
+- `04-recipe-editor.png` — Recipe Editor (sub-screen header "Rezept bearbeiten"; Pro-Portion hero).
+- `05-addfood-sheet.png` — Add-food sheet, root tabs (Suche/Zuletzt/Rezepte/Schnell).
+- `06-addfood-amount.png` — Add-food amount sub-step (tab bar hidden, header back arrow).
+- `07-planner.png` — Wochenplan (tab header "Wochenplan" + weekly rollups; Liste layout).
+- `08-settings.png` — Einstellungen (tab header "Einstellungen").
+
+---
+
+## ✅ Consistency checklist (use this to double-check the build)
+This package was produced after a consistency pass. Verify each item — a failure here is a regression:
+
+1. **Header names the screen.** Every screen's title sits in the indigo header. No screen repeats its
+   title as an `<h1>` in the scroll body. (Old regression: Rezepte/Einstellungen/Detail/Editor used
+   to show a wordmark-only header **plus** a duplicate heading below it.)
+2. **Back affordance = white arrow in the header**, left of the title, on sub-screens (Recipe Detail,
+   Recipe Editor). Not a `--primary`-colored arrow inside the content, not an "x".
+3. **Tagebuch keeps the "forkcast" wordmark** in its header (intentional home anchor); the other
+   three tabs show their screen name.
+4. **Macro triplets use middot separators everywhere:** `38 P · 67 KH · 11 F` — never slashes.
+   (Old regression: Recipe Detail's Pro-Portion line used `/`.) Note: the per-unit energy figure in
+   add-food rows, `"42 kcal / 100ml"`, legitimately keeps the slash — that's a rate, not a macro triplet.
+5. **`fc-h2` sub-headings render at a consistent size** within a screen (e.g. Diary's meal-slot and
+   weight cards both 16.5px) — no per-card size drift.
+6. **Tokens only.** Colors/radii/shadows/type come from `fc-tokens.css` — no ad-hoc hex or sizes.
+7. **44px min touch targets** on every interactive element (`--tap`).
+8. **Selected variants only** (Segmentiert / Liste / Neutral) — the Tweaks panel and device frame are
+   prototyping aids and are not part of the product UI.
 
 ## Design Tokens
 All in `design/fc-tokens.css`. Key values (map onto existing Tailwind theme where possible):

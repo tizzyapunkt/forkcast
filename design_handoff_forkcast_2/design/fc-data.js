@@ -112,14 +112,15 @@
     return { kcal, p, c, f };
   }
 
-  // today's log (matches the "with food" screenshot: breakfast has 2 entries)
+  // today's log (matches the "with food" screenshot: breakfast has 2 entries).
+  // Lunch is a recipe-based meal so the diary shows a grouped recipe example too.
   function makeLog() {
     return {
       breakfast: [
         { id: 'e1', key: 'wassermelone', amount: 100 },
         { id: 'e2', key: 'thunfisch', amount: 100 },
       ],
-      lunch: [],
+      lunch: expandRecipe('r1', 1),
       dinner: [],
       snack: [],
     };
@@ -135,14 +136,27 @@
       days.push({ dow: i, date: 1 + i, month: 'Juni', meals: { breakfast: [], lunch: [], dinner: [], snack: [] } });
     }
     // pre-plan a couple of days to show the value
-    days[0].meals.breakfast = [{ key: 'wassermelone', amount: 200 }, { key: 'haferflocken', amount: 60 }];
-    days[0].meals.lunch = [{ recipe: 'r1', portions: 1 }];
-    days[0].meals.dinner = [{ key: 'thunfisch', amount: 120 }, { key: 'brokkoli', amount: 200 }];
-    days[1].meals.breakfast = [{ key: 'wassermelone', amount: 100 }, { key: 'thunfisch', amount: 100 }];
-    days[1].meals.lunch = [{ recipe: 'r1', portions: 1 }];
-    days[2].meals.dinner = [{ recipe: 'r1', portions: 2 }];
-    days[3].meals.lunch = [{ key: 'sushireis', amount: 150 }, { key: 'brokkoli', amount: 250 }];
+    days[0].meals.breakfast = [{ id: nextId(), key: 'wassermelone', amount: 200 }, { id: nextId(), key: 'haferflocken', amount: 60 }];
+    days[0].meals.lunch = expandRecipe('r1', 1);
+    days[0].meals.dinner = [{ id: nextId(), key: 'thunfisch', amount: 120 }, { id: nextId(), key: 'brokkoli', amount: 200 }];
+    days[1].meals.breakfast = [{ id: nextId(), key: 'wassermelone', amount: 100 }, { id: nextId(), key: 'thunfisch', amount: 100 }];
+    days[1].meals.lunch = expandRecipe('r1', 1);
+    days[2].meals.dinner = expandRecipe('r1', 2);
+    days[3].meals.lunch = [{ id: nextId(), key: 'sushireis', amount: 150 }, { id: nextId(), key: 'brokkoli', amount: 250 }];
     return days;
+  }
+
+  // expand a recipe into individual ingredient entries, scaled to `portions`,
+  // each flagged with recipeRef so the planner can group & identify them.
+  function expandRecipe(recipeId, portions) {
+    const r = RECIPES.find((x) => x.id === recipeId);
+    if (!r) return [];
+    const factor = portions / r.servings;
+    const round = (n) => Math.round(n * 10) / 10;
+    return r.ingredients.map((ing) => ({
+      id: nextId(), key: ing.key, amount: round(ing.amount * factor),
+      recipeRef: { id: r.id, name: r.name, portions },
+    }));
   }
 
   function planEntryMacros(entry) {
@@ -182,7 +196,7 @@
   window.FC_DATA = {
     GOAL, FOODS, RECENT, SEARCH_BROT, RECIPES, RECIPE, entryMacros, nextId,
     WEEKDAYS, WEEKDAYS_LONG,
-    macrosFor, recipeTotals, planEntryMacros, makeLog, makeWeek,
+    macrosFor, recipeTotals, planEntryMacros, makeLog, makeWeek, expandRecipe,
     SLOTS: ['breakfast', 'lunch', 'dinner', 'snack'],
     SLOT_LABEL: { breakfast: 'Frühstück', lunch: 'Mittagessen', dinner: 'Abendessen', snack: 'Snack' },
   };

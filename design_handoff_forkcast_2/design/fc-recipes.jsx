@@ -13,9 +13,9 @@
   const D = window.FC_DATA;
 
   const MACROS = [
-    { k: 'p', short: 'P', label: 'Eiweiß', hue: 244 },
-    { k: 'c', short: 'KH', label: 'KH', hue: 28 },
-    { k: 'f', short: 'F', label: 'Fett', hue: 199 },
+    { k: 'p', short: 'P', label: 'Eiweiß', color: 'var(--macro-p)' },
+    { k: 'c', short: 'KH', label: 'KH', color: 'var(--macro-c)' },
+    { k: 'f', short: 'F', label: 'Fett', color: 'var(--macro-f)' },
   ];
 
   // resolve a recipe ingredient (key+amount+meta) into a display view
@@ -36,14 +36,11 @@
   function RecipesScreen({ recipes, onOpen, onNew, onImport }) {
     return (
       <>
-        <SimpleHeader />
+        <SimpleHeader title="Rezepte" />
         <div className="fc-scroll" style={{ padding: '16px 16px 28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
-            <h1 className="fc-h1">Rezepte</h1>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="fc-btn fc-btn-ghost" style={{ padding: '0 12px' }} onClick={onImport}><Icon name="camera" size={17} /> Aus Fotos</button>
-              <button className="fc-btn fc-btn-primary" style={{ padding: '0 14px' }} onClick={onNew}><Icon name="plus" size={17} /> Neu</button>
-            </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+            <button className="fc-btn fc-btn-ghost" style={{ flex: 1 }} onClick={onImport}><Icon name="camera" size={17} /> Aus Fotos</button>
+            <button className="fc-btn fc-btn-primary" style={{ flex: 1 }} onClick={onNew}><Icon name="plus" size={17} /> Neu</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {recipes.map((rec) => {
@@ -82,26 +79,19 @@
 
     return (
       <>
-        <SimpleHeader />
+        <SimpleHeader title={recipe.name} subtitle={`Ergibt ${recipe.servings} Portionen`} onBack={onBack} />
         <div className="fc-scroll" style={{ padding: '12px 16px 28px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
-            <IconBtn name="chevL" size={24} label="Zurück" onClick={onBack} color="var(--primary)"
-              style={{ marginLeft: -12, marginTop: -8 }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h1 className="fc-h1" style={{ fontSize: 23, lineHeight: 1.2, textWrap: 'pretty' }}>{recipe.name}</h1>
-              <p className="fc-faint" style={{ fontSize: 14, marginTop: 4 }}>Ergibt {recipe.servings} Portionen</p>
-            </div>
-            <div style={{ display: 'flex', gap: 4, marginTop: -6, flexShrink: 0 }}>
-              <button className="fc-btn fc-btn-ghost" style={{ padding: '0 14px', minHeight: 40 }} onClick={onEdit}><Icon name="pencil" size={16} /> Bearbeiten</button>
-              <IconBtn name="trash" label="Rezept löschen" danger onClick={() => setConfirm(true)} style={{ width: 40, height: 40, minWidth: 40 }} />
-            </div>
+          {/* actions row */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
+            <button className="fc-btn fc-btn-ghost" style={{ padding: '0 14px', minHeight: 40 }} onClick={onEdit}><Icon name="pencil" size={16} /> Bearbeiten</button>
+            <IconBtn name="trash" label="Rezept löschen" danger onClick={() => setConfirm(true)} style={{ width: 40, height: 40, minWidth: 40 }} />
           </div>
 
           {/* nutrition box */}
-          <div className="fc-card" style={{ marginTop: 14, padding: 0, overflow: 'hidden' }}>
+          <div className="fc-card" style={{ marginTop: 12, padding: 0, overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', background: 'var(--accent-soft)' }}>
               <span className="fc-eyebrow" style={{ color: 'var(--primary)' }}>Pro Portion</span>
-              <span className="fc-num" style={{ fontSize: 15, fontWeight: 700 }}>{Math.round(per)} kcal <span className="fc-muted" style={{ fontWeight: 600 }}>· {fmt.r(t.p / recipe.servings)} P / {fmt.r(t.c / recipe.servings)} KH / {fmt.r(t.f / recipe.servings)} F</span></span>
+              <span className="fc-num" style={{ fontSize: 15, fontWeight: 700 }}>{Math.round(per)} kcal <span className="fc-muted" style={{ fontWeight: 600 }}>· {fmt.macroStr(t.p / recipe.servings, t.c / recipe.servings, t.f / recipe.servings)}</span></span>
             </div>
           </div>
 
@@ -205,10 +195,8 @@
 
     return (
       <>
-        <SimpleHeader right={<IconBtn name="x" label="Schließen" onClick={onCancel} style={{ color: '#fff' }} />} />
+        <SimpleHeader title={recipe ? 'Rezept bearbeiten' : 'Neues Rezept'} onBack={onCancel} />
         <div className="fc-scroll" style={{ padding: '16px 16px 28px' }}>
-          <h1 className="fc-h1" style={{ marginBottom: 14 }}>{recipe ? 'Rezept bearbeiten' : 'Neues Rezept'}</h1>
-
           <label className="fc-label">Name</label>
           <input className="fc-input" placeholder="z. B. Bolognese" value={name} onChange={(e) => setName(e.target.value)} />
 
@@ -229,7 +217,7 @@
             <div style={{ display: 'flex', gap: 20, marginTop: 12 }}>
               {MACROS.map((m) => (
                 <div key={m.k} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 99, background: `hsl(${m.hue} 60% 55%)`, flexShrink: 0 }} />
+                  <span style={{ width: 8, height: 8, borderRadius: 99, background: m.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 12.5, color: 'var(--text-2)', fontWeight: 600 }}>{m.label}</span>
                   <span className="fc-num" style={{ fontSize: 13.5, fontWeight: 700 }}>{fmt.r(per(m.k === 'p' ? p : m.k === 'c' ? c : f))} g</span>
                 </div>
@@ -342,8 +330,8 @@
             <button key={id} onClick={() => onMode(id)}
               style={{ flex: 1, border: 'none', cursor: 'pointer', borderRadius: 8, padding: '8px 4px', minHeight: 36,
                 fontSize: 13, fontWeight: on ? 700 : 550, fontFamily: 'inherit',
-                background: on ? '#fff' : 'transparent', color: on ? 'var(--primary)' : 'var(--muted-fg)',
-                boxShadow: on ? 'var(--shadow-card)' : 'none', transition: 'background .15s, color .15s, box-shadow .15s' }}>
+                backgroundColor: on ? '#fff' : 'transparent', color: on ? 'var(--primary)' : 'var(--muted-fg)',
+                boxShadow: on ? 'var(--shadow-card)' : 'none', transition: 'color .15s' }}>
               {label}
             </button>
           );
@@ -454,13 +442,24 @@
     );
   }
 
-  // shared plain purple header (Rezepte / Einstellungen / editor)
-  function SimpleHeader({ right }) {
+  // shared purple header. ONE rule app-wide: the header names where you are.
+  // Top-level tabs pass their screen name; sub-screens pass onBack + the entity title.
+  function SimpleHeader({ title = 'forkcast', subtitle, onBack, right }) {
     return (
-      <header style={{ background: 'var(--header-grad)', color: '#fff', padding: '52px 18px 16px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <span style={{ fontSize: 21, fontWeight: 700, letterSpacing: '-0.02em' }}>forkcast</span>
-        {right}
+      <header style={{ background: 'var(--header-grad)', color: '#fff', padding: '52px 18px 16px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          {onBack && (
+            <button className="fc-icon-btn" aria-label="Zurück" onClick={onBack}
+              style={{ color: '#fff', width: 36, height: 36, minWidth: 36, marginLeft: -8, marginTop: -2, flexShrink: 0 }}>
+              <Icon name="chevL" size={22} />
+            </button>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontSize: 21, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.2, textWrap: 'pretty', overflowWrap: 'break-word' }}>{title}</h1>
+            {subtitle && <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.72)', marginTop: 3 }}>{subtitle}</div>}
+          </div>
+          {right && <div style={{ flexShrink: 0, paddingTop: 1 }}>{right}</div>}
+        </div>
       </header>
     );
   }

@@ -2,7 +2,7 @@
 (function () {
   const { useState } = React;
   const Icon = window.Icon;
-  const { IconBtn, AddFoodSheet, MacroTriple, fmt } = window;
+  const { IconBtn, AddFoodSheet, MacroTriple, EntryList, fmt } = window;
   const D = window.FC_DATA;
 
   function dayTotals(day) {
@@ -18,8 +18,10 @@
     return { fill: 'var(--accent)', text: 'var(--primary)' };
   }
 
-  // a slot block: entries + add button (shared by list & agenda)
-  function SlotBlock({ day, slot, entries, onAdd, onRemove }) {
+  // a slot block: entries + add button (shared by list & agenda).
+  // Uses the shared EntryList so recipe-sourced ingredients are grouped & editable,
+  // exactly like the Tagebuch. Handlers are id-based.
+  function SlotBlock({ day, slot, entries, onAdd, onAmount, onRemove, onRemoveMany }) {
     let kcal = 0, p = 0, c = 0, f = 0;
     entries.forEach((e) => { const m = D.entryMacros(e); kcal += m.kcal; p += m.p; c += m.c; f += m.f; });
     return (
@@ -32,15 +34,10 @@
         {kcal > 0 && <div className="fc-num fc-faint" style={{ fontSize: 11.5, fontWeight: 600, marginTop: 1 }}>{fmt.macroStr(p, c, f)}</div>}
         {entries.length === 0
           ? <div className="fc-faint" style={{ fontSize: 12.5, marginTop: 2 }}>—</div>
-          : <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-              {entries.map((e, i) => {
-                const m = D.entryMacros(e);
-                return <span key={i} className="fc-chip" style={{ padding: '5px 6px 5px 10px', maxWidth: '100%' }}>
-                  {m.kind === 'recipe' && <Icon name="book" size={12} color="var(--primary)" />}
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 150 }}>{m.name}</span>
-                  <button onClick={() => onRemove(i)} className="fc-icon-btn" aria-label="entfernen" style={{ width: 22, height: 22, minWidth: 22 }}><Icon name="x" size={12} /></button>
-                </span>;
-              })}
+          : <div style={{ marginTop: 4 }}>
+              <EntryList entries={entries}
+                onAmount={(e, a) => onAmount(e.id, a)} onRemove={(e) => onRemove(e.id)}
+                onRemoveGroup={(items) => onRemoveMany(items.map((x) => x.id))} />
             </div>}
       </div>
     );
@@ -56,7 +53,7 @@
   }
 
   // ── LIST layout (accordion of 7 days) ──
-  function ListLayout({ week, goal, expanded, setExpanded, addTo, removeFrom, onCopy }) {
+  function ListLayout({ week, goal, expanded, setExpanded, addTo, removeFrom, changeAmount, removeMany, onCopy }) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {week.map((day, di) => {
@@ -90,7 +87,8 @@
                   <div className="fc-divide">
                     {D.SLOTS.map((slot) => (
                       <SlotBlock key={slot} day={day} slot={slot} entries={day.meals[slot]}
-                        onAdd={() => addTo(di, slot)} onRemove={(i) => removeFrom(di, slot, i)} />
+                        onAdd={() => addTo(di, slot)} onAmount={(i, a) => changeAmount(di, slot, i, a)}
+                        onRemove={(i) => removeFrom(di, slot, i)} onRemoveMany={(idxs) => removeMany(di, slot, idxs)} />
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
@@ -106,7 +104,7 @@
   }
 
   // ── AGENDA layout (week strip + one focused day) ──
-  function AgendaLayout({ week, goal, selected, setSelected, addTo, removeFrom, onCopy }) {
+  function AgendaLayout({ week, goal, selected, setSelected, addTo, removeFrom, changeAmount, removeMany, onCopy }) {
     const day = week[selected];
     const t = dayTotals(day);
     return (
@@ -138,7 +136,8 @@
           <div className="fc-divide" style={{ marginTop: 8 }}>
             {D.SLOTS.map((slot) => (
               <SlotBlock key={slot} day={day} slot={slot} entries={day.meals[slot]}
-                onAdd={() => addTo(selected, slot)} onRemove={(i) => removeFrom(selected, slot, i)} />
+                onAdd={() => addTo(selected, slot)} onAmount={(i, a) => changeAmount(selected, slot, i, a)}
+                onRemove={(i) => removeFrom(selected, slot, i)} onRemoveMany={(idxs) => removeMany(selected, slot, idxs)} />
             ))}
           </div>
           <button className="fc-btn fc-btn-soft" style={{ width: '100%', marginTop: 12, minHeight: 40 }} onClick={() => onCopy(selected)}><Icon name="copy" size={16} /> Diesen Tag kopieren</button>
@@ -191,7 +190,7 @@
     );
   }
 
-  function PlannerScreen({ goal, layout }) {
+  function PlannerScreen({ goal, layout, headerMacroColor }) {
     const [week, setWeek] = useState(() => D.makeWeek());
     const [expanded, setExpanded] = useState(1);
     const [selected, setSelected] = useState(1);
@@ -204,12 +203,20 @@
     const plannedDays = week.filter((d) => dayTotals(d).count > 0).length;
 
     function addTo(day, slot) { setTarget({ day, slot }); }
-    function removeFrom(day, slot, i) {
-      setWeek((W) => W.map((d, di) => di === day ? { ...d, meals: { ...d.meals, [slot]: d.meals[slot].filter((_, x) => x !== i) } } : d));
+    function removeFrom(day, slot, id) {
+      setWeek((W) => W.map((d, di) => di === day ? { ...d, meals: { ...d.meals, [slot]: d.meals[slot].filter((e) => e.id !== id) } } : d));
+    }
+    function changeAmount(day, slot, id, a) {
+      setWeek((W) => W.map((d, di) => di === day ? { ...d, meals: { ...d.meals, [slot]: d.meals[slot].map((e) => e.id === id ? { ...e, amount: a } : e) } } : d));
+    }
+    function removeMany(day, slot, ids) {
+      const drop = new Set(ids);
+      setWeek((W) => W.map((d, di) => di === day ? { ...d, meals: { ...d.meals, [slot]: d.meals[slot].filter((e) => !drop.has(e.id)) } } : d));
     }
     function onAdd(entry) {
       if (!target) return;
-      setWeek((W) => W.map((d, di) => di === target.day ? { ...d, meals: { ...d.meals, [target.slot]: [...d.meals[target.slot], entry] } } : d));
+      const items = Array.isArray(entry) ? entry : [entry]; // a recipe expands to several ingredient entries
+      setWeek((W) => W.map((d, di) => di === target.day ? { ...d, meals: { ...d.meals, [target.slot]: [...d.meals[target.slot], ...items] } } : d));
     }
     function copyToNext(di) {
       setWeek((W) => {
@@ -236,17 +243,17 @@
           </div>
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.16)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 9 }}>Ø Makros / Tag</div>
-            <MacroTriple totals={avgMacro} goal={goal} light />
+            <MacroTriple totals={avgMacro} goal={goal} light colored={headerMacroColor} />
           </div>
         </header>
 
         <div className="fc-scroll" style={{ padding: '14px 16px 28px' }}>
-          {layout === 'agenda' && <AgendaLayout week={week} goal={goal} selected={selected} setSelected={setSelected} addTo={addTo} removeFrom={removeFrom} onCopy={setCopyFrom} />}
+          {layout === 'agenda' && <AgendaLayout week={week} goal={goal} selected={selected} setSelected={setSelected} addTo={addTo} removeFrom={removeFrom} changeAmount={changeAmount} removeMany={removeMany} onCopy={setCopyFrom} />}
           {layout === 'grid' && <GridLayout week={week} goal={goal} addTo={addTo} />}
-          {(!layout || layout === 'list') && <ListLayout week={week} goal={goal} expanded={expanded} setExpanded={setExpanded} addTo={addTo} removeFrom={removeFrom} onCopy={setCopyFrom} />}
+          {(!layout || layout === 'list') && <ListLayout week={week} goal={goal} expanded={expanded} setExpanded={setExpanded} addTo={addTo} removeFrom={removeFrom} changeAmount={changeAmount} removeMany={removeMany} onCopy={setCopyFrom} />}
         </div>
 
-        <AddFoodSheet open={!!target} slot={target ? target.slot : null} onClose={() => setTarget(null)} onAdd={onAdd} />
+        <AddFoodSheet open={!!target} slot={target ? target.slot : null} onClose={() => setTarget(null)} onAdd={onAdd} expandRecipes />
 
         {copyFrom !== null && (
           <div onClick={() => setCopyFrom(null)} style={{ position: 'absolute', inset: 0, zIndex: 95, background: 'rgba(30,26,60,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28, animation: 'fc-fade-in .15s' }}>

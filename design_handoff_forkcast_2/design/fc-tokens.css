@@ -21,6 +21,16 @@
   --success:       #10b981;
   --warning:       #f59e0b;
   --error:         #ef4444;
+
+  /* macro colors — SINGLE source of truth for Eiweiß / Kohlenhydrate / Fett.
+     Used by every bar, dot and diagram so the three macros read identically app-wide. */
+  --macro-p:     hsl(244 50% 56%);   /* Eiweiß  — indigo */
+  --macro-c:     hsl(28 80% 52%);    /* KH      — amber  */
+  --macro-f:     hsl(199 70% 48%);   /* Fett    — blue   */
+  /* brightened variants, legible on the dark indigo header */
+  --macro-p-on:  hsl(250 95% 80%);
+  --macro-c-on:  hsl(34 95% 64%);
+  --macro-f-on:  hsl(196 92% 68%);
   --radius:        12px;                /* repo uses 8; nudged up for friendlier cards */
   --radius-sm:     9px;
   --radius-lg:     18px;
@@ -146,9 +156,9 @@
 .fc-chip-dot { width: 5px; height: 5px; border-radius: 999px; background: currentColor; opacity: .55; }
 
 /* macro dots */
-.dot-p { color: hsl(244 50% 56%); }
-.dot-c { color: hsl(28 80% 52%); }
-.dot-f { color: hsl(199 70% 48%); }
+.dot-p { color: var(--macro-p); }
+.dot-c { color: var(--macro-c); }
+.dot-f { color: var(--macro-f); }
 
 /* divider list */
 .fc-divide > * + * { border-top: 1px solid var(--border-soft); }

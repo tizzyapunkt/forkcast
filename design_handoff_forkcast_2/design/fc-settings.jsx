@@ -28,11 +28,11 @@
 
     return (
       <>
-        <SimpleHeader />
+        <SimpleHeader title="Einstellungen" />
         <div className="fc-scroll" style={{ padding: '16px 16px 32px', display: 'flex', flexDirection: 'column', gap: 22 }}>
           {/* ---- Ziel ---- */}
           <section>
-            <h1 className="fc-h1" style={{ marginBottom: 12 }}>Ernährungsziel</h1>
+            <h2 className="fc-h2" style={{ marginBottom: 12 }}>Ernährungsziel</h2>
             <div className="fc-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <Field label="Kalorien (kcal)" value={goal.calories} onChange={set('calories')} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
