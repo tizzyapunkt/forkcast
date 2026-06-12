@@ -1,6 +1,6 @@
 import type { DayTotals } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
-import { kcalStatus, macroStatus, type ProgressColor } from '../../domain/nutrition-progress';
+import { kcalStatus } from '../../domain/nutrition-progress';
 import { HeaderMacroCell, type MacroKey } from '../../components/app/header-macro-cell';
 import { de } from '../../i18n/de';
 
@@ -8,20 +8,6 @@ interface DayTotalsHeaderProps {
   totals: DayTotals;
   goal: DailyGoal | null | undefined;
 }
-
-const TEXT_CLASS: Record<ProgressColor, string> = {
-  green: 'text-success',
-  yellow: 'text-warning',
-  red: 'text-error',
-  neutral: 'text-white/90',
-};
-
-const FILL_CLASS: Record<ProgressColor, string> = {
-  green: 'bg-success',
-  yellow: 'bg-warning',
-  red: 'bg-error',
-  neutral: 'bg-white/40',
-};
 
 function formatBadge(badge: NonNullable<ReturnType<typeof kcalStatus>['badge']>): string {
   if (badge.kind === 'reached') return de.dayTotals.reached;
@@ -40,13 +26,10 @@ function MacroCell({
   actual: number;
   goal: number | undefined;
 }) {
-  const { color } = macroStatus(actual, goal);
   const rounded = Math.round(actual);
   const valueText = goal !== undefined ? `${rounded} / ${goal} g` : `${rounded} g`;
   const pct = goal !== undefined && goal > 0 ? (actual / goal) * 100 : undefined;
-  return (
-    <HeaderMacroCell macroKey={macroKey} label={label} valueText={valueText} valueClass={TEXT_CLASS[color]} pct={pct} />
-  );
+  return <HeaderMacroCell macroKey={macroKey} label={label} valueText={valueText} pct={pct} />;
 }
 
 export function DayTotalsHeader({ totals, goal }: DayTotalsHeaderProps) {
@@ -58,9 +41,9 @@ export function DayTotalsHeader({ totals, goal }: DayTotalsHeaderProps) {
   return (
     <div className="mt-2 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <span className={`text-lg font-semibold ${TEXT_CLASS[kcal.color]}`}>{kcalText}</span>
+        <span className="text-lg font-semibold text-white/90">{kcalText}</span>
         {kcal.badge && (
-          <span className={`rounded-full bg-white/10 px-2 py-0.5 text-xs font-medium ${TEXT_CLASS[kcal.color]}`}>
+          <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-medium text-white/90">
             {formatBadge(kcal.badge)}
           </span>
         )}
@@ -76,7 +59,7 @@ export function DayTotalsHeader({ totals, goal }: DayTotalsHeaderProps) {
         >
           <div
             data-testid="kcal-progress-fill"
-            className={`h-full rounded-full transition-all ${FILL_CLASS[kcal.color]}`}
+            className="h-full rounded-full bg-white/40 transition-all"
             style={{ width: `${barWidth}%` }}
           />
         </div>
