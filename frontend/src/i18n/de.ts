@@ -282,7 +282,6 @@ export const de = {
       const { mul, label } = per100Display(unit);
       return `${Math.round(cals * mul)} kcal / ${label} · ${formatMacroTriplet(p * mul, cb * mul, f * mul)}`;
     },
-    totalIntro: (amount: number, unit: string) => `${amount} ${unit} gesamt — `,
     macroKcal: 'kcal',
     macroProtein: 'Eiweiß',
     macroCarbs: 'KH',
@@ -303,9 +302,9 @@ export const de = {
   recipeConfirm: {
     summaryLine: (yield_: number, ingCount: number) =>
       `Rezept ergibt ${yield_} Portion${yield_ === 1 ? '' : 'en'} · ${ingCount} Zutat${ingCount === 1 ? '' : 'en'}`,
-    totalLine: (cals: number, p: number, cb: number, f: number) =>
-      `Gesamt: ${Math.round(cals)} kcal · ${formatMacroTriplet(p, cb, f)}`,
     portionsLabel: 'Zu erfassende Portionen',
+    portionsDecrement: 'Eine Portion weniger',
+    portionsIncrement: 'Eine Portion mehr',
     willLogHeading: (n: number) => (n === 1 ? 'Es wird 1 Zutat übernommen:' : `Es werden ${n} Zutaten übernommen:`),
     adjustHint: 'Jede Zutat lässt sich danach einzeln anpassen.',
     back: 'Zurück',
@@ -371,6 +370,7 @@ export const de = {
     empty: 'Noch keine Rezepte — lege eines unter „Rezepte“ in der unteren Navigation an.',
     noMatches: (q: string) => `Keine Treffer für „${q}“`,
     meta: (ingCount: number, yield_: number) => `${ingCount} Zut. · ${yield_} Port.`,
+    kcalPerPortion: (kcal: number) => `${kcal} kcal/P`,
   },
 
   barcodeScanner: {
@@ -391,6 +391,7 @@ export const de = {
   recipes: {
     screenTitle: 'Rezepte',
     newRecipe: 'Neues Rezept',
+    newButton: 'Neu',
     newRecipeAria: 'Neues Rezept',
     empty: 'Noch keine Rezepte — lege eines an, um loszulegen.',
     listMeta: (ingCount: number, yield_: number) => `${ingCount} Zutat${ingCount === 1 ? '' : 'en'} · ${yield_} Port.`,
@@ -415,8 +416,6 @@ export const de = {
     servingsIncrement: 'Eine Portion mehr',
     servingsReset: 'Zurücksetzen',
     servingsResetAria: (n: number) => `Auf ${n} Portion${n === 1 ? '' : 'en'} zurücksetzen`,
-    macroLine: (kcal: number, p: number, c: number, f: number) =>
-      `${kcal} kcal · ${formatMacroTriplet(p, c, f)} / Portion`,
   },
 
   recipeTotals: {
@@ -490,6 +489,9 @@ export const de = {
     removeDisplayQuantity: 'Menge entfernen',
     confirmDisplayQuantity: 'OK',
     cancelDisplayQuantity: 'Abbrechen',
+    addNote: '+ Notiz',
+    addNoteAria: (name: string) => `Notiz für ${name} hinzufügen`,
+    removeNoteAria: (name: string) => `Notiz für ${name} entfernen`,
     notePlaceholder: 'Notiz, z. B. fein gehackt',
     noteAriaFor: (name: string) => `Notiz für ${name}`,
   },
@@ -532,13 +534,13 @@ export const de = {
     settingsLinkHint: 'Trend, Diagramm, Historie',
     cardTitle: 'Heutiges Gewicht',
     cardPromptEmpty: 'Gewicht für heute eintragen',
-    cardInputPlaceholder: 'z. B. 78.4',
+    cardInputPlaceholder: 'z. B. 78,4',
     cardKgSuffix: 'kg',
     cardSubmit: 'Speichern',
     cardSubmitting: 'Speichern…',
     cardEdit: 'Bearbeiten',
     cardEditAria: 'Heutiges Gewicht bearbeiten',
-    cardOpenTracker: 'Zum Gewicht-Tracker',
+    cardOpenTracker: 'Gewicht-Tracker',
     statsCurrent: 'Aktuell',
     statsMa7: 'Trend (7-Tage-Schnitt)',
     statsWeekly: 'Pro Woche',

@@ -33,7 +33,7 @@ describe('WeightLogCard', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Gewicht für heute eintragen')).toBeInTheDocument();
     });
-    expect((screen.getByLabelText('Gewicht für heute eintragen') as HTMLInputElement).placeholder).toBe('z. B. 78.4');
+    expect((screen.getByLabelText('Gewicht für heute eintragen') as HTMLInputElement).placeholder).toBe('z. B. 78,4');
   });
 
   it("renders the weight + MA + rate when today's entry exists", async () => {
@@ -83,15 +83,15 @@ describe('WeightLogCard', () => {
     expect(input.getAttribute('pattern')).toBe('[0-9]*[.,]?[0-9]*');
   });
 
-  it('"Zum Gewicht-Tracker" link invokes onOpenTracker', async () => {
+  it('"Gewicht-Tracker" link invokes onOpenTracker', async () => {
     const user = userEvent.setup();
     const onOpenTracker = vi.fn<() => void>();
     seedHandlers([], NULL_TREND);
     renderWithProviders(<WeightLogCard onOpenTracker={onOpenTracker} />);
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Zum Gewicht-Tracker' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Gewicht-Tracker' })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole('button', { name: 'Zum Gewicht-Tracker' }));
+    await user.click(screen.getByRole('button', { name: 'Gewicht-Tracker' }));
     expect(onOpenTracker).toHaveBeenCalled();
   });
 });

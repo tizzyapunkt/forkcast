@@ -522,18 +522,29 @@ describe('RecipeIngredientEditor — ingredient note', () => {
     amount: 5,
   };
 
-  it('renders an empty note input when the row has no note', () => {
+  it('keeps the note collapsed behind a "+ Notiz" button when the row has no note', async () => {
+    const user = userEvent.setup();
     render(<Capture initial={[ginger]} />);
+    expect(screen.queryByTestId('ingredient-note-0')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Notiz für Ingwer hinzufügen' }));
     const input = screen.getByTestId('ingredient-note-0') as HTMLInputElement;
-    expect(input).toBeInTheDocument();
     expect(input.value).toBe('');
   });
 
-  it('typing into the note input writes a `note` onto the row', async () => {
+  it('typing into the opened note input writes a `note` onto the row', async () => {
     const user = userEvent.setup();
     render(<Capture initial={[ginger]} />);
+    await user.click(screen.getByRole('button', { name: 'Notiz für Ingwer hinzufügen' }));
     await user.type(screen.getByTestId('ingredient-note-0'), 'fein gehackt');
     expect(readState()[0]?.note).toBe('fein gehackt');
+  });
+
+  it('the remove-note button clears the note and collapses the editor', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[{ ...ginger, note: 'fein gehackt' }]} />);
+    await user.click(screen.getByRole('button', { name: 'Notiz für Ingwer entfernen' }));
+    expect(readState()[0]).not.toHaveProperty('note');
+    expect(screen.queryByTestId('ingredient-note-0')).not.toBeInTheDocument();
   });
 
   it('clearing the note input removes the `note` field from the row', async () => {
@@ -551,6 +562,7 @@ describe('RecipeIngredientEditor — ingredient note', () => {
   it('trims surrounding whitespace on blur', async () => {
     const user = userEvent.setup();
     render(<Capture initial={[ginger]} />);
+    await user.click(screen.getByRole('button', { name: 'Notiz für Ingwer hinzufügen' }));
     await user.type(screen.getByTestId('ingredient-note-0'), '  in Scheiben  ');
     await user.tab();
     expect(readState()[0]?.note).toBe('in Scheiben');

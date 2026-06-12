@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useRecipe } from '../../queries/use-recipe';
 import { useUpdateRecipe } from '../../queries/use-update-recipe';
 import { useDeleteRecipe } from '../../queries/use-delete-recipe';
@@ -76,20 +77,21 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
         backAria={de.recipes.backAria}
       />
       <div className="space-y-4 p-4">
-        <div className="flex justify-end gap-2">
+        <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => setEditing(true)}
-            className="rounded-md border px-3 py-1 text-sm"
+            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium text-primary"
             aria-label={de.recipes.editAria}
           >
+            <Pencil size={14} aria-hidden="true" />
             {de.recipes.edit}
           </button>
           <button
             onClick={() => setConfirmDelete(true)}
-            className="rounded-md border border-destructive px-3 py-1 text-sm text-destructive"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-destructive hover:bg-destructive/10"
             aria-label={de.recipes.deleteAria}
           >
-            {de.recipes.delete}
+            <Trash2 size={17} aria-hidden="true" />
           </button>
         </div>
 
@@ -99,6 +101,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
             <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{de.recipes.servingsLabel}</span>
               {(servings ?? recipe.yield) !== recipe.yield && (
                 <button
                   type="button"

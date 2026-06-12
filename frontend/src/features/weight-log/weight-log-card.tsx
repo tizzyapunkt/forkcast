@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Scale } from 'lucide-react';
 import { useWeightLog } from '../../queries/use-weight-log';
 import { useWeightTrend } from '../../queries/use-weight-trend';
 import { useLogWeight } from '../../queries/use-log-weight';
@@ -37,7 +38,10 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
   return (
     <section aria-label={de.weightLog.cardTitle} className="rounded-md border border-input bg-card p-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">{de.weightLog.cardTitle}</h3>
+        <h3 className="flex items-center gap-2 text-base font-semibold">
+          <Scale size={16} aria-hidden="true" className="shrink-0 text-primary" />
+          {de.weightLog.cardTitle}
+        </h3>
         <button
           type="button"
           onClick={onOpenTracker}

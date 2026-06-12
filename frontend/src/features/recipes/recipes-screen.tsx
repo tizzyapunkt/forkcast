@@ -8,8 +8,9 @@ import { RecipeDetail } from './recipe-detail';
 import { ImportRecipeScreen } from '../ai-recipe-import/import-recipe-screen';
 import { useImportConfigured } from '../ai-recipe-import/use-import-configured';
 import { computeRecipeTotals } from '../../domain/recipe-totals';
+import { Camera, ChevronRight, CookingPot, Plus } from 'lucide-react';
 import { AppHeader } from '../../components/app/app-header';
-import { de } from '../../i18n/de';
+import { de, formatMacroTriplet } from '../../i18n/de';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
 
@@ -59,22 +60,24 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
     <>
       <AppHeader title={de.recipes.screenTitle} />
       <div className="space-y-3 p-4">
-        <div className="flex justify-end gap-2">
+        <div className="flex gap-2">
           {importConfigured && (
             <button
               onClick={() => setView({ mode: 'import' })}
-              className="rounded-md border px-3 py-1 text-sm"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium text-primary"
               aria-label={de.aiRecipeImport.entryButtonAria}
             >
+              <Camera size={16} aria-hidden="true" />
               {de.aiRecipeImport.entryButton}
             </button>
           )}
           <button
             onClick={() => setView({ mode: 'create' })}
-            className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
             aria-label={de.recipes.newRecipeAria}
           >
-            + {de.recipes.newRecipe}
+            <Plus size={16} aria-hidden="true" />
+            {de.recipes.newButton}
           </button>
         </div>
 
@@ -93,25 +96,31 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
                 <li key={recipe.id}>
                   <button
                     onClick={() => setView({ mode: 'detail', id: recipe.id })}
-                    className="flex w-full items-start justify-between gap-2 px-3 py-3 text-left text-sm hover:bg-muted/40"
+                    className="flex w-full items-center gap-3 px-3 py-3 text-left text-sm hover:bg-muted/40"
                   >
+                    <span
+                      aria-hidden="true"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-primary"
+                    >
+                      <CookingPot size={20} />
+                    </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{recipe.name}</span>
                       <span
                         data-testid={`recipe-macro-line-${recipe.id}`}
-                        className="mt-0.5 block text-xs text-muted-foreground tabular-nums"
+                        className="mt-0.5 block truncate text-xs tabular-nums"
                       >
-                        {de.recipes.macroLine(
-                          Math.round(perServing.calories),
-                          Math.round(perServing.protein),
-                          Math.round(perServing.carbs),
-                          Math.round(perServing.fat),
-                        )}
+                        <span className="font-bold text-primary">{Math.round(perServing.calories)} kcal</span>
+                        <span className="text-muted-foreground">
+                          {' · '}
+                          {formatMacroTriplet(perServing.protein, perServing.carbs, perServing.fat)} / Portion
+                        </span>
+                      </span>
+                      <span className="mt-0.5 block text-[11px] text-muted-foreground/70">
+                        {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
                       </span>
                     </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
-                    </span>
+                    <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-muted-foreground/60" />
                   </button>
                 </li>
               );

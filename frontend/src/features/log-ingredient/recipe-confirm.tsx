@@ -1,3 +1,4 @@
+import { Check, Minus, Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,7 +7,7 @@ import type { MealSlot } from '../../domain/meal-log';
 import { scaleIngredients } from '../../domain/scale-recipe-ingredients';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { de } from '../../i18n/de';
+import { de, formatMacroTriplet } from '../../i18n/de';
 
 const schema = z.object({
   portions: z.coerce
@@ -32,6 +33,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { portions: 1 } });
 
@@ -72,29 +74,57 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
         <p className="text-xs text-muted-foreground">
           {de.recipeConfirm.summaryLine(recipe.yield, recipe.ingredients.length)}
         </p>
-        {totals && (
-          <p className="text-xs text-muted-foreground">
-            {de.recipeConfirm.totalLine(totals.calories, totals.protein, totals.carbs, totals.fat)}
-          </p>
-        )}
       </div>
 
       <div className="space-y-1">
         <label htmlFor="portions" className="text-sm font-medium">
           {de.recipeConfirm.portionsLabel}
         </label>
-        <input
-          id="portions"
-          type="number"
-          inputMode="decimal"
-          step="0.5"
-          min="0"
-          {...register('portions')}
-          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-          autoFocus
-        />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setValue('portions', Math.max(1, (portions ?? 1) - 1), { shouldValidate: true })}
+            disabled={(portions ?? 1) <= 1}
+            aria-label={de.recipeConfirm.portionsDecrement}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
+          >
+            <Minus size={16} aria-hidden="true" />
+          </button>
+          <input
+            id="portions"
+            type="number"
+            inputMode="decimal"
+            step="0.5"
+            min="0"
+            {...register('portions')}
+            className="w-full rounded-md border px-3 py-2 text-center text-base font-semibold tabular-nums sm:text-sm"
+            autoFocus
+          />
+          <button
+            type="button"
+            onClick={() => setValue('portions', (portions ?? 0) + 1, { shouldValidate: true })}
+            aria-label={de.recipeConfirm.portionsIncrement}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border"
+          >
+            <Plus size={16} aria-hidden="true" />
+          </button>
+        </div>
         {errors.portions && <p className="text-xs text-destructive">{errors.portions.message}</p>}
       </div>
+
+      {totals && portions !== null && (
+        <div
+          data-testid="portion-summary-card"
+          className="flex items-center justify-between gap-2 rounded-md bg-muted p-3 tabular-nums"
+        >
+          <span className="text-2xl font-extrabold text-primary">
+            {Math.round(totals.calories)} <span className="text-sm font-semibold">kcal</span>
+          </span>
+          <span className="text-sm font-semibold text-muted-foreground">
+            {formatMacroTriplet(totals.protein, totals.carbs, totals.fat)}
+          </span>
+        </div>
+      )}
 
       {totals && portions !== null && (
         <div className="rounded-md border p-3 text-xs">
@@ -129,6 +159,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
           disabled={isPending}
           className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
+          <Check size={17} aria-hidden="true" className="-ml-1 mr-1.5 inline-block align-[-3px]" />
           {isPending ? de.recipeConfirm.logging : de.recipeConfirm.log}
         </button>
       </div>

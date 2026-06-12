@@ -1,6 +1,6 @@
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import type { RecipeIngredient } from '../../domain/recipes';
-import { de, formatMacroTriplet } from '../../i18n/de';
+import { de } from '../../i18n/de';
 
 interface Props {
   ingredients: RecipeIngredient[];
@@ -10,6 +10,16 @@ interface Props {
 
 function r(value: number): number {
   return Math.round(value);
+}
+
+function MacroDot({ colorClass, label, grams }: { colorClass: string; label: string; grams: number }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span aria-hidden="true" className={`h-2 w-2 rounded-full ${colorClass}`} />
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold">{grams} g</span>
+    </span>
+  );
 }
 
 /**
@@ -62,13 +72,17 @@ export function PerPortionHero({ ingredients, servings, onServingsChange }: Prop
         </div>
       </div>
 
-      <p data-testid="totals-per-serving" className="mt-1 tabular-nums">
-        <span className="text-3xl font-extrabold tracking-tight text-foreground">{r(perServing.calories)}</span>{' '}
-        <span className="text-sm text-muted-foreground">{de.recipeTotals.kcalUnit}</span>{' '}
-        <span className="text-sm text-muted-foreground">
-          · {formatMacroTriplet(perServing.protein, perServing.carbs, perServing.fat)}
-        </span>
-      </p>
+      <div data-testid="totals-per-serving" className="mt-1 tabular-nums">
+        <p>
+          <span className="text-3xl font-extrabold tracking-tight text-foreground">{r(perServing.calories)}</span>{' '}
+          <span className="text-sm text-muted-foreground">{de.recipeTotals.kcalUnit}</span>
+        </p>
+        <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          <MacroDot colorClass="bg-macro-p" label={de.dayTotals.protein} grams={r(perServing.protein)} />
+          <MacroDot colorClass="bg-macro-c" label={de.dayTotals.carbs} grams={r(perServing.carbs)} />
+          <MacroDot colorClass="bg-macro-f" label={de.dayTotals.fat} grams={r(perServing.fat)} />
+        </p>
+      </div>
 
       <p
         data-testid="totals-secondary"

@@ -6,12 +6,14 @@ import { useCopyLogDay } from '../../queries/use-copy-log-day';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
 import { EntryList } from '../daily-log/entry-list';
 import { AppHeader } from '../../components/app/app-header';
+import { HeaderMacroCell } from '../../components/app/header-macro-cell';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { addDays, mondayOf, today } from '../../domain/date';
 import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-rollup';
 import { de, slotLabelsDe } from '../../i18n/de';
 import type { DailyLog, MealSlot } from '../../domain/meal-log';
+import type { DailyGoal } from '../../domain/nutrition';
 
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
@@ -22,10 +24,6 @@ function r(n: number): number {
 function weekdayIndexOf(iso: string): number {
   const jsDay = new Date(iso + 'T00:00:00').getDay(); // 0=Sun..6=Sat
   return jsDay === 0 ? 6 : jsDay - 1; // 0=Mo..6=So
-}
-
-function dayNumber(iso: string): number {
-  return new Date(iso + 'T00:00:00').getDate();
 }
 
 function dateLabel(iso: string): string {
@@ -45,6 +43,35 @@ function weekRangeLabel(startIso: string, endIso: string): string {
 function indexInWeek(iso: string, weekStart: string): number {
   const ms = new Date(iso + 'T00:00:00').getTime() - new Date(weekStart + 'T00:00:00').getTime();
   return Math.round(ms / 86_400_000);
+}
+
+const MACRO_BASE_CLASS = { p: 'bg-macro-p', c: 'bg-macro-c', f: 'bg-macro-f' } as const;
+
+// TAG GESAMT cell on the light card background — base macro identity colors.
+function DayMacroCell({
+  macroKey,
+  label,
+  actual,
+  goal,
+}: {
+  macroKey: 'p' | 'c' | 'f';
+  label: string;
+  actual: number;
+  goal: number;
+}) {
+  const pct = goal > 0 ? Math.min(100, Math.max(0, (actual / goal) * 100)) : 0;
+  return (
+    <div className="flex min-w-0 flex-1 flex-col gap-1 text-xs">
+      <span className="flex items-center gap-1.5 text-muted-foreground">
+        <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${MACRO_BASE_CLASS[macroKey]}`} />
+        {label}
+      </span>
+      <span className="font-medium tabular-nums">{`${Math.round(actual)} / ${goal} g`}</span>
+      <span className="block h-1 overflow-hidden rounded-full bg-border/60">
+        <span className={`block h-1 rounded-full ${MACRO_BASE_CLASS[macroKey]}`} style={{ width: `${pct}%` }} />
+      </span>
+    </div>
+  );
 }
 
 function toneClass(tone: DayTone): string {
@@ -74,7 +101,6 @@ export function PlannerScreen() {
   const { data: goal } = useNutritionGoal();
   const copyMutation = useCopyLogDay();
 
-  const goalKcal = goal?.calories ?? 0;
   const weekEnd = addDays(weekStart, 6);
 
   function goPrevWeek() {
@@ -90,13 +116,45 @@ export function PlannerScreen() {
         title={de.planner.title}
         bottom={
           week ? (
-            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
-              <span>{de.planner.avgPerDay(r(week.averages.calories))}</span>
-              <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
-              <span>
-                {de.planner.avgMacrosLabel}:{' '}
-                {de.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
-              </span>
+            <div className="mt-1.5 space-y-2">
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
+                <span className="text-sm font-semibold text-white">
+                  {de.planner.avgPerDay(r(week.averages.calories))}
+                </span>
+                <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
+              </div>
+              {goal ? (
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                    {de.planner.avgMacrosLabel}
+                  </p>
+                  <div className="mt-1 flex gap-4">
+                    <HeaderMacroCell
+                      macroKey="p"
+                      label={de.dayTotals.protein}
+                      valueText={`${r(week.averages.protein)} / ${goal.protein} g`}
+                      pct={goal.protein > 0 ? (week.averages.protein / goal.protein) * 100 : 0}
+                    />
+                    <HeaderMacroCell
+                      macroKey="c"
+                      label={de.dayTotals.carbs}
+                      valueText={`${r(week.averages.carbs)} / ${goal.carbs} g`}
+                      pct={goal.carbs > 0 ? (week.averages.carbs / goal.carbs) * 100 : 0}
+                    />
+                    <HeaderMacroCell
+                      macroKey="f"
+                      label={de.dayTotals.fat}
+                      valueText={`${r(week.averages.fat)} / ${goal.fat} g`}
+                      pct={goal.fat > 0 ? (week.averages.fat / goal.fat) * 100 : 0}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <span className="text-xs text-white/80 tabular-nums">
+                  {de.planner.avgMacrosLabel}:{' '}
+                  {de.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
+                </span>
+              )}
             </div>
           ) : null
         }
@@ -135,7 +193,7 @@ export function PlannerScreen() {
                 day={day}
                 index={i}
                 open={expanded === i}
-                goalKcal={goalKcal}
+                goal={goal ?? null}
                 onToggle={() => setExpanded((cur) => (cur === i ? -1 : i))}
                 onAdd={(slot) => setTarget({ date: day.date, slot })}
                 onCopy={() =>
@@ -195,13 +253,14 @@ interface DaySectionProps {
   day: DailyLog;
   index: number;
   open: boolean;
-  goalKcal: number;
+  goal: DailyGoal | null;
   onToggle: () => void;
   onAdd: (slot: MealSlot) => void;
   onCopy: () => void;
 }
 
-function DaySection({ day, open, goalKcal, onToggle, onAdd, onCopy }: DaySectionProps) {
+function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProps) {
+  const goalKcal = goal?.calories ?? 0;
   const tone = dayTone(day.totals.calories, goalKcal);
   const hasEntries = dayHasEntries(day);
   const label = dateLabel(day.date);
@@ -216,18 +275,22 @@ function DaySection({ day, open, goalKcal, onToggle, onAdd, onCopy }: DaySection
         aria-label={de.planner.expandDayAria(label)}
         className="flex w-full items-center gap-3 p-3 text-left"
       >
-        <span className="w-9 shrink-0 text-center">
+        <span className="w-12 shrink-0 text-center">
           <span className="block text-sm font-semibold">{de.planner.weekdays[weekdayIndexOf(day.date)]}</span>
-          <span className="block text-[11px] text-muted-foreground">{dayNumber(day.date)}</span>
+          <span className="block text-[10px] leading-tight text-muted-foreground">{label}</span>
         </span>
         <span className="min-w-0 flex-1">
-          <span className={`block text-sm font-medium tabular-nums ${toneClass(tone)}`}>
-            {goalKcal > 0 ? de.planner.goalLine(r(day.totals.calories), r(goalKcal)) : `${r(day.totals.calories)} kcal`}
-          </span>
-          <span className="block text-xs text-muted-foreground tabular-nums">
-            {hasEntries
-              ? de.planner.macroLine(r(day.totals.protein), r(day.totals.carbs), r(day.totals.fat))
-              : de.planner.empty}
+          <span className="flex items-baseline justify-between gap-2">
+            <span className={`text-sm font-medium tabular-nums ${toneClass(tone)}`}>
+              {goalKcal > 0
+                ? de.planner.goalLine(r(day.totals.calories), r(goalKcal))
+                : `${r(day.totals.calories)} kcal`}
+            </span>
+            <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+              {hasEntries
+                ? de.planner.macroLine(r(day.totals.protein), r(day.totals.carbs), r(day.totals.fat))
+                : de.planner.empty}
+            </span>
           </span>
           <span className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
             <span className="block h-1 rounded-full bg-primary" style={{ width: `${pct}%` }} />
@@ -242,6 +305,23 @@ function DaySection({ day, open, goalKcal, onToggle, onAdd, onCopy }: DaySection
 
       {open && (
         <div className="border-t px-3 pb-3 pt-2">
+          {hasEntries && goal && (
+            <div className="mb-2 rounded-md bg-muted p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {de.planner.dayTotal}
+              </p>
+              <div className="mt-1.5 flex gap-4">
+                <DayMacroCell
+                  macroKey="p"
+                  label={de.dayTotals.protein}
+                  actual={day.totals.protein}
+                  goal={goal.protein}
+                />
+                <DayMacroCell macroKey="c" label={de.dayTotals.carbs} actual={day.totals.carbs} goal={goal.carbs} />
+                <DayMacroCell macroKey="f" label={de.dayTotals.fat} actual={day.totals.fat} goal={goal.fat} />
+              </div>
+            </div>
+          )}
           <ul className="divide-y">
             {SLOTS.map((slot) => {
               const summary = day.slots.find((s) => s.slot === slot);

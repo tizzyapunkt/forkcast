@@ -35,6 +35,14 @@
     --warning: #f59e0b;
     --error: #ef4444;
     --header-grad: linear-gradient(160deg, hsl(244 36% 47%), hsl(244 38% 40%));
+    /* Macro identity colors — Eiweiß (green, selected "Grün" variant) / KH (amber) / Fett (blue). */
+    --macro-p: 146 52% 43%;
+    --macro-c: 28 80% 52%;
+    --macro-f: 199 70% 48%;
+    /* Brightened variants, legible on the dark indigo header. */
+    --macro-p-on: 145 60% 62%;
+    --macro-c-on: 34 95% 64%;
+    --macro-f-on: 196 92% 68%;
   }
 }
 

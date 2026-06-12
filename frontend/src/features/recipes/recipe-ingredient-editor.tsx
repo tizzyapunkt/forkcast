@@ -3,6 +3,7 @@ import type { RecipeIngredient } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
+import { Pencil } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
@@ -23,6 +24,8 @@ function round1(n: number): number {
 export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices, onEstimateAcknowledged }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+  // Rows whose note editor the user opened this session; rows with a stored note are always open.
+  const [openNotes, setOpenNotes] = useState<ReadonlySet<number>>(new Set());
 
   const isPickerOpen = pickerOpen || replacingIndex !== null;
   const pickerMode: 'add' | 'replace' = replacingIndex !== null ? 'replace' : 'add';
@@ -144,7 +147,10 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">{de.recipeIngredientEditor.title}</h3>
+        <h3 className="text-sm font-medium">
+          {de.recipeIngredientEditor.title}
+          {ingredients.length > 0 && <span className="text-muted-foreground"> · {ingredients.length}</span>}
+        </h3>
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
@@ -184,6 +190,16 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                       ↻
                     </span>
                   </button>
+                  {!(ing.note !== undefined || openNotes.has(idx)) && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenNotes((cur) => new Set(cur).add(idx))}
+                      aria-label={de.recipeIngredientEditor.addNoteAria(ing.name)}
+                      className="shrink-0 text-xs text-muted-foreground/70 hover:text-foreground"
+                    >
+                      {de.recipeIngredientEditor.addNote}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleRemove(idx)}
@@ -310,22 +326,41 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                   </div>
                 )}
 
-                <div className="pl-1">
-                  <input
-                    aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
-                    data-testid={`ingredient-note-${idx}`}
-                    type="text"
-                    maxLength={NOTE_MAX_LENGTH}
-                    value={ing.note ?? ''}
-                    placeholder={de.recipeIngredientEditor.notePlaceholder}
-                    onChange={(e) => handleEditNote(idx, e.target.value)}
-                    onBlur={(e) => {
-                      const trimmed = e.target.value.trim();
-                      if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
-                    }}
-                    className="w-full bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
-                  />
-                </div>
+                {(ing.note !== undefined || openNotes.has(idx)) && (
+                  <div className="flex items-center gap-1.5 pl-1">
+                    <Pencil size={12} aria-hidden="true" className="shrink-0 text-muted-foreground/50" />
+                    <input
+                      aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
+                      data-testid={`ingredient-note-${idx}`}
+                      type="text"
+                      maxLength={NOTE_MAX_LENGTH}
+                      value={ing.note ?? ''}
+                      placeholder={de.recipeIngredientEditor.notePlaceholder}
+                      onFocus={() => setOpenNotes((cur) => (cur.has(idx) ? cur : new Set(cur).add(idx)))}
+                      onChange={(e) => handleEditNote(idx, e.target.value)}
+                      onBlur={(e) => {
+                        const trimmed = e.target.value.trim();
+                        if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
+                      }}
+                      className="min-w-0 flex-1 bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleEditNote(idx, '');
+                        setOpenNotes((cur) => {
+                          const next = new Set(cur);
+                          next.delete(idx);
+                          return next;
+                        });
+                      }}
+                      aria-label={de.recipeIngredientEditor.removeNoteAria(ing.name)}
+                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </li>
             );
           })}

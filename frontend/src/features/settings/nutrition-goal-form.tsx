@@ -58,28 +58,48 @@ export function NutritionGoalForm() {
 
   if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{de.nutritionGoal.loading}</div>;
 
+  const [kcalField, ...macroFields] = FIELDS;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-lg border bg-card p-4">
       {error && <ErrorBanner error={error} />}
       {saved && <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.nutritionGoal.saved}</p>}
 
-      {FIELDS.map(({ key, label }) => (
-        <div key={key} className="space-y-1">
-          <label htmlFor={`goal-${key}`} className="text-sm font-medium">
-            {label}
-          </label>
-          <input
-            id={`goal-${key}`}
-            type="number"
-            inputMode="numeric"
-            step="1"
-            {...register(key)}
-            className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-            placeholder="0"
-          />
-          {errors[key] && <p className="text-xs text-destructive">{errors[key]?.message}</p>}
-        </div>
-      ))}
+      <div className="space-y-1">
+        <label htmlFor={`goal-${kcalField.key}`} className="text-sm font-medium">
+          {kcalField.label}
+        </label>
+        <input
+          id={`goal-${kcalField.key}`}
+          type="number"
+          inputMode="numeric"
+          step="1"
+          {...register(kcalField.key)}
+          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+          placeholder="0"
+        />
+        {errors[kcalField.key] && <p className="text-xs text-destructive">{errors[kcalField.key]?.message}</p>}
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {macroFields.map(({ key, label }) => (
+          <div key={key} className="space-y-1">
+            <label htmlFor={`goal-${key}`} className="text-sm font-medium">
+              {label}
+            </label>
+            <input
+              id={`goal-${key}`}
+              type="number"
+              inputMode="numeric"
+              step="1"
+              {...register(key)}
+              className="w-full rounded-md border px-3 py-2 text-base tabular-nums sm:text-sm"
+              placeholder="0"
+            />
+            {errors[key] && <p className="text-xs text-destructive">{errors[key]?.message}</p>}
+          </div>
+        ))}
+      </div>
 
       <button
         type="submit"

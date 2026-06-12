@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import type { SlotSummary } from '../../domain/meal-log';
 import { de, slotLabelsDe } from '../../i18n/de';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
@@ -23,7 +24,7 @@ export function SlotCard({ summary, date }: SlotCardProps) {
             <h2 className="font-semibold">{slotLabelsDe[summary.slot]}</h2>
             <div className="flex items-center gap-2">
               {totals.calories > 0 && (
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm font-bold text-primary tabular-nums">
                   {Math.round(totals.calories)}
                   {de.dailyLog.kcalSuffix}
                 </span>
@@ -31,9 +32,9 @@ export function SlotCard({ summary, date }: SlotCardProps) {
               <button
                 onClick={() => openDrawer(summary.slot)}
                 aria-label={de.dailyLog.add}
-                className="rounded-full px-1 text-xl leading-none text-muted-foreground hover:text-foreground"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-primary hover:bg-accent/20"
               >
-                +
+                <Plus size={20} aria-hidden="true" />
               </button>
             </div>
           </div>

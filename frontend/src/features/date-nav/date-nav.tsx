@@ -10,7 +10,8 @@ interface DateNavProps {
 
 function formatDisplay(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+  // "Do., 11. Juni" → "Do. 11. Juni" (the design drops the comma after the weekday)
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' }).replace(',', '');
 }
 
 export function DateNav({ date, onPrev, onNext, onToday }: DateNavProps) {

@@ -69,8 +69,9 @@ describe('FullEntryConfirm', () => {
     );
     await userEvent.type(screen.getByLabelText(/menge/i), '200');
     // 1.65 * 200 = 330 kcal, 0.31 * 200 = 62 protein — rendered as the unified triplet
-    expect(await screen.findByText(/330 kcal/)).toBeInTheDocument();
-    expect(screen.getByText(/62 P · 0 KH · 7 F/)).toBeInTheDocument();
+    const card = await screen.findByTestId('amount-summary-card');
+    expect(card).toHaveTextContent(/330\s*kcal/);
+    expect(card).toHaveTextContent('62 P · 0 KH · 7 F');
   });
 
   it('hides calculated row when amount is empty', () => {
@@ -78,8 +79,8 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
-    // no amount typed — should not see a "total" line
-    expect(screen.queryByText(/gesamt/i)).not.toBeInTheDocument();
+    // no amount typed — no live summary card
+    expect(screen.queryByTestId('amount-summary-card')).not.toBeInTheDocument();
   });
 
   it('calls onBack when back button is clicked', async () => {

@@ -5,6 +5,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { Check } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 
 const schema = z.object({
@@ -74,18 +75,6 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
         <p className="text-xs text-muted-foreground">
           {de.fullEntry.perUnit(result.unit, m.calories, m.protein, m.carbs, m.fat)}
         </p>
-        {amount !== null && (
-          <p className="text-xs">
-            <span className="text-muted-foreground">{de.fullEntry.totalIntro(amount, result.unit)}</span>
-            <span className="font-medium text-foreground">
-              {Math.round(m.calories * amount)} {de.fullEntry.macroKcal}
-            </span>
-            <span className="text-muted-foreground">
-              {' · '}
-              {formatMacroTriplet(m.protein * amount, m.carbs * amount, m.fat * amount)}
-            </span>
-          </p>
-        )}
       </div>
 
       <div className="space-y-1">
@@ -121,6 +110,20 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
         </div>
       </div>
 
+      {amount !== null && (
+        <div
+          data-testid="amount-summary-card"
+          className="flex items-center justify-between gap-2 rounded-md bg-muted p-3 tabular-nums"
+        >
+          <span className="text-2xl font-extrabold text-primary">
+            {Math.round(m.calories * amount)} <span className="text-sm font-semibold">{de.fullEntry.macroKcal}</span>
+          </span>
+          <span className="text-sm font-semibold text-muted-foreground">
+            {formatMacroTriplet(m.protein * amount, m.carbs * amount, m.fat * amount)}
+          </span>
+        </div>
+      )}
+
       <div className="flex gap-2">
         {onBack && (
           <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
@@ -132,6 +135,7 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
           disabled={isPending}
           className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
+          <Check size={17} aria-hidden="true" className="-ml-1 mr-1.5 inline-block align-[-3px]" />
           {isPending
             ? de.fullEntry.saving
             : amount !== null

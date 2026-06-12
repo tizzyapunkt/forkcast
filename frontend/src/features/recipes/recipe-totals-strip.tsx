@@ -24,10 +24,12 @@ export function RecipeTotalsStrip({ ingredients, yield: recipeYield, className }
     <section
       aria-label={de.recipeTotals.sectionAria}
       data-testid="recipe-totals-strip"
-      className={`rounded-md border bg-card px-3 py-2 text-sm ${className ?? ''}`}
+      className={`rounded-md bg-accent/10 px-3 py-2.5 text-sm ${className ?? ''}`}
     >
       <div className="flex items-baseline justify-between gap-2 tabular-nums">
-        <span className="text-xs text-muted-foreground">{de.recipeTotals.perServingLabel}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+          {de.recipeTotals.perServingLabel}
+        </span>
         <span data-testid="totals-per-serving" className="font-medium">
           {de.recipeTotals.summary(
             fmt(perServing.calories),

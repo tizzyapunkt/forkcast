@@ -21,12 +21,6 @@ describe('de.dailyLog.macroInline', () => {
   });
 });
 
-describe('de.recipes.macroLine', () => {
-  it('renders the unified triplet with a / Portion rate suffix', () => {
-    expect(de.recipes.macroLine(500, 40, 0, 36)).toBe('500 kcal · 40 P · 0 KH · 36 F / Portion');
-  });
-});
-
 describe('de.recipeTotals.summary', () => {
   it('renders kcal followed by the unified triplet', () => {
     expect(de.recipeTotals.summary(200, 20, 10, 10)).toBe('200 kcal · 20 P · 10 KH · 10 F');

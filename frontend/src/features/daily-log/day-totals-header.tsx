@@ -1,6 +1,7 @@
 import type { DayTotals } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
 import { kcalStatus, macroStatus, type ProgressColor } from '../../domain/nutrition-progress';
+import { HeaderMacroCell, type MacroKey } from '../../components/app/header-macro-cell';
 import { de } from '../../i18n/de';
 
 interface DayTotalsHeaderProps {
@@ -28,15 +29,23 @@ function formatBadge(badge: NonNullable<ReturnType<typeof kcalStatus>['badge']>)
   return de.dayTotals.kcalOver(badge.diff);
 }
 
-function MacroCell({ label, actual, goal }: { label: string; actual: number; goal: number | undefined }) {
+function MacroCell({
+  macroKey,
+  label,
+  actual,
+  goal,
+}: {
+  macroKey: MacroKey;
+  label: string;
+  actual: number;
+  goal: number | undefined;
+}) {
   const { color } = macroStatus(actual, goal);
   const rounded = Math.round(actual);
   const valueText = goal !== undefined ? `${rounded} / ${goal} g` : `${rounded} g`;
+  const pct = goal !== undefined && goal > 0 ? (actual / goal) * 100 : undefined;
   return (
-    <div className="flex flex-col items-center text-xs">
-      <span className="text-white/70">{label}</span>
-      <span className={`font-medium ${TEXT_CLASS[color]}`}>{valueText}</span>
-    </div>
+    <HeaderMacroCell macroKey={macroKey} label={label} valueText={valueText} valueClass={TEXT_CLASS[color]} pct={pct} />
   );
 }
 
@@ -73,10 +82,10 @@ export function DayTotalsHeader({ totals, goal }: DayTotalsHeaderProps) {
         </div>
       )}
 
-      <div className="flex justify-between gap-2">
-        <MacroCell label={de.dayTotals.protein} actual={totals.protein} goal={goal?.protein} />
-        <MacroCell label={de.dayTotals.carbs} actual={totals.carbs} goal={goal?.carbs} />
-        <MacroCell label={de.dayTotals.fat} actual={totals.fat} goal={goal?.fat} />
+      <div className="flex gap-4">
+        <MacroCell macroKey="p" label={de.dayTotals.protein} actual={totals.protein} goal={goal?.protein} />
+        <MacroCell macroKey="c" label={de.dayTotals.carbs} actual={totals.carbs} goal={goal?.carbs} />
+        <MacroCell macroKey="f" label={de.dayTotals.fat} actual={totals.fat} goal={goal?.fat} />
       </div>
     </div>
   );

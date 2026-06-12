@@ -587,21 +587,21 @@ switching an ingredient's measurement mode, or changing the servings count. Per-
 
 #### Scenario: Totals update when an ingredient is added
 
-- **GIVEN** the recipe form is open with an empty ingredient list and the hero shows `0 kcal` with macros `0 P · 0 KH · 0 F`
+- **GIVEN** the recipe form is open with an empty ingredient list and the hero shows `0 kcal` with macros `Eiweiß 0 g · KH 0 g · Fett 0 g`
 - **WHEN** the user adds an ingredient `{ amount: 100, macrosPerUnit: { calories: 2, protein: 0.2, carbs: 0, fat: 0 } }` to a recipe with `yield = 1`
-- **THEN** the hero updates to `200 kcal` with macros `20 P · 0 KH · 0 F` per serving
+- **THEN** the hero updates to `200 kcal` with macros `Eiweiß 20 g · KH 0 g · Fett 0 g` per serving
 
 #### Scenario: Totals update when an ingredient is switched to Frei
 
 - **GIVEN** the form contains one tracked ingredient contributing 200 kcal per serving
 - **WHEN** the user selects the **Frei** segment on that row
-- **THEN** the hero updates to `0 kcal` with macros `0 P · 0 KH · 0 F` per serving (untracked rows are excluded)
+- **THEN** the hero updates to `0 kcal` with macros `Eiweiß 0 g · KH 0 g · Fett 0 g` per serving (untracked rows are excluded)
 
 #### Scenario: Totals update when an ingredient amount is edited
 
 - **GIVEN** the form contains one tracked ingredient with `amount: 100` contributing 200 kcal per serving (yield 1)
 - **WHEN** the user changes the amount to `150`
-- **THEN** the hero updates to `300 kcal` with macros `30 P · 0 KH · 0 F` per serving
+- **THEN** the hero updates to `300 kcal` with macros `Eiweiß 30 g · KH 0 g · Fett 0 g` per serving
 
 #### Scenario: Totals update when the servings stepper changes
 

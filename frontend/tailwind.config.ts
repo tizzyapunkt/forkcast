@@ -62,6 +62,18 @@ const config: Config = {
         success: '#10b981',
         warning: '#f59e0b',
         error: '#ef4444',
+        // Macro identity colors — the single source of truth for every macro dot/bar/diagram
+        // (design tokens --macro-* from design_handoff_forkcast_2/design/fc-tokens.css; protein
+        // ships in the selected "Grün" variant). The `on` variants are brightened for legibility
+        // on the dark indigo header.
+        macro: {
+          p: 'hsl(var(--macro-p))',
+          c: 'hsl(var(--macro-c))',
+          f: 'hsl(var(--macro-f))',
+          'p-on': 'hsl(var(--macro-p-on))',
+          'c-on': 'hsl(var(--macro-c-on))',
+          'f-on': 'hsl(var(--macro-f-on))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
