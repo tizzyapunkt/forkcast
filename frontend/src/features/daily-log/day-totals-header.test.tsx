@@ -13,12 +13,13 @@ describe('DayTotalsHeader', () => {
     expect(screen.getByText('2000 kcal offen')).toBeInTheDocument();
   });
 
-  it('renders reached badge and green color when actual equals goal', () => {
+  it('renders reached badge in neutral white when actual equals goal', () => {
     const totals: DayTotals = { calories: 2000, protein: 150, carbs: 200, fat: 70, macrosPartial: false };
     render(<DayTotalsHeader totals={totals} goal={GOAL} />);
     const badge = screen.getByText(/erreicht/);
     expect(badge).toBeInTheDocument();
-    expect(badge.className).toMatch(/text-success|bg-success/);
+    expect(badge.className).toMatch(/text-white/);
+    expect(badge.className).not.toMatch(/text-success|text-warning|text-error/);
   });
 
   it('renders over-goal badge when actual exceeds goal', () => {
@@ -36,18 +37,15 @@ describe('DayTotalsHeader', () => {
     expect(fill.style.width).toBe('100%');
   });
 
-  it('progress bar uses yellow color class at 80 %', () => {
-    const totals: DayTotals = { calories: 1600, protein: 0, carbs: 0, fat: 0, macrosPartial: false };
-    render(<DayTotalsHeader totals={totals} goal={GOAL} />);
-    const fill = screen.getByTestId('kcal-progress-fill');
-    expect(fill.className).toMatch(/bg-warning/);
-  });
-
-  it('progress bar uses red color class at 50 %', () => {
-    const totals: DayTotals = { calories: 1000, protein: 0, carbs: 0, fat: 0, macrosPartial: false };
-    render(<DayTotalsHeader totals={totals} goal={GOAL} />);
-    const fill = screen.getByTestId('kcal-progress-fill');
-    expect(fill.className).toMatch(/bg-error/);
+  it('progress bar fill is neutral white regardless of pct', () => {
+    for (const calories of [1600, 1000, 2400]) {
+      const totals: DayTotals = { calories, protein: 0, carbs: 0, fat: 0, macrosPartial: false };
+      const { unmount } = render(<DayTotalsHeader totals={totals} goal={GOAL} />);
+      const fill = screen.getByTestId('kcal-progress-fill');
+      expect(fill.className).toMatch(/bg-white/);
+      expect(fill.className).not.toMatch(/bg-success|bg-warning|bg-error/);
+      unmount();
+    }
   });
 
   it('renders each macro with Ist / Soll g', () => {
