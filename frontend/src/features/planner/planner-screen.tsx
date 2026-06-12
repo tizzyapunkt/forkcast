@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { BookOpen, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Plus, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Plus } from 'lucide-react';
 import { useWeekLog } from '../../queries/use-week-log';
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
-import { useRemoveLogEntry } from '../../queries/use-remove-log-entry';
 import { useCopyLogDay } from '../../queries/use-copy-log-day';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
+import { EntryList } from '../daily-log/entry-list';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { addDays, mondayOf, today } from '../../domain/date';
 import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-rollup';
 import { de, slotLabelsDe } from '../../i18n/de';
-import type { DailyLog, LogEntry, MealSlot } from '../../domain/meal-log';
+import type { DailyLog, MealSlot } from '../../domain/meal-log';
 
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
@@ -47,10 +47,6 @@ function indexInWeek(iso: string, weekStart: string): number {
   return Math.round(ms / 86_400_000);
 }
 
-function entryName(e: LogEntry): string {
-  return e.ingredient.type === 'quick' ? e.ingredient.label : e.ingredient.name;
-}
-
 function toneClass(tone: DayTone): string {
   switch (tone) {
     case 'empty':
@@ -76,7 +72,6 @@ export function PlannerScreen() {
 
   const { data: week, isLoading, error } = useWeekLog(weekStart);
   const { data: goal } = useNutritionGoal();
-  const removeMutation = useRemoveLogEntry();
   const copyMutation = useCopyLogDay();
 
   const goalKcal = goal?.calories ?? 0;
@@ -143,7 +138,6 @@ export function PlannerScreen() {
                 goalKcal={goalKcal}
                 onToggle={() => setExpanded((cur) => (cur === i ? -1 : i))}
                 onAdd={(slot) => setTarget({ date: day.date, slot })}
-                onRemove={(id) => removeMutation.mutate({ id, date: day.date })}
                 onCopy={() =>
                   setCopyConfirm({
                     fromDate: day.date,
@@ -204,11 +198,10 @@ interface DaySectionProps {
   goalKcal: number;
   onToggle: () => void;
   onAdd: (slot: MealSlot) => void;
-  onRemove: (id: string) => void;
   onCopy: () => void;
 }
 
-function DaySection({ day, open, goalKcal, onToggle, onAdd, onRemove, onCopy }: DaySectionProps) {
+function DaySection({ day, open, goalKcal, onToggle, onAdd, onCopy }: DaySectionProps) {
   const tone = dayTone(day.totals.calories, goalKcal);
   const hasEntries = dayHasEntries(day);
   const label = dateLabel(day.date);
@@ -274,26 +267,9 @@ function DaySection({ day, open, goalKcal, onToggle, onAdd, onRemove, onCopy }: 
                     </div>
                   </div>
                   {entries.length > 0 && (
-                    <ul className="mt-1 space-y-1">
-                      {entries.map((e) => (
-                        <li key={e.id} className="flex items-center justify-between gap-2 text-xs">
-                          <span className="flex min-w-0 items-center gap-1">
-                            {e.recipeId && (
-                              <BookOpen size={12} aria-hidden="true" className="shrink-0 text-muted-foreground" />
-                            )}
-                            <span className="truncate">{entryName(e)}</span>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => onRemove(e.id)}
-                            aria-label={de.planner.removeEntryAria(entryName(e))}
-                            className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground hover:text-destructive"
-                          >
-                            <X size={14} aria-hidden="true" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-1">
+                      <EntryList entries={entries} />
+                    </div>
                   )}
                 </li>
               );

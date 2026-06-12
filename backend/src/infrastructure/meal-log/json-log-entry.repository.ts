@@ -52,6 +52,14 @@ export class JsonLogEntryRepository implements LogEntryRepository {
     await writeFile(this.filePath, JSON.stringify(filtered, null, 2), 'utf-8');
   }
 
+  async removeMany(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const drop = new Set(ids);
+    const all = await this.readAll();
+    const filtered = all.filter((e) => !drop.has(e.id));
+    await writeFile(this.filePath, JSON.stringify(filtered, null, 2), 'utf-8');
+  }
+
   private async readAll(): Promise<LogEntry[]> {
     if (!existsSync(this.filePath)) return [];
     const raw = await readFile(this.filePath, 'utf-8');

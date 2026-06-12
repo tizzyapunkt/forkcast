@@ -43,6 +43,8 @@ export interface LogEntry {
   ingredient: IngredientEntry;
   loggedAt: string; // ISO datetime string
   recipeId?: string; // present when this entry was produced by logging a recipe
+  recipeBatchId?: string; // shared by all entries of one LogRecipe invocation, unique per invocation
+  recipePortions?: number; // the portion count chosen at log time; a record, never recomputed on edits
 }
 
 /**

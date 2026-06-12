@@ -31,6 +31,7 @@ function repoWith(source: LogEntry[]) {
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
     update: vi.fn<(e: LogEntry) => Promise<void>>(),
     remove,
+    removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
   };
   return { repo, saveMany, remove };
 }

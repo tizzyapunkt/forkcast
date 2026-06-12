@@ -35,6 +35,10 @@ export interface LogEntry {
   ingredient: IngredientEntry;
   loggedAt: string;
   recipeId?: string;
+  /** Shared by all entries of one logged recipe batch — the group identity for display and batch removal. */
+  recipeBatchId?: string;
+  /** Portion count chosen at log time; a record of what was logged, never recomputed on edits. */
+  recipePortions?: number;
 }
 
 export interface DayTotals {

@@ -8,15 +8,18 @@ import { de } from '../../i18n/de';
 
 interface EntryRowProps {
   entry: LogEntry;
+  /** Suppresses the per-row "aus {Rezept}" hint — used inside a recipe group, whose banner already names the recipe. */
+  hideRecipeHint?: boolean;
 }
 
-export function EntryRow({ entry }: EntryRowProps) {
+export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [liveAmount, setLiveAmount] = useState<number | null>(null);
   const { ingredient } = entry;
   const { data: recipes } = useRecipes();
-  const recipeName = entry.recipeId ? recipes?.find((r) => r.id === entry.recipeId)?.name : undefined;
+  const recipeName =
+    entry.recipeId && !hideRecipeHint ? recipes?.find((r) => r.id === entry.recipeId)?.name : undefined;
 
   const label = ingredient.type === 'quick' ? ingredient.label : ingredient.name;
   const effectiveAmount = ingredient.type === 'full' ? (liveAmount ?? ingredient.amount) : 0;

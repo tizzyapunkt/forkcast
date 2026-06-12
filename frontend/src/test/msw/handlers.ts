@@ -106,6 +106,14 @@ export const handlers = [
     return HttpResponse.json([]);
   }),
 
+  http.get('/api/recipes', () => {
+    return HttpResponse.json([]);
+  }),
+
+  http.post('/api/remove-recipe-log', () => {
+    return HttpResponse.json({ removed: 1 });
+  }),
+
   http.get('/api/body-profile', () => {
     return new HttpResponse(null, { status: 404 });
   }),

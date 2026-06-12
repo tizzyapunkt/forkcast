@@ -23,6 +23,8 @@ export async function logRecipe(
 
   const factor = command.portions / recipe.yield;
   const loggedAt = new Date().toISOString();
+  // One fresh batch id per invocation — the group identity for display and batch removal.
+  const recipeBatchId = crypto.randomUUID();
 
   const trackedIngredients = recipe.ingredients.filter((ingredient) => ingredient.untracked !== true);
 
@@ -32,6 +34,8 @@ export async function logRecipe(
     slot: command.slot,
     loggedAt,
     recipeId: recipe.id,
+    recipeBatchId,
+    recipePortions: command.portions,
     ingredient: {
       type: 'full',
       name: ingredient.name,

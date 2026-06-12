@@ -8,4 +8,6 @@ export interface LogEntryRepository {
   findById(id: string): Promise<LogEntry | null>;
   update(entry: LogEntry): Promise<void>;
   remove(id: string): Promise<void>;
+  /** Removes all given ids in a single atomic write — either every id is removed or none. */
+  removeMany(ids: string[]): Promise<void>;
 }

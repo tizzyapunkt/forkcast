@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
@@ -119,5 +119,126 @@ describe('PlannerScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: /Auf Donnerstag übertragen/i }));
 
     await waitFor(() => expect(posted).toEqual({ fromDate: '2026-06-10', toDate: '2026-06-11' }));
+  });
+});
+
+describe('PlannerScreen — daily-log parity in slot bodies', () => {
+  const bolognese = {
+    id: 'rec-1',
+    name: 'Bolognese',
+    yield: 2,
+    ingredients: [],
+    steps: [],
+    createdAt: '',
+    updatedAt: '',
+  };
+
+  function fullEntry(id: string, name: string, amount: number, overrides = {}) {
+    return makeLogEntry({
+      id,
+      date: '2026-06-10',
+      slot: 'breakfast',
+      ingredient: {
+        type: 'full',
+        name,
+        unit: 'g',
+        macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.036 },
+        amount,
+      },
+      ...overrides,
+    });
+  }
+
+  function weekWithEntries() {
+    const entries = [
+      fullEntry('ad-hoc-1', 'Haferflocken', 60),
+      fullEntry('batch-a', 'Rindertatar', 100, { recipeId: 'rec-1', recipeBatchId: 'batch-1', recipePortions: 1 }),
+      fullEntry('batch-b', 'Sojasauce', 50, { recipeId: 'rec-1', recipeBatchId: 'batch-1', recipePortions: 1 }),
+    ];
+    const wed = makeDailyLog({
+      date: '2026-06-10',
+      slots: [
+        {
+          slot: 'breakfast',
+          entries,
+          totals: { calories: 347, protein: 65, carbs: 0, fat: 8, macrosPartial: false },
+        },
+        { slot: 'lunch', entries: [], totals: zero },
+        { slot: 'dinner', entries: [], totals: zero },
+        { slot: 'snack', entries: [], totals: zero },
+      ],
+      totals: { calories: 347, protein: 65, carbs: 0, fat: 8, macrosPartial: false },
+    });
+    return Array.from({ length: 7 }, (_, i) => (i === 2 ? wed : makeDailyLog({ date: addDays('2026-06-08', i) })));
+  }
+
+  function useWeekWithRecipes(days: DailyLog[]) {
+    useWeek(days);
+    server.use(http.get('/api/recipes', () => HttpResponse.json([bolognese])));
+  }
+
+  it('renders entries with amount, kcal, and macro suffix exactly like the daily log', async () => {
+    useWeekWithRecipes(weekWithEntries());
+    renderWithProviders(<PlannerScreen />);
+
+    expect(await screen.findByText('Haferflocken')).toBeInTheDocument();
+    // Editable amount input with the entry's amount (not a name-only row).
+    const inputs = screen.getAllByRole('spinbutton');
+    expect(inputs.some((i) => (i as HTMLInputElement).value === '60')).toBe(true);
+    // kcal + the unified macro suffix for the 60 g entry: 99 kcal · 19 P · 0 KH · 2 F
+    expect(screen.getByText(/99\s*kcal/)).toBeInTheDocument();
+    expect(screen.getByText(/19 P · 0 KH · 2 F/)).toBeInTheDocument();
+  });
+
+  it('renders a recipe batch as a grouped card with banner, exactly like the daily log', async () => {
+    useWeekWithRecipes(weekWithEntries());
+    renderWithProviders(<PlannerScreen />);
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(await within(group).findByText('Bolognese')).toBeInTheDocument();
+    expect(within(group).getByText('1 Port.')).toBeInTheDocument();
+    expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
+    expect(within(group).getByText('Sojasauce')).toBeInTheDocument();
+  });
+
+  it('persists an inline amount edit from the planner via the same PATCH flow the diary uses', async () => {
+    let patched: Record<string, unknown> | undefined;
+    useWeekWithRecipes(weekWithEntries());
+    server.use(
+      http.patch('/api/log-entry/:id', async ({ request, params }) => {
+        patched = { id: params['id'], ...((await request.json()) as Record<string, unknown>) };
+        return HttpResponse.json({});
+      }),
+    );
+    renderWithProviders(<PlannerScreen />);
+
+    await screen.findByText('Haferflocken');
+    const input = screen
+      .getAllByRole('spinbutton')
+      .find((i) => (i as HTMLInputElement).value === '60') as HTMLInputElement;
+    await userEvent.clear(input);
+    await userEvent.type(input, '250');
+
+    // Live recompute is immediate (413 kcal), the PATCH lands after the debounce.
+    expect(await screen.findByText(/413\s*kcal/)).toBeInTheDocument();
+    await waitFor(() => expect(patched).toMatchObject({ id: 'ad-hoc-1', type: 'full', amount: 250 }), {
+      timeout: 2000,
+    });
+  });
+
+  it('removes a recipe batch from a planner day via the group banner', async () => {
+    let posted: Record<string, unknown> | undefined;
+    useWeekWithRecipes(weekWithEntries());
+    server.use(
+      http.post('/api/remove-recipe-log', async ({ request }) => {
+        posted = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ removed: 2 });
+      }),
+    );
+    renderWithProviders(<PlannerScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Rezept „Bolognese“ entfernen' }));
+
+    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1' }));
   });
 });

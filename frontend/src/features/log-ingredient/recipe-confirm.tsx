@@ -40,10 +40,14 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
   const portions = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   const factor = portions !== null ? portions / recipe.yield : 0;
 
+  // Only tracked ingredients produce log entries (LogRecipe skips untracked) — the
+  // preview and the totals must show exactly what will be logged.
+  const tracked = recipe.ingredients.filter((ing) => ing.untracked !== true);
+
   const totals =
     portions === null
       ? null
-      : recipe.ingredients.reduce(
+      : tracked.reduce(
           (acc, ing) => {
             const amt = ing.amount * factor;
             acc.calories += ing.macrosPerUnit.calories * amt;
@@ -94,9 +98,9 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
 
       {totals && portions !== null && (
         <div className="rounded-md border p-3 text-xs">
-          <p className="mb-1 font-medium">{de.recipeConfirm.willLogHeading(recipe.ingredients.length)}</p>
+          <p className="mb-1 font-medium">{de.recipeConfirm.willLogHeading(tracked.length)}</p>
           <ul className="space-y-0.5 text-muted-foreground">
-            {scaleIngredients(recipe.ingredients, factor).map((ing, i) => (
+            {scaleIngredients(tracked, factor).map((ing, i) => (
               <li key={i}>
                 {ing.name} —{' '}
                 {ing.pieceQuantity
@@ -110,6 +114,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-muted-foreground">{de.recipeConfirm.adjustHint}</p>
         </div>
       )}
 

@@ -84,3 +84,78 @@ describe('JsonLogEntryRepository — recipeId compatibility', () => {
     expect(loaded[0]?.recipeId).toBeUndefined();
   });
 });
+
+describe('JsonLogEntryRepository — recipe batch metadata', () => {
+  const fullIngredient = {
+    type: 'full',
+    name: 'Rice',
+    unit: 'g',
+    macrosPerUnit: { calories: 1.3, protein: 0.027, carbs: 0.28, fat: 0.003 },
+    amount: 100,
+  } as const;
+
+  it('roundtrips recipeBatchId and recipePortions on save and findAll', async () => {
+    const path = freshFile();
+    const repo = new JsonLogEntryRepository(path);
+    await repo.init();
+
+    await repo.save({
+      id: 'b-1',
+      date: '2026-06-11',
+      slot: 'lunch',
+      loggedAt: '2026-06-11T12:00:00.000Z',
+      recipeId: 'rec-42',
+      recipeBatchId: 'batch-7',
+      recipePortions: 2,
+      ingredient: fullIngredient,
+    });
+
+    const loaded = await repo.findAll();
+    expect(loaded[0]?.recipeBatchId).toBe('batch-7');
+    expect(loaded[0]?.recipePortions).toBe(2);
+  });
+
+  it('loads legacy entries (recipeId without batch metadata) with undefined batch fields', async () => {
+    const path = freshFile();
+    writeFileSync(
+      path,
+      JSON.stringify([
+        {
+          id: 'legacy-1',
+          date: '2026-06-01',
+          slot: 'lunch',
+          loggedAt: '2026-06-01T12:00:00.000Z',
+          recipeId: 'rec-42',
+          ingredient: fullIngredient,
+        },
+      ]),
+    );
+
+    const repo = new JsonLogEntryRepository(path);
+    const entries = await repo.findAll();
+
+    expect(entries[0]?.recipeId).toBe('rec-42');
+    expect(entries[0]?.recipeBatchId).toBeUndefined();
+    expect(entries[0]?.recipePortions).toBeUndefined();
+  });
+
+  it('removeMany deletes exactly the given ids in one write and leaves the rest', async () => {
+    const path = freshFile();
+    const repo = new JsonLogEntryRepository(path);
+    await repo.init();
+
+    const mk = (id: string) => ({
+      id,
+      date: '2026-06-11',
+      slot: 'lunch' as const,
+      loggedAt: '2026-06-11T12:00:00.000Z',
+      ingredient: fullIngredient,
+    });
+    await repo.saveMany([mk('a'), mk('b'), mk('c')]);
+
+    await repo.removeMany(['a', 'c']);
+
+    const remaining = await repo.findAll();
+    expect(remaining.map((e) => e.id)).toEqual(['b']);
+  });
+});

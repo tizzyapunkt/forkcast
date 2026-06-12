@@ -49,7 +49,6 @@ export const de = {
     goalLine: (kcal: number, goal: number) => `${kcal} / ${goal} kcal`,
     macroLine: (p: number, c: number, f: number) => `${p} P · ${c} KH · ${f} F`,
     addToSlotAria: (slot: string, day: string) => `Zu ${slot} am ${day} hinzufügen`,
-    removeEntryAria: (name: string) => `${name} entfernen`,
     copyDay: 'Tag kopieren',
     copyDayTitle: (day: string) => `${day} kopieren`,
     copyDayBody: 'Alle geplanten Mahlzeiten auf den Folgetag übertragen.',
@@ -101,6 +100,12 @@ export const de = {
     editAria: 'Eintrag bearbeiten',
     removeAria: 'Eintrag entfernen',
     amountFor: (name: string) => `Menge für ${name}`,
+  },
+
+  entryList: {
+    portions: (n: number) => `${n} Port.`,
+    removeGroupAria: (name: string) => `Rezept „${name}“ entfernen`,
+    fallbackRecipeName: 'Rezept',
   },
 
   errors: {
@@ -301,9 +306,10 @@ export const de = {
     totalLine: (cals: number, p: number, cb: number, f: number) =>
       `Gesamt: ${Math.round(cals)} kcal · ${formatMacroTriplet(p, cb, f)}`,
     portionsLabel: 'Zu erfassende Portionen',
-    willLogHeading: (n: number) => `Es werden ${n} Zutat${n === 1 ? '' : 'en'} erfasst:`,
+    willLogHeading: (n: number) => (n === 1 ? 'Es wird 1 Zutat übernommen:' : `Es werden ${n} Zutaten übernommen:`),
+    adjustHint: 'Jede Zutat lässt sich danach einzeln anpassen.',
     back: 'Zurück',
-    log: 'Erfassen',
+    log: 'Zutaten übernehmen',
     logging: 'Wird erfasst…',
     validation: {
       portionsNumber: 'Portionen müssen eine Zahl sein',

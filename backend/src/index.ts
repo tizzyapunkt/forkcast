@@ -15,6 +15,7 @@ import { makeCopyLogDayHandler } from './http/meal-log/copy-log-day.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
 import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
+import { makeRemoveRecipeLogHandler } from './http/meal-log/remove-recipe-log.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
 import {
   makeGetBodyProfileHandler,
@@ -138,6 +139,7 @@ app.get('/recipes/:id', makeGetRecipeHandler(recipeRepo));
 app.patch('/recipe/:id', makeUpdateRecipeHandler(recipeRepo));
 app.delete('/recipe/:id', makeDeleteRecipeHandler(recipeRepo));
 app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
+app.post('/remove-recipe-log', makeRemoveRecipeLogHandler(logEntryRepo));
 
 app.get('/unmatched-ingredients/export', makeExportUnmatchedIngredientsHandler(unmatchedIngredientStore));
 app.post('/unmatched-ingredients/clear', makeClearUnmatchedIngredientsHandler(unmatchedIngredientStore));

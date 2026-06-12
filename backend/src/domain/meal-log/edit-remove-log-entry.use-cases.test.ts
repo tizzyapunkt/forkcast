@@ -41,6 +41,7 @@ function makeRepo(entry: LogEntry): LogEntryRepository {
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(entry),
     update: vi.fn<(e: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
     remove: vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined),
+    removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
   };
 }
 
@@ -53,6 +54,7 @@ function makeEmptyRepo(): LogEntryRepository {
     findById: vi.fn<(id: string) => Promise<LogEntry | null>>().mockResolvedValue(null),
     update: vi.fn<(e: LogEntry) => Promise<void>>(),
     remove: vi.fn<(id: string) => Promise<void>>(),
+    removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
   };
 }
 

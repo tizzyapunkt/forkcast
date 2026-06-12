@@ -45,6 +45,7 @@ const makeLogRepo = (
       findById: vi.fn<(id: string) => Promise<LogEntry | null>>(),
       update: vi.fn<(e: LogEntry) => Promise<void>>(),
       remove: vi.fn<(id: string) => Promise<void>>(),
+      removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
     },
   };
 };
@@ -241,5 +242,36 @@ describe('logRecipe', () => {
     expect(result).toEqual([]);
     expect(saved).toEqual([]);
     expect(logRepo.saveMany).not.toHaveBeenCalled();
+  });
+
+  it('stamps every produced entry with the same fresh recipeBatchId and the requested portions', async () => {
+    const recipeRepo = makeRecipeRepo(baseRecipe);
+    const { repo: logRepo } = makeLogRepo();
+
+    const result = await logRecipe(recipeRepo, logRepo, {
+      recipeId: 'rec-1',
+      portions: 2,
+      date: '2026-04-28',
+      slot: 'lunch',
+    });
+
+    expect(result).toHaveLength(2);
+    const batchIds = new Set(result.map((e) => e.recipeBatchId));
+    expect(batchIds.size).toBe(1);
+    expect([...batchIds][0]).toBeTruthy();
+    for (const e of result) expect(e.recipePortions).toBe(2);
+  });
+
+  it('two invocations of the same recipe produce distinct batch ids', async () => {
+    const recipeRepo = makeRecipeRepo(baseRecipe);
+    const { repo: logRepo } = makeLogRepo();
+    const command = { recipeId: 'rec-1', portions: 1, date: '2026-04-28', slot: 'lunch' } as const;
+
+    const first = await logRecipe(recipeRepo, logRepo, command);
+    const second = await logRecipe(recipeRepo, logRepo, command);
+
+    expect(first[0]?.recipeBatchId).toBeTruthy();
+    expect(second[0]?.recipeBatchId).toBeTruthy();
+    expect(first[0]?.recipeBatchId).not.toBe(second[0]?.recipeBatchId);
   });
 });

@@ -378,7 +378,7 @@ describe('Recipes tab', () => {
     const portionsInput = await screen.findByLabelText(/zu erfassende portionen/i);
     await userEvent.clear(portionsInput);
     await userEvent.type(portionsInput, '2');
-    await userEvent.click(screen.getByRole('button', { name: /^erfassen$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /zutaten übernehmen/i }));
 
     await waitFor(() => expect(posted).toBeDefined());
     expect(posted).toMatchObject({
@@ -387,6 +387,46 @@ describe('Recipes tab', () => {
       date: '2026-04-21',
       slot: 'lunch',
     });
+  });
+
+  it('previews only tracked ingredients with scaled amounts and confirms with "Zutaten übernehmen"', async () => {
+    const recipeWithSalt = {
+      ...sampleRecipe,
+      ingredients: [
+        ...sampleRecipe.ingredients,
+        {
+          name: 'Salz',
+          unit: 'g' as const,
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          amount: 5,
+          untracked: true,
+        },
+      ],
+    };
+    server.use(http.get('/api/recipes', () => HttpResponse.json([recipeWithSalt])));
+
+    renderWithProviders(<SlotCard summary={makeEmptySlot('lunch')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: /^rezepte$/i }));
+    await userEvent.click(await screen.findByText('Oats Bowl'));
+
+    // The preview counts and lists only the tracked ingredient — Salz never appears,
+    // because LogRecipe produces no entry for it.
+    expect(await screen.findByText('Es wird 1 Zutat übernommen:')).toBeInTheDocument();
+    expect(screen.getByText(/Oats — 80 g/)).toBeInTheDocument();
+    expect(screen.queryByText(/Salz/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Jede Zutat lässt sich danach einzeln anpassen/)).toBeInTheDocument();
+
+    // Raising the portions rescales the previewed amounts (yield 1 → 2 portions doubles).
+    const portionsInput = screen.getByLabelText(/zu erfassende portionen/i);
+    await userEvent.clear(portionsInput);
+    await userEvent.type(portionsInput, '2');
+    expect(await screen.findByText(/Oats — 160 g/)).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: /zutaten übernehmen/i })).toBeInTheDocument();
   });
 
   it('Back from the recipe-confirm returns to the Recipes tab', async () => {

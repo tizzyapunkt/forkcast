@@ -2,7 +2,7 @@ import type { SlotSummary } from '../../domain/meal-log';
 import { de, slotLabelsDe } from '../../i18n/de';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
 import { useLogIngredientDrawer } from '../log-ingredient/use-log-ingredient-drawer';
-import { EntryRow } from './entry-row';
+import { EntryList } from './entry-list';
 
 interface SlotCardProps {
   summary: SlotSummary;
@@ -46,11 +46,7 @@ export function SlotCard({ summary, date }: SlotCardProps) {
         {summary.entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">{de.dailyLog.nothingLogged}</p>
         ) : (
-          <div className="divide-y">
-            {summary.entries.map((entry) => (
-              <EntryRow key={entry.id} entry={entry} />
-            ))}
-          </div>
+          <EntryList entries={summary.entries} />
         )}
       </section>
 
