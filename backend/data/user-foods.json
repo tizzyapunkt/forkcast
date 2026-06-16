@@ -1,0 +1,45 @@
+{
+  "foods": [
+    {
+      "id": "balsamicoessig",
+      "name": "Balsamicoessig",
+      "synonyms": [
+        "Balsamic vinegar",
+        "Balsamico-Essig",
+        "Balsamessig"
+      ],
+      "unit": "ml",
+      "macrosPer100": {
+        "calories": 88,
+        "protein": 0,
+        "carbs": 17,
+        "fat": 0
+      }
+    },
+    {
+      "id": "getrocknete-tomaten-in-oel",
+      "name": "Getrocknete Tomaten in Öl",
+      "synonyms": [
+        "sun-dried tomatoes in oil",
+        "Ölpacked getrocknete Tomaten"
+      ],
+      "unit": "g",
+      "macrosPer100": {
+        "calories": 290,
+        "protein": 2.8,
+        "carbs": 30,
+        "fat": 17
+      }
+    }
+  ],
+  "synonyms": [
+    {
+      "foodId": "cherrytomate",
+      "synonym": "Kirschtomaten"
+    },
+    {
+      "foodId": "olive-gruen",
+      "synonym": "grüne Oliven"
+    }
+  ]
+}

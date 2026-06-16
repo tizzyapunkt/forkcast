@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
@@ -100,6 +100,15 @@ export function ResolvePane({
   const [draft, setDraft] = useState<FoodEntryDraft | null>(() =>
     proposal?.verdict === 'new-food' ? { ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } } : null,
   );
+  // The sheet often mounts before the proposal arrives (prefetch / create flow), so the
+  // useState initializer above sees a null proposal. Seed the editable draft once the
+  // new-food proposal lands; the `draft === null` guard preserves any edits the user made.
+  useEffect(() => {
+    if (proposal?.verdict === 'new-food' && draft === null) {
+      setDraft({ ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proposal]);
   const [manual, setManual] = useState(false);
   const confirmMutation = useConfirmResolution();
 
