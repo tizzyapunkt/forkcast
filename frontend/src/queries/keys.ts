@@ -5,12 +5,12 @@ export const queryKeys = {
   weekLogAll: () => ['week-log'] as const,
   nutritionGoal: () => ['nutrition-goal'] as const,
   bodyProfile: () => ['body-profile'] as const,
-  ingredientSearch: (q: string, sources?: Array<'FOODS' | 'OFF'>) =>
+  ingredientSearch: (q: string, sources?: Array<'FOODS' | 'USER' | 'OFF'>) =>
     ['ingredient-search', q, sources ?? ['OFF']] as const,
   recentlyUsedIngredients: () => ['recently-used-ingredients'] as const,
   recipes: () => ['recipes'] as const,
   recipe: (id: string) => ['recipe', id] as const,
   weightLog: () => ['weight-log'] as const,
   weightTrend: () => ['weight-trend'] as const,
-  unmatchedIngredients: () => ['unmatched-ingredients'] as const,
+  userFoodsOverlay: () => ['user-foods-overlay'] as const,
 };

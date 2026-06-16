@@ -5,7 +5,6 @@ import {
   type RecipeDraftExtractor,
 } from '../../domain/ai-recipe-import/recipe-draft-extractor.ts';
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
-import type { UnmatchedIngredientRecorder } from '../../domain/unmatched-ingredients/types.ts';
 import { decodeImagePayloads, type ImageDecodeLimits } from '../ai-images/decode-image-payloads.ts';
 
 export type ImportRecipeFromPhotosLimits = ImageDecodeLimits;
@@ -16,8 +15,6 @@ export interface ImportRecipeFromPhotosHandlerDeps {
   limits: ImportRecipeFromPhotosLimits;
   /** When true, the response includes a `debug` field describing per-ingredient matching. Defaults to false. */
   includeDebug?: boolean;
-  /** Optional sink for strict-unmatched ingredient names. */
-  recorder?: UnmatchedIngredientRecorder;
 }
 
 interface RequestBody {
@@ -29,7 +26,7 @@ export function makeUnconfiguredImportRecipeFromPhotosHandler() {
 }
 
 export function makeImportRecipeFromPhotosHandler(deps: ImportRecipeFromPhotosHandlerDeps) {
-  const { extractor, search, limits, includeDebug, recorder } = deps;
+  const { extractor, search, limits, includeDebug } = deps;
   return async (c: Context) => {
     let body: RequestBody;
     try {
@@ -45,7 +42,7 @@ export function makeImportRecipeFromPhotosHandler(deps: ImportRecipeFromPhotosHa
     const decoded = decodedResult.images;
 
     try {
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug, recorder }, decoded);
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug }, decoded);
       return c.json(draft);
     } catch (err) {
       if (err instanceof RecipeDraftExtractionError) {

@@ -7,6 +7,7 @@ import { BottomSheet } from '../../components/app/bottom-sheet';
 import { de, slotLabelsDe } from '../../i18n/de';
 import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
+import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
 import { RecentPanel } from './recent-panel';
 import { RecipePanel } from './recipe-panel';
 import { FullEntryConfirm } from './full-entry-confirm';
@@ -28,6 +29,7 @@ interface LogIngredientDrawerProps {
 export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredientDrawerProps) {
   const [tab, setTab] = useState<Tab>('search');
   const [step, setStep] = useState<Step>({ kind: 'search' });
+  const [createQuery, setCreateQuery] = useState<string | null>(null);
 
   if (!open || !slot) return null;
 
@@ -124,7 +126,9 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
           <QuickEntryForm date={date} slot={slot} onSuccess={handleClose} />
         )}
 
-        {tab === 'search' && step.kind === 'search' && <SearchPanel onSelect={handleSelect} disableUntracked />}
+        {tab === 'search' && step.kind === 'search' && (
+          <SearchPanel onSelect={handleSelect} disableUntracked onCreate={setCreateQuery} />
+        )}
         {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleRecentSelect} />}
         {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 
@@ -142,6 +146,8 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
           <RecipeConfirm recipe={step.recipe} date={date} slot={slot} onSuccess={handleClose} />
         )}
       </div>
+
+      <CreateFoodSheet query={createQuery} onClose={() => setCreateQuery(null)} onCreated={handleSelect} />
     </BottomSheet>
   );
 }

@@ -530,7 +530,7 @@ describe('ReviewImportScreen', () => {
       expect(captured!.ingredients[0]!.note).toBe('fein gehackt');
     });
 
-    it('clears the note when an unmatched row is resolved via the picker', async () => {
+    it('clears the note when an unmatched row is resolved via in-sheet manual catalog match', async () => {
       const draftWithUnmatchedNote: RecipeDraft = {
         name: 'X',
         yield: 1,
@@ -545,8 +545,12 @@ describe('ReviewImportScreen', () => {
           },
         ],
       };
-      let captured: { ingredients: Array<{ name: string; note?: string }> } | null = null;
+      let captured: { ingredients: Array<{ name: string; note?: string; amount: number }> } | null = null;
       server.use(
+        // No AI proposal for this item → the sheet falls back to manual catalog search.
+        http.post('/api/propose-ingredient-resolutions', () =>
+          HttpResponse.json({ proposals: [{ verdict: 'skip', reason: 'x' }] }),
+        ),
         http.get('/api/search-ingredients', () =>
           HttpResponse.json([
             {
@@ -567,17 +571,18 @@ describe('ReviewImportScreen', () => {
       const onSaved = vi.fn<() => void>();
       renderWithProviders(<ReviewImportScreen draft={draftWithUnmatchedNote} onSaved={onSaved} onCancel={() => {}} />);
 
-      await userEvent.click(screen.getByLabelText(/yuzu-schale.*zuordnen/i));
+      // Wait for the prefetched proposal to land, then open the resolve sheet.
+      await userEvent.click(await screen.findByLabelText(/yuzu-schale.*zuordnen/i));
+      // Skip verdict → fall back to the in-sheet catalog search.
+      await userEvent.click(screen.getByRole('button', { name: /^katalog$/i }));
       await userEvent.type(screen.getByRole('searchbox'), 'zitr');
       const result = await screen.findByRole('button', { name: /zitronenschale/i });
       await userEvent.click(result);
-      // The picker now shows the amount step; enter an amount and confirm.
-      await userEvent.type(screen.getByLabelText(/menge pro rezept/i), '2');
-      await userEvent.click(screen.getByRole('button', { name: /^hinzufügen$/i }));
 
       await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
       await waitFor(() => expect(onSaved).toHaveBeenCalled());
       expect(captured!.ingredients[0]!.name).toBe('Zitronenschale');
+      expect(captured!.ingredients[0]!.amount).toBe(2); // original amount preserved
       expect(captured!.ingredients[0]).not.toHaveProperty('note');
     });
   });

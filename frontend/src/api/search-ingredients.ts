@@ -1,7 +1,10 @@
 import { fetchJson, ApiError } from './client';
 import type { IngredientSearchResult } from '../domain/ingredient-search';
 
-export function searchIngredients(q: string, sources?: Array<'FOODS' | 'OFF'>): Promise<IngredientSearchResult[]> {
+export function searchIngredients(
+  q: string,
+  sources?: Array<'FOODS' | 'USER' | 'OFF'>,
+): Promise<IngredientSearchResult[]> {
   let url = `/api/search-ingredients?q=${encodeURIComponent(q)}`;
   if (sources && sources.length > 0) {
     url += `&sources=${sources.map((s) => s.toLowerCase()).join(',')}`;

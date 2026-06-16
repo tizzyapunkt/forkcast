@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { SearchPanel } from '../log-ingredient/search-panel';
+import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
 import { RecentPanel } from '../log-ingredient/recent-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecipeIngredient } from '../../domain/recipes';
@@ -37,12 +38,14 @@ type AmountForm = z.infer<typeof amountSchema>;
 export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', onPickResult }: Props) {
   const [tab, setTab] = useState<Tab>('search');
   const [step, setStep] = useState<Step>({ kind: 'pick' });
+  const [createQuery, setCreateQuery] = useState<string | null>(null);
 
   if (!open) return null;
 
   function handleClose() {
     setTab('search');
     setStep({ kind: 'pick' });
+    setCreateQuery(null);
     onClose();
   }
 
@@ -104,7 +107,7 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {step.kind === 'pick' && (
           <>
-            {tab === 'search' && <SearchPanel onSelect={handleSelect} />}
+            {tab === 'search' && <SearchPanel onSelect={handleSelect} onCreate={setCreateQuery} />}
             {tab === 'recent' && <RecentPanel onSelect={handleSelect} />}
           </>
         )}
@@ -127,6 +130,15 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
           />
         )}
       </div>
+
+      <CreateFoodSheet
+        query={createQuery}
+        onClose={() => setCreateQuery(null)}
+        onCreated={(result) => {
+          setCreateQuery(null);
+          handleSelect(result);
+        }}
+      />
     </BottomSheet>
   );
 }

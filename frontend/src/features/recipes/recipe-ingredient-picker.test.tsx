@@ -62,7 +62,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
     renderWithProviders(<PickerHarness onPicked={onPicked} />);
 
     await user.type(screen.getByRole('searchbox'), 'salz');
-    const resultButton = await screen.findByRole('button', { name: /salz/i });
+    const resultButton = await screen.findByRole('button', { name: /^salz/i });
     await user.click(resultButton);
 
     const amountInput = await screen.findByLabelText(/menge pro rezept/i);

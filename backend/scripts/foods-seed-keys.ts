@@ -252,6 +252,8 @@ export interface NormalizedFoodSeedKey {
 
 export function normalizeFoodSeedKeys(seed: ReadonlyArray<FoodSeedKey>): NormalizedFoodSeedKey[] {
   return seed.map((entry) =>
-    typeof entry === 'string' ? { key: entry, untracked: false } : { key: entry.key, untracked: entry.untracked === true },
+    typeof entry === 'string'
+      ? { key: entry, untracked: false }
+      : { key: entry.key, untracked: entry.untracked === true },
   );
 }

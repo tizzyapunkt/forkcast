@@ -56,7 +56,7 @@ export function appendSeedKey(source: string, additions: ReadonlyArray<SeedKeyAd
 
 function findArrayClose(source: string, from: number): number {
   let depth = 1;
-  let inString: '\'' | '"' | '`' | null = null;
+  let inString: "'" | '"' | '`' | null = null;
   for (let i = from; i < source.length; i++) {
     const ch = source[i]!;
     if (inString) {
@@ -67,7 +67,7 @@ function findArrayClose(source: string, from: number): number {
       if (ch === inString) inString = null;
       continue;
     }
-    if (ch === '\'' || ch === '"' || ch === '`') {
+    if (ch === "'" || ch === '"' || ch === '`') {
       inString = ch;
       continue;
     }

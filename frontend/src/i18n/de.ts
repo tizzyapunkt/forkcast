@@ -117,19 +117,14 @@ export const de = {
     calculatorTitle: 'Makro-Rechner',
   },
 
-  unmatchedIngredients: {
-    title: 'Unbekannte Zutaten aus Foto-Import',
-    countLabel: (n: number) => (n === 1 ? '1 gesammelter Eintrag' : `${n} gesammelte Einträge`),
-    countEmpty: 'Noch nichts gesammelt',
-    hint: 'Beim Foto-Import nicht erkannte Zutaten landen hier. Exportieren, ergänzen, dann leeren.',
-    exportButton: 'Exportieren',
-    exportTooltipEmpty: 'Nichts zu exportieren',
-    clearButton: 'Leeren',
-    clearTooltipEmpty: 'Bereits leer',
-    confirmTitle: 'Sammlung leeren?',
-    confirmBody: (n: number) => `${n} gesammelte ${n === 1 ? 'Zutat wird' : 'Zutaten werden'} endgültig entfernt.`,
-    confirmCancel: 'Abbrechen',
-    confirmConfirm: 'Leeren',
+  userFoods: {
+    title: 'Eigene Lebensmittel exportieren',
+    hint: 'Beim Foto-Import per KI angelegte Lebensmittel und gelernte Synonyme. Exportieren überträgt sie in eine Datei und leert die Sammlung — die Datei ist bis zum nächsten Build die einzige Kopie.',
+    countLabel: (n: number) => (n === 1 ? '1 Eintrag offen' : `${n} Einträge offen`),
+    countEmpty: 'Nichts zu exportieren',
+    exportButton: 'Exportieren & leeren',
+    exporting: 'Wird exportiert…',
+    exportError: 'Export fehlgeschlagen — bitte erneut versuchen.',
   },
 
   bodyProfile: {
@@ -518,7 +513,7 @@ export const de = {
     emptySelection: 'Wähle mindestens ein Foto aus.',
     reviewTitle: 'Rezept prüfen',
     unmatchedHeading: (n: number) => `${n} Zutat${n === 1 ? '' : 'en'} ohne Treffer`,
-    unmatchedHint: 'Tippe an, um eine Zutat aus dem Katalog zuzuordnen oder zu entfernen.',
+    unmatchedHint: 'Tippe „Zuordnen“, um den KI-Vorschlag zu prüfen, anzupassen oder manuell zu suchen.',
     resolveUnmatchedAria: (name: string) => `Zutat „${name}“ zuordnen`,
     discardUnmatched: 'Verwerfen',
     discardUnmatchedAria: (name: string) => `Zutat „${name}“ verwerfen`,
@@ -526,6 +521,68 @@ export const de = {
       `Einheit aus Katalog (${catalog}) statt extrahierter Einheit (${extracted})`,
     unitOverriddenAria: 'Einheit wurde aus dem Katalog übernommen',
     untrackedHint: 'Würzmittel — wird in Nährwerten nicht berücksichtigt',
+    resolve: {
+      assignCta: 'Zuordnen',
+      checking: 'KI prüft…',
+      retry: 'Erneut',
+      noProposal: 'Kein Vorschlag',
+      sheetTitle: (name: string) => `„${name}“ zuordnen`,
+      allResolvedTitle: 'Alle Zutaten zugeordnet',
+      allResolvedBody: (n: number) =>
+        `${n} ${n === 1 ? 'neuer Eintrag' : 'neue Einträge'} in deiner Bibliothek gespeichert.`,
+      stillOpen: (n: number) => `${n} ${n === 1 ? 'Zutat' : 'Zutaten'} noch offen — werden beim Anlegen verworfen.`,
+      // proposal — new food
+      newEntryEyebrow: 'Neuer Eintrag · KI-Vorschlag',
+      newEntryEyebrowManual: 'Neuer Eintrag',
+      confidence: (level: string) => `KI · ${level}`,
+      confidenceHigh: 'hoch',
+      confidenceMedium: 'mittel',
+      confidenceLow: 'niedrig',
+      nameLabel: 'Name',
+      unitLabel: 'Einheit',
+      untrackedToggle: 'Nicht zählen',
+      macrosLabel: 'Nährwerte',
+      macrosPer: (unit: string) => `pro 100 ${unit}`,
+      kcalLabel: 'kcal',
+      proteinLabel: 'Eiweiß',
+      carbsLabel: 'KH',
+      fatLabel: 'Fett',
+      aiEstimateHint: 'KI-geschätzt — bei Bedarf anpassen.',
+      manualLink: 'Stattdessen aus Katalog zuordnen',
+      // proposal — synonym
+      synonymEyebrow: 'Treffer im Katalog',
+      catalogChip: 'Katalog',
+      synonymExplain: (raw: string, food: string) =>
+        `„${raw}“ wird als Synonym für ${food} gelernt — künftig automatisch erkannt.`,
+      synonymOtherLink: 'Anderes Lebensmittel wählen',
+      // skip / error
+      noProposalTitle: 'Kein KI-Vorschlag',
+      noProposalBody: (raw: string) =>
+        `Für „${raw}“ gibt es keinen sicheren Vorschlag. Ordne die Zutat aus dem Katalog zu oder entferne sie.`,
+      errorTitle: 'Vorschlag nicht verfügbar',
+      errorBody: 'Die KI konnte gerade keinen Vorschlag laden. Du kannst es erneut versuchen oder manuell zuordnen.',
+      errorRetry: 'Erneut versuchen',
+      loadingEyebrow: 'KI sucht einen passenden Eintrag…',
+      // manual sub-step
+      manualEyebrow: 'Aus Katalog zuordnen',
+      manualSearchPlaceholder: 'Lebensmittel suchen…',
+      manualNoResults: 'Kein Treffer. Pass die Suche an oder lege einen neuen Eintrag an.',
+      manualBack: 'Zurück zum Vorschlag',
+      catalogFallback: 'Katalog',
+      // footer
+      confirmImport: 'Bestätigen & einfügen',
+      confirmCreate: 'Anlegen & weiter',
+      cancel: 'Abbrechen',
+      captionNewFood: 'Wird in deiner Lebensmittel-Bibliothek gespeichert · sofort durchsuchbar',
+      captionSynonym: 'Synonym wird gelernt · künftig automatisch erkannt',
+      // provenance tags on resolved rows
+      tagUser: 'USER',
+      tagCatalog: 'Katalog',
+      // create trigger (search panel host)
+      createTrigger: (query: string) => `„${query}“ neu anlegen`,
+      createTriggerHint: 'Eigenen Eintrag erstellen · sofort nutzbar',
+      createTriggerAria: (query: string) => `„${query}“ als neuen Eintrag anlegen`,
+    },
   },
 
   weightLog: {

@@ -3,9 +3,14 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
+// HTTPS (self-signed) is on by default for PWA/install testing. Set FORKCAST_NO_HTTPS=1
+// to serve over plain http:// — smoother for browser smoke testing (no cert warning to
+// click through, and the Chrome automation tools don't choke on the self-signed cert).
+const disableHttps = process.env.FORKCAST_NO_HTTPS === '1' || process.env.FORKCAST_NO_HTTPS === 'true';
+
 export default defineConfig({
   plugins: [
-    basicSsl(),
+    ...(disableHttps ? [] : [basicSsl()]),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

@@ -5,6 +5,9 @@ interface OffNutriments {
   proteins_100g?: number;
   carbohydrates_100g?: number;
   fat_100g?: number;
+  // Open Food Facts returns many more nutrient keys (per-serving, per-value, units, …).
+  // We only read the `_100g` fields above; the rest are tolerated and ignored.
+  [key: string]: number | string | undefined;
 }
 
 interface OffProduct {

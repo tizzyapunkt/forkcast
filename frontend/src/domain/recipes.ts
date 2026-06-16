@@ -39,7 +39,7 @@ export interface MatchedDraftIngredient {
   macrosPerUnit: MacrosPerUnit;
   amount: number | null;
   unitOverridden: boolean;
-  source: 'FOODS' | 'OFF';
+  source: 'FOODS' | 'USER' | 'OFF' | 'SCAN';
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
@@ -69,7 +69,7 @@ export interface RawIngredientDebug {
 
 export interface SearchCandidateDebug {
   name: string;
-  source: 'FOODS' | 'OFF';
+  source: 'FOODS' | 'USER' | 'OFF' | 'SCAN';
   unit: MeasurementUnit;
   untracked: boolean;
 }

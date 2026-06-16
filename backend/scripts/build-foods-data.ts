@@ -15,7 +15,11 @@ import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import type { FoodEntry } from '../src/domain/foods/types.ts';
 import { FOODS_SEED_KEYS, normalizeFoodSeedKeys, type NormalizedFoodSeedKey } from './foods-seed-keys.ts';
-import { BUILD_FOODS_TOOL, BUILD_FOODS_TOOL_NAME, BUILD_FOODS_SYSTEM_PROMPT } from './build-foods-tool.ts';
+import {
+  BUILD_FOODS_TOOL,
+  BUILD_FOODS_TOOL_NAME,
+  BUILD_FOODS_SYSTEM_PROMPT,
+} from '../src/infrastructure/food-resolution/build-foods-tool.ts';
 import { chunkKeys, collectEntries, sortEntriesById, formatFoodsJson } from './build-foods-helpers.ts';
 
 const BATCH_SIZE = 20;

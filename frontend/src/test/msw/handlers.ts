@@ -176,11 +176,29 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get('/api/unmatched-ingredients/export', () => {
-    return HttpResponse.json({ entries: [] });
+  http.get('/api/user-foods', () => {
+    return HttpResponse.json({ foods: [], synonyms: [] });
   }),
 
-  http.post('/api/unmatched-ingredients/clear', () => {
-    return new HttpResponse(null, { status: 204 });
+  http.post('/api/export-user-foods', () => {
+    return HttpResponse.json({ foods: [], synonyms: [] });
+  }),
+
+  http.post('/api/propose-ingredient-resolutions', () => {
+    return HttpResponse.json({ proposals: [] });
+  }),
+
+  http.post('/api/confirm-ingredient-resolution', () => {
+    return HttpResponse.json({
+      ingredient: {
+        matched: true,
+        name: 'Test',
+        unit: 'g',
+        macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
+        amount: 100,
+        unitOverridden: false,
+        source: 'USER',
+      },
+    });
   }),
 ];
