@@ -49,6 +49,41 @@ To boot the backend manually (it requires auth env or it exits):
 cd backend && AUTH_PASSWORD=x AUTH_JWT_SECRET=y node --experimental-transform-types src/index.ts
 ```
 
+## Browser smoke test (full app, incl. the AI path)
+
+`make smoke` covers the backend round-trip but not the real UI or the AI propose
+call. To verify the whole flow in a browser, **always run with SSL off** — the
+self-signed `basic-ssl` cert makes the Chrome automation tools choke and forces a
+warning click-through:
+
+```bash
+make dev-http     # backend (:3000) + frontend over plain http://localhost:5173
+```
+
+This sets `FORKCAST_NO_HTTPS=1`, which drops the `basicSsl()` Vite plugin (default
+dev stays HTTPS). The backend reads `backend/.env` — for the AI resolution path
+that file needs `AUTH_PASSWORD`, `AUTH_JWT_SECRET`, and `ANTHROPIC_API_KEY`.
+
+Then drive it with the Chrome tools (`mcp__claude-in-chrome__*`): call
+`tabs_context_mcp` first, open a tab on `http://localhost:5173`, log in, and
+exercise **the functionality that the current change actually implements** —
+walk its real user flow, assert the behavior its spec/tasks describe, and try the
+edge cases. The skill can't enumerate this; derive it from what you just built.
+
+The steps below are **only an illustrative example** (the resolve-unmatched-
+ingredients flow), not a script to run every time:
+
+1. Rezepte → **Aus Fotos** → upload a recipe photo with off-catalog ingredients.
+2. On **Rezept prüfen**, confirm the unmatched panel prefetched proposals (the
+   "Zuordnen" buttons go live), open one, confirm/edit a new-food or synonym.
+3. The row leaves the panel and joins the ingredient list with its amount intact; save.
+4. Re-import the same recipe → the resolved ingredients now auto-match (USER).
+5. Settings → export overlay → confirm it downloads and drains.
+
+Avoid triggering native dialogs (`alert`/`confirm`) — they freeze the extension.
+This matches the standing instruction: disable HTTPS in Vite before browser smoke
+testing (now via `make dev-http`, no manual `vite.config.ts` edit needed).
+
 ## Gotchas (don't re-diagnose these)
 
 - **`oxfmt` at the repo root touches markdown/openspec too** (hundreds of files). Only ever format the source dirs — use `make fmt`, never bare `oxfmt`.

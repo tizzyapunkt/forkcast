@@ -7,7 +7,7 @@
 FMT_DIRS := backend/src backend/scripts frontend/src
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port
+.PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -15,8 +15,11 @@ help: ## List available targets
 install: ## Install all workspace dependencies
 	pnpm install
 
-dev: ## Run backend + frontend in parallel
+dev: ## Run backend + frontend in parallel (frontend over HTTPS, self-signed)
 	pnpm dev
+
+dev-http: ## Run the app over plain HTTP for browser smoke testing (no SSL warning); see the forkcast-dev skill
+	FORKCAST_NO_HTTPS=1 pnpm dev
 
 check: lint typecheck fmt-check test ## Full green gate: lint + typecheck + format + tests (both workspaces)
 	@echo "✅ all checks passed"
