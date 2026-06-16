@@ -238,21 +238,21 @@ The FOODS source SHALL NOT participate in barcode lookup (curated raw foods have
 
 ### Requirement: Frontend renders source-attribution badge per result
 
-The frontend search result list SHALL render a small visual badge next to each result showing its `source` (`FOODS` or `OFF`). The list key for each result SHALL be `${source}:${id}` to remain unique across sources.
+The frontend search result list SHALL render a small visual badge next to each result showing its `source` (`FOODS`, `USER`, `OFF`, or `SCAN`). The list key for each result SHALL be `${source}:${id}` to remain unique across sources.
 
 #### Scenario: Badge visible on each row
 
 - **WHEN** the search panel renders a non-empty result list
-- **THEN** every row has a `FOODS` or `OFF` badge corresponding to the result's `source` field
+- **THEN** every row has a badge corresponding to the result's `source` field
 
 #### Scenario: Same id across sources renders distinct rows
 
 - **WHEN** an OFF result and a FOODS result happen to share the same `id` value
 - **THEN** both rows render without React duplicate-key warnings
 
-### Requirement: Generic search-result shape exposes FOODS and OFF as the only sources
+### Requirement: Generic search-result shape enumerates the supported sources
 
-The `IngredientSearchResult` type (backend and frontend) SHALL expose a `source: 'FOODS' | 'OFF'` discriminator alongside its `id: string`. Any other source literal (in particular `'BLS'`) SHALL no longer be a valid value of `source`.
+The `IngredientSearchResult` type (backend and frontend) SHALL expose a `source: 'FOODS' | 'USER' | 'OFF' | 'SCAN'` discriminator alongside its `id: string`. Any other source literal (in particular `'BLS'`) SHALL NOT be a valid value of `source`.
 
 #### Scenario: OFF mapper sets source and id
 
@@ -264,78 +264,55 @@ The `IngredientSearchResult` type (backend and frontend) SHALL expose a `source:
 - **WHEN** a FOODS entry is mapped to a search result
 - **THEN** the result has `source: 'FOODS'` and `id` equal to the entry's id
 
-### Requirement: Augment build script extends foods.json from an exported unmatched-ingredient list
+#### Scenario: USER mapper sets source and id
 
-The repository SHALL ship a second TypeScript build script `backend/scripts/build-foods-augment.ts`, exposed as `pnpm --filter @forkcast/backend build:foods:augment <path>`, that takes the path to an exported unmatched-ingredients JSON file and augments the existing `backend/data/foods.json` and `backend/scripts/foods-seed-keys.ts` without overwriting unrelated entries. The script SHALL never regenerate entries that already exist in `foods.json` from scratch; it only appends new entries and/or adds synonyms to existing entries.
+- **WHEN** a user-foods overlay entry is mapped to a search result
+- **THEN** the result has `source: 'USER'` and `id` equal to the entry's id
 
-The script SHALL exit non-zero with a clear message and write nothing when:
-- The input file does not exist, is not valid JSON, or does not match the export shape `{ entries: [...] }`.
-- Any drafted new-food entry fails the existing food-entry validation rules (canonical name, synonyms shape, unit, macros, optional pieces, optional untracked).
-- The `foods-seed-keys.ts` file cannot be parsed unambiguously for an append — in which case the script SHALL also tell the user exactly which new keys to add manually.
+### Requirement: Augment build script promotes the user-foods overlay export into the curated catalog
 
-The script SHALL re-sort `foods.json` entries by `id` ascending and write pretty-printed JSON ending in a single trailing newline.
+The `build:foods:augment <path>` script SHALL take the path to a user-foods overlay export file with shape `{ "foods": <FoodEntry[]>, "synonyms": <{ foodId, synonym }[]> }` and promote its content into `backend/data/foods.json` and `backend/scripts/foods-seed-keys.ts` without overwriting unrelated entries:
 
-#### Scenario: Augment adds a synonym to an existing entry
+- Each `synonyms` item SHALL be applied as a synonym addition to the curated entry named by `foodId` (deduplicated, canonical-name rule preserved). Items whose `foodId` does not exist in `foods.json` SHALL be surfaced to the user for manual handling and skipped without failing the run.
+- Each `foods` item SHALL be drafted into a curated entry via the Anthropic API, passing the phone-confirmed entry (name, synonyms, unit, macros, pieces, untracked) as a hint, and validated with the existing food-entry rules before writing. The accepted entry's key SHALL be appended to `FOODS_SEED_KEYS` (plain string for tracked, `{ key, untracked: true }` for untracked).
 
-- **WHEN** the input contains an unmatched entry `Karotte`, the existing `foods.json` contains an entry with `id: moehre`, `name: Möhre`, `synonyms: ["carrot"]`, and the user accepts the Haiku-suggested synonym verdict
-- **THEN** the resulting `foods.json` contains the same `moehre` entry with `synonyms: ["carrot", "Karotte"]` (or equivalent dedup-preserving order)
-- **AND** no other entries in `foods.json` are modified
+The script SHALL exit non-zero with a clear message and write nothing when the input file does not exist, is not valid JSON, or does not match the overlay export shape (including old unmatched-ingredient export files); when any drafted entry fails validation; or when `foods-seed-keys.ts` cannot be parsed unambiguously for an append — in which case it SHALL tell the user exactly which keys to add manually. The script SHALL re-sort `foods.json` by `id` ascending and write pretty-printed JSON ending in a single trailing newline.
 
-#### Scenario: Augment adds a new food entry
+#### Scenario: Overlay synonym applied to curated entry
 
-- **WHEN** the input contains an unmatched entry `Buchweizenmehl`, no existing entry covers it, and the user accepts the new-food verdict
-- **THEN** the resulting `foods.json` contains a new entry whose `id` is the accepted proposed key (kebab-case), with canonical name, synonyms, unit, macros (validated), and optional pieces produced by the nutrition draft
-- **AND** the entry is sorted into the correct position by `id` ascending
-- **AND** `foods-seed-keys.ts`'s `FOODS_SEED_KEYS` array has the new key appended (using the plain-string form for tracked entries, or `{ key, untracked: true }` for untracked ones)
+- **WHEN** the export contains `{ foodId: "oliven", synonym: "grüne Oliven" }`, `foods.json` has entry `oliven`, and the user accepts
+- **THEN** the `oliven` entry's `synonyms` gains `"grüne Oliven"` and no other entries change
 
-#### Scenario: Augment rejects invalid drafted entries
+#### Scenario: Overlay food promoted with confirmed values as hint
 
-- **WHEN** the new-food drafting call returns an entry whose `macrosPer100.calories` is negative
-- **THEN** the script exits non-zero with a message identifying the offending proposed key
-- **AND** neither `foods.json` nor `foods-seed-keys.ts` is written
+- **WHEN** the export contains a confirmed `Kirschtomaten` entry and the user accepts the promotion
+- **THEN** the drafting call receives the confirmed entry as a hint, the validated result is inserted into `foods.json` sorted by `id`, and `FOODS_SEED_KEYS` gains the new key
 
-#### Scenario: Augment refuses to corrupt foods-seed-keys.ts
+#### Scenario: Old export format rejected
 
-- **WHEN** `foods-seed-keys.ts` has been modified in a way the conservative parser cannot handle and there is at least one accepted new-food verdict
-- **THEN** the script exits non-zero with a message listing the accepted new keys that the user must add to the seed file manually
-- **AND** `foods.json` is also not written, so the seed file and the catalog stay in sync
+- **WHEN** the input file has the retired unmatched-ingredient shape `{ entries: [...] }`
+- **THEN** the script exits non-zero naming the expected `{ foods, synonyms }` shape and writes nothing
 
-### Requirement: Augment script uses a per-item human-in-the-loop with Haiku-suggested verdicts
+#### Scenario: Orphaned synonym surfaced, run continues
 
-For each unmatched entry in the input, the augment script SHALL call the Anthropic API with the `claude-haiku-4-5-20251001` model and a tool-use schema that returns exactly one of three verdicts:
+- **WHEN** the export contains a synonym whose `foodId` is absent from `foods.json`
+- **THEN** the script lists the orphaned item for manual handling and processes the remaining items normally
 
-- `{ verdict: 'synonym-of', existingId: string, confidence: 'high' | 'medium' | 'low' }`
-- `{ verdict: 'new-food', proposedKey: string }` where `proposedKey` matches the existing `id` rules (lowercase, ASCII, kebab-case, German romanisation)
-- `{ verdict: 'skip', reason: string }`
+### Requirement: Augment script keeps a per-item human-in-the-loop for promotion
 
-The script SHALL print the unmatched name, its `count`, and a brief view of its `samples`, followed by the Haiku verdict and a single-character action menu: `[a]ccept / [e]dit / [s]kip / [r]ename`. The script SHALL apply changes only when the user explicitly accepts (or accepts an edited verdict).
+For each item in the overlay export, the augment script SHALL print the item (synonym addition or confirmed food entry) and a single-character action menu `[a]ccept / [e]dit / [s]kip` before applying it. Accept SHALL be the default action (the items were already confirmed on the phone). The script SHALL support a `--dry-run` flag that walks the same prompts but writes nothing, printing a final summary of what would change. The drafting call for accepted food promotions SHALL use the same model, tool schema, and system prompt as the `build:foods` script, sourced from the shared module also used by the runtime resolution flow, so curated entries stay uniform.
 
-The script SHALL also accept a `--dry-run` flag. With `--dry-run`, the prompts still appear, but the script writes nothing — it prints a final summary of what would change instead.
+#### Scenario: Default-accept promotion
 
-The new-food drafting call (when a `new-food` verdict is accepted) SHALL use the `claude-opus-4-7` model and the same tool schema/system prompt used by the existing `build:foods` script, so per-100 macros stay consistent between fresh-seeded and augmented entries.
+- **WHEN** the user presses enter (accept) on a confirmed food item
+- **THEN** the item is drafted, validated, and queued for the write
 
-#### Scenario: Haiku proposes a synonym, user accepts
+#### Scenario: Skip leaves everything untouched for that item
 
-- **WHEN** an unmatched entry `Karotte` produces `{ verdict: 'synonym-of', existingId: 'moehre', confidence: 'high' }` and the user types `a`
-- **THEN** the script applies the synonym addition to `foods.json` (subject to write deferral until all items are processed) and does not call Opus for that entry
+- **WHEN** the user types `s` on an item
+- **THEN** neither `foods.json` nor `foods-seed-keys.ts` is modified for that item
 
-#### Scenario: User edits a verdict before accepting
+#### Scenario: Dry run writes nothing
 
-- **WHEN** Haiku proposes `{ verdict: 'new-food', proposedKey: 'rotekarotte' }` and the user types `e` then chooses `synonym-of moehre`
-- **THEN** the script applies the edited synonym addition rather than calling Opus to draft a new food
-
-#### Scenario: User skips an entry
-
-- **WHEN** the user types `s` for an item
-- **THEN** the script does not modify `foods.json` or `foods-seed-keys.ts` for that item, and the input unmatched store is also unchanged (the user clears the collected store explicitly via the UI)
-
-#### Scenario: Dry run prints the diff but writes nothing
-
-- **WHEN** the user runs `pnpm build:foods:augment <path> --dry-run` and accepts a mix of verdicts
-- **THEN** the script prints a summary of the synonym additions and new-food drafts that would have been applied
-- **AND** the on-disk `foods.json` and `foods-seed-keys.ts` are byte-identical to their state before the run
-
-#### Scenario: New-food drafting uses the existing Opus build tool
-
-- **WHEN** the user accepts a `new-food` verdict for `buchweizenmehl`
-- **THEN** the script calls Opus with the same build-foods tool schema and system prompt used by `build:foods` and applies the same per-entry validation before writing
+- **WHEN** the script runs with `--dry-run` and the user accepts several items
+- **THEN** a summary of the would-be changes is printed and both target files are byte-identical to before the run
