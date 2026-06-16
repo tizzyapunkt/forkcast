@@ -76,7 +76,10 @@ function scoreNameInQuery(name: string, query: string, wholeWordScore: number): 
   return 0;
 }
 
-export function scoreFoodMatch(entry: FoodIndexedEntry, foldedQuery: string): number {
+export function scoreFoodMatch(
+  entry: Pick<FoodIndexedEntry, 'nameFolded' | 'synonymsFolded'>,
+  foldedQuery: string,
+): number {
   let best = scoreName(entry.nameFolded, foldedQuery, CANONICAL_SCORES);
   const reverseCanonical = scoreNameInQuery(entry.nameFolded, foldedQuery, CANONICAL_SCORES.wholeWord);
   if (reverseCanonical > best) best = reverseCanonical;

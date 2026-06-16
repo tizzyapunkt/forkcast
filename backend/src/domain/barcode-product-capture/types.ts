@@ -36,4 +36,6 @@ export type ProductImage = RecipeImage;
 export interface ScannedProductStore {
   findByBarcode(barcode: string): Promise<ScannedProduct | null>;
   upsert(product: ScannedProduct): Promise<void>;
+  /** All stored products — used for name search. Optional: not every adapter need support it. */
+  list?(): Promise<ScannedProduct[]>;
 }

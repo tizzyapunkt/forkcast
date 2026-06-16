@@ -44,6 +44,10 @@ export class JsonScannedProductStore implements ScannedProductStore {
     return products;
   }
 
+  async list(): Promise<ScannedProduct[]> {
+    return this.load();
+  }
+
   async findByBarcode(barcode: string): Promise<ScannedProduct | null> {
     const products = await this.load();
     return products.find((p) => p.barcode === barcode) ?? null;

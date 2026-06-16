@@ -8,6 +8,8 @@ export interface AppConfig {
   ai: {
     anthropicApiKey: string | null;
     model: string;
+    /** Model used for the runtime unmatched-ingredient resolution proposer. Defaults to `model`. */
+    resolutionModel: string;
     recipeImport: {
       maxImageBytes: number;
       maxTotalBytes: number;
@@ -28,6 +30,7 @@ export function loadAppConfig(env: EnvSource): AppConfig {
 
   const anthropicApiKey = readOptionalNonEmpty(env, 'ANTHROPIC_API_KEY');
   const model = readOptionalNonEmpty(env, 'ANTHROPIC_MODEL') ?? DEFAULT_MODEL;
+  const resolutionModel = readOptionalNonEmpty(env, 'ANTHROPIC_RESOLUTION_MODEL') ?? model;
 
   const maxImageBytes = readPositiveInt(env, 'RECIPE_IMPORT_MAX_IMAGE_BYTES', DEFAULT_MAX_IMAGE_BYTES);
   const maxTotalBytes = readPositiveInt(env, 'RECIPE_IMPORT_MAX_TOTAL_BYTES', DEFAULT_MAX_TOTAL_BYTES);
@@ -39,6 +42,7 @@ export function loadAppConfig(env: EnvSource): AppConfig {
     ai: {
       anthropicApiKey,
       model,
+      resolutionModel,
       recipeImport: { maxImageBytes, maxTotalBytes, maxImages, debug },
     },
   };

@@ -13,6 +13,9 @@ interface SearchPanelProps {
    * because logging an untracked item makes no sense. The recipe-form picker leaves this off so
    * users can still pick untracked ingredients into a recipe. */
   disableUntracked?: boolean;
+  /** When provided, a "create with AI" trigger appears once the query is ≥2 chars, letting the
+   * user create a missing food. The host owns the create sheet (see CreateFoodSheet). */
+  onCreate?: (query: string) => void;
 }
 
 type ScanState =
@@ -44,7 +47,7 @@ function useDebouncedValue(value: string, delay: number) {
   return debounced;
 }
 
-export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelProps) {
+export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: SearchPanelProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
   useEffect(() => {
@@ -182,6 +185,28 @@ export function SearchPanel({ onSelect, disableUntracked = false }: SearchPanelP
 
       {hasQuery && !isLoading && results?.length === 0 && (
         <p className="text-sm text-muted-foreground">{de.searchPanel.noResults(debouncedQuery)}</p>
+      )}
+
+      {onCreate && hasQuery && (
+        <button
+          type="button"
+          onClick={() => onCreate(debouncedQuery.trim())}
+          aria-label={de.aiRecipeImport.resolve.createTriggerAria(debouncedQuery.trim())}
+          className="flex w-full items-center gap-3 rounded-md border border-dashed border-primary/60 bg-accent/40 px-3 py-3 text-left"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background text-primary">
+            +
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium text-primary">
+              {de.aiRecipeImport.resolve.createTrigger(debouncedQuery.trim())}
+            </span>
+            <span className="block text-xs text-muted-foreground">{de.aiRecipeImport.resolve.createTriggerHint}</span>
+          </span>
+          <span aria-hidden="true" className="text-primary">
+            ›
+          </span>
+        </button>
       )}
 
       {results && results.length > 0 && (

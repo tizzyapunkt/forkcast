@@ -383,7 +383,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'zucker');
-    const result = await screen.findByRole('button', { name: /zucker/i });
+    const result = await screen.findByRole('button', { name: /^zucker/i });
     await user.click(result);
 
     const state = readState();

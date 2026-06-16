@@ -6,8 +6,9 @@ import { JsonNutritionGoalRepository } from './infrastructure/nutrition/json-nut
 import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-body-profile.repository.ts';
 import { JsonWeightLogRepository } from './infrastructure/weight-log/json-weight-log.repository.ts';
 import { JsonRecipeRepository } from './infrastructure/recipes/json-recipe.repository.ts';
-import { JsonUnmatchedIngredientStore } from './infrastructure/unmatched-ingredients/json-unmatched-store.ts';
 import { JsonScannedProductStore } from './infrastructure/scanned-products/json-scanned-products.store.ts';
+import { JsonUserFoodsStore } from './infrastructure/user-foods/json-user-foods.store.ts';
+import { UserFoodsSearchService } from './infrastructure/user-foods/user-foods-search.service.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
@@ -58,10 +59,15 @@ import {
   makeUnconfiguredExtractProductFromPhotosHandler,
 } from './http/barcode-product-capture/extract-product-from-photos.handler.ts';
 import { makeSaveScannedProductHandler } from './http/barcode-product-capture/save-scanned-product.handler.ts';
+import { AnthropicFoodResolutionProposer } from './infrastructure/food-resolution/anthropic-food-resolution-proposer.ts';
+import { CompositeResolutionCandidateFinder } from './infrastructure/food-resolution/composite-candidate-finder.ts';
 import {
-  makeExportUnmatchedIngredientsHandler,
-  makeClearUnmatchedIngredientsHandler,
-} from './http/unmatched-ingredients/unmatched-ingredients.handler.ts';
+  makeProposeResolutionsHandler,
+  makeUnconfiguredProposeResolutionsHandler,
+  makeConfirmResolutionHandler,
+  makeExportUserFoodsHandler,
+  makeGetUserFoodsHandler,
+} from './http/food-resolution/resolution.handlers.ts';
 import { loadAppConfig } from './config/app-config.ts';
 import { DotenvEnvSource } from './infrastructure/config/dotenv-env-source.ts';
 
@@ -85,13 +91,15 @@ const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal
 const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json');
 const weightLogRepo = new JsonWeightLogRepository('./data/weight-log.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
-const unmatchedIngredientStore = new JsonUnmatchedIngredientStore('./data/unmatched-ingredients.json');
 const scannedProductStore = new JsonScannedProductStore('./data/scanned-products.json');
+const userFoodsStore = new JsonUserFoodsStore('./data/user-foods.json');
 const foodsService = new InMemoryFoodsService('./data/foods.json');
+const userFoodsSearch = new UserFoodsSearchService(userFoodsStore);
 const ingredientSearchService = new CompositeIngredientSearchService(
   new OpenFoodFactsService(),
   foodsService,
   scannedProductStore,
+  userFoodsSearch,
 );
 
 await bootstrap([
@@ -100,10 +108,19 @@ await bootstrap([
   bodyProfileRepo,
   weightLogRepo,
   recipeRepo,
-  unmatchedIngredientStore,
   scannedProductStore,
+  userFoodsStore,
   foodsService,
 ]);
+
+// Re-apply learned synonyms from the overlay onto the curated index now that both have loaded.
+const overlay = await userFoodsStore.load();
+if (overlay.synonyms.length > 0) {
+  const { orphaned } = foodsService.applySynonyms(overlay.synonyms);
+  if (orphaned.length > 0) {
+    console.warn(`user-foods: ${orphaned.length} learned synonym(s) skipped — their curated entry no longer exists`);
+  }
+}
 
 const app = new Hono();
 
@@ -141,8 +158,12 @@ app.delete('/recipe/:id', makeDeleteRecipeHandler(recipeRepo));
 app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
 app.post('/remove-recipe-log', makeRemoveRecipeLogHandler(logEntryRepo));
 
-app.get('/unmatched-ingredients/export', makeExportUnmatchedIngredientsHandler(unmatchedIngredientStore));
-app.post('/unmatched-ingredients/clear', makeClearUnmatchedIngredientsHandler(unmatchedIngredientStore));
+app.post(
+  '/confirm-ingredient-resolution',
+  makeConfirmResolutionHandler({ overlay: userFoodsStore, curated: foodsService }),
+);
+app.get('/user-foods', makeGetUserFoodsHandler(userFoodsStore));
+app.post('/export-user-foods', makeExportUserFoodsHandler({ overlay: userFoodsStore, curated: foodsService }));
 
 if (config.ai.anthropicApiKey) {
   const anthropicClient = new Anthropic({ apiKey: config.ai.anthropicApiKey });
@@ -162,8 +183,16 @@ if (config.ai.anthropicApiKey) {
       search: ingredientSearchService,
       limits: aiImageLimits,
       includeDebug: config.ai.recipeImport.debug,
-      recorder: unmatchedIngredientStore,
     }),
+  );
+  const resolutionProposer = new AnthropicFoodResolutionProposer({
+    client: anthropicClient,
+    model: config.ai.resolutionModel,
+  });
+  const candidateFinder = new CompositeResolutionCandidateFinder(foodsService, userFoodsStore);
+  app.post(
+    '/propose-ingredient-resolutions',
+    makeProposeResolutionsHandler({ candidates: candidateFinder, proposer: resolutionProposer }),
   );
   const productDraftExtractor = new AnthropicProductDraftExtractor({
     client: anthropicClient,
@@ -181,6 +210,7 @@ if (config.ai.anthropicApiKey) {
 } else {
   app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
   app.post('/extract-product-from-photos', makeUnconfiguredExtractProductFromPhotosHandler());
+  app.post('/propose-ingredient-resolutions', makeUnconfiguredProposeResolutionsHandler());
 }
 
 serve({ fetch: app.fetch, port: 3000 }, () => {

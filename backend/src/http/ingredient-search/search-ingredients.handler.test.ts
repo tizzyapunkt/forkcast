@@ -56,6 +56,13 @@ describe('makeSearchIngredientsByNameHandler — sources param', () => {
     expect(sources).toEqual(new Set(['FOODS', 'OFF']));
   });
 
+  it('passes FOODS, USER, OFF when sources=foods,user,off', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,user,off');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['FOODS', 'USER', 'OFF']));
+  });
+
   it('ignores unknown values in sources param', async () => {
     const svc = makeService();
     await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,unknown');

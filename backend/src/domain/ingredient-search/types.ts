@@ -1,7 +1,10 @@
 import type { MacrosPerUnit, MeasurementUnit } from '../meal-log/types.ts';
 
-/** Where a search result originated. `SCAN` is a product captured from packaging photos. */
-export type IngredientResultSource = 'FOODS' | 'OFF' | 'SCAN';
+/**
+ * Where a search result originated. `USER` is a runtime user-foods overlay entry;
+ * `SCAN` is a product captured from packaging photos.
+ */
+export type IngredientResultSource = 'FOODS' | 'USER' | 'OFF' | 'SCAN';
 
 export interface IngredientSearchResult {
   id: string;

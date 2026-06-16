@@ -8,13 +8,21 @@ import type {
   RecipeImage,
   SearchCandidateDebug,
 } from './types.ts';
-import type { IngredientSearchService } from '../ingredient-search/ingredient-search.service.ts';
+import type { IngredientSearchService, IngredientSource } from '../ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../ingredient-search/types.ts';
 import type { RecipeRepository } from '../recipes/recipe.repository.ts';
-import type { UnmatchedIngredientRecorder } from '../unmatched-ingredients/types.ts';
 import { normalizeIngredientName } from './normalize-ingredient-name.ts';
+import { buildMatchedRowWithFlags } from './build-matched-row.ts';
 
 const DEBUG_CANDIDATE_CAP = 5;
+
+/**
+ * Import matching consults the user's own catalogs in a strict cascade — curated
+ * FOODS first, then the user-foods overlay, then locally-scanned products. The
+ * first tier with a hit wins; lower tiers are not consulted. Open Food Facts is
+ * deliberately excluded (rate limits, packaged-product noise).
+ */
+const IMPORT_CASCADE: readonly IngredientSource[] = ['FOODS', 'USER', 'SCAN'];
 
 export interface ImportRecipeFromPhotosDeps {
   extractor: RecipeDraftExtractor;
@@ -23,8 +31,6 @@ export interface ImportRecipeFromPhotosDeps {
   repo?: RecipeRepository;
   /** When true, the returned draft carries a `debug` payload describing the per-ingredient match. */
   includeDebug?: boolean;
-  /** Optional sink that captures every strict-unmatched ingredient as a side effect. */
-  recorder?: UnmatchedIngredientRecorder;
 }
 
 interface MatchOutput {
@@ -43,7 +49,7 @@ export async function importRecipeFromPhotos(
   const extracted = await deps.extractor.extract(images);
 
   const matched = await Promise.all(
-    extracted.ingredients.map((raw) => matchIngredient(raw, deps.search, deps.includeDebug === true, deps.recorder)),
+    extracted.ingredients.map((raw) => matchIngredient(raw, deps.search, deps.includeDebug === true)),
   );
 
   const draft: RecipeDraft = {
@@ -63,32 +69,30 @@ export async function importRecipeFromPhotos(
   return draft;
 }
 
+/** Run the strict import cascade for a single name; returns the first tier's non-empty results. */
+async function cascadeSearch(search: IngredientSearchService, name: string): Promise<IngredientSearchResult[]> {
+  for (const source of IMPORT_CASCADE) {
+    const results = await search.searchByName(name, new Set([source]));
+    if (results.length > 0) return results;
+  }
+  return [];
+}
+
 async function matchIngredient(
   raw: RawIngredient,
   search: IngredientSearchService,
   includeDebug: boolean,
-  recorder: UnmatchedIngredientRecorder | undefined,
 ): Promise<MatchOutput> {
-  let results = await search.searchByName(raw.name, new Set(['FOODS']));
-  let normalizedName: string | null = null;
+  let results = await cascadeSearch(search, raw.name);
   if (results.length === 0) {
     const normalized = normalizeIngredientName(raw.name);
     if (normalized !== raw.name) {
-      normalizedName = normalized;
-      results = await search.searchByName(normalized, new Set(['FOODS']));
+      results = await cascadeSearch(search, normalized);
     }
   }
   const top = results[0];
 
   if (!top) {
-    if (recorder) {
-      const toRecord: RawIngredient = normalizedName !== null ? { ...raw, name: normalizedName } : raw;
-      try {
-        await recorder.record(toRecord);
-      } catch (err) {
-        console.error('unmatched-ingredients: recorder failed', err);
-      }
-    }
     const unmatched: DraftIngredient = {
       matched: false,
       name: raw.name,
@@ -110,35 +114,11 @@ async function matchIngredient(
     };
   }
 
-  const unitOverridden = raw.unit !== undefined && raw.unit !== top.unit;
-  const matchedUnitIsMass = top.unit === 'g' || top.unit === 'ml';
-  const isUntracked = top.untracked === true;
-  const pieceQuantityDropped = raw.pieceQuantity !== undefined && !matchedUnitIsMass;
-
-  const matched: DraftIngredient = {
-    matched: true,
-    name: top.name,
-    unit: top.unit,
-    macrosPerUnit: top.macrosPerUnit,
-    amount: raw.amount ?? null,
-    unitOverridden,
-    source: top.source,
-  };
-  if (raw.pieceQuantity && matchedUnitIsMass) matched.pieceQuantity = raw.pieceQuantity;
-  if (raw.note !== undefined) matched.note = raw.note;
-  if (isUntracked) {
-    matched.untracked = true;
-    const rawLabel = raw.rawDisplayUnitLabel?.trim();
-    if (rawLabel && rawLabel.length > 0) {
-      matched.displayQuantity = {
-        amount: raw.rawDisplayAmount ?? 1,
-        unitLabel: rawLabel,
-      };
-    }
-    if (matched.amount === null && matched.pieceQuantity === undefined) {
-      matched.amount = 0;
-    }
-  }
+  const { row: matched, flags } = buildMatchedRowWithFlags(
+    { name: top.name, unit: top.unit, macrosPerUnit: top.macrosPerUnit, untracked: top.untracked === true },
+    top.source,
+    raw,
+  );
 
   if (!includeDebug) {
     return { ingredient: matched };
@@ -151,7 +131,7 @@ async function matchIngredient(
       raw,
       candidates,
       chosen: candidates[0] ?? null,
-      flags: { unitOverridden, pieceQuantityDropped, untrackedInherited: isUntracked },
+      flags,
     },
   };
 }

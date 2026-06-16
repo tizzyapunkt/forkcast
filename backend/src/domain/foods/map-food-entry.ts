@@ -1,10 +1,10 @@
-import type { IngredientSearchResult } from '../ingredient-search/types.ts';
+import type { IngredientResultSource, IngredientSearchResult } from '../ingredient-search/types.ts';
 import type { FoodEntry } from './types.ts';
 
-export function mapFoodEntry(entry: FoodEntry): IngredientSearchResult {
+export function mapFoodEntry(entry: FoodEntry, source: IngredientResultSource = 'FOODS'): IngredientSearchResult {
   const result: IngredientSearchResult = {
     id: entry.id,
-    source: 'FOODS',
+    source,
     name: entry.name,
     unit: entry.unit,
     macrosPerUnit: {

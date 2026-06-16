@@ -4,8 +4,8 @@ import type {
   IngredientSource,
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
 
-const VALID_SOURCES = new Set<string>(['foods', 'off']);
-const SOURCE_MAP: Record<string, IngredientSource> = { foods: 'FOODS', off: 'OFF' };
+const SOURCE_MAP: Record<string, IngredientSource> = { foods: 'FOODS', user: 'USER', off: 'OFF' };
+const VALID_SOURCES = new Set<string>(Object.keys(SOURCE_MAP));
 
 function parseSources(param: string | undefined): Set<IngredientSource> {
   if (!param?.trim()) return new Set(['OFF']);

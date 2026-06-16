@@ -35,7 +35,7 @@ export const EXTRACT_RECIPE_TOOL = {
             name: {
               type: 'string',
               description:
-                'Ingredient name in the original language (e.g. "Olivenöl"). MUST be the food noun only — no preparation, cut, or quality modifiers (e.g. write "Ingwer" not "Ingwer, fein gehackt"; "Tomaten" not "Tomaten, geschält"). Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs") MUST be kept since they affect the nutrition profile. If the recipe text bundles a prep modifier into the ingredient line, move that prep instruction into the appropriate entry in steps.',
+                'Ingredient name in the original language (e.g. "Olivenöl"). MUST be the food noun only — no preparation, cut, or quality modifiers (e.g. write "Ingwer" not "Ingwer, fein gehackt"; "Tomaten" not "Tomaten, geschält"). BUT qualifiers that change the food\'s identity or nutrition MUST be kept on the name: "Zuckerfreier Ahornsirup", "Geräucherter Lachs", and "getrocknete Tomaten in Öl" (sun-dried tomatoes in oil — a different food from fresh "Tomaten", with far higher calories). When unsure whether a qualifier is mere prep (→ note) or identity-changing (→ keep on name), keep it on the name. If the recipe text bundles a prep modifier into the ingredient line, move that prep instruction into the appropriate entry in steps.',
             },
             amount: {
               type: 'number',
@@ -56,7 +56,7 @@ export const EXTRACT_RECIPE_TOOL = {
             pieceUnitLabel: {
               type: 'string',
               description:
-                'The noun the recipe uses for one piece, in the original language (e.g. "onion", "medium zucchini", "clove", "Knoblauchzehe"). MUST be present whenever pieceAmount is present.',
+                'The bare COUNT NOUN for one piece, in the original language (e.g. "onion", "medium zucchini", "clove", "Knoblauchzehe", "Stück", "Scheibe", "Dose"). MUST be present whenever pieceAmount is present. It is ONLY a unit of count — it MUST NOT contain the food name or any quality/preparation modifier. E.g. for "2 EL getrocknete Tomaten in Öl" the qualifier "getrocknet in Öl" belongs on `name` (it changes the food), NOT here; and "EL" is a non-canonical spoon unit, so use rawDisplayUnitLabel, not pieceUnitLabel.',
             },
             gramsPerPiece: {
               type: 'number',
@@ -102,7 +102,8 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
   'Keep the original language for names and steps.',
   'Naming rules:',
   '- The ingredient name field is the food noun only. Preparation, cut, and quality modifiers (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft") MUST NOT appear in name; populate the ingredient\'s `note` field with that modifier instead.',
-  '- Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs", "Gemahlener Zimt") MUST be preserved on name — they affect the nutrition profile and do not belong in `note`.',
+  '- Leading adjectives that change the food itself (e.g. "Zuckerfreier Ahornsirup", "Geräucherter Lachs", "Gemahlener Zimt", "getrocknete Tomaten in Öl") MUST be preserved on name — they affect the nutrition profile and do not belong in `note`. "getrocknete Tomaten in Öl" is a different food from fresh "Tomaten"; keep the full phrase as the name.',
+  '- pieceUnitLabel is a bare count noun only (e.g. "Stück", "Scheibe", "Zehe", "Dose"). NEVER put the food name or a quality/prep modifier in pieceUnitLabel — e.g. "getrocknet in Öl" is not a piece unit; it stays on the name.',
   '- The `note` field is for the inline prep/cut/quality modifier only. Omit `note` when the source recipe states no such modifier on the ingredient line. Do NOT duplicate a prep modifier into `steps` once it is on the ingredient `note`; `steps` carries the cooking process.',
 ].join(' ');
 

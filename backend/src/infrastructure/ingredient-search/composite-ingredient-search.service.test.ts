@@ -4,7 +4,7 @@ import type { IngredientSearchService } from '../../domain/ingredient-search/ing
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
 
-function makeResult(id: string, source: 'FOODS' | 'OFF'): IngredientSearchResult {
+function makeResult(id: string, source: 'FOODS' | 'USER' | 'OFF'): IngredientSearchResult {
   return {
     id,
     source,
@@ -157,5 +157,70 @@ describe('CompositeIngredientSearchService', () => {
     const svc = new CompositeIngredientSearchService(off, foods, scanned);
 
     expect(await svc.searchByBarcode('0000')).toBeNull();
+  });
+
+  it('queries the USER source when requested and orders FOODS → USER → OFF', async () => {
+    const foods = makeMockService([foodsResult]);
+    const off = makeMockService([offResult]);
+    const user = makeMockService([makeResult('U1', 'USER')]);
+    const svc = new CompositeIngredientSearchService(off, foods, undefined, user);
+
+    const results = await svc.searchByName('food', new Set(['FOODS', 'USER', 'OFF']));
+    expect(results.map((r) => r.source)).toEqual(['FOODS', 'USER', 'OFF']);
+  });
+
+  it('does not query USER when the source is absent', async () => {
+    const foods = makeMockService([foodsResult]);
+    const off = makeMockService([offResult]);
+    const user = makeMockService([makeResult('U1', 'USER')]);
+    const svc = new CompositeIngredientSearchService(off, foods, undefined, user);
+
+    await svc.searchByName('food', new Set(['FOODS']));
+    expect(user.searchByName).not.toHaveBeenCalled();
+  });
+
+  it('name-searches scanned products when SCAN is requested', async () => {
+    const products: ScannedProduct[] = [
+      {
+        barcode: '111',
+        name: 'Skyr Natur',
+        unit: 'g',
+        macrosPer100: { calories: 63, protein: 11, carbs: 4, fat: 0 },
+        capturedAt: '2026-05-24T12:00:00.000Z',
+      },
+      {
+        barcode: '222',
+        name: 'Cola',
+        unit: 'ml',
+        macrosPer100: { calories: 42, protein: 0, carbs: 10.6, fat: 0 },
+        capturedAt: '2026-05-24T12:00:00.000Z',
+      },
+    ];
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(null),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+      list: vi.fn<() => Promise<ScannedProduct[]>>().mockResolvedValue(products),
+    };
+    const foods = makeMockService([]);
+    const off = makeMockService([]);
+    const svc = new CompositeIngredientSearchService(off, foods, scanned);
+
+    const results = await svc.searchByName('skyr', new Set(['SCAN']));
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({ id: '111', source: 'SCAN', name: 'Skyr Natur' });
+  });
+
+  it('does not name-search scanned products when SCAN is absent', async () => {
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(null),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+      list: vi.fn<() => Promise<ScannedProduct[]>>().mockResolvedValue([]),
+    };
+    const foods = makeMockService([foodsResult]);
+    const off = makeMockService([]);
+    const svc = new CompositeIngredientSearchService(off, foods, scanned);
+
+    await svc.searchByName('food', new Set(['FOODS']));
+    expect(scanned.list).not.toHaveBeenCalled();
   });
 });
