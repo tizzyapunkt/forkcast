@@ -63,6 +63,19 @@ describe('scaleIngredients', () => {
     expect(scaledHalf!.displayQuantity).toEqual({ amount: 0.5, unitLabel: 'TL' });
   });
 
+  it('leaves a qualitative displayQuantity (no amount) untouched while scaling', () => {
+    const salt: RecipeIngredient = {
+      name: 'Salz',
+      unit: 'g',
+      macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      amount: 0,
+      untracked: true,
+      displayQuantity: { unitLabel: 'nach Geschmack' },
+    };
+    const [scaled] = scaleIngredients([salt], 2);
+    expect(scaled!.displayQuantity).toEqual({ unitLabel: 'nach Geschmack' });
+  });
+
   it('scales both piece-tracked and displayQuantity rows together when they coexist in a recipe', () => {
     const salt: RecipeIngredient = {
       name: 'Salz',

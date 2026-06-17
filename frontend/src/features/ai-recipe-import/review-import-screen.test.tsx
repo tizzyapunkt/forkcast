@@ -453,7 +453,12 @@ describe('ReviewImportScreen', () => {
                 { name: 'Tomate, getrocknet', source: 'FOODS', unit: 'g', untracked: false },
               ],
               chosen: { name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false },
-              flags: { unitOverridden: true, pieceQuantityDropped: false, untrackedInherited: false },
+              flags: {
+                unitOverridden: true,
+                pieceQuantityDropped: false,
+                untrackedInherited: false,
+                missingAmount: false,
+              },
             },
           ],
         },

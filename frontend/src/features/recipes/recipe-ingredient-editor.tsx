@@ -108,13 +108,20 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
     );
   }
 
-  function handleEditFreeAmount(index: number, nextAmount: number) {
-    if (!Number.isFinite(nextAmount) || nextAmount < 0) return;
-    update(index, (ing) =>
-      ing.displayQuantity
-        ? { ...ing, displayQuantity: { ...ing.displayQuantity, amount: nextAmount } }
-        : { ...ing, amount: nextAmount },
-    );
+  function handleEditFreeAmount(index: number, nextAmount: number | null) {
+    if (nextAmount !== null && (!Number.isFinite(nextAmount) || nextAmount < 0)) return;
+    update(index, (ing) => {
+      if (ing.displayQuantity) {
+        // Clearing the number turns it into a purely qualitative label ("nach Geschmack").
+        if (nextAmount === null) {
+          return { ...ing, displayQuantity: { unitLabel: ing.displayQuantity.unitLabel } };
+        }
+        return { ...ing, displayQuantity: { ...ing.displayQuantity, amount: nextAmount } };
+      }
+      // No display label yet: the number is the row's plain amount.
+      if (nextAmount === null) return ing;
+      return { ...ing, amount: nextAmount };
+    });
   }
 
   function handleEditFreeUnit(index: number, raw: string) {
@@ -123,13 +130,15 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
       if (trimmed.length === 0) {
         const next: RecipeIngredient = { ...ing };
         if (next.displayQuantity) {
-          next.amount = next.displayQuantity.amount;
+          if (next.displayQuantity.amount !== undefined) next.amount = next.displayQuantity.amount;
           delete next.displayQuantity;
         }
         return next;
       }
-      const amount = ing.displayQuantity?.amount ?? ing.amount;
-      return { ...ing, displayQuantity: { amount, unitLabel: raw } };
+      // Carry an existing display amount, or a real amount the user typed into the free field
+      // (ing.amount), but never the seeded 0 of a bare seasoning — that stays qualitative.
+      const amount = ing.displayQuantity?.amount ?? (ing.amount > 0 ? ing.amount : undefined);
+      return { ...ing, displayQuantity: amount !== undefined ? { amount, unitLabel: raw } : { unitLabel: raw } };
     });
   }
 
@@ -271,9 +280,9 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <div className="flex flex-wrap items-center gap-2 text-xs">
                       <DecimalInput
                         aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
-                        value={ing.displayQuantity?.amount ?? ing.amount}
+                        value={ing.displayQuantity ? ing.displayQuantity.amount : ing.amount}
                         placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
-                        onValueChange={(v) => v !== null && handleEditFreeAmount(idx, v)}
+                        onValueChange={(v) => handleEditFreeAmount(idx, v)}
                         className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                       />
                       <input

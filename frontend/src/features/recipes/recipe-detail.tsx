@@ -8,7 +8,25 @@ import { RecipeTotalsStrip } from './recipe-totals-strip';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import type { RecipeIngredient } from '../../domain/recipes';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
+
+/** The right-aligned quantity text for one ingredient row in the recipe view. */
+function formatIngredientQuantity(ing: RecipeIngredient, untracked: boolean): string {
+  if (untracked) {
+    const dq = ing.displayQuantity;
+    if (dq) {
+      return dq.amount !== undefined ? `${formatPieceCount(dq.amount)} ${dq.unitLabel}` : dq.unitLabel;
+    }
+    // Untracked with no label: a stated weight if there is one, otherwise "nach Geschmack"
+    // (never "0 g").
+    return ing.amount > 0 ? `${formatMassAmount(ing.amount)} ${ing.unit}` : de.recipeIngredientEditor.toTaste;
+  }
+  if (ing.pieceQuantity) {
+    return `${formatPieceCount(ing.pieceQuantity.amount)} ${ing.pieceQuantity.unitLabel} (≈ ${formatMassAmount(ing.amount)} ${ing.unit})`;
+  }
+  return `${formatMassAmount(ing.amount)} ${ing.unit}`;
+}
 
 interface Props {
   id: string;
@@ -170,13 +188,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                       </span>
                     )}
                   </span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {untracked && scaled.displayQuantity
-                      ? `${formatPieceCount(scaled.displayQuantity.amount)} ${scaled.displayQuantity.unitLabel}`
-                      : scaled.pieceQuantity
-                        ? `${formatPieceCount(scaled.pieceQuantity.amount)} ${scaled.pieceQuantity.unitLabel} (≈ ${formatMassAmount(scaled.amount)} ${scaled.unit})`
-                        : `${formatMassAmount(scaled.amount)} ${scaled.unit}`}
-                  </span>
+                  <span className="shrink-0 text-muted-foreground">{formatIngredientQuantity(scaled, untracked)}</span>
                 </li>
               );
             })}

@@ -93,5 +93,6 @@ function activeFlags(flags: IngredientMatchDebug['flags']): string[] {
   if (flags.unitOverridden) out.push('unitOverridden');
   if (flags.pieceQuantityDropped) out.push('pieceQuantityDropped');
   if (flags.untrackedInherited) out.push('untrackedInherited');
+  if (flags.missingAmount) out.push('missingAmount');
   return out;
 }

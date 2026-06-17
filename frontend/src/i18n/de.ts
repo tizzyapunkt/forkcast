@@ -466,6 +466,8 @@ export const de = {
     untrackedToggle: 'Nicht zählen',
     untrackedToggleAria: (name: string) => `${name} nicht in Nährwerten zählen`,
     untrackedBadge: 'Nicht gezählt',
+    /** Fallback shown for an untracked ingredient with no stated quantity (bare Salz/Pfeffer). */
+    toTaste: 'nach Geschmack',
     modeWeight: 'Gewicht',
     modePiece: 'Stück',
     modeFree: 'Frei',

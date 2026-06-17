@@ -4,7 +4,11 @@ import { PIECE_QUANTITY_TOLERANCE } from '../../domain/recipes/validate-piece-qu
 
 export const EXTRACT_RECIPE_TOOL_NAME = 'extract_recipe';
 
-const SUPPORTED_UNITS: MeasurementUnit[] = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp', 'piece'];
+// Counts are represented via the piece fields (pieceAmount/pieceUnitLabel/gramsPerPiece),
+// never as unit: 'piece'. Offering 'piece' here only tempts the model to emit "1 piece"
+// and silently drop the weight estimate, so the extraction enum is restricted to real
+// measures; a stray unit: 'piece' from the model is reconciled to grams in buildPieceQuantity.
+const SUPPORTED_UNITS: MeasurementUnit[] = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp'];
 
 const NOTE_MAX_LENGTH = 80;
 
@@ -71,7 +75,7 @@ export const EXTRACT_RECIPE_TOOL = {
             rawDisplayUnitLabel: {
               type: 'string',
               description:
-                'Literal textual unit as written in the recipe, when outside the canonical enum (e.g. "TL", "EL", "Teelöffel", "Esslöffel", "Prise", "Schuss", "Spritzer", "n. Geschmack"). OMIT when the recipe uses a canonical unit. Capture the original language and casing.',
+                'Literal textual MEASURING unit as written in the recipe, when outside the canonical enum — spoons, pinches, splashes and the like (e.g. "TL", "EL", "Teelöffel", "Esslöffel", "Prise", "Schuss", "Spritzer", "n. Geschmack"). OMIT when the recipe uses a canonical unit. NEVER use this field for a counted food or for a size adjective like "mittelgroße"/"große"/"kleine" — a counted food (even one described by size) takes the piece fields above, not the raw-display fields. Capture the original language and casing.',
             },
             note: {
               type: 'string',
@@ -95,10 +99,12 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
   'Use the extract_recipe tool to return the result.',
   'Quantification rules:',
   '- If an ingredient amount or unit is not visible (e.g. "salt to taste"), omit those fields rather than guessing.',
-  '- When an ingredient is given as a count rather than a mass (e.g. "1 onion", "½ medium zucchini", "2 cloves garlic", "1 medium tomato"), populate pieceAmount, pieceUnitLabel, and gramsPerPiece with your best estimate of a typical piece weight in grams. Always also populate amount and unit with the resulting total weight (amount = pieceAmount * gramsPerPiece, unit = "g"). Use unit = "ml" only when the recipe explicitly frames the piece as a liquid quantity (e.g. "juice of 1 lemon").',
+  '- When an ingredient is given as a COUNT of a food rather than a mass (e.g. "1 onion", "½ medium zucchini", "2 cloves garlic", "1 medium tomato", and the German equivalents "1 Zwiebel", "½ mittelgroße Zucchini", "2 Zehen Knoblauch", "1 Dose Kichererbsen"), populate pieceAmount, pieceUnitLabel, and gramsPerPiece with your best estimate of a typical piece weight in grams. Always also populate amount and unit with the resulting total weight (amount = pieceAmount * gramsPerPiece, unit = "g"). Use unit = "ml" only when the recipe explicitly frames the piece as a liquid quantity (e.g. "juice of 1 lemon").',
+  '- A SIZE ADJECTIVE in front of a countable food ("mittelgroße", "große", "kleine", "medium", "large", "small") is NOT a unit — it is a hint for your gram estimate. The food noun is the count; the adjective only tunes gramsPerPiece. "½ mittelgroße Zucchini" → pieceAmount 0.5, pieceUnitLabel "Zucchini", gramsPerPiece ≈ 200, amount 100, unit "g". NEVER place a size adjective in rawDisplayUnitLabel, and NEVER leave a counted food without a gram estimate.',
   '- When the recipe is already given by mass directly (e.g. "200 g flour"), omit the piece fields.',
-  '- When the recipe uses a unit outside the canonical enum (typical for seasonings/spices/herbs, e.g. "1 TL Salz", "2 EL Olivenöl", "Prise Pfeffer", "Schuss Zitronensaft", "Salz n. Geschmack"), populate rawDisplayAmount and rawDisplayUnitLabel with the literal numeric amount and textual unit as written in the original language. Still attempt to populate amount and unit with a sensible canonical conversion if obvious, but never guess if the conversion is uncertain — omit amount/unit in that case.',
+  '- rawDisplayAmount/rawDisplayUnitLabel are ONLY for MEASURING units that are not counts and fall outside the canonical enum — spoons, pinches, splashes and the like (e.g. "1 TL Salz", "2 EL Olivenöl", "Prise Pfeffer", "Schuss Zitronensaft", "Salz n. Geschmack"). Populate them with the literal numeric amount and textual unit as written in the original language. Still attempt to populate amount and unit with a sensible canonical conversion if obvious, but never guess if the conversion is uncertain — omit amount/unit in that case. Do NOT route a counted food or a size-described piece through these fields — those take the piece fields above.',
   '- When the recipe states no quantity at all for an ingredient ("Salz n. Geschmack"), you MAY populate rawDisplayUnitLabel alone with the qualitative phrase and omit rawDisplayAmount, amount, and unit.',
+  'Worked examples — piece path (counted foods, incl. size-described): "½ mittelgroße Zucchini" → {name:"Zucchini", pieceAmount:0.5, pieceUnitLabel:"Zucchini", gramsPerPiece:200, amount:100, unit:"g"}; "¼ mittelgroße rote Zwiebel" → {name:"rote Zwiebel", pieceAmount:0.25, pieceUnitLabel:"Zwiebel", gramsPerPiece:120, amount:30, unit:"g"}; "1 Zehe Knoblauch" → {name:"Knoblauch", pieceAmount:1, pieceUnitLabel:"Zehe", gramsPerPiece:5, amount:5, unit:"g"}. Raw-display path (measuring units only): "2 EL Olivenöl" → {name:"Olivenöl", rawDisplayAmount:2, rawDisplayUnitLabel:"EL"}.',
   'Keep the original language for names and steps.',
   'Naming rules:',
   '- The ingredient name field is the food noun only. Preparation, cut, and quality modifiers (e.g. "fein gehackt", "geschält", "in Scheiben", "frisch gewolft") MUST NOT appear in name; populate the ingredient\'s `note` field with that modifier instead.',
@@ -133,7 +139,7 @@ function buildPieceQuantity(
   ing: RawToolInputIngredient,
   unit: MeasurementUnit | undefined,
   amount: number | undefined,
-): { pieceQuantity?: PieceQuantity; resolvedAmount?: number } {
+): { pieceQuantity?: PieceQuantity; resolvedAmount?: number; resolvedUnit?: MeasurementUnit } {
   const hasAny = ing.pieceAmount !== undefined || ing.pieceUnitLabel !== undefined || ing.gramsPerPiece !== undefined;
   if (!hasAny) return {};
 
@@ -148,7 +154,13 @@ function buildPieceQuantity(
     isFinitePositive(gramsPerPiece);
   if (!allPresent) return {};
 
-  if (unit !== 'g' && unit !== 'ml') return {};
+  // A count is always a mass: gramsPerPiece is the source of truth, so trust the piece
+  // estimate even when the model omitted the unit or labelled it 'piece' (validation has
+  // already dropped that to undefined). Only an explicit liquid piece resolves to ml.
+  // An explicit *measuring* unit (oz/cup/tbsp/tsp) contradicts a piece count, so we keep
+  // the legacy drop for those.
+  if (unit !== undefined && unit !== 'g' && unit !== 'ml') return {};
+  const resolvedUnit: MeasurementUnit = unit === 'ml' ? 'ml' : 'g';
 
   const expected = pieceAmount * gramsPerPiece;
   const tolerance = expected * PIECE_QUANTITY_TOLERANCE;
@@ -161,6 +173,7 @@ function buildPieceQuantity(
       gramsPerPiece,
     },
     resolvedAmount,
+    resolvedUnit,
   };
 }
 
@@ -205,10 +218,11 @@ export function parseToolInput(input: unknown): ExtractedDraft {
     if (piece.pieceQuantity) {
       result.pieceQuantity = piece.pieceQuantity;
       result.amount = piece.resolvedAmount;
+      result.unit = piece.resolvedUnit;
     } else {
       if (amount !== undefined) result.amount = amount;
+      if (unit !== undefined) result.unit = unit;
     }
-    if (unit !== undefined) result.unit = unit;
 
     if (typeof ing.rawDisplayAmount === 'number' && Number.isFinite(ing.rawDisplayAmount)) {
       result.rawDisplayAmount = ing.rawDisplayAmount;

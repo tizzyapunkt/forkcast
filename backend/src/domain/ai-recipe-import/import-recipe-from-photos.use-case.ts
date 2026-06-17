@@ -108,7 +108,12 @@ async function matchIngredient(
             raw,
             candidates: [],
             chosen: null,
-            flags: { unitOverridden: false, pieceQuantityDropped: false, untrackedInherited: false },
+            flags: {
+              unitOverridden: false,
+              pieceQuantityDropped: false,
+              untrackedInherited: false,
+              missingAmount: false,
+            },
           }
         : undefined,
     };

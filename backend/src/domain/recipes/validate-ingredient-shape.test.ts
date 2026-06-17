@@ -68,6 +68,12 @@ describe('validateIngredientShape', () => {
     ).not.toThrow();
   });
 
+  it('accepts untracked with a qualitative displayQuantity (no amount)', () => {
+    expect(() =>
+      validateIngredientShape(untracked({ amount: 0, displayQuantity: { unitLabel: 'nach Geschmack' } })),
+    ).not.toThrow();
+  });
+
   it('rejects displayQuantity on a tracked row', () => {
     expect(() => validateIngredientShape(tracked({ displayQuantity: { amount: 1, unitLabel: 'TL' } }))).toThrow(
       /untracked/i,

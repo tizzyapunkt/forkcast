@@ -239,7 +239,12 @@ describe('POST /import-recipe-from-photos', () => {
           raw: { name: string };
           candidates: Array<{ name: string }>;
           chosen: { name: string } | null;
-          flags: { unitOverridden: boolean; pieceQuantityDropped: boolean; untrackedInherited: boolean };
+          flags: {
+            unitOverridden: boolean;
+            pieceQuantityDropped: boolean;
+            untrackedInherited: boolean;
+            missingAmount: boolean;
+          };
         }>;
       };
     };
@@ -249,7 +254,12 @@ describe('POST /import-recipe-from-photos', () => {
     expect(entry.raw.name).toBe('olive oil');
     expect(entry.candidates[0]?.name).toBe('Olivenöl');
     expect(entry.chosen?.name).toBe('Olivenöl');
-    expect(entry.flags).toEqual({ unitOverridden: false, pieceQuantityDropped: false, untrackedInherited: false });
+    expect(entry.flags).toEqual({
+      unitOverridden: false,
+      pieceQuantityDropped: false,
+      untrackedInherited: false,
+      missingAmount: false,
+    });
   });
 
   it('returns 400 on invalid JSON', async () => {

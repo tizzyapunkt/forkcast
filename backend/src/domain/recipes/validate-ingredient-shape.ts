@@ -30,8 +30,8 @@ export function validateIngredientShape(ingredient: RecipeIngredient): void {
       throw new Error(`Ingredient ${label}: displayQuantity is only allowed on untracked rows`);
     }
     const dq = ingredient.displayQuantity;
-    if (!Number.isFinite(dq.amount) || dq.amount < 0) {
-      throw new Error(`Ingredient ${label}: displayQuantity.amount must be a finite number >= 0`);
+    if (dq.amount !== undefined && (!Number.isFinite(dq.amount) || dq.amount < 0)) {
+      throw new Error(`Ingredient ${label}: displayQuantity.amount must be a finite number >= 0 when present`);
     }
     if (typeof dq.unitLabel !== 'string') {
       throw new Error(`Ingredient ${label}: displayQuantity.unitLabel must be a string`);

@@ -65,6 +65,7 @@ export interface IngredientMatchDebug {
     unitOverridden: boolean;
     pieceQuantityDropped: boolean;
     untrackedInherited: boolean;
+    missingAmount: boolean;
   };
 }
 

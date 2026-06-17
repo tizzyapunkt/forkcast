@@ -444,3 +444,62 @@ describe('RecipeDetail — totals strip & displayQuantity', () => {
     expect(screen.getByText(/^1 TL$/)).toBeInTheDocument();
   });
 });
+
+describe('RecipeDetail — qualitative seasonings (nach Geschmack)', () => {
+  function mockRecipe(seasoning: Record<string, unknown>) {
+    server.use(
+      http.get('/api/recipes/rec-1', () =>
+        HttpResponse.json({
+          ...baseRecipe,
+          yield: 1,
+          name: 'Pfanne',
+          ingredients: [
+            {
+              name: 'Hähnchen',
+              unit: 'g',
+              macrosPerUnit: { calories: 1.1, protein: 0.23, carbs: 0, fat: 0.02 },
+              amount: 150,
+            },
+            {
+              name: 'Salz',
+              unit: 'g',
+              macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+              amount: 0,
+              untracked: true,
+              ...seasoning,
+            },
+          ],
+          steps: [],
+        }),
+      ),
+    );
+  }
+
+  it('renders a label-only displayQuantity without a leading number', async () => {
+    mockRecipe({ displayQuantity: { unitLabel: 'nach Geschmack' } });
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    expect(await screen.findByText('Salz')).toBeInTheDocument();
+    expect(screen.getByText(/^nach Geschmack$/)).toBeInTheDocument();
+    expect(screen.queryByText(/^1 nach Geschmack$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^0 g$/)).not.toBeInTheDocument();
+  });
+
+  it('falls back to "nach Geschmack" for a bare untracked row (amount 0, no displayQuantity)', async () => {
+    mockRecipe({});
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    expect(await screen.findByText('Salz')).toBeInTheDocument();
+    expect(screen.getByText(/^nach Geschmack$/)).toBeInTheDocument();
+    expect(screen.queryByText(/^0 g$/)).not.toBeInTheDocument();
+  });
+
+  it('does not scale a qualitative label when servings increase', async () => {
+    mockRecipe({ displayQuantity: { unitLabel: 'nach Geschmack' } });
+    renderWithProviders(<RecipeDetail id="rec-1" onBack={() => undefined} onDeleted={() => undefined} />);
+
+    await screen.findByText('Salz');
+    await userEvent.click(screen.getByRole('button', { name: /Eine Portion mehr/ }));
+    expect(screen.getByText(/^nach Geschmack$/)).toBeInTheDocument();
+  });
+});

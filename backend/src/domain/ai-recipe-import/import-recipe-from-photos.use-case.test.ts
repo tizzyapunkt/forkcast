@@ -372,7 +372,7 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'TL' });
   });
 
-  it('defaults displayQuantity.amount to 1 when only rawDisplayUnitLabel is present', async () => {
+  it('leaves displayQuantity.amount unset when only rawDisplayUnitLabel is present', async () => {
     const extractor = makeExtractor({
       name: 'Pasta',
       yield: 1,
@@ -393,7 +393,34 @@ describe('importRecipeFromPhotos', () => {
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
     if (!ing || !ing.matched) throw new Error('expected matched ingredient');
-    expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'Prise' });
+    expect(ing.displayQuantity).toEqual({ unitLabel: 'Prise' });
+  });
+
+  it('seeds a "nach Geschmack" label for a bare untracked seasoning with no stated quantity', async () => {
+    // "Salz"/"Pfeffer" with no amount and no raw-display text — must not render as "0 g".
+    const extractor = makeExtractor({
+      name: 'Pfanne',
+      yield: 1,
+      ingredients: [{ name: 'Salz' }],
+      steps: [],
+    });
+    const search = makeSearch({
+      salz: [
+        foodsResult({
+          name: 'Salz',
+          unit: 'g',
+          macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          untracked: true,
+        }),
+      ],
+    });
+
+    const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+    const [ing] = draft.ingredients;
+    if (!ing || !ing.matched) throw new Error('expected matched ingredient');
+    expect(ing.untracked).toBe(true);
+    expect(ing.amount).toBe(0);
+    expect(ing.displayQuantity).toEqual({ unitLabel: 'nach Geschmack' });
   });
 
   it('matched-untracked row with no raw display fields produces no displayQuantity', async () => {
@@ -473,7 +500,7 @@ describe('importRecipeFromPhotos', () => {
     const [ing] = draft.ingredients;
     if (!ing || !ing.matched) throw new Error('expected matched ingredient');
     expect(ing.amount).toBe(0);
-    expect(ing.displayQuantity).toEqual({ amount: 1, unitLabel: 'n. Geschmack' });
+    expect(ing.displayQuantity).toEqual({ unitLabel: 'n. Geschmack' });
   });
 
   describe('debug payload', () => {
@@ -584,6 +611,63 @@ describe('importRecipeFromPhotos', () => {
       const entry = draft.debug!.ingredients[0]!;
       expect(entry.flags.untrackedInherited).toBe(true);
       expect(entry.candidates[0]?.untracked).toBe(true);
+    });
+
+    it('flags missingAmount when a tracked match resolves with no weight (rawDisplay misroute)', async () => {
+      // Reproduces "½ mittelgroße Zucchini" landing on the raw-display path: a tracked
+      // food matched with neither an amount nor a piece estimate — effectively 0 g.
+      const extractor = makeExtractor({
+        name: 'Pfanne',
+        yield: 1,
+        ingredients: [{ name: 'Zucchini', rawDisplayAmount: 0.5, rawDisplayUnitLabel: 'mittelgroße' }],
+        steps: [],
+      });
+      const search = makeSearch({ zucchini: [foodsResult({ name: 'Zucchini', unit: 'g' })] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      const entry = draft.debug!.ingredients[0]!;
+      expect(entry.flags.missingAmount).toBe(true);
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.amount).toBeNull();
+    });
+
+    it('does not flag missingAmount when a tracked match carries a weight', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
+        steps: [],
+      });
+      const search = makeSearch({ 'olive oil': [foodsResult()] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
+    });
+
+    it('does not flag missingAmount for an untracked match (amount defaults to 0)', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'salt', rawDisplayUnitLabel: 'n. Geschmack' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        salt: [
+          foodsResult({
+            name: 'Salz',
+            unit: 'g',
+            macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+            untracked: true,
+          }),
+        ],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+
+      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
     });
 
     it('caps candidates at 5 even when the search returns more', async () => {

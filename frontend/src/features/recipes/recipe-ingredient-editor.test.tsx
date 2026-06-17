@@ -253,6 +253,19 @@ describe('RecipeIngredientEditor — Frei mode', () => {
     await user.clear(screen.getByLabelText(/anzeige-einheit für salz/i));
     expect(readState()[0]?.displayQuantity).toBeUndefined();
   });
+
+  it('clearing the amount keeps the label but drops the number (qualitative)', () => {
+    render(<Capture initial={[untrackedWithDQ]} />);
+    fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '' } });
+    expect(readState()[0]?.displayQuantity).toEqual({ unitLabel: 'TL' });
+  });
+
+  it('typing only a unit on a bare seasoning stays qualitative (no amount)', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[untrackedNoDQ]} />);
+    await user.type(screen.getByLabelText(/anzeige-einheit für salz/i), 'nach Geschmack');
+    expect(readState()[0]?.displayQuantity).toEqual({ unitLabel: 'nach Geschmack' });
+  });
 });
 
 describe('RecipeIngredientEditor — replace ingredient via picker', () => {

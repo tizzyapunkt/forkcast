@@ -16,10 +16,12 @@ export function scaleIngredients(ingredients: RecipeIngredient[], factor: number
       };
     }
     if (ing.displayQuantity) {
-      next.displayQuantity = {
-        ...ing.displayQuantity,
-        amount: round1(ing.displayQuantity.amount * factor),
-      };
+      // Only a numeric display quantity scales; a qualitative label ("nach Geschmack") has
+      // no amount and rides through untouched.
+      next.displayQuantity =
+        ing.displayQuantity.amount !== undefined
+          ? { ...ing.displayQuantity, amount: round1(ing.displayQuantity.amount * factor) }
+          : ing.displayQuantity;
     }
     return next;
   });

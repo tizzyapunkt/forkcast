@@ -13,10 +13,11 @@ export function scaleIngredient(ingredient: RecipeIngredient, factor: number): R
     };
   }
   if (ingredient.displayQuantity) {
-    scaled.displayQuantity = {
-      ...ingredient.displayQuantity,
-      amount: ingredient.displayQuantity.amount * factor,
-    };
+    // Only a numeric display quantity scales; a qualitative label has no amount.
+    scaled.displayQuantity =
+      ingredient.displayQuantity.amount !== undefined
+        ? { ...ingredient.displayQuantity, amount: ingredient.displayQuantity.amount * factor }
+        : ingredient.displayQuantity;
   }
   return scaled;
 }

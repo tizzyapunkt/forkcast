@@ -7,7 +7,11 @@ export interface PieceQuantity {
 }
 
 export interface DisplayQuantity {
-  amount: number;
+  /**
+   * Optional: a purely qualitative label ("nach Geschmack") carries no number. When
+   * present it is a count for the unitLabel ("1 Prise") and scales with servings.
+   */
+  amount?: number;
   unitLabel: string;
 }
 
@@ -82,6 +86,7 @@ export interface IngredientMatchDebug {
     unitOverridden: boolean;
     pieceQuantityDropped: boolean;
     untrackedInherited: boolean;
+    missingAmount: boolean;
   };
 }
 

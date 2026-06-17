@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseToolInput } from './extract-recipe-tool.ts';
+import { EXTRACT_RECIPE_TOOL, parseToolInput } from './extract-recipe-tool.ts';
 
 describe('parseToolInput — piece quantities', () => {
   it('passes complete piece info through verbatim when amount is consistent', () => {
@@ -133,6 +133,43 @@ describe('parseToolInput — piece quantities', () => {
     expect(ing.amount).toBe(200);
     expect(ing.unit).toBe('g');
     expect(ing.pieceQuantity).toBeUndefined();
+  });
+
+  it('resolves piece fields to grams when the model omits the unit', () => {
+    // "½ mittelgroße Zucchini": the model gave a piece estimate but no canonical unit.
+    const draft = parseToolInput({
+      name: 'Pfanne',
+      ingredients: [{ name: 'Zucchini', pieceAmount: 0.5, pieceUnitLabel: 'mittelgroße Zucchini', gramsPerPiece: 200 }],
+      steps: [],
+    });
+    const ing = draft.ingredients[0]!;
+    expect(ing.unit).toBe('g');
+    expect(ing.amount).toBe(100);
+    expect(ing.pieceQuantity).toEqual({ amount: 0.5, unitLabel: 'mittelgroße Zucchini', gramsPerPiece: 200 });
+  });
+
+  it('resolves piece fields to grams when the model labels the unit "piece"', () => {
+    // 'piece' is not a canonical extraction unit; validation drops it, then the piece
+    // estimate becomes the source of truth (the bogus count-as-amount is discarded).
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [
+        { name: 'Zwiebel', amount: 1, unit: 'piece', pieceAmount: 1, pieceUnitLabel: 'Zwiebel', gramsPerPiece: 150 },
+      ],
+      steps: [],
+    });
+    const ing = draft.ingredients[0]!;
+    expect(ing.unit).toBe('g');
+    expect(ing.amount).toBe(150);
+    expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
+});
+
+describe('EXTRACT_RECIPE_TOOL schema', () => {
+  it('does not offer "piece" as a canonical unit (counts go through the piece fields)', () => {
+    const unitEnum = EXTRACT_RECIPE_TOOL.input_schema.properties.ingredients.items.properties.unit.enum;
+    expect(unitEnum).not.toContain('piece');
+    expect(unitEnum).toEqual(['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp']);
   });
 });
 

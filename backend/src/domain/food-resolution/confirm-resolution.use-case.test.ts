@@ -98,7 +98,7 @@ describe('confirmResolution — new-food', () => {
     if (!result.ok) return;
     expect(result.ingredient.untracked).toBe(true);
     expect(result.ingredient.amount).toBe(0);
-    expect(result.ingredient.displayQuantity).toEqual({ amount: 1, unitLabel: 'Prise' });
+    expect(result.ingredient.displayQuantity).toEqual({ unitLabel: 'Prise' });
   });
 
   it('rejects an invalid entry with 422 and does not persist', async () => {
