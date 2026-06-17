@@ -116,6 +116,12 @@ describe('RecipeIngredientEditor — measurement-mode control', () => {
     expect(screen.queryByLabelText(/stückzahl/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/anzeige-einheit/i)).not.toBeInTheDocument();
   });
+
+  it('accepts a fractional weight amount typed with a comma', () => {
+    render(<Capture initial={[{ ...massOnly, amount: 200 }]} />);
+    fireEvent.change(screen.getByLabelText(/menge für mehl/i), { target: { value: '12,5' } });
+    expect(readState()[0]?.amount).toBe(12.5);
+  });
 });
 
 describe('RecipeIngredientEditor — per-row calories and macros', () => {
@@ -176,8 +182,8 @@ describe('RecipeIngredientEditor — per-row calories and macros', () => {
 describe('RecipeIngredientEditor — Stück mode', () => {
   it('renders a piece-tracked row with both count and grams-per-piece editable', () => {
     render(<Harness initial={[pieceTracked]} />);
-    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue(1);
-    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue(150);
+    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue('1');
+    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue('150');
   });
 
   it('editing the piece count recomputes the mass amount in state', () => {
@@ -229,9 +235,15 @@ describe('RecipeIngredientEditor — Frei mode', () => {
     expect(readState()[0]?.displayQuantity).toBeUndefined();
   });
 
+  it('accepts a comma-delimited decimal amount (German locale) without rejecting it', () => {
+    render(<Capture initial={[untrackedWithDQ]} />);
+    fireEvent.change(screen.getByLabelText(/anzeige-menge für salz/i), { target: { value: '0,25' } });
+    expect(readState()[0]?.displayQuantity).toEqual({ amount: 0.25, unitLabel: 'TL' });
+  });
+
   it('a free row with displayQuantity prefills the inputs', () => {
     render(<Harness initial={[untrackedWithDQ]} />);
-    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue('1');
     expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
   });
 

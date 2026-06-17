@@ -5,6 +5,7 @@ import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
 import { Pencil } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
+import { DecimalInput } from '../../components/app/decimal-input';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
 const NOTE_MAX_LENGTH = 80;
@@ -219,15 +220,10 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
 
                 {mode === 'weight' && (
                   <div className="flex items-center gap-2 pl-1">
-                    <input
+                    <DecimalInput
                       aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
-                      type="number"
-                      step="1"
                       value={ing.amount}
-                      onChange={(e) => {
-                        const v = Number(e.target.value);
-                        if (Number.isFinite(v)) handleEditMassAmount(idx, v);
-                      }}
+                      onValueChange={(v) => handleEditMassAmount(idx, v)}
                       className="h-10 w-24 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
                     />
                     <span className="text-xs text-muted-foreground">{ing.unit}</span>
@@ -236,17 +232,10 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
 
                 {mode === 'piece' && ing.pieceQuantity && (
                   <div className="flex flex-wrap items-center gap-2 pl-1 text-xs text-muted-foreground">
-                    <input
+                    <DecimalInput
                       aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
-                      type="number"
-                      inputMode="decimal"
-                      step="0.5"
-                      min={0}
                       value={ing.pieceQuantity.amount}
-                      onChange={(e) => {
-                        const v = Number(e.target.value);
-                        if (Number.isFinite(v)) handleEditPieceCount(idx, v);
-                      }}
+                      onValueChange={(v) => handleEditPieceCount(idx, v)}
                       className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <input
@@ -259,17 +248,10 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     />
                     <span aria-hidden>×</span>
                     <span className="whitespace-nowrap">{de.recipeIngredientEditor.perPiecePrefix}</span>
-                    <input
+                    <DecimalInput
                       aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
-                      type="number"
-                      inputMode="numeric"
-                      step="1"
-                      min={0}
                       value={ing.pieceQuantity.gramsPerPiece}
-                      onChange={(e) => {
-                        const v = Number(e.target.value);
-                        if (Number.isFinite(v)) handleEditGramsPerPiece(idx, v);
-                      }}
+                      onValueChange={(v) => handleEditGramsPerPiece(idx, v)}
                       className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <span className="text-xs">{ing.unit}/Stk</span>
@@ -287,18 +269,11 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                 {mode === 'free' && (
                   <div className="space-y-1 pl-1">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <input
+                      <DecimalInput
                         aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
-                        type="number"
-                        inputMode="decimal"
-                        step="0.5"
-                        min={0}
                         value={ing.displayQuantity?.amount ?? ing.amount}
                         placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          if (Number.isFinite(v)) handleEditFreeAmount(idx, v);
-                        }}
+                        onValueChange={(v) => handleEditFreeAmount(idx, v)}
                         className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                       />
                       <input

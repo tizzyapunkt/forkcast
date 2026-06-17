@@ -28,14 +28,18 @@ export function AppHeader({ title, subtitle, onBack, backAria, children, bottom 
               type="button"
               onClick={onBack}
               aria-label={backAria ?? de.recipeForm.backAria}
-              className="-ml-2 inline-flex h-9 w-9 shrink-0 items-center justify-center text-white"
+              // -my-1 keeps the 36px tap target without making the row taller than the
+              // title's first line, so the chevron centers on the title rather than sitting low.
+              className="-my-1 -ml-2 inline-flex h-9 w-9 shrink-0 items-center justify-center text-white"
             >
               <ChevronLeft size={22} aria-hidden="true" />
             </button>
           )}
-          <div className="min-w-0 flex-1 pt-0.5">
-            <h1 className="text-lg font-semibold leading-tight [overflow-wrap:break-word]">{title ?? de.appTitle}</h1>
-            {subtitle && <p className="mt-0.5 text-xs font-medium text-white/70">{subtitle}</p>}
+          <div className="min-w-0 flex-1">
+            {/* leading-7 (28px) gives the title's first line the same height as the back
+                button's tap target, so its text centers level with the chevron. */}
+            <h1 className="text-lg font-semibold leading-7 [overflow-wrap:break-word]">{title ?? de.appTitle}</h1>
+            {subtitle && <p className="-mt-0.5 text-xs font-medium text-white/70">{subtitle}</p>}
           </div>
         </div>
         {children}

@@ -87,8 +87,8 @@ describe('ReviewImportScreen', () => {
       ],
     };
     renderWithProviders(<ReviewImportScreen draft={pieceDraft} onSaved={() => {}} onCancel={() => {}} />);
-    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue(1);
-    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue(150);
+    expect(screen.getByLabelText(/stückzahl für zwiebel/i)).toHaveValue('1');
+    expect(screen.getByLabelText(/gewicht pro stück.*zwiebel/i)).toHaveValue('150');
     expect(screen.getByTestId('piece-estimate-0')).toBeInTheDocument();
   });
 
@@ -345,7 +345,7 @@ describe('ReviewImportScreen', () => {
     renderWithProviders(<ReviewImportScreen draft={draftWithDQ} onSaved={onSaved} onCancel={() => {}} />);
 
     // The Frei row prefills the display amount/unit inputs (1 / TL), not the canonical 0 g.
-    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue(1);
+    expect(screen.getByLabelText(/anzeige-menge für salz/i)).toHaveValue('1');
     expect(screen.getByLabelText(/anzeige-einheit für salz/i)).toHaveValue('TL');
 
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
