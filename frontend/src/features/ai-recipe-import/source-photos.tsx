@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { de } from '../../i18n/de';
 import type { StagedPhoto } from './photo-staging';
 
@@ -16,13 +16,20 @@ const c = de.aiRecipeImport.sourcePhotos;
  * the staging→review transition.
  */
 export function SourcePhotos({ photos }: Props) {
-  const urls = useMemo(() => photos.map((p) => URL.createObjectURL(p.file)), [photos]);
+  // Create the object URLs and revoke them in the same effect so the created set
+  // and the revoked set always match. Doing this in a `useMemo` with a separate
+  // cleanup breaks under React StrictMode: the simulated unmount revokes the URLs
+  // while the memoized strings are reused on remount, leaving freshly-mounted
+  // <img> elements (e.g. the fullscreen viewer) pointing at revoked blobs.
+  const [urls, setUrls] = useState<string[]>([]);
 
   useEffect(() => {
+    const created = photos.map((p) => URL.createObjectURL(p.file));
+    setUrls(created);
     return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
+      created.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [urls]);
+  }, [photos]);
 
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 

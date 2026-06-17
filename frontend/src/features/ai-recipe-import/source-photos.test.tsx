@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test/harness';
@@ -73,6 +74,22 @@ describe('SourcePhotos', () => {
     await user.click(screen.getByRole('button', { name: /vorheriges foto/i }));
     expect(screen.getByText('1 / 3')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /vorheriges foto/i })).toBeDisabled();
+  });
+
+  it('keeps the opened viewer image on a live (non-revoked) URL under StrictMode double-mount', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <StrictMode>
+        <SourcePhotos photos={[makePhoto('a')]} />
+      </StrictMode>,
+    );
+
+    await user.click(screen.getByTestId('source-photo-0'));
+    const img = screen.getByRole('dialog').querySelector('img') as HTMLImageElement;
+    const src = img.getAttribute('src');
+
+    expect(src).toBeTruthy();
+    expect(revoked).not.toContain(src);
   });
 
   it('closes the viewer via the close button and via Escape', async () => {
