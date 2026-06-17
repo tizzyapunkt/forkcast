@@ -6,6 +6,7 @@ import { BottomSheet } from '../../components/app/bottom-sheet';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { toDecimalValue, toOptionalDecimalValue } from '../../lib/decimal';
 
 const quickSchema = z.object({
   calories: z.coerce.number().positive(de.editEntry.validation.caloriesPositive),
@@ -73,9 +74,9 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
           </label>
           <input
             id="edit-calories"
-            type="number"
-            inputMode="numeric"
-            {...register('calories')}
+            type="text"
+            inputMode="decimal"
+            {...register('calories', { setValueAs: toDecimalValue })}
             className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           />
           {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
@@ -89,10 +90,9 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
               </label>
               <input
                 id={`edit-${macro}`}
-                type="number"
+                type="text"
                 inputMode="decimal"
-                step="0.1"
-                {...register(macro)}
+                {...register(macro, { setValueAs: toOptionalDecimalValue })}
                 className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
                 placeholder="—"
               />

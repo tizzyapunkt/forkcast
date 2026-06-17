@@ -6,6 +6,7 @@ import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useSetNutritionGoal } from '../../queries/use-set-nutrition-goal';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { toDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   calories: z.coerce
@@ -71,10 +72,9 @@ export function NutritionGoalForm() {
         </label>
         <input
           id={`goal-${kcalField.key}`}
-          type="number"
-          inputMode="numeric"
-          step="1"
-          {...register(kcalField.key)}
+          type="text"
+          inputMode="decimal"
+          {...register(kcalField.key, { setValueAs: toDecimalValue })}
           className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder="0"
         />
@@ -89,10 +89,9 @@ export function NutritionGoalForm() {
             </label>
             <input
               id={`goal-${key}`}
-              type="number"
-              inputMode="numeric"
-              step="1"
-              {...register(key)}
+              type="text"
+              inputMode="decimal"
+              {...register(key, { setValueAs: toDecimalValue })}
               className="w-full rounded-md border px-3 py-2 text-base tabular-nums sm:text-sm"
               placeholder="0"
             />

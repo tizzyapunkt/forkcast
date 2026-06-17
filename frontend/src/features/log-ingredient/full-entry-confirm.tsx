@@ -7,6 +7,7 @@ import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { Check } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
+import { toDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   amount: z.coerce
@@ -83,10 +84,9 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
         </label>
         <input
           id="amount"
-          type="number"
+          type="text"
           inputMode="decimal"
-          step="1"
-          {...register('amount')}
+          {...register('amount', { setValueAs: toDecimalValue })}
           className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder={de.fullEntry.amountPlaceholder}
           autoFocus

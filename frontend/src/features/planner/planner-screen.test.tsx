@@ -183,7 +183,7 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
 
     expect(await screen.findByText('Haferflocken')).toBeInTheDocument();
     // Editable amount input with the entry's amount (not a name-only row).
-    const inputs = screen.getAllByRole('spinbutton');
+    const inputs = screen.getAllByRole('textbox');
     expect(inputs.some((i) => (i as HTMLInputElement).value === '60')).toBe(true);
     // kcal + the unified macro suffix for the 60 g entry: 99 kcal · 19 P · 0 KH · 2 F
     expect(screen.getByText(/99\s*kcal/)).toBeInTheDocument();
@@ -214,7 +214,7 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
 
     await screen.findByText('Haferflocken');
     const input = screen
-      .getAllByRole('spinbutton')
+      .getAllByRole('textbox')
       .find((i) => (i as HTMLInputElement).value === '60') as HTMLInputElement;
     await userEvent.clear(input);
     await userEvent.type(input, '250');

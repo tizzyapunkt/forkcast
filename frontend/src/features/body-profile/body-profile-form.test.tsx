@@ -62,7 +62,7 @@ describe('BodyProfileForm', () => {
     renderWithProviders(<BodyProfileForm />, { queryClient: createTestQueryClient() });
     await screen.findByRole('heading', { name: /makro-rechner/i });
     await userEvent.selectOptions(screen.getByLabelText(/ziel-phase/i), 'fat-loss');
-    await waitFor(() => expect(screen.getByLabelText(/eiweiß \(g\/kg\)/i)).toHaveValue(2.2));
+    await waitFor(() => expect(screen.getByLabelText(/eiweiß \(g\/kg\)/i)).toHaveValue('2.2'));
     expect(screen.getByLabelText(/fett \(% tdee\)/i)).toHaveValue(25);
     expect(screen.getByRole('radio', { name: /defizit/i })).toBeChecked();
     expect(screen.getByLabelText(/anpassung \(%\)/i)).toHaveValue(20);
@@ -180,7 +180,7 @@ describe('BodyProfileForm', () => {
     const proteinInput = screen.getByLabelText(/eiweiß \(g\/kg\)/i);
     await userEvent.clear(proteinInput);
     await userEvent.type(proteinInput, '2.5');
-    expect(proteinInput).toHaveValue(2.5);
+    expect(proteinInput).toHaveValue('2.5');
   });
 
   it('live preview reflects edits', async () => {
@@ -273,7 +273,7 @@ describe('BodyProfileForm', () => {
     await screen.findByRole('heading', { name: /makro-rechner/i });
     expect(screen.getByText(/7-Tage-Trend: 78\.2 kg/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /trend-gewicht in formular übernehmen/i }));
-    expect(screen.getByLabelText(/gewicht \(kg\)/i)).toHaveValue(78.2);
+    expect(screen.getByLabelText(/gewicht \(kg\)/i)).toHaveValue('78.2');
   });
 
   it('hides the trailing-7d-avg hint when MA is null', async () => {

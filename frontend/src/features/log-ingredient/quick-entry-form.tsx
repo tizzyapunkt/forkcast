@@ -5,6 +5,7 @@ import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { toDecimalValue, toOptionalDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   label: z.string().min(1, de.quickEntry.validation.labelRequired),
@@ -95,9 +96,9 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
         </label>
         <input
           id="calories"
-          type="number"
-          inputMode="numeric"
-          {...register('calories')}
+          type="text"
+          inputMode="decimal"
+          {...register('calories', { setValueAs: toDecimalValue })}
           className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
           placeholder="0"
         />
@@ -112,10 +113,9 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
             </label>
             <input
               id={macro}
-              type="number"
+              type="text"
               inputMode="decimal"
-              step="0.1"
-              {...register(macro)}
+              {...register(macro, { setValueAs: toOptionalDecimalValue })}
               className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
               placeholder="—"
             />

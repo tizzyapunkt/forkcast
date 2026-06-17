@@ -75,12 +75,34 @@ describe('WeightLogCard', () => {
     });
   });
 
-  it('numeric input uses inputMode=decimal and a numeric pattern', async () => {
+  it('accepts a comma-delimited weight (German locale) and posts the parsed value', async () => {
+    const user = userEvent.setup();
+    let postPayload: unknown = null;
+    seedHandlers([], NULL_TREND);
+    server.use(
+      http.post('/api/weight-log', async ({ request }) => {
+        postPayload = await request.json();
+        return HttpResponse.json({
+          entry: { date: today(), weightKg: 78.4 },
+          trend: { ...NULL_TREND, current: 78.4, totalEntries: 1 },
+        });
+      }),
+    );
+    renderWithProviders(<WeightLogCard onOpenTracker={() => {}} />);
+    const input = await screen.findByLabelText('Gewicht für heute eintragen');
+    await user.type(input, '78,4');
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+    await waitFor(() => {
+      expect(postPayload).toEqual({ date: today(), weightKg: 78.4 });
+    });
+  });
+
+  it('uses a decimal text input so a locale comma can be typed', async () => {
     seedHandlers([], NULL_TREND);
     renderWithProviders(<WeightLogCard onOpenTracker={() => {}} />);
     const input = (await screen.findByLabelText('Gewicht für heute eintragen')) as HTMLInputElement;
     expect(input.getAttribute('inputmode')).toBe('decimal');
-    expect(input.getAttribute('pattern')).toBe('[0-9]*[.,]?[0-9]*');
+    expect(input.getAttribute('type')).toBe('text');
   });
 
   it('"Gewicht-Tracker" link invokes onOpenTracker', async () => {

@@ -57,11 +57,11 @@ describe('InlineAmountInput', () => {
     vi.useRealTimers();
   });
 
-  it('renders a number input pre-filled with the entry amount', () => {
+  it('renders a decimal input pre-filled with the entry amount', () => {
     renderWithProviders(<InlineAmountInput entry={makeFullEntry(150) as never} />);
-    const input = screen.getByRole('spinbutton');
-    expect(input).toHaveValue(150);
-    expect(input).toHaveAttribute('min', '1');
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue('150');
+    expect(input).toHaveAttribute('inputmode', 'decimal');
   });
 
   it('debounces the PATCH and sends exactly one request after 500ms', async () => {
@@ -71,7 +71,7 @@ describe('InlineAmountInput', () => {
     queryClient.setQueryData(queryKeys.dailyLog(DATE), seedLog(entry));
 
     renderWithProviders(<InlineAmountInput entry={entry as never} />, { queryClient });
-    const input = screen.getByRole('spinbutton');
+    const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '250' } });
 
     expect(patchBodies).toHaveLength(0);
@@ -89,7 +89,7 @@ describe('InlineAmountInput', () => {
     queryClient.setQueryData(queryKeys.dailyLog(DATE), seedLog(entry));
 
     renderWithProviders(<InlineAmountInput entry={entry as never} />, { queryClient });
-    const input = screen.getByRole('spinbutton');
+    const input = screen.getByRole('textbox');
 
     fireEvent.change(input, { target: { value: '150' } });
     vi.advanceTimersByTime(100);
@@ -103,7 +103,7 @@ describe('InlineAmountInput', () => {
   it('does not PATCH when the input is empty', () => {
     const patchBodies = installPatchSpy();
     renderWithProviders(<InlineAmountInput entry={makeFullEntry(100) as never} />);
-    const input = screen.getByRole('spinbutton');
+    const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '' } });
     vi.advanceTimersByTime(1000);
     expect(patchBodies).toHaveLength(0);
@@ -112,7 +112,7 @@ describe('InlineAmountInput', () => {
   it('does not PATCH when the value is below 1g', () => {
     const patchBodies = installPatchSpy();
     renderWithProviders(<InlineAmountInput entry={makeFullEntry(100) as never} />);
-    const input = screen.getByRole('spinbutton');
+    const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '0' } });
     vi.advanceTimersByTime(1000);
     expect(patchBodies).toHaveLength(0);

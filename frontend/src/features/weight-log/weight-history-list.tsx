@@ -3,6 +3,7 @@ import type { WeightEntry } from '../../domain/weight-log';
 import { useLogWeight } from '../../queries/use-log-weight';
 import { useRemoveWeight } from '../../queries/use-remove-weight';
 import { de } from '../../i18n/de';
+import { parseDecimal } from '../../lib/decimal';
 
 interface WeightHistoryListProps {
   entries: WeightEntry[];
@@ -36,8 +37,8 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
   const removeMutation = useRemoveWeight();
 
   function commitEdit() {
-    const parsed = Number(draft.replace(',', '.'));
-    if (!Number.isFinite(parsed) || parsed <= 0) {
+    const parsed = parseDecimal(draft);
+    if (parsed === null || parsed <= 0) {
       setMode('view');
       return;
     }
@@ -54,9 +55,8 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
         <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
         <input
           aria-label={de.weightLog.historyEditAria(entry.date)}
-          type="number"
+          type="text"
           inputMode="decimal"
-          step="0.1"
           value={draft}
           autoFocus
           onChange={(e) => setDraft(e.target.value)}

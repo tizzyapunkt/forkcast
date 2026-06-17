@@ -12,6 +12,7 @@ import { de } from '../../i18n/de';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
 import { PHASE_PRESETS } from './phase-presets';
 import { computePreview } from './compute-preview';
+import { toDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   weightKg: z.coerce
@@ -226,10 +227,9 @@ export function BodyProfileForm() {
         <Field id="bp-weight" label={de.bodyProfile.weight} error={errors.weightKg?.message}>
           <input
             id="bp-weight"
-            type="number"
+            type="text"
             inputMode="decimal"
-            step="0.1"
-            {...register('weightKg')}
+            {...register('weightKg', { setValueAs: toDecimalValue })}
             className={inputCls}
           />
           {weightTrend?.movingAverage7d !== null && weightTrend?.movingAverage7d !== undefined && (
@@ -324,10 +324,9 @@ export function BodyProfileForm() {
         <Field id="bp-protein" label={de.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
           <input
             id="bp-protein"
-            type="number"
+            type="text"
             inputMode="decimal"
-            step="0.1"
-            {...register('proteinPerKg')}
+            {...register('proteinPerKg', { setValueAs: toDecimalValue })}
             className={inputCls}
           />
         </Field>

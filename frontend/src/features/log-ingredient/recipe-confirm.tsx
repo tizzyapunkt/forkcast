@@ -8,6 +8,7 @@ import { scaleIngredients } from '../../domain/scale-recipe-ingredients';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de, formatMacroTriplet } from '../../i18n/de';
+import { toDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   portions: z.coerce
@@ -92,11 +93,9 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
           </button>
           <input
             id="portions"
-            type="number"
+            type="text"
             inputMode="decimal"
-            step="0.5"
-            min="0"
-            {...register('portions')}
+            {...register('portions', { setValueAs: toDecimalValue })}
             className="w-full rounded-md border px-3 py-2 text-center text-base font-semibold tabular-nums sm:text-sm"
             autoFocus
           />
