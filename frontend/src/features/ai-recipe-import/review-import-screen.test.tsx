@@ -605,4 +605,17 @@ describe('ReviewImportScreen', () => {
 
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
   });
+
+  it('surfaces the source photos for review when photos are provided', () => {
+    Object.defineProperty(URL, 'createObjectURL', { value: () => 'blob:mock', writable: true });
+    Object.defineProperty(URL, 'revokeObjectURL', { value: () => undefined, writable: true });
+    const file = new File([new Uint8Array(10)], 'recipe.jpg', { type: 'image/jpeg' });
+    const photos = [{ id: 'p1', file, mediaType: 'image/jpeg' as const, previewUrl: 'blob:stale', sizeBytes: 10 }];
+
+    renderWithProviders(<ReviewImportScreen draft={draft} photos={photos} onSaved={() => {}} onCancel={() => {}} />);
+
+    expect(screen.getByTestId('source-photo-0')).toBeInTheDocument();
+    // the unmatched panel still renders alongside the photos
+    expect(screen.getByText(/1 zutat ohne treffer/i)).toBeInTheDocument();
+  });
 });

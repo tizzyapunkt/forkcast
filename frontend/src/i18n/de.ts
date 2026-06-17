@@ -521,6 +521,15 @@ export const de = {
       `Einheit aus Katalog (${catalog}) statt extrahierter Einheit (${extracted})`,
     unitOverriddenAria: 'Einheit wurde aus dem Katalog übernommen',
     untrackedHint: 'Würzmittel — wird in Nährwerten nicht berücksichtigt',
+    sourcePhotos: {
+      heading: 'Fotos',
+      openPhotoAria: (n: number) => `Foto ${n} ansehen`,
+      viewerAria: 'Fotoansicht',
+      closeAria: 'Fotoansicht schließen',
+      prevAria: 'Vorheriges Foto',
+      nextAria: 'Nächstes Foto',
+      position: (n: number, total: number) => `${n} / ${total}`,
+    },
     resolve: {
       assignCta: 'Zuordnen',
       checking: 'KI prüft…',
