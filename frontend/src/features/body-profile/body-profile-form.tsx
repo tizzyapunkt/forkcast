@@ -12,7 +12,7 @@ import { de } from '../../i18n/de';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
 import { PHASE_PRESETS } from './phase-presets';
 import { computePreview } from './compute-preview';
-import { toDecimalValue } from '../../lib/decimal';
+import { DecimalInput } from '../../components/app/decimal-input';
 
 const schema = z.object({
   weightKg: z.coerce
@@ -225,12 +225,19 @@ export function BodyProfileForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <Field id="bp-weight" label={de.bodyProfile.weight} error={errors.weightKg?.message}>
-          <input
-            id="bp-weight"
-            type="text"
-            inputMode="decimal"
-            {...register('weightKg', { setValueAs: toDecimalValue })}
-            className={inputCls}
+          <Controller
+            name="weightKg"
+            control={control}
+            render={({ field }) => (
+              <DecimalInput
+                id="bp-weight"
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className={inputCls}
+              />
+            )}
           />
           {weightTrend?.movingAverage7d !== null && weightTrend?.movingAverage7d !== undefined && (
             <p className="mt-1 text-xs text-muted-foreground">
@@ -322,12 +329,19 @@ export function BodyProfileForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <Field id="bp-protein" label={de.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
-          <input
-            id="bp-protein"
-            type="text"
-            inputMode="decimal"
-            {...register('proteinPerKg', { setValueAs: toDecimalValue })}
-            className={inputCls}
+          <Controller
+            name="proteinPerKg"
+            control={control}
+            render={({ field }) => (
+              <DecimalInput
+                id="bp-protein"
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className={inputCls}
+              />
+            )}
           />
         </Field>
         <Field id="bp-fat" label={de.bodyProfile.fatPercent} error={errors.fatPercent?.message}>

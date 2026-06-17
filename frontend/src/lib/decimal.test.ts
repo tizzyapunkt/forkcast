@@ -1,4 +1,4 @@
-import { formatDecimal, parseDecimal, toDecimalValue, toOptionalDecimalValue } from './decimal';
+import { formatDecimal, parseDecimal } from './decimal';
 
 describe('parseDecimal', () => {
   it('parses a plain integer string', () => {
@@ -53,35 +53,5 @@ describe('formatDecimal', () => {
 
   it('drops trailing fraction zeros', () => {
     expect(formatDecimal(2, 'de-DE')).toBe('2');
-  });
-});
-
-describe('toDecimalValue (react-hook-form setValueAs for required fields)', () => {
-  it('parses a comma-delimited string to a number', () => {
-    expect(toDecimalValue('0,25')).toBe(0.25);
-  });
-
-  it('returns NaN for empty or invalid input so zod rejects it', () => {
-    expect(toDecimalValue('')).toBeNaN();
-    expect(toDecimalValue('abc')).toBeNaN();
-  });
-
-  it('passes a numeric value through (RHF may hand back the coerced number)', () => {
-    expect(toDecimalValue(12.5)).toBe(12.5);
-  });
-});
-
-describe('toOptionalDecimalValue (react-hook-form setValueAs for optional fields)', () => {
-  it('preserves an empty string so the schema can treat it as "not provided"', () => {
-    expect(toOptionalDecimalValue('')).toBe('');
-    expect(toOptionalDecimalValue('   ')).toBe('');
-  });
-
-  it('parses a comma-delimited string to a number', () => {
-    expect(toOptionalDecimalValue('1,5')).toBe(1.5);
-  });
-
-  it('returns NaN for non-empty invalid input', () => {
-    expect(toOptionalDecimalValue('abc')).toBeNaN();
   });
 });

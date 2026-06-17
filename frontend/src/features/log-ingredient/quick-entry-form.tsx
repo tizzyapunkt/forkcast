@@ -1,35 +1,26 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { DecimalInput } from '../../components/app/decimal-input';
 import { de } from '../../i18n/de';
-import { toDecimalValue, toOptionalDecimalValue } from '../../lib/decimal';
+
+// An empty / cleared macro field (DecimalInput emits null) means "not provided".
+const optionalMacro = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? undefined : v),
+  z.coerce.number().nonnegative().optional(),
+);
 
 const schema = z.object({
   label: z.string().min(1, de.quickEntry.validation.labelRequired),
   calories: z.coerce
     .number({ invalid_type_error: de.quickEntry.validation.caloriesRequired })
     .positive(de.quickEntry.validation.caloriesRequired),
-  protein: z.coerce
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.literal(''))
-    .transform((v) => (v === '' || v === undefined ? undefined : Number(v))),
-  carbs: z.coerce
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.literal(''))
-    .transform((v) => (v === '' || v === undefined ? undefined : Number(v))),
-  fat: z.coerce
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.literal(''))
-    .transform((v) => (v === '' || v === undefined ? undefined : Number(v))),
+  protein: optionalMacro,
+  carbs: optionalMacro,
+  fat: optionalMacro,
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -48,6 +39,7 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
@@ -94,13 +86,20 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
         <label htmlFor="calories" className="text-sm font-medium">
           {de.quickEntry.calories}
         </label>
-        <input
-          id="calories"
-          type="text"
-          inputMode="decimal"
-          {...register('calories', { setValueAs: toDecimalValue })}
-          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-          placeholder="0"
+        <Controller
+          name="calories"
+          control={control}
+          render={({ field }) => (
+            <DecimalInput
+              id="calories"
+              value={field.value}
+              onValueChange={field.onChange}
+              onBlur={field.onBlur}
+              ref={field.ref}
+              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+              placeholder="0"
+            />
+          )}
         />
         {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
       </div>
@@ -111,13 +110,20 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
             <label htmlFor={macro} className="text-xs font-medium text-muted-foreground">
               {de.editEntry.macroLabel(de.macros[macro])}
             </label>
-            <input
-              id={macro}
-              type="text"
-              inputMode="decimal"
-              {...register(macro, { setValueAs: toOptionalDecimalValue })}
-              className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
-              placeholder="—"
+            <Controller
+              name={macro}
+              control={control}
+              render={({ field }) => (
+                <DecimalInput
+                  id={macro}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
+                  placeholder="—"
+                />
+              )}
             />
           </div>
         ))}

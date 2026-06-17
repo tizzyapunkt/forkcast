@@ -1,5 +1,5 @@
 import { Check, Minus, Plus } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Recipe } from '../../domain/recipes';
@@ -7,8 +7,8 @@ import type { MealSlot } from '../../domain/meal-log';
 import { scaleIngredients } from '../../domain/scale-recipe-ingredients';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { DecimalInput } from '../../components/app/decimal-input';
 import { de, formatMacroTriplet } from '../../i18n/de';
-import { toDecimalValue } from '../../lib/decimal';
 
 const schema = z.object({
   portions: z.coerce
@@ -31,7 +31,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
   const { mutate, isPending, error } = useLogRecipe();
 
   const {
-    register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -91,13 +91,20 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
           >
             <Minus size={16} aria-hidden="true" />
           </button>
-          <input
-            id="portions"
-            type="text"
-            inputMode="decimal"
-            {...register('portions', { setValueAs: toDecimalValue })}
-            className="w-full rounded-md border px-3 py-2 text-center text-base font-semibold tabular-nums sm:text-sm"
-            autoFocus
+          <Controller
+            name="portions"
+            control={control}
+            render={({ field }) => (
+              <DecimalInput
+                id="portions"
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className="w-full rounded-md border px-3 py-2 text-center text-base font-semibold tabular-nums sm:text-sm"
+                autoFocus
+              />
+            )}
           />
           <button
             type="button"

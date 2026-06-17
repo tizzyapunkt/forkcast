@@ -339,7 +339,7 @@ function NumberField({
       </span>
       <DecimalInput
         value={Number.isFinite(value) ? value : 0}
-        onValueChange={onChange}
+        onValueChange={(v) => onChange(v ?? 0)}
         className="h-10 w-full rounded-md border px-2 text-right text-sm"
       />
     </label>

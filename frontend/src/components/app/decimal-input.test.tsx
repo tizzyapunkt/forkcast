@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { DecimalInput } from './decimal-input';
 
-function Harness({ initial = 0, locale = 'de-DE' }: { initial?: number; locale?: string }) {
-  const [value, setValue] = useState(initial);
+function Harness({ initial = 0, locale = 'de-DE' }: { initial?: number | null; locale?: string }) {
+  const [value, setValue] = useState<number | null>(initial);
   return (
     <>
       <DecimalInput aria-label="amount" value={value} locale={locale} onValueChange={setValue} />
-      <output data-testid="committed">{value}</output>
+      <output data-testid="committed">{value === null ? 'null' : value}</output>
     </>
   );
 }
@@ -60,5 +60,18 @@ describe('DecimalInput', () => {
     await userEvent.type(input, '1,50');
     fireEvent.blur(input);
     expect(input).toHaveValue('1,5');
+  });
+
+  it('renders an empty field for a null value', () => {
+    render(<Harness initial={null} />);
+    expect(screen.getByLabelText('amount')).toHaveValue('');
+  });
+
+  it('emits null when the field is cleared', async () => {
+    render(<Harness initial={5} />);
+    const input = screen.getByLabelText('amount');
+    await userEvent.clear(input);
+    expect(input).toHaveValue('');
+    expect(screen.getByTestId('committed')).toHaveTextContent('null');
   });
 });

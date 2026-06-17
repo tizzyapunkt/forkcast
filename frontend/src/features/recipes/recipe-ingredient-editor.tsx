@@ -223,7 +223,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <DecimalInput
                       aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
                       value={ing.amount}
-                      onValueChange={(v) => handleEditMassAmount(idx, v)}
+                      onValueChange={(v) => v !== null && handleEditMassAmount(idx, v)}
                       className="h-10 w-24 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
                     />
                     <span className="text-xs text-muted-foreground">{ing.unit}</span>
@@ -235,7 +235,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <DecimalInput
                       aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
                       value={ing.pieceQuantity.amount}
-                      onValueChange={(v) => handleEditPieceCount(idx, v)}
+                      onValueChange={(v) => v !== null && handleEditPieceCount(idx, v)}
                       className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <input
@@ -251,7 +251,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     <DecimalInput
                       aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
                       value={ing.pieceQuantity.gramsPerPiece}
-                      onValueChange={(v) => handleEditGramsPerPiece(idx, v)}
+                      onValueChange={(v) => v !== null && handleEditGramsPerPiece(idx, v)}
                       className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                     />
                     <span className="text-xs">{ing.unit}/Stk</span>
@@ -273,7 +273,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                         aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
                         value={ing.displayQuantity?.amount ?? ing.amount}
                         placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
-                        onValueChange={(v) => handleEditFreeAmount(idx, v)}
+                        onValueChange={(v) => v !== null && handleEditFreeAmount(idx, v)}
                         className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
                       />
                       <input

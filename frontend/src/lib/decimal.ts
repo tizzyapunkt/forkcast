@@ -27,25 +27,3 @@ export function formatDecimal(value: number, locale: string = navigator.language
     maximumFractionDigits: 3,
   }).format(value);
 }
-
-/**
- * `setValueAs` adapter for a required react-hook-form number field. Normalizes the raw
- * input (which may carry a locale comma) to a number, or `NaN` when empty/invalid so the
- * zod `.number()` rejects it.
- */
-export function toDecimalValue(raw: unknown): number {
-  if (typeof raw === 'number') return raw;
-  return parseDecimal(typeof raw === 'string' ? raw : String(raw ?? '')) ?? NaN;
-}
-
-/**
- * `setValueAs` adapter for an optional react-hook-form number field. An empty input stays
- * an empty string so the schema's existing empty-handling is unchanged; otherwise it parses
- * the locale-aware decimal (or `NaN` when invalid).
- */
-export function toOptionalDecimalValue(raw: unknown): number | '' {
-  if (typeof raw === 'number') return raw;
-  const s = typeof raw === 'string' ? raw : String(raw ?? '');
-  if (s.trim() === '') return '';
-  return parseDecimal(s) ?? NaN;
-}
