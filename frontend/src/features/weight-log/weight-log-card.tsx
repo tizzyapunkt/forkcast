@@ -5,6 +5,7 @@ import { useWeightTrend } from '../../queries/use-weight-trend';
 import { useLogWeight } from '../../queries/use-log-weight';
 import { de } from '../../i18n/de';
 import { today } from '../../domain/date';
+import { parseDecimal } from '../../lib/decimal';
 
 interface WeightLogCardProps {
   onOpenTracker: () => void;
@@ -22,8 +23,8 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
   const inEditMode = editing || todaysEntry === null;
 
   function submit() {
-    const parsed = Number(draft.replace(',', '.'));
-    if (!Number.isFinite(parsed) || parsed <= 0) return;
+    const parsed = parseDecimal(draft);
+    if (parsed === null || parsed <= 0) return;
     logMutation.mutate(
       { date: dateStr, weightKg: parsed },
       {
@@ -55,10 +56,8 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
         <div className="mt-2 flex items-center gap-2">
           <input
             aria-label={de.weightLog.cardPromptEmpty}
-            type="number"
+            type="text"
             inputMode="decimal"
-            pattern="[0-9]*[.,]?[0-9]*"
-            step="0.1"
             placeholder={todaysEntry ? todaysEntry.weightKg.toString() : de.weightLog.cardInputPlaceholder}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

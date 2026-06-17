@@ -70,7 +70,7 @@ describe('EntryList — recipe batch grouping', () => {
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
     // Inline amount input (editable) and the per-entry remove affordance are present.
-    expect(within(group).getByRole('spinbutton')).toHaveValue(100);
+    expect(within(group).getByRole('textbox')).toHaveValue('100');
     expect(within(group).getByRole('button', { name: /eintrag entfernen/i })).toBeInTheDocument();
   });
 
@@ -116,7 +116,7 @@ describe('EntryList — recipe batch grouping', () => {
     await waitFor(() => expect(within(group).getByText('Rezept')).toBeInTheDocument());
     // The rows survive and stay editable.
     expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
-    expect(within(group).getByRole('spinbutton')).toBeInTheDocument();
+    expect(within(group).getByRole('textbox')).toBeInTheDocument();
   });
 
   it('renders legacy recipe-sourced entries (recipeId without batch metadata) ungrouped with the per-row hint', async () => {

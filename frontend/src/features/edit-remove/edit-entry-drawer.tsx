@@ -1,17 +1,24 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { LogEntry, QuickIngredientEntry } from '../../domain/meal-log';
 import { BottomSheet } from '../../components/app/bottom-sheet';
+import { DecimalInput } from '../../components/app/decimal-input';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 
+// An empty / cleared macro field (DecimalInput emits null) means "not provided".
+const optionalMacro = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? undefined : v),
+  z.coerce.number().nonnegative().optional(),
+);
+
 const quickSchema = z.object({
   calories: z.coerce.number().positive(de.editEntry.validation.caloriesPositive),
-  protein: z.coerce.number().nonnegative().optional(),
-  carbs: z.coerce.number().nonnegative().optional(),
-  fat: z.coerce.number().nonnegative().optional(),
+  protein: optionalMacro,
+  carbs: optionalMacro,
+  fat: optionalMacro,
 });
 
 interface EditEntryDrawerProps {
@@ -24,7 +31,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
   const ing = entry.ingredient;
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<z.infer<typeof quickSchema>>({
@@ -71,12 +78,19 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
           <label htmlFor="edit-calories" className="text-sm font-medium">
             {de.editEntry.caloriesLabel}
           </label>
-          <input
-            id="edit-calories"
-            type="number"
-            inputMode="numeric"
-            {...register('calories')}
-            className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+          <Controller
+            name="calories"
+            control={control}
+            render={({ field }) => (
+              <DecimalInput
+                id="edit-calories"
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+              />
+            )}
           />
           {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
         </div>
@@ -87,14 +101,20 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
               <label htmlFor={`edit-${macro}`} className="text-xs font-medium text-muted-foreground">
                 {de.editEntry.macroLabel(de.macros[macro])}
               </label>
-              <input
-                id={`edit-${macro}`}
-                type="number"
-                inputMode="decimal"
-                step="0.1"
-                {...register(macro)}
-                className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
-                placeholder="—"
+              <Controller
+                name={macro}
+                control={control}
+                render={({ field }) => (
+                  <DecimalInput
+                    id={`edit-${macro}`}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
+                    placeholder="—"
+                  />
+                )}
               />
             </div>
           ))}

@@ -164,7 +164,7 @@ describe('Recent tab', () => {
     await userEvent.click(screen.getByRole('button', { name: /^zuletzt$/i }));
     await userEvent.click(await screen.findByText('Oats'));
 
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('80');
   });
 
   it('logs a full entry with the pre-filled lastAmount when picking from Recent and confirming unchanged', async () => {
@@ -256,7 +256,7 @@ describe('Recent tab', () => {
     await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'oats');
     await userEvent.click(await screen.findByText('Oats'));
 
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('');
   });
 
   it('hides the tab bar and shows a header back-arrow on the amount sub-step', async () => {
@@ -299,7 +299,7 @@ describe('Recent tab', () => {
     await userEvent.click(await screen.findByText('Oats'));
 
     await userEvent.click(screen.getByRole('button', { name: '150 g' }));
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(150);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('150');
   });
 
   it('returns to the Recent tab (not Search) when Back is pressed from confirm after a Recent pick', async () => {

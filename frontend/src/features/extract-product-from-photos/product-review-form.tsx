@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { parseDecimal } from '../../lib/decimal';
 import type { ProductDraft } from '../../api/extract-product-from-photos';
 
 interface Props {
@@ -12,8 +13,8 @@ interface Props {
 }
 
 function parseNonNegative(value: string): number {
-  const n = Number(value.replace(',', '.'));
-  return Number.isFinite(n) && n >= 0 ? n : 0;
+  const n = parseDecimal(value);
+  return n !== null && n >= 0 ? n : 0;
 }
 
 const fieldClass =
@@ -102,10 +103,8 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
           <label key={label} className="flex flex-col gap-1 text-sm">
             <span className="text-muted-foreground">{label}</span>
             <input
-              type="number"
+              type="text"
               inputMode="decimal"
-              min={0}
-              step="any"
               value={value}
               onChange={(e) => setter(e.target.value)}
               aria-label={label}

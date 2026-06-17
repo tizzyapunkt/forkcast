@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
+import { DecimalInput } from '../../components/app/decimal-input';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
 import { de } from '../../i18n/de';
@@ -336,11 +337,9 @@ function NumberField({
         {label}
         {estimate && <span className="h-1.5 w-1.5 rounded-full bg-warning" aria-hidden="true" />}
       </span>
-      <input
-        type="number"
-        inputMode="decimal"
+      <DecimalInput
         value={Number.isFinite(value) ? value : 0}
-        onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
+        onValueChange={(v) => onChange(v ?? 0)}
         className="h-10 w-full rounded-md border px-2 text-right text-sm"
       />
     </label>

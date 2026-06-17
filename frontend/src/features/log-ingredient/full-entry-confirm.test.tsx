@@ -62,6 +62,31 @@ describe('FullEntryConfirm', () => {
     expect(ing['macrosPerUnit']).toEqual(chicken.macrosPerUnit);
   });
 
+  it('accepts a comma-delimited decimal amount (German locale) and submits the parsed value', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/log-ingredient', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json(
+          { id: 'x', date: '2026-04-21', slot: 'lunch', ingredient: {}, loggedAt: '' },
+          { status: 201 },
+        );
+      }),
+    );
+    const onSuccess = vi.fn<() => void>();
+    renderWithProviders(
+      <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={onSuccess} onBack={() => {}} />,
+      { queryClient: createTestQueryClient() },
+    );
+
+    await userEvent.type(screen.getByLabelText(/menge/i), '2,5');
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    const ing = (posted as Record<string, unknown>)['ingredient'] as Record<string, unknown>;
+    expect(ing['amount']).toBe(2.5);
+  });
+
   it('shows live calculated macros when amount is typed', async () => {
     renderWithProviders(
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
@@ -105,7 +130,7 @@ describe('FullEntryConfirm', () => {
       />,
       { queryClient: createTestQueryClient() },
     );
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('80');
   });
 
   it('submits the pre-filled amount unchanged when the user just hits Erfassen', async () => {
@@ -177,7 +202,7 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('');
   });
 
   it('pre-fills the amount input with servingQuantity when no defaultAmount is given', () => {
@@ -191,7 +216,7 @@ describe('FullEntryConfirm', () => {
       />,
       { queryClient: createTestQueryClient() },
     );
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(25);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('25');
   });
 
   it('prefers defaultAmount over servingQuantity', () => {
@@ -206,7 +231,7 @@ describe('FullEntryConfirm', () => {
       />,
       { queryClient: createTestQueryClient() },
     );
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(80);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('80');
   });
 
   it('leaves the amount input empty when neither defaultAmount nor servingQuantity is present', () => {
@@ -214,6 +239,6 @@ describe('FullEntryConfirm', () => {
       <FullEntryConfirm result={chicken} date="2026-04-21" slot="lunch" onSuccess={() => {}} onBack={() => {}} />,
       { queryClient: createTestQueryClient() },
     );
-    expect(screen.getByLabelText(/menge/i)).toHaveValue(null);
+    expect(screen.getByLabelText(/menge/i)).toHaveValue('');
   });
 });

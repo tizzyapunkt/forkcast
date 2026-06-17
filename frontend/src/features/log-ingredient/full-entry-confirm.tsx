@@ -1,10 +1,11 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { DecimalInput } from '../../components/app/decimal-input';
 import { Check } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 
@@ -35,7 +36,7 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
   const effectiveDefault = defaultAmount ?? result.servingQuantity;
 
   const {
-    register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -81,15 +82,21 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
         <label htmlFor="amount" className="text-sm font-medium">
           {de.fullEntry.amount(result.unit)}
         </label>
-        <input
-          id="amount"
-          type="number"
-          inputMode="decimal"
-          step="1"
-          {...register('amount')}
-          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-          placeholder={de.fullEntry.amountPlaceholder}
-          autoFocus
+        <Controller
+          name="amount"
+          control={control}
+          render={({ field }) => (
+            <DecimalInput
+              id="amount"
+              value={field.value}
+              onValueChange={field.onChange}
+              onBlur={field.onBlur}
+              ref={field.ref}
+              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+              placeholder={de.fullEntry.amountPlaceholder}
+              autoFocus
+            />
+          )}
         />
         {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
 

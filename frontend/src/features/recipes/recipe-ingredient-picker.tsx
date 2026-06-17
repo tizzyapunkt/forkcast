@@ -9,6 +9,7 @@ import { RecentPanel } from '../log-ingredient/recent-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { de } from '../../i18n/de';
+import { parseDecimal } from '../../lib/decimal';
 
 type PickerMode = 'add' | 'replace';
 
@@ -181,10 +182,11 @@ function AmountStep({
         </label>
         <input
           id="amount"
-          type="number"
+          type="text"
           inputMode="decimal"
-          step="1"
-          {...register('amount')}
+          {...register('amount', {
+            setValueAs: (v) => parseDecimal(typeof v === 'string' ? v : String(v ?? '')) ?? NaN,
+          })}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();

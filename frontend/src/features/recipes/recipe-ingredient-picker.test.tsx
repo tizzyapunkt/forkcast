@@ -113,6 +113,37 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
     expect('untracked' in (payload ?? {})).toBe(false);
   });
 
+  it('accepts a comma-delimited decimal amount (German locale) and adds the parsed value', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'olivenoel',
+            source: 'FOODS',
+            name: 'Olivenöl',
+            unit: 'ml',
+            macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
+          },
+        ]),
+      ),
+    );
+
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+
+    await user.type(screen.getByRole('searchbox'), 'oliven');
+    const resultButton = await screen.findByRole('button', { name: /olivenöl/i });
+    await user.click(resultButton);
+
+    const amountInput = await screen.findByLabelText(/menge pro rezept/i);
+    await user.type(amountInput, '0,25');
+    await user.click(screen.getByRole('button', { name: /^hinzufügen$/i }));
+
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+    expect(onPicked.mock.calls[0]?.[0]?.amount).toBe(0.25);
+  });
+
   it('picking an OFF result yields a row without untracked even if the search response has the field', async () => {
     server.use(
       http.get('/api/search-ingredients', () =>

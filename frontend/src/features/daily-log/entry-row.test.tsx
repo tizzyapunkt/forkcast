@@ -129,7 +129,7 @@ describe('EntryRow macros', () => {
       expect(await screen.findByText(/165\s*kcal/i)).toBeInTheDocument();
       expect(screen.getByText(/31\s*P/i)).toBeInTheDocument();
 
-      const input = screen.getByRole('spinbutton');
+      const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '250' } });
 
       // No timer advancement → no PATCH yet, but the row must reflect the typed amount.
