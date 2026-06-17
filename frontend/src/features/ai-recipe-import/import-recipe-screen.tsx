@@ -28,6 +28,7 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
     return (
       <ReviewImportScreen
         draft={draft}
+        photos={photos}
         onSaved={onSaved}
         onCancel={() => {
           setDraft(null);

@@ -3,6 +3,8 @@ import { AppHeader } from '../../components/app/app-header';
 import { useAddRecipe } from '../../queries/use-add-recipe';
 import { useProposeResolutions } from '../../queries/use-resolve-ingredients';
 import { RecipeForm } from '../recipes/recipe-form';
+import { SourcePhotos } from './source-photos';
+import type { StagedPhoto } from './photo-staging';
 import { ResolveSheet, type ProposalState, type ResolveItem } from './resolve-pane';
 import type {
   DraftIngredient,
@@ -21,6 +23,8 @@ interface Props {
   draft: RecipeDraft;
   onSaved: () => void;
   onCancel: () => void;
+  /** Source photos the draft was extracted from, surfaced for review-time comparison. */
+  photos?: StagedPhoto[];
 }
 
 interface OverriddenInfo {
@@ -79,7 +83,7 @@ function toRecipeIngredient(m: MatchedDraftIngredient): RecipeIngredient {
   return row;
 }
 
-export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
+export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Props) {
   const initial = useMemo(() => buildInitialMatchedIngredients(draft), [draft]);
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(initial.matched);
   const [estimateIndices, setEstimateIndices] = useState<Set<number>>(initial.estimateIndices);
@@ -167,7 +171,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
     };
   }, [unmatched, openName]);
 
-  const headerSlot =
+  const unmatchedPanel =
     unmatched.length > 0 ? (
       <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700/60 dark:bg-amber-900/20">
         <p className="font-medium">{de.aiRecipeImport.unmatchedHeading(unmatched.length)}</p>
@@ -225,6 +229,14 @@ export function ReviewImportScreen({ draft, onSaved, onCancel }: Props) {
           })}
         </ul>
       </div>
+    ) : null;
+
+  const headerSlot =
+    photos.length > 0 || unmatchedPanel ? (
+      <>
+        <SourcePhotos photos={photos} />
+        {unmatchedPanel}
+      </>
     ) : null;
 
   return (
