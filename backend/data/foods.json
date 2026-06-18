@@ -478,6 +478,26 @@
     }
   },
   {
+    "id": "chili",
+    "name": "Chili",
+    "synonyms": [
+      "Chilischote",
+      "frische Chili",
+      "rote Chili",
+      "Peperoni",
+      "chili pepper",
+      "fresh chilli"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    },
+    "untracked": true
+  },
+  {
     "id": "chiliflocken",
     "name": "Chiliflocken",
     "synonyms": [

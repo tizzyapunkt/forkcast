@@ -236,10 +236,11 @@ export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   { key: 'dill', untracked: true },
   { key: 'chiliflocken', untracked: true },
   { key: 'muskat', untracked: true },
-  // Aromatics used in tiny amounts (spoons/cloves) — nutritionally trivial, tracked as untracked
-  // so they stay in recipes and the future grocery list without polluting macro rollups.
+  // Aromatics used in tiny amounts (spoons/cloves/single chillies) — nutritionally trivial, tracked
+  // as untracked so they stay in recipes and the future grocery list without polluting macro rollups.
   { key: 'ingwer', untracked: true },
   { key: 'knoblauch', untracked: true },
+  { key: 'chili', untracked: true },
   'rindertatar',
   'sojasauce',
   'speisestärke',
