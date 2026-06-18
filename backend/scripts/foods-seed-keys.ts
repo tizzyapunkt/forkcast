@@ -48,7 +48,6 @@ export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   'rote-zwiebel',
   'fruehlingszwiebel',
   'lauch',
-  'knoblauch',
   'schalotte',
 
   // Vegetables — fruiting
@@ -237,7 +236,10 @@ export const FOODS_SEED_KEYS: ReadonlyArray<FoodSeedKey> = [
   { key: 'dill', untracked: true },
   { key: 'chiliflocken', untracked: true },
   { key: 'muskat', untracked: true },
-  'ingwer',
+  // Aromatics used in tiny amounts (spoons/cloves) — nutritionally trivial, tracked as untracked
+  // so they stay in recipes and the future grocery list without polluting macro rollups.
+  { key: 'ingwer', untracked: true },
+  { key: 'knoblauch', untracked: true },
   'rindertatar',
   'sojasauce',
   'speisestärke',

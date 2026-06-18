@@ -1,5 +1,6 @@
 import type { IngredientResultSource } from '../ingredient-search/types.ts';
 import type { MacrosPerUnit, MeasurementUnit, PieceQuantity } from '../recipes/types.ts';
+import { convertSpoonToAmount } from './convert-spoon-amount.ts';
 import type { MatchedDraftIngredient } from './types.ts';
 
 /**
@@ -14,6 +15,8 @@ export interface MatchSourceFood {
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPerUnit;
   untracked?: boolean;
+  /** Mass per millilitre (g/ml), used to convert a recipe's spoon measure to grams on tracked rows. */
+  density?: number;
 }
 
 /** The model-extracted (or unmatched-row) fields carried onto the matched row. */
@@ -92,6 +95,14 @@ export function buildMatchedRowWithFlags(
         row.displayQuantity = { unitLabel: DEFAULT_UNTRACKED_DISPLAY_LABEL };
       }
     }
+  } else if (row.amount === null && row.pieceQuantity === undefined) {
+    // Tracked row with no stated canonical amount: if the recipe gave a spoon/cup measure, convert
+    // it to the catalog unit (volume for ml foods, volume × density for g foods). The raw-display
+    // fields are consumed here, not persisted — displayQuantity is reserved for untracked rows, so a
+    // tracked row never carries it whether or not the conversion succeeded. An unconvertible measure
+    // (no density, or a non-spoon label) leaves the row untouched and trips missingAmount below.
+    const converted = convertSpoonToAmount(raw.rawDisplayAmount, raw.rawDisplayUnitLabel, food.unit, food.density);
+    if (converted !== undefined) row.amount = converted;
   }
 
   // Computed after the untracked block above coerces a null amount to 0, so untracked

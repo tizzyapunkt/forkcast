@@ -74,6 +74,27 @@ describe('mapFoodEntry', () => {
     expect('untracked' in result).toBe(false);
   });
 
+  it('carries density through to the result when present, and omits it otherwise', () => {
+    const withDensity: FoodEntry = {
+      id: 'speisestärke',
+      name: 'Speisestärke',
+      synonyms: ['cornstarch'],
+      unit: 'g',
+      macrosPer100: { calories: 381, protein: 0.6, carbs: 91, fat: 0.1 },
+      density: 0.55,
+    };
+    expect(mapFoodEntry(withDensity).density).toBe(0.55);
+
+    const withoutDensity: FoodEntry = {
+      id: 'moehre',
+      name: 'Möhre',
+      synonyms: [],
+      unit: 'g',
+      macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 },
+    };
+    expect('density' in mapFoodEntry(withoutDensity)).toBe(false);
+  });
+
   it('omits untracked on the result when the entry has untracked: false', () => {
     const entry: FoodEntry = {
       id: 'moehre',

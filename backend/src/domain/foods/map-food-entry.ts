@@ -15,5 +15,6 @@ export function mapFoodEntry(entry: FoodEntry, source: IngredientResultSource = 
     },
   };
   if (entry.untracked === true) result.untracked = true;
+  if (entry.density !== undefined) result.density = entry.density;
   return result;
 }
