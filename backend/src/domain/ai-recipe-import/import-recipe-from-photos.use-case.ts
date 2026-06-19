@@ -120,7 +120,13 @@ async function matchIngredient(
   }
 
   const { row: matched, flags } = buildMatchedRowWithFlags(
-    { name: top.name, unit: top.unit, macrosPerUnit: top.macrosPerUnit, untracked: top.untracked === true },
+    {
+      name: top.name,
+      unit: top.unit,
+      macrosPerUnit: top.macrosPerUnit,
+      untracked: top.untracked === true,
+      density: top.density,
+    },
     top.source,
     raw,
   );

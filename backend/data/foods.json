@@ -478,6 +478,26 @@
     }
   },
   {
+    "id": "chili",
+    "name": "Chili",
+    "synonyms": [
+      "Chilischote",
+      "frische Chili",
+      "rote Chili",
+      "Peperoni",
+      "chili pepper",
+      "fresh chilli"
+    ],
+    "unit": "g",
+    "macrosPer100": {
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    },
+    "untracked": true
+  },
+  {
     "id": "chiliflocken",
     "name": "Chiliflocken",
     "synonyms": [
@@ -599,7 +619,8 @@
       "protein": 13,
       "carbs": 60,
       "fat": 2.5
-    }
+    },
+    "density": 0.5
   },
   {
     "id": "edamame",
@@ -1300,25 +1321,12 @@
     ],
     "unit": "g",
     "macrosPer100": {
-      "calories": 80,
-      "protein": 1.8,
-      "carbs": 17.8,
-      "fat": 0.8
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
     },
-    "pieces": [
-      {
-        "label": "Stück klein",
-        "grams": 15
-      },
-      {
-        "label": "Stück mittel",
-        "grams": 30
-      },
-      {
-        "label": "Knolle",
-        "grams": 60
-      }
-    ]
+    "untracked": true
   },
   {
     "id": "joghurt-natur",
@@ -1503,21 +1511,12 @@
     ],
     "unit": "g",
     "macrosPer100": {
-      "calories": 141,
-      "protein": 6.1,
-      "carbs": 28.4,
-      "fat": 0.5
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
     },
-    "pieces": [
-      {
-        "label": "Zehe",
-        "grams": 4
-      },
-      {
-        "label": "Knolle",
-        "grams": 50
-      }
-    ]
+    "untracked": true
   },
   {
     "id": "kohlrabi",
@@ -3486,7 +3485,8 @@
       "protein": 0.6,
       "carbs": 91,
       "fat": 0.1
-    }
+    },
+    "density": 0.55
   },
   {
     "id": "spinat",
@@ -3892,7 +3892,8 @@
       "protein": 10,
       "carbs": 72.3,
       "fat": 1
-    }
+    },
+    "density": 0.55
   },
   {
     "id": "wirsing",

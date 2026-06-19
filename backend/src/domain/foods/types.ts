@@ -16,6 +16,12 @@ export interface FoodEntry {
   };
   pieces?: PieceWeight[];
   untracked?: boolean;
+  /**
+   * Optional mass per millilitre (g/ml). Present only on `g`-unit foods that are
+   * realistically measured by volume (dry staples like Speisestärke, flours), so a
+   * spoon measure stated in a recipe can be converted to grams. Omitted otherwise.
+   */
+  density?: number;
 }
 
 export interface FoodIndexedEntry extends FoodEntry {

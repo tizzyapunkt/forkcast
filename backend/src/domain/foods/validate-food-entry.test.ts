@@ -21,6 +21,26 @@ describe('validateFoodEntry', () => {
     expect(result.ok).toBe(true);
   });
 
+  it('accepts a positive density', () => {
+    const result = validateFoodEntry({ ...valid, density: 0.55 });
+    expect(result.ok).toBe(true);
+  });
+
+  it('accepts an entry without a density', () => {
+    const result = validateFoodEntry({ ...valid, density: undefined });
+    expect(result.ok).toBe(true);
+  });
+
+  it('rejects a zero or negative density', () => {
+    expect(validateFoodEntry({ ...valid, density: 0 }).ok).toBe(false);
+    expect(validateFoodEntry({ ...valid, density: -0.5 }).ok).toBe(false);
+  });
+
+  it('rejects a non-finite or non-number density', () => {
+    expect(validateFoodEntry({ ...valid, density: Number.NaN }).ok).toBe(false);
+    expect(validateFoodEntry({ ...valid, density: '0.5' as unknown as number }).ok).toBe(false);
+  });
+
   it('rejects an entry whose calories is null', () => {
     const result = validateFoodEntry({
       ...valid,

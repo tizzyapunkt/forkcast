@@ -13,6 +13,8 @@ export interface IngredientSearchResult {
   unit: MeasurementUnit;
   macrosPerUnit: MacrosPerUnit;
   untracked?: boolean;
+  /** Mass per millilitre (g/ml) for volume→mass conversion of spoon measures. FOODS-only, optional. */
+  density?: number;
   /** Human-readable serving size from the source product, e.g. "1 slice (25g)". */
   servingSize?: string;
   /** Gram weight of one serving from the source product. */

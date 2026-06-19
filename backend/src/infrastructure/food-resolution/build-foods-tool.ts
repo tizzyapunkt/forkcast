@@ -80,6 +80,11 @@ export const BUILD_FOODS_TOOL: Anthropic.Tool = {
               description:
                 'OPTIONAL. Set to true ONLY when the user marks the id as "(untracked)" in the request. Untracked entries (seasonings, herbs, spices) MUST also have all-zero macrosPer100 (calories, protein, carbs, fat all set to 0). For tracked entries, OMIT this field entirely.',
             },
+            density: {
+              type: 'number',
+              description:
+                'OPTIONAL. Mass per millilitre (g/ml). Include ONLY for g-unit dry staples that recipes commonly measure by spoon (e.g. Speisestärke ≈ 0.55, Weizenmehl ≈ 0.55, Zucker ≈ 0.85) so spoon amounts can be converted to grams. OMIT for ml-unit foods and for anything not spoon-measured.',
+            },
           },
           required: ['id', 'name', 'synonyms', 'unit', 'macrosPer100'],
         },
@@ -102,6 +107,7 @@ Constraints:
 - Do NOT include the canonical name in the synonyms list.
 - Use raw, unprepared foods unless the id explicitly says otherwise (e.g. "schinken-gekocht").
 - Macros must be plausible non-negative numbers.
+- For g-unit dry staples that recipes commonly measure by spoon (Speisestärke, flours, sugar), include a "density" (g/ml) so spoon amounts can be converted to grams. Omit "density" for ml-unit foods and anything not spoon-measured.
 
 Untracked entries:
 - The user marks certain ids in the request with the suffix "(untracked)". These are seasonings, herbs, or spices that the app deliberately excludes from nutrition tracking.

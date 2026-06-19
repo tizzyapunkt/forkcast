@@ -70,7 +70,7 @@ export class InMemoryFoodsService implements IngredientSearchService {
   /** Look up a curated entry by id, mapped to a match source (per-unit macros). Null when absent. */
   findById(
     foodId: string,
-  ): { name: string; unit: 'g' | 'ml'; macrosPerUnit: MacrosPerUnit; untracked?: boolean } | null {
+  ): { name: string; unit: 'g' | 'ml'; macrosPerUnit: MacrosPerUnit; untracked?: boolean; density?: number } | null {
     const entry = this.baseEntries.find((e) => e.id === foodId);
     if (!entry) return null;
     const m = entry.macrosPer100;
@@ -79,6 +79,7 @@ export class InMemoryFoodsService implements IngredientSearchService {
       unit: entry.unit,
       macrosPerUnit: { calories: m.calories / 100, protein: m.protein / 100, carbs: m.carbs / 100, fat: m.fat / 100 },
       untracked: entry.untracked === true ? true : undefined,
+      density: entry.density,
     };
   }
 

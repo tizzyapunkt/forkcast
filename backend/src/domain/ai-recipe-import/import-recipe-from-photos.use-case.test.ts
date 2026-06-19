@@ -936,5 +936,31 @@ describe('importRecipeFromPhotos', () => {
       expect(ing.unitOverridden).toBe(true);
       expect(ing.note).toBe('doppelt konzentriert');
     });
+
+    it('converts a spoon measure on a tracked g-unit match using the food density', async () => {
+      const extractor = makeExtractor({
+        name: 'Sauce',
+        yield: 1,
+        ingredients: [{ name: 'Speisestärke', rawDisplayAmount: 2, rawDisplayUnitLabel: 'TL' }],
+        steps: [],
+      });
+      const search = makeSearch({
+        speisestärke: [
+          foodsResult({
+            name: 'Speisestärke',
+            unit: 'g',
+            macrosPerUnit: { calories: 3.81, protein: 0.006, carbs: 0.91, fat: 0.001 },
+            density: 0.55,
+          }),
+        ],
+      });
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.unit).toBe('g');
+      expect(ing.amount).toBeCloseTo(5.5); // 2 × 5 ml × 0.55 g/ml
+      expect(ing.untracked).toBeUndefined();
+      expect(ing.displayQuantity).toBeUndefined();
+    });
   });
 });

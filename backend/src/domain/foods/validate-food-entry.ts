@@ -69,6 +69,11 @@ export function validateFoodEntry(entry: FoodEntry): ValidationResult {
       seen.add(p.label);
     }
   }
+  if (entry.density !== undefined) {
+    if (typeof entry.density !== 'number' || !Number.isFinite(entry.density) || entry.density <= 0) {
+      return { ok: false, reason: `entry ${entry.id}: density must be a positive finite number when present` };
+    }
+  }
   if (entry.untracked !== undefined) {
     if (typeof entry.untracked !== 'boolean') {
       return { ok: false, reason: `entry ${entry.id}: untracked must be a boolean when present` };

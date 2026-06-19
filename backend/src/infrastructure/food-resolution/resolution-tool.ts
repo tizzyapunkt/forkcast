@@ -37,6 +37,11 @@ const FOOD_ENTRY_SCHEMA = {
       description:
         'Optional. true ONLY for seasonings/herbs/spices that should not count toward nutrition; then macrosPer100 MUST be all zeros.',
     },
+    density: {
+      type: 'number',
+      description:
+        'Optional. Mass per millilitre (g/ml). Include ONLY for g-unit dry staples commonly measured by spoon (e.g. Speisestärke ≈ 0.55, flour ≈ 0.55, sugar ≈ 0.85) so spoon amounts convert to grams. Omit for liquids and non-spoon foods.',
+    },
   },
   required: ['id', 'name', 'synonyms', 'unit', 'macrosPer100'],
 } as const;
