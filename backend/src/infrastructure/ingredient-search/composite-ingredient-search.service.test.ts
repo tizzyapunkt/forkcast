@@ -94,6 +94,22 @@ describe('CompositeIngredientSearchService', () => {
     expect(await svc.searchByName('nomatch', new Set(['FOODS', 'OFF']))).toHaveLength(0);
   });
 
+  it('throws instead of silently returning empty when the only requested source rejects', async () => {
+    const foods = makeMockService([foodsResult]);
+    const off = makeMockService('reject');
+    const svc = new CompositeIngredientSearchService(off, foods);
+
+    await expect(svc.searchByName('whey')).rejects.toThrow(/all requested sources/i);
+  });
+
+  it('throws when every requested source rejects', async () => {
+    const foods = makeMockService('reject');
+    const off = makeMockService('reject');
+    const svc = new CompositeIngredientSearchService(off, foods);
+
+    await expect(svc.searchByName('whey', new Set(['FOODS', 'OFF']))).rejects.toThrow(/all requested sources/i);
+  });
+
   it('delegates barcode lookup to OFF only', async () => {
     const foods = makeMockService([]);
     const off = makeMockService([], offResult);

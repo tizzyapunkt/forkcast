@@ -46,6 +46,7 @@ export class CompositeIngredientSearchService implements IngredientSearchService
     const outcomes = await Promise.allSettled(tasks);
 
     const bySource = new Map<IngredientSource, IngredientSearchResult[]>();
+    let failureCount = 0;
     for (let i = 0; i < order.length; i++) {
       const outcome = outcomes[i]!;
       const src = order[i]!;
@@ -54,7 +55,12 @@ export class CompositeIngredientSearchService implements IngredientSearchService
       } else {
         console.error(`${src} search failed:`, outcome.reason);
         bySource.set(src, []);
+        failureCount++;
       }
+    }
+
+    if (order.length > 0 && failureCount === order.length) {
+      throw new Error(`Ingredient search failed: all requested sources (${order.join(', ')}) errored`);
     }
 
     return [

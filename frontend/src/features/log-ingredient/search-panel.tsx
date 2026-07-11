@@ -55,7 +55,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   }, []);
   const [foodsEnabled, setFoodsEnabled] = useLocalStorage<boolean>(FOODS_KEY, false);
   const sources: Array<'FOODS' | 'OFF'> = foodsEnabled ? ['FOODS', 'OFF'] : ['OFF'];
-  const { data: results, isLoading } = useSearchIngredients(debouncedQuery, sources);
+  const { data: results, isLoading, isError } = useSearchIngredients(debouncedQuery, sources);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [scanState, setScanState] = useState<ScanState>({ mode: 'text' });
@@ -183,7 +183,9 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}
 
-      {hasQuery && !isLoading && results?.length === 0 && (
+      {hasQuery && !isLoading && isError && <p className="text-sm text-destructive">{de.searchPanel.searchFailed}</p>}
+
+      {hasQuery && !isLoading && !isError && results?.length === 0 && (
         <p className="text-sm text-muted-foreground">{de.searchPanel.noResults(debouncedQuery)}</p>
       )}
 

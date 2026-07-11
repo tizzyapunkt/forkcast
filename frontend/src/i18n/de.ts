@@ -318,6 +318,7 @@ export const de = {
     placeholder: 'Zutaten suchen…',
     scanBarcode: 'Barcode scannen',
     searching: 'Suche läuft…',
+    searchFailed: 'Suche fehlgeschlagen. Bitte versuche es erneut.',
     noResults: (q: string) => `Keine Treffer für „${q}“`,
     kcalPer: (kcal: number, unit: MeasurementUnit) => {
       const { mul, label } = per100Display(unit);

@@ -22,16 +22,26 @@ export function makeSearchIngredientsByNameHandler(service: IngredientSearchServ
     const q = c.req.query('q') ?? '';
     if (!q.trim()) return c.json({ error: 'Missing query parameter: q' }, 400);
     const sources = parseSources(c.req.query('sources'));
-    const results = await service.searchByName(q, sources);
-    return c.json(results);
+    try {
+      const results = await service.searchByName(q, sources);
+      return c.json(results);
+    } catch (err) {
+      console.error('search-ingredients failed:', err);
+      return c.json({ error: 'Ingredient search failed. Please try again.' }, 502);
+    }
   };
 }
 
 export function makeSearchIngredientsByBarcodeHandler(service: IngredientSearchService) {
   return async (c: Context) => {
     const barcode = c.req.param('barcode') ?? '';
-    const result = await service.searchByBarcode(barcode);
-    if (!result) return c.json({ error: 'Product not found' }, 404);
-    return c.json(result);
+    try {
+      const result = await service.searchByBarcode(barcode);
+      if (!result) return c.json({ error: 'Product not found' }, 404);
+      return c.json(result);
+    } catch (err) {
+      console.error('search-ingredients/barcode failed:', err);
+      return c.json({ error: 'Ingredient search failed. Please try again.' }, 502);
+    }
   };
 }

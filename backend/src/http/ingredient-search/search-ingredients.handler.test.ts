@@ -83,4 +83,13 @@ describe('makeSearchIngredientsByNameHandler — sources param', () => {
     const res = await makeApp(svc).request('/search-ingredients');
     expect(res.status).toBe(400);
   });
+
+  it('returns a 502 JSON error instead of hanging or a bare 500 when the service rejects', async () => {
+    const svc = makeService();
+    svc.searchByName.mockRejectedValueOnce(new Error('Ingredient search failed: all requested sources errored'));
+    const res = await makeApp(svc).request('/search-ingredients?q=whey');
+    expect(res.status).toBe(502);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBeTruthy();
+  });
 });
