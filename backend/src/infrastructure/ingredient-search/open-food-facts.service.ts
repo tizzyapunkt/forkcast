@@ -5,9 +5,19 @@ import { mapOffProduct } from '../../domain/ingredient-search/map-off-product.ts
 const PRODUCT_BASE_URL = 'https://world.openfoodfacts.org';
 const SEARCH_BASE_URL = 'https://search.openfoodfacts.org';
 const USER_AGENT = 'forkcast/0.1 (icejunior1991+anthropic@gmail.com)';
+const REQUEST_TIMEOUT_MS = 8_000;
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (err) {
+    const reason = err instanceof Error && err.name === 'TimeoutError' ? 'timed out' : 'network error';
+    throw new Error(`Open Food Facts request failed: ${reason}`, { cause: err });
+  }
   const contentType = res.headers.get('content-type') ?? '';
   if (!res.ok || !contentType.includes('application/json')) {
     throw new Error(
