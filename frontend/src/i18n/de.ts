@@ -670,4 +670,19 @@ export const de = {
       amountPositive: 'Menge muss größer als 0 sein',
     },
   },
+
+  diagnostics: {
+    settingsLink: 'Diagnose',
+    settingsLinkHint: 'App- und Server-Logs',
+    screenTitle: 'Diagnose',
+    clientSection: 'App-Log',
+    serverSection: 'Server-Log',
+    empty: 'Keine Einträge',
+    refresh: 'Aktualisieren',
+    serverError: 'Server-Log konnte nicht geladen werden',
+    copy: 'Diagnose kopieren',
+    copied: 'Kopiert ✓',
+    copyError: 'Kopieren fehlgeschlagen',
+    entryCount: (n: number) => (n === 1 ? '1 Eintrag' : `${n} Einträge`),
+  },
 } as const;

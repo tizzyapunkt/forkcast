@@ -13,4 +13,5 @@ export const queryKeys = {
   weightLog: () => ['weight-log'] as const,
   weightTrend: () => ['weight-trend'] as const,
   userFoodsOverlay: () => ['user-foods-overlay'] as const,
+  debugLogs: () => ['debug-logs'] as const,
 };

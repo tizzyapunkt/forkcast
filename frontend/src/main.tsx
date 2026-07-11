@@ -6,8 +6,10 @@ import { App } from './app';
 import { AuthGuard } from './features/auth/auth-guard';
 import { ApiError } from './api/client';
 import { SESSION_KEY } from './features/auth/use-auth';
+import { installClientDiagnostics } from './lib/client-log';
 import './index.css';
 
+installClientDiagnostics();
 registerSW({ immediate: true });
 
 const queryClient = new QueryClient({

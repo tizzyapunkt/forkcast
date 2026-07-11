@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { OpenFoodFactsService } from './open-food-facts.service.ts';
+import type { DiagnosticsEntry } from '../../domain/diagnostics/diagnostics-log.ts';
+
+function makeRecorderStub() {
+  const entries: Omit<DiagnosticsEntry, 'at'>[] = [];
+  return { entries, recorder: { record: (e: Omit<DiagnosticsEntry, 'at'>) => entries.push(e) } };
+}
 
 const OFF_PRODUCT = {
   code: '4311501659715',
@@ -94,6 +100,54 @@ describe('OpenFoodFactsService.searchByName', () => {
 
     await expect(service.searchByName('apfel')).rejects.toThrow('Open Food Facts request failed: network error');
   });
+
+  it('includes a snippet of the error response body in the thrown error', async () => {
+    const { fetchStub } = makeFetchStub(
+      () => new Response('Host not in allowlist: search.openfoodfacts.org', { status: 403, statusText: 'Forbidden' }),
+    );
+    const service = new OpenFoodFactsService(fetchStub);
+
+    await expect(service.searchByName('apfel')).rejects.toThrow(
+      'Open Food Facts request failed: 403 Forbidden — Host not in allowlist: search.openfoodfacts.org',
+    );
+  });
+
+  it('records a successful search with status and duration', async () => {
+    const { fetchStub } = makeFetchStub(() => jsonResponse({ hits: [] }));
+    const { entries, recorder } = makeRecorderStub();
+    const service = new OpenFoodFactsService(fetchStub, recorder);
+
+    await service.searchByName('apfel');
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].kind).toBe('off');
+    expect(entries[0].message).toMatch(/^search ok 200 \(\d+ms\)$/);
+  });
+
+  it('records a failed search with the body snippet as detail', async () => {
+    const { fetchStub } = makeFetchStub(
+      () => new Response('blocked by proxy', { status: 403, statusText: 'Forbidden' }),
+    );
+    const { entries, recorder } = makeRecorderStub();
+    const service = new OpenFoodFactsService(fetchStub, recorder);
+
+    await expect(service.searchByName('apfel')).rejects.toThrow('Open Food Facts request failed');
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].message).toMatch(/^search failed 403 Forbidden \(\d+ms\)$/);
+    expect(entries[0].detail).toBe('blocked by proxy');
+  });
+
+  it('records a timed-out search with the failure reason', async () => {
+    const fetchStub: typeof fetch = () => Promise.reject(new DOMException('The operation timed out.', 'TimeoutError'));
+    const { entries, recorder } = makeRecorderStub();
+    const service = new OpenFoodFactsService(fetchStub, recorder);
+
+    await expect(service.searchByName('apfel')).rejects.toThrow('Open Food Facts request failed');
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].message).toMatch(/^search failed: timed out \(\d+ms\)$/);
+  });
 });
 
 describe('OpenFoodFactsService.searchByBarcode', () => {
@@ -132,5 +186,31 @@ describe('OpenFoodFactsService.searchByBarcode', () => {
     const service = new OpenFoodFactsService(fetchStub);
 
     await expect(service.searchByBarcode('4311501659715')).rejects.toThrow('Open Food Facts request failed: 500');
+  });
+
+  it('records a successful lookup with status and duration', async () => {
+    const { fetchStub } = makeFetchStub(() =>
+      jsonResponse({ code: OFF_PRODUCT.code, status: 1, product: OFF_PRODUCT }),
+    );
+    const { entries, recorder } = makeRecorderStub();
+    const service = new OpenFoodFactsService(fetchStub, recorder);
+
+    await service.searchByBarcode('4311501659715');
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].message).toMatch(/^barcode ok 200 \(\d+ms\)$/);
+  });
+
+  it('records an unknown barcode (404) without throwing', async () => {
+    const { fetchStub } = makeFetchStub(() =>
+      jsonResponse({ code: '0000000000000', status: 0, status_verbose: 'product not found' }, 404),
+    );
+    const { entries, recorder } = makeRecorderStub();
+    const service = new OpenFoodFactsService(fetchStub, recorder);
+
+    await expect(service.searchByBarcode('0000000000000')).resolves.toBeNull();
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].message).toMatch(/^barcode not-found 404 \(\d+ms\)$/);
   });
 });
