@@ -4,10 +4,11 @@ import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
 import { WeightTrackerScreen } from '../weight-log/weight-tracker-screen';
 import { UserFoodsPanel } from './user-foods-panel';
+import { DiagnosticsScreen } from '../diagnostics/diagnostics-screen';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 
-type View = 'main' | 'weight-tracker';
+type View = 'main' | 'weight-tracker' | 'diagnostics';
 
 interface SettingsScreenProps {
   initialView?: View;
@@ -19,6 +20,10 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
 
   if (view === 'weight-tracker') {
     return <WeightTrackerScreen onBack={() => setView('main')} />;
+  }
+
+  if (view === 'diagnostics') {
+    return <DiagnosticsScreen onBack={() => setView('main')} />;
   }
 
   return (
@@ -39,6 +44,17 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
           <span>
             <span className="font-medium">{de.weightLog.settingsLink}</span>
             <span className="ml-2 text-xs text-muted-foreground">{de.weightLog.settingsLinkHint}</span>
+          </span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('diagnostics')}
+          className="flex w-full items-center justify-between rounded-md border border-input bg-card px-4 py-3 text-left text-sm hover:bg-accent"
+        >
+          <span>
+            <span className="font-medium">{de.diagnostics.settingsLink}</span>
+            <span className="ml-2 text-xs text-muted-foreground">{de.diagnostics.settingsLinkHint}</span>
           </span>
           <span aria-hidden="true">→</span>
         </button>

@@ -70,6 +70,9 @@ import {
 } from './http/food-resolution/resolution.handlers.ts';
 import { loadAppConfig } from './config/app-config.ts';
 import { DotenvEnvSource } from './infrastructure/config/dotenv-env-source.ts';
+import { DiagnosticsLog } from './domain/diagnostics/diagnostics-log.ts';
+import { makeRequestLogMiddleware } from './http/diagnostics/request-log.middleware.ts';
+import { makeGetDebugLogsHandler } from './http/diagnostics/get-debug-logs.handler.ts';
 
 const envSource = new DotenvEnvSource();
 let config;
@@ -95,8 +98,9 @@ const scannedProductStore = new JsonScannedProductStore('./data/scanned-products
 const userFoodsStore = new JsonUserFoodsStore('./data/user-foods.json');
 const foodsService = new InMemoryFoodsService('./data/foods.json');
 const userFoodsSearch = new UserFoodsSearchService(userFoodsStore);
+const diagnosticsLog = new DiagnosticsLog();
 const ingredientSearchService = new CompositeIngredientSearchService(
-  new OpenFoodFactsService(),
+  new OpenFoodFactsService(globalThis.fetch, diagnosticsLog),
   foodsService,
   scannedProductStore,
   userFoodsSearch,
@@ -124,11 +128,15 @@ if (overlay.synonyms.length > 0) {
 
 const app = new Hono();
 
+app.use('*', makeRequestLogMiddleware(diagnosticsLog));
+
 app.post('/auth/login', makeLoginHandler(config.auth.password, config.auth.jwtSecret));
 app.post('/auth/logout', makeLogoutHandler());
 app.get('/auth/me', makeMeHandler(config.auth.jwtSecret));
 
 app.use('*', makeAuthMiddleware(config.auth.jwtSecret));
+
+app.get('/debug/logs', makeGetDebugLogsHandler(diagnosticsLog));
 
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));
