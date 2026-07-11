@@ -19,6 +19,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
     "@hono/node-server": "^1.19.14",
+    "@openfoodfacts/openfoodfacts-nodejs": "2.0.0-alpha.30",
     "dotenv": "^17.4.2",
     "hono": "^4.12.14",
     "jose": "^6.2.3"
