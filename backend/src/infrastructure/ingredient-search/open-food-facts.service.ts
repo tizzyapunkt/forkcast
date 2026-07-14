@@ -1,13 +1,8 @@
-import { OpenFoodFacts } from '@openfoodfacts/openfoodfacts-nodejs';
+import { OpenFoodFacts, SearchApi } from '@openfoodfacts/openfoodfacts-nodejs';
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import type { DiagnosticsRecorder } from '../../domain/diagnostics/diagnostics-log.ts';
 import { mapOffProduct } from '../../domain/ingredient-search/map-off-product.ts';
-import {
-  SearchALiciousClient,
-  SearchALiciousHttpError,
-  type SearchALiciousResponse,
-} from './search-a-licious-client.ts';
 
 const FIELDS = 'code,product_name,product_name_de,serving_size,serving_quantity,nutriments';
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -25,27 +20,24 @@ function bodySnippet(error: unknown): string | undefined {
   return text.length > 0 ? text.slice(0, BODY_SNIPPET_MAX) : undefined;
 }
 
-function statusError(status: number, statusText: string, snippet?: string): Error {
-  const base = `Open Food Facts request failed: ${status} ${statusText}`;
+function statusError(response: Response, snippet?: string): Error {
+  const base = `Open Food Facts request failed: ${response.status} ${response.statusText}`;
   return new Error(snippet ? `${base} — ${snippet}` : base);
 }
 
 export class OpenFoodFactsService implements IngredientSearchService {
   private readonly product: OpenFoodFacts;
-  // Full-text search runs on our own Search-a-licious client, not the SDK —
-  // see search-a-licious-client.ts for why.
-  private readonly search: SearchALiciousClient;
+  private readonly search: SearchApi;
 
   constructor(
     fetchFn: typeof fetch = globalThis.fetch,
     private readonly recorder?: DiagnosticsRecorder,
   ) {
     // The SDK has no request timeout; without one a hanging OFF request stalls the whole search.
-    // (The search client brings its own timeout, so it gets the raw fetch.)
     const fetchWithTimeout: typeof fetch = (input, init) =>
       fetchFn(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
     this.product = new OpenFoodFacts(fetchWithTimeout);
-    this.search = new SearchALiciousClient(fetchFn);
+    this.search = new SearchApi(fetchWithTimeout);
   }
 
   private record(operation: 'search' | 'barcode', outcome: string, startedAt: number, detail?: string): void {
@@ -55,19 +47,21 @@ export class OpenFoodFactsService implements IngredientSearchService {
   async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
     const q = `${query} lang:de countries_tags:"en:germany"`;
     const startedAt = Date.now();
-    let data: SearchALiciousResponse;
+    let result: Awaited<ReturnType<SearchApi['searchGet']>>;
     try {
-      data = await this.search.search({ q, langs: 'de', page_size: 20, fields: FIELDS });
+      result = await this.search.searchGet({ q, langs: 'de', page_size: 20, fields: FIELDS });
     } catch (err) {
-      if (err instanceof SearchALiciousHttpError) {
-        this.record('search', `failed ${err.status} ${err.statusText}`, startedAt, err.bodySnippet);
-        throw statusError(err.status, err.statusText, err.bodySnippet);
-      }
       const reason = failureReason(err);
       this.record('search', `failed: ${reason}`, startedAt);
       throw new Error(`Open Food Facts request failed: ${reason}`, { cause: err });
     }
-    this.record('search', 'ok 200', startedAt);
+    const { data, error, response } = result;
+    if (!response.ok || data === undefined) {
+      const snippet = bodySnippet(error);
+      this.record('search', `failed ${response.status} ${response.statusText}`, startedAt, snippet);
+      throw statusError(response, snippet);
+    }
+    this.record('search', `ok ${response.status}`, startedAt);
     const hits = 'hits' in data ? data.hits : [];
     return hits.flatMap((p) => {
       const mapped = mapOffProduct(p as Parameters<typeof mapOffProduct>[0]);
@@ -93,7 +87,7 @@ export class OpenFoodFactsService implements IngredientSearchService {
     if (!response.ok || data === undefined) {
       const snippet = bodySnippet(error);
       this.record('barcode', `failed ${response.status} ${response.statusText}`, startedAt, snippet);
-      throw statusError(response.status, response.statusText, snippet);
+      throw statusError(response, snippet);
     }
     this.record('barcode', `ok ${response.status}`, startedAt);
     if (data.status !== 1 || !data.product) return null;
