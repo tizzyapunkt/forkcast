@@ -47,6 +47,15 @@ The curated raw-foods dataset is pre-baked into `backend/data/foods.json` and tr
 pnpm --filter @forkcast/backend build:foods
 ```
 
+## Open Food Facts search
+
+Product data comes from Open Food Facts, split across two transports on purpose:
+
+- **Barcode / product-detail lookups** use the official SDK (`@openfoodfacts/openfoodfacts-nodejs`, `/api/v2/product/{barcode}`). These endpoints are stable and stay on the SDK.
+- **Full-text search** goes through our own thin client, `backend/src/infrastructure/ingredient-search/search-a-licious-client.ts`. OFF permanently shut down the classic search endpoints (`/cgi/search.pl` and the `/api/v2/search` full-text parameters — global 503, not rate limiting); full-text search now only exists on the separate [Search-a-licious](https://search.openfoodfacts.org/docs) service (beta, v0.1.x). The SDK we pin is itself an alpha whose search binding is generated from that beta spec, so we keep search on a hand-rolled fetch wrapper we fully control instead of coupling it to two moving targets.
+
+If a future stable SDK release ships first-class Search-a-licious support and we want to move back: the swap is confined to `SearchALiciousClient` and the `searchByName` method of `OpenFoodFactsService`. Before switching, check that the SDK version (a) still targets `https://search.openfoodfacts.org` with the same `q`/`langs`/`page_size`/`fields` semantics (our `q` embeds `lang:de` and `countries_tags:"en:germany"` filters), (b) has a request timeout or accepts an injected fetch (we rely on an 8s abort), and (c) surfaces HTTP status + response body on failures — our diagnostics log depends on both. The contract is pinned by `search-a-licious-client.test.ts` and `open-food-facts.service.test.ts`.
+
 ## AI recipe import
 
 Recipes can be imported from one or more photos of a single recipe (a printed page, an Instagram screenshot carousel, front + back of a recipe card). The backend forwards the images to Claude vision in a single call, matches each extracted ingredient against the existing catalog, and returns a draft for user review — no recipe is persisted until the user confirms. Configure on the server via `ANTHROPIC_API_KEY` (required), `ANTHROPIC_MODEL` (optional, defaults to a current Claude Sonnet vision model), and the optional caps `RECIPE_IMPORT_MAX_IMAGE_BYTES` (5 MB), `RECIPE_IMPORT_MAX_TOTAL_BYTES` (20 MB), `RECIPE_IMPORT_MAX_IMAGES` (8). Without `ANTHROPIC_API_KEY` the endpoint returns `503 ai-import-not-configured` and the frontend hides the import entry — the rest of the app keeps working.
