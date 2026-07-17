@@ -92,7 +92,43 @@ and was *not* part of the outage problem — only full-text search was).
 - fddb has no public API; USDA FDC is US-centric; Nutritionix is paid/US. No better German
   source exists openly.
 
-## 4. Recommended PoC scope
+## 4. Stability ranking — what "stable" actually buys you
+
+"Stable" splits into two different guarantees, and YAZIO only delivers one of them:
+
+| Option | Uptime today | Won't break/vanish long-term | Offline-capable | Effort |
+|---|---|---|---|---|
+| **Local data** (FOODS + persisted picks + local OFF slice) | ✅ always | ✅ yours forever | ✅ (fits the PWA goal) | medium (ETL once) |
+| **YAZIO (unofficial)** | ✅ commercial infra | ❌ can break/ban without notice (v15→v18 already) | ❌ | low |
+| **OFF live API** | ❌ search flaky, barcode fine | ✅ open data, will exist | ❌ | zero (status quo) |
+
+Two consequences:
+
+1. **YAZIO trades one instability for another.** It fixes day-to-day uptime but adds
+   sudden-death risk. It's a quality upgrade, not a reliability guarantee — never make it
+   the only path.
+2. **The only source that can't be down is one you host.** The architecture already leans
+   this way: `ScannedProductStore` persists barcode captures locally, and `UserFoodsOverlay`
+   persists confirmed foods/synonyms. The gap is that **name-search picks from OFF are not
+   persisted** — every re-search for the same product hits the network again.
+
+### Highest-ROI stability fix (independent of YAZIO)
+
+Persist every *picked* external search result into the local overlay (same pattern as
+`ScannedProductStore`/`UserFoodsOverlay`). Personal usage is dominated by recurring
+products, so after a few weeks of use the local store covers almost all lookups and
+external APIs are only needed for genuinely new products — at which point OFF being
+down is an inconvenience, not a blocker. This is small (the stores and composite
+merge logic already exist) and it compounds with *any* external source.
+
+### Long-term fix
+
+A German-filtered local OFF slice (OFF publishes full dumps/Parquet) behind the existing
+port removes the runtime dependency entirely, keeps barcode lookup working offline, and
+stays ODbL-clean for productization. This is the point where a real database (SQLite)
+becomes the "concrete need" CLAUDE.md waits for.
+
+## 5. Recommended PoC scope
 
 1. `YazioIngredientSearchService` implementing `IngredientSearchService` — plain `fetch`,
    no SDK dependency, 8s timeout, diagnostics recorder entries (mirroring the OFF service).
