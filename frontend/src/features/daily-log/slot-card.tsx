@@ -4,6 +4,7 @@ import { de, slotLabelsDe } from '../../i18n/de';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
 import { useLogIngredientDrawer } from '../log-ingredient/use-log-ingredient-drawer';
 import { EntryList } from './entry-list';
+import { Card } from '../../components/ui/card';
 
 interface SlotCardProps {
   summary: SlotSummary;
@@ -18,7 +19,7 @@ export function SlotCard({ summary, date }: SlotCardProps) {
 
   return (
     <>
-      <section className="rounded-lg border bg-card p-4">
+      <Card>
         <div className="mb-2">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">{slotLabelsDe[summary.slot]}</h2>
@@ -49,7 +50,7 @@ export function SlotCard({ summary, date }: SlotCardProps) {
         ) : (
           <EntryList entries={summary.entries} />
         )}
-      </section>
+      </Card>
 
       <LogIngredientDrawer open={isOpen} slot={slot} date={date} onClose={closeDrawer} />
     </>

@@ -5,6 +5,7 @@ import { useRecipes } from '../../queries/use-recipes';
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import type { Recipe } from '../../domain/recipes';
 import { de } from '../../i18n/de';
+import { Input } from '../../components/ui/input';
 
 interface Props {
   onSelect: (recipe: Recipe) => void;
@@ -29,13 +30,13 @@ export function RecipePanel({ onSelect }: Props) {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3 p-4">
-      <input
+      <Input
         role="searchbox"
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={de.recipePanel.placeholder}
-        className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-base sm:text-sm"
+        className="w-full appearance-none"
       />
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.recipePanel.loading}</p>}

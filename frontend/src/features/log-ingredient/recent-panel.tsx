@@ -4,6 +4,7 @@ import { useRecentlyUsedIngredients } from '../../queries/use-recently-used-ingr
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecentlyUsedIngredient } from '../../domain/meal-log';
 import { de } from '../../i18n/de';
+import { Input } from '../../components/ui/input';
 
 interface RecentPanelProps {
   onSelect: (result: IngredientSearchResult, defaultAmount: number) => void;
@@ -38,13 +39,13 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3 p-4">
-      <input
+      <Input
         role="searchbox"
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={de.recentPanel.placeholder}
-        className="w-full min-w-0 appearance-none rounded-md border px-3 py-2 text-base sm:text-sm"
+        className="w-full appearance-none"
       />
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.recentPanel.loading}</p>}

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import type { Recipe, RecipeIngredient } from '../../domain/recipes';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { Button } from '../../components/ui/button';
+import { Field } from '../../components/ui/field';
+import { Input } from '../../components/ui/input';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
 import { PerPortionHero } from './per-portion-hero';
 import { de } from '../../i18n/de';
@@ -102,18 +105,15 @@ export function RecipeForm({
         {error && <ErrorBanner error={error} />}
         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
 
-        <div className="space-y-1">
-          <label htmlFor="recipe-name" className="text-sm font-medium">
-            {de.recipeForm.name}
-          </label>
-          <input
+        <Field label={de.recipeForm.name} htmlFor="recipe-name">
+          <Input
             id="recipe-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+            className="w-full"
             placeholder={de.recipeForm.namePlaceholder}
           />
-        </div>
+        </Field>
 
         <PerPortionHero
           ingredients={ingredients}
@@ -131,9 +131,9 @@ export function RecipeForm({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{de.recipeForm.steps}</h3>
-            <button type="button" onClick={addStep} className="rounded-md border px-3 py-1 text-xs">
+            <Button variant="outline" size="sm" onClick={addStep}>
               {de.recipeForm.addStep}
-            </button>
+            </Button>
           </div>
           {steps.length === 0 ? (
             <p className="text-sm text-muted-foreground">{de.recipeForm.noStepsOptional}</p>
@@ -181,16 +181,12 @@ export function RecipeForm({
         </div>
 
         <div className="flex gap-2">
-          <button type="button" onClick={onCancel} className="flex-1 rounded-md border px-4 py-2 text-sm">
+          <Button variant="outline" onClick={onCancel} className="flex-1">
             {de.recipeForm.cancel}
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" disabled={isSubmitting} className="flex-1">
             {isSubmitting ? de.recipeForm.saving : submitLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </>

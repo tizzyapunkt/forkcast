@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from './use-auth';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 export function LoginPage() {
   const { login, isLoginPending } = useAuth();
@@ -26,14 +28,14 @@ export function LoginPage() {
             <label htmlFor="password" className="block text-sm font-medium">
               {de.auth.passwordLabel}
             </label>
-            <input
+            <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
+              className="w-full"
             />
           </div>
           {error && (
@@ -41,13 +43,9 @@ export function LoginPage() {
               {error}
             </p>
           )}
-          <button
-            type="submit"
-            disabled={isLoginPending}
-            className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={isLoginPending} className="w-full">
             {isLoginPending ? de.auth.loggingIn : de.auth.login}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

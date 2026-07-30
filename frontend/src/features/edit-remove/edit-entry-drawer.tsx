@@ -3,7 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { LogEntry, QuickIngredientEntry } from '../../domain/meal-log';
 import { BottomSheet } from '../../components/app/bottom-sheet';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
@@ -65,19 +67,16 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
     <BottomSheet open onClose={onClose} ariaLabel={de.editEntry.dialogAria} heightClassName="max-h-[90dvh]">
       <div className="flex shrink-0 items-center justify-between px-4 pt-3 pb-2">
         <h2 className="text-sm font-semibold">{de.editEntry.title}</h2>
-        <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" onClick={onClose} className="p-0 text-muted-foreground hover:text-foreground">
           {de.editEntry.cancel}
-        </button>
+        </Button>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {error && <ErrorBanner error={error} />}
         <p className="text-sm font-medium text-muted-foreground">{ing.label}</p>
 
-        <div className="space-y-1">
-          <label htmlFor="edit-calories" className="text-sm font-medium">
-            {de.editEntry.caloriesLabel}
-          </label>
+        <Field label={de.editEntry.caloriesLabel} htmlFor="edit-calories" error={errors.calories?.message}>
           <Controller
             name="calories"
             control={control}
@@ -88,19 +87,15 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
                 ref={field.ref}
-                className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+                className="w-full"
               />
             )}
           />
-          {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
-        </div>
+        </Field>
 
         <div className="grid grid-cols-3 gap-2">
           {(['protein', 'carbs', 'fat'] as const).map((macro) => (
-            <div key={macro} className="space-y-1">
-              <label htmlFor={`edit-${macro}`} className="text-xs font-medium text-muted-foreground">
-                {de.editEntry.macroLabel(de.macros[macro])}
-              </label>
+            <Field key={macro} label={de.editEntry.macroLabel(de.macros[macro])} htmlFor={`edit-${macro}`} size="sm">
               <Controller
                 name={macro}
                 control={control}
@@ -111,22 +106,19 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
+                    size="sm"
+                    className="w-full"
                     placeholder="—"
                   />
                 )}
               />
-            </div>
+            </Field>
           ))}
         </div>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
+        <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? de.editEntry.saving : de.editEntry.save}
-        </button>
+        </Button>
       </form>
     </BottomSheet>
   );

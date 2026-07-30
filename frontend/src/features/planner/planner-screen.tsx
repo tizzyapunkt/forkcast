@@ -14,6 +14,8 @@ import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-r
 import { de, slotLabelsDe } from '../../i18n/de';
 import type { DailyLog, MealSlot } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
@@ -209,20 +211,15 @@ export function PlannerScreen() {
         )}
 
         {copyConfirm && (
-          <div className="rounded-md border bg-card p-3">
+          <Card padding="sm">
             <p className="mb-1 text-sm font-medium">{de.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
             <p className="mb-2 text-xs text-muted-foreground">{de.planner.copyDayBody}</p>
             {copyMutation.error && <ErrorBanner error={copyMutation.error} />}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setCopyConfirm(null)}
-                className="flex-1 rounded-md border px-3 py-2 text-sm"
-              >
+              <Button variant="outline" onClick={() => setCopyConfirm(null)} className="flex-1 px-3">
                 {de.recipeForm.cancel}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 disabled={copyMutation.isPending}
                 onClick={() =>
                   copyMutation.mutate(
@@ -230,12 +227,12 @@ export function PlannerScreen() {
                     { onSuccess: () => setCopyConfirm(null) },
                   )
                 }
-                className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                className="flex-1 px-3"
               >
                 {de.planner.copyDayConfirm(de.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
         <LogIngredientDrawer

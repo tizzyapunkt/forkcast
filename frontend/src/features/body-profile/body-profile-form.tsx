@@ -12,7 +12,10 @@ import { de } from '../../i18n/de';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
 import { PHASE_PRESETS } from './phase-presets';
 import { computePreview } from './compute-preview';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
+import { Input } from '../../components/ui/input';
 
 const schema = z.object({
   weightKg: z.coerce
@@ -224,7 +227,7 @@ export function BodyProfileForm() {
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <Field id="bp-weight" label={de.bodyProfile.weight} error={errors.weightKg?.message}>
+        <Field htmlFor="bp-weight" label={de.bodyProfile.weight} error={errors.weightKg?.message}>
           <Controller
             name="weightKg"
             control={control}
@@ -235,7 +238,7 @@ export function BodyProfileForm() {
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
                 ref={field.ref}
-                className={inputCls}
+                className="w-full"
               />
             )}
           />
@@ -255,27 +258,20 @@ export function BodyProfileForm() {
             </p>
           )}
         </Field>
-        <Field id="bp-height" label={de.bodyProfile.height} error={errors.heightCm?.message}>
-          <input
+        <Field htmlFor="bp-height" label={de.bodyProfile.height} error={errors.heightCm?.message}>
+          <Input
             id="bp-height"
             type="number"
             inputMode="numeric"
             step="1"
             {...register('heightCm')}
-            className={inputCls}
+            className="w-full"
           />
         </Field>
-        <Field id="bp-age" label={de.bodyProfile.age} error={errors.ageYears?.message}>
-          <input
-            id="bp-age"
-            type="number"
-            inputMode="numeric"
-            step="1"
-            {...register('ageYears')}
-            className={inputCls}
-          />
+        <Field htmlFor="bp-age" label={de.bodyProfile.age} error={errors.ageYears?.message}>
+          <Input id="bp-age" type="number" inputMode="numeric" step="1" {...register('ageYears')} className="w-full" />
         </Field>
-        <Field id="bp-sex" label={de.bodyProfile.sex} error={errors.sex?.message}>
+        <Field htmlFor="bp-sex" label={de.bodyProfile.sex} error={errors.sex?.message}>
           <Controller
             name="sex"
             control={control}
@@ -302,8 +298,8 @@ export function BodyProfileForm() {
         </Field>
       </div>
 
-      <Field id="bp-activity" label={de.bodyProfile.activity} error={errors.activityFactor?.message}>
-        <select id="bp-activity" {...register('activityFactor')} className={inputCls}>
+      <Field htmlFor="bp-activity" label={de.bodyProfile.activity} error={errors.activityFactor?.message}>
+        <select id="bp-activity" {...register('activityFactor')} className={selectCls}>
           {ACTIVITY_FACTORS.map((factor) => (
             <option key={factor} value={factor}>
               {ACTIVITY_LABELS[factor]}
@@ -312,12 +308,12 @@ export function BodyProfileForm() {
         </select>
       </Field>
 
-      <Field id="bp-phase" label={de.bodyProfile.phase} error={errors.goalPhase?.message}>
+      <Field htmlFor="bp-phase" label={de.bodyProfile.phase} error={errors.goalPhase?.message}>
         <select
           id="bp-phase"
           value={values.goalPhase}
           onChange={(e) => onPhaseChange(e.target.value as GoalPhase)}
-          className={inputCls}
+          className={selectCls}
         >
           {PHASE_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -328,7 +324,7 @@ export function BodyProfileForm() {
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field id="bp-protein" label={de.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
+        <Field htmlFor="bp-protein" label={de.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
           <Controller
             name="proteinPerKg"
             control={control}
@@ -339,24 +335,28 @@ export function BodyProfileForm() {
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
                 ref={field.ref}
-                className={inputCls}
+                className="w-full"
               />
             )}
           />
         </Field>
-        <Field id="bp-fat" label={de.bodyProfile.fatPercent} error={errors.fatPercent?.message}>
-          <input
+        <Field htmlFor="bp-fat" label={de.bodyProfile.fatPercent} error={errors.fatPercent?.message}>
+          <Input
             id="bp-fat"
             type="number"
             inputMode="numeric"
             step="1"
             {...register('fatPercent')}
-            className={inputCls}
+            className="w-full"
           />
         </Field>
       </div>
 
-      <Field id="bp-adjustment-magnitude" label={de.bodyProfile.adjustment} error={errors.adjustmentPercent?.message}>
+      <Field
+        htmlFor="bp-adjustment-magnitude"
+        label={de.bodyProfile.adjustment}
+        error={errors.adjustmentPercent?.message}
+      >
         <div role="radiogroup" aria-label={de.bodyProfile.adjustmentDirectionLabel} className="mb-2 flex gap-2">
           {DIRECTION_OPTIONS.map((opt) => (
             <label
@@ -377,7 +377,7 @@ export function BodyProfileForm() {
             </label>
           ))}
         </div>
-        <input
+        <Input
           id="bp-adjustment-magnitude"
           type="number"
           inputMode="numeric"
@@ -387,7 +387,7 @@ export function BodyProfileForm() {
           value={adjustmentMagnitude}
           onChange={(e) => onMagnitudeChange(e.target.value)}
           disabled={adjustmentDirection === 'maintenance'}
-          className={`${inputCls} disabled:opacity-50`}
+          className="w-full disabled:opacity-50"
         />
         <p className="mt-1 text-xs text-muted-foreground">{de.bodyProfile.adjustmentHint}</p>
       </Field>
@@ -420,47 +420,21 @@ export function BodyProfileForm() {
       </section>
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <button
-          type="button"
+        <Button
+          variant="outline"
           onClick={handleSubmit(onSaveProfile)}
           disabled={isPending}
-          className="flex-1 rounded-md border border-primary px-4 py-2 text-sm font-medium text-primary disabled:opacity-50"
+          className="flex-1 border-primary text-primary"
         >
           {saveMutation.isPending ? de.bodyProfile.saving : de.bodyProfile.saveProfile}
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit(onSaveAsGoals)}
-          disabled={isPending}
-          className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
+        </Button>
+        <Button onClick={handleSubmit(onSaveAsGoals)} disabled={isPending} className="flex-1">
           {applyMutation.isPending ? de.bodyProfile.applying : de.bodyProfile.saveAsGoals}
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
 
-const inputCls = 'w-full rounded-md border px-3 py-2 text-base sm:text-sm';
-
-function Field({
-  id,
-  label,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="text-sm font-medium">
-        {label}
-      </label>
-      {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-  );
-}
+// `<select>` has no primitive yet — it keeps the Input base classes inline.
+const selectCls = 'w-full rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm';

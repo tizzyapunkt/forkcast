@@ -7,6 +7,7 @@ import { UserFoodsPanel } from './user-foods-panel';
 import { DiagnosticsScreen } from '../diagnostics/diagnostics-screen';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 type View = 'main' | 'weight-tracker' | 'diagnostics';
 
@@ -59,13 +60,9 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
           <span aria-hidden="true">→</span>
         </button>
         <div className="pt-4">
-          <button
-            type="button"
-            onClick={() => logout()}
-            className="w-full rounded-md border border-destructive px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
-          >
+          <Button variant="destructiveOutline" onClick={() => logout()} className="w-full">
             {de.auth.logout}
-          </button>
+          </Button>
         </div>
       </div>
     </>

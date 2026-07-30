@@ -11,6 +11,7 @@ import { computeRecipeTotals } from '../../domain/recipe-totals';
 import { Camera, ChevronRight, CookingPot, Plus } from 'lucide-react';
 import { AppHeader } from '../../components/app/app-header';
 import { de, formatMacroTriplet } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
 
@@ -62,23 +63,24 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
       <div className="space-y-3 p-4">
         <div className="flex gap-2">
           {importConfigured && (
-            <button
+            <Button
+              variant="outline"
               onClick={() => setView({ mode: 'import' })}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium text-primary"
+              className="flex-1 gap-1.5 px-3 text-primary"
               aria-label={de.aiRecipeImport.entryButtonAria}
             >
               <Camera size={16} aria-hidden="true" />
               {de.aiRecipeImport.entryButton}
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={() => setView({ mode: 'create' })}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+            className="flex-1 gap-1.5 px-3"
             aria-label={de.recipes.newRecipeAria}
           >
             <Plus size={16} aria-hidden="true" />
             {de.recipes.newButton}
-          </button>
+          </Button>
         </div>
 
         {error && <ErrorBanner error={error} />}

@@ -10,6 +10,7 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
+import { Button } from '../../components/ui/button';
 
 /** The right-aligned quantity text for one ingredient row in the recipe view. */
 function formatIngredientQuantity(ing: RecipeIngredient, untracked: boolean): string {
@@ -96,14 +97,15 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
       />
       <div className="space-y-4 p-4">
         <div className="flex items-center justify-end gap-2">
-          <button
+          <Button
+            variant="outline"
             onClick={() => setEditing(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium text-primary"
+            className="gap-1.5 py-1.5 px-3 text-primary"
             aria-label={de.recipes.editAria}
           >
             <Pencil size={14} aria-hidden="true" />
             {de.recipes.edit}
-          </button>
+          </Button>
           <button
             onClick={() => setConfirmDelete(true)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-destructive hover:bg-destructive/10"
@@ -213,20 +215,21 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
             <p className="mb-2 text-sm">{de.recipes.deleteConfirm(recipe.name)}</p>
             {deleteMutation.error && <ErrorBanner error={deleteMutation.error} />}
             <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(false)} className="flex-1 rounded-md border px-3 py-2 text-sm">
+              <Button variant="outline" onClick={() => setConfirmDelete(false)} className="flex-1 px-3">
                 {de.recipeForm.cancel}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={() =>
                   deleteMutation.mutate(id, {
                     onSuccess: () => onDeleted(),
                   })
                 }
                 disabled={deleteMutation.isPending}
-                className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+                className="flex-1 px-3"
               >
                 {deleteMutation.isPending ? de.recipes.deleting : de.recipes.deleteBtn}
-              </button>
+              </Button>
             </div>
           </div>
         )}

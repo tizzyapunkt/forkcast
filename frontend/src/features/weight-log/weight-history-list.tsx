@@ -4,6 +4,8 @@ import { useLogWeight } from '../../queries/use-log-weight';
 import { useRemoveWeight } from '../../queries/use-remove-weight';
 import { de } from '../../i18n/de';
 import { parseDecimal } from '../../lib/decimal';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 interface WeightHistoryListProps {
   entries: WeightEntry[];
@@ -53,26 +55,22 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
     return (
       <li className="flex items-center gap-2 p-2">
         <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
-        <input
+        <Input
           aria-label={de.weightLog.historyEditAria(entry.date)}
           type="text"
           inputMode="decimal"
           value={draft}
           autoFocus
           onChange={(e) => setDraft(e.target.value)}
-          className="flex-1 rounded-md border border-input px-2 py-1 text-base sm:text-sm"
+          size="sm"
+          className="flex-1"
         />
-        <button
-          type="button"
-          onClick={commitEdit}
-          disabled={logMutation.isPending}
-          className="rounded-md bg-primary px-2 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
-        >
+        <Button size="sm" onClick={commitEdit} disabled={logMutation.isPending} className="px-2">
           {de.weightLog.historySave}
-        </button>
-        <button type="button" onClick={() => setMode('view')} className="rounded-md border px-2 py-1 text-xs">
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setMode('view')} className="px-2">
           {de.weightLog.historyCancel}
-        </button>
+        </Button>
       </li>
     );
   }
@@ -82,17 +80,18 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
       <li className="flex items-center gap-2 p-2">
         <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
         <span className="flex-1 text-sm">{de.weightLog.historyDeleteConfirm}</span>
-        <button
-          type="button"
+        <Button
+          variant="destructive"
+          size="sm"
           onClick={confirmDelete}
           disabled={removeMutation.isPending}
-          className="rounded-md bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground disabled:opacity-50"
+          className="px-2"
         >
           {de.weightLog.historyConfirmDelete}
-        </button>
-        <button type="button" onClick={() => setMode('view')} className="rounded-md border px-2 py-1 text-xs">
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setMode('view')} className="px-2">
           {de.weightLog.historyCancel}
-        </button>
+        </Button>
       </li>
     );
   }
@@ -101,25 +100,27 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
     <li className="flex items-center gap-2 p-2">
       <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
       <span className="flex-1 text-sm font-medium tabular-nums">{entry.weightKg.toFixed(1)} kg</span>
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         aria-label={de.weightLog.historyEditAria(entry.date)}
         onClick={() => {
           setDraft(entry.weightKg.toString());
           setMode('edit');
         }}
-        className="rounded-md border px-2 py-1 text-xs"
+        className="px-2"
       >
         {de.weightLog.cardEdit}
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant="destructiveOutline"
+        size="sm"
         aria-label={de.weightLog.historyDeleteAria(entry.date)}
         onClick={() => setMode('confirm-delete')}
-        className="rounded-md border border-destructive/50 px-2 py-1 text-xs text-destructive"
+        className="border-destructive/50 px-2"
       >
         {de.weightLog.historyConfirmDelete}
-      </button>
+      </Button>
     </li>
   );
 }

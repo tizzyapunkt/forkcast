@@ -1,5 +1,6 @@
 import type { TrendSnapshot } from '../../domain/weight-log';
 import { de } from '../../i18n/de';
+import { Card } from '../../components/ui/card';
 
 interface WeightStatsProps {
   trend: TrendSnapshot;
@@ -51,10 +52,10 @@ export function WeightStats({ trend }: WeightStatsProps) {
 
 function StatCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-md border border-input bg-card p-3">
+    <Card padding="sm">
       <p className="text-xs text-muted-foreground">{title}</p>
       <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
       {hint && <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{hint}</p>}
-    </div>
+    </Card>
   );
 }

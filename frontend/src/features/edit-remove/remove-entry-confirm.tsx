@@ -4,6 +4,7 @@ import { Portal } from '../../components/app/portal';
 import { useRemoveLogEntry } from '../../queries/use-remove-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 interface RemoveEntryConfirmProps {
   entry: LogEntry;
@@ -40,16 +41,12 @@ export function RemoveEntryConfirm({ entry, onConfirm, onCancel }: RemoveEntryCo
             </p>
           </div>
           <div className="flex gap-2">
-            <button onClick={onCancel} className="flex-1 rounded-md border px-4 py-2 text-sm">
+            <Button variant="outline" onClick={onCancel} className="flex-1">
               {de.removeEntry.cancel}
-            </button>
-            <button
-              onClick={handleRemove}
-              disabled={isPending}
-              className="flex-1 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-50"
-            >
+            </Button>
+            <Button variant="destructive" onClick={handleRemove} disabled={isPending} className="flex-1">
               {isPending ? de.removeEntry.removing : de.removeEntry.remove}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

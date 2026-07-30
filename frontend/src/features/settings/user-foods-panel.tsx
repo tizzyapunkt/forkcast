@@ -1,6 +1,8 @@
 import { useUserFoodsOverlay, useExportUserFoods } from '../../queries/use-resolve-ingredients';
 import type { UserFoodsOverlayExport } from '../../domain/food-resolution';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 
 function pad2(n: number): string {
   return n < 10 ? `0${n}` : String(n);
@@ -42,22 +44,21 @@ export function UserFoodsPanel() {
   };
 
   return (
-    <section data-testid="user-foods-panel" className="rounded-md border border-input bg-card p-4">
+    <Card data-testid="user-foods-panel">
       <h3 className="text-sm font-semibold">{de.userFoods.title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{de.userFoods.hint}</p>
       <p className="mt-2 text-xs font-medium">
         {count === 0 ? de.userFoods.countEmpty : de.userFoods.countLabel(count)}
       </p>
-      <button
-        type="button"
+      <Button
         onClick={onExport}
         disabled={disabled}
         title={count === 0 ? de.userFoods.countEmpty : undefined}
-        className="mt-3 w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        className="mt-3 w-full px-3"
       >
         {exportMutation.isPending ? de.userFoods.exporting : de.userFoods.exportButton}
-      </button>
+      </Button>
       {exportMutation.isError && <p className="mt-2 text-xs text-destructive">{de.userFoods.exportError}</p>}
-    </section>
+    </Card>
   );
 }

@@ -7,6 +7,7 @@ import { ProductCaptureNotConfiguredError, type ProductDraft } from '../../api/e
 import { ProductReviewForm } from './product-review-form';
 import { useExtractProduct } from './use-extract-product';
 import { useSaveScannedProduct } from './use-save-scanned-product';
+import { Button } from '../../components/ui/button';
 
 interface Props {
   barcode: string;
@@ -86,14 +87,9 @@ export function CaptureProductFlow({ barcode, onCancel, onCaptured, maxImages, m
 
       {extractError && <ErrorBanner error={extractError} />}
 
-      <button
-        type="button"
-        onClick={handleExtract}
-        disabled={photos.length === 0 || extractMutation.isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-      >
+      <Button onClick={handleExtract} disabled={photos.length === 0 || extractMutation.isPending} className="w-full">
         {extractMutation.isPending ? de.productCapture.extracting : de.productCapture.extract}
-      </button>
+      </Button>
     </div>
   );
 }

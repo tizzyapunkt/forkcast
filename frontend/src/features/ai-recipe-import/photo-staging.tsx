@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SupportedImageMediaType } from '../../api/import-recipe-from-photos';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 export interface StagedPhoto {
   id: string;
@@ -90,15 +91,15 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">{de.aiRecipeImport.photoCount(photos.length, maxImages)}</p>
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => inputRef.current?.click()}
           disabled={disabled || photos.length >= maxImages}
-          className="rounded-md border px-3 py-1 text-xs disabled:opacity-50"
           aria-label={photos.length === 0 ? de.aiRecipeImport.pickPhotosAria : de.aiRecipeImport.addMore}
         >
           {photos.length === 0 ? `+ ${de.aiRecipeImport.pickPhotos}` : `+ ${de.aiRecipeImport.addMore}`}
-        </button>
+        </Button>
       </div>
 
       <input

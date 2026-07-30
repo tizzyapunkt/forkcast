@@ -8,6 +8,7 @@ import type { ClientLogEntry } from '../../lib/client-log';
 import type { ServerLogEntry } from '../../api/debug-logs';
 import { buildDiagnosticsBundle } from './build-bundle';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 interface DiagnosticsScreenProps {
   onBack: () => void;
@@ -60,18 +61,14 @@ export function DiagnosticsScreen({ onBack }: DiagnosticsScreenProps) {
     <>
       <AppHeader title={de.diagnostics.screenTitle} onBack={onBack} backAria={de.recipes.back} />
       <div className="space-y-4 p-4">
-        <button
-          type="button"
-          onClick={() => void copy()}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
+        <Button onClick={() => void copy()} className="w-full">
           <ClipboardCopy className="h-4 w-4" aria-hidden="true" />
           {copyState === 'copied'
             ? de.diagnostics.copied
             : copyState === 'failed'
               ? de.diagnostics.copyError
               : de.diagnostics.copy}
-        </button>
+        </Button>
 
         <section className="space-y-2">
           <h2 className="text-base font-semibold">

@@ -21,6 +21,11 @@ describe('DecimalInput', () => {
     expect(input).toHaveAttribute('inputMode', 'decimal');
   });
 
+  it('renders digits in tabular figures so they do not jitter while typing', () => {
+    render(<Harness />);
+    expect(screen.getByLabelText('amount').className).toContain('tabular-nums');
+  });
+
   it('shows the value formatted in the active locale', () => {
     render(<Harness initial={0.25} locale="de-DE" />);
     expect(screen.getByLabelText('amount')).toHaveValue('0,25');

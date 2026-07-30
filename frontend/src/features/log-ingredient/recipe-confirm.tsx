@@ -7,7 +7,9 @@ import type { MealSlot } from '../../domain/meal-log';
 import { scaleIngredients } from '../../domain/scale-recipe-ingredients';
 import { useLogRecipe } from '../../queries/use-log-recipe';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
 import { de, formatMacroTriplet } from '../../i18n/de';
 
 const schema = z.object({
@@ -77,20 +79,17 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
         </p>
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="portions" className="text-sm font-medium">
-          {de.recipeConfirm.portionsLabel}
-        </label>
+      <Field label={de.recipeConfirm.portionsLabel} htmlFor="portions" error={errors.portions?.message}>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => setValue('portions', Math.max(1, (portions ?? 1) - 1), { shouldValidate: true })}
             disabled={(portions ?? 1) <= 1}
             aria-label={de.recipeConfirm.portionsDecrement}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border disabled:opacity-50"
           >
             <Minus size={16} aria-hidden="true" />
-          </button>
+          </Button>
           <Controller
             name="portions"
             control={control}
@@ -101,22 +100,21 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
                 ref={field.ref}
-                className="w-full rounded-md border px-3 py-2 text-center text-base font-semibold tabular-nums sm:text-sm"
+                className="w-full text-center font-semibold"
                 autoFocus
               />
             )}
           />
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => setValue('portions', (portions ?? 0) + 1, { shouldValidate: true })}
             aria-label={de.recipeConfirm.portionsIncrement}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border"
           >
             <Plus size={16} aria-hidden="true" />
-          </button>
+          </Button>
         </div>
-        {errors.portions && <p className="text-xs text-destructive">{errors.portions.message}</p>}
-      </div>
+      </Field>
 
       {totals && portions !== null && (
         <div
@@ -156,18 +154,14 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
 
       <div className="flex gap-2">
         {onBack && (
-          <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
+          <Button variant="outline" onClick={onBack} className="flex-1">
             {de.recipeConfirm.back}
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          <Check size={17} aria-hidden="true" className="-ml-1 mr-1.5 inline-block align-[-3px]" />
+        <Button type="submit" disabled={isPending} className="flex-1">
+          <Check size={17} aria-hidden="true" />
           {isPending ? de.recipeConfirm.logging : de.recipeConfirm.log}
-        </button>
+        </Button>
       </div>
     </form>
   );
