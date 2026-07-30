@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": false,
+    "types": [],
+    "rootDir": "src",
+    "outDir": "dist-ui/types"
+  },
+  "include": ["src/components/ui", "src/lib/cn.ts", "src/lib/decimal.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+}

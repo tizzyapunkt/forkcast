@@ -1,0 +1,13 @@
+/* Stylesheet for the packaged design system (`pnpm build:ui`).
+ *
+ * Tailwind is scoped to `components/ui/**` by `tailwind.config.lib.ts`, so the emitted
+ * CSS carries the tokens, a normalising base layer, and exactly the utility classes the
+ * primitives use — nothing from the app's screens. The app itself does NOT import this
+ * file; it gets the same tokens via `src/index.css`.
+ */
+
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
