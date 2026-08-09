@@ -15,7 +15,7 @@ import type {
 } from '../../domain/recipes';
 import type { ResolutionProposal } from '../../domain/food-resolution';
 import { de } from '../../i18n/de';
-import { DebugBox } from './debug-box';
+import { pairInitialRowProvenance, syncRowProvenance, type RowProvenance } from './row-provenance';
 
 const r = de.aiRecipeImport.resolve;
 
@@ -27,21 +27,16 @@ interface Props {
   photos?: StagedPhoto[];
 }
 
-interface OverriddenInfo {
-  extractedUnit: string;
-}
-
 function isMatched(ing: DraftIngredient): ing is MatchedDraftIngredient {
   return ing.matched;
 }
 
 function buildInitialMatchedIngredients(draft: RecipeDraft): {
   matched: RecipeIngredient[];
-  overrideMap: Map<number, OverriddenInfo>;
   estimateIndices: Set<number>;
+  provenance: RowProvenance[];
 } {
   const matched: RecipeIngredient[] = [];
-  const overrideMap = new Map<number, OverriddenInfo>();
   const estimateIndices = new Set<number>();
   draft.ingredients.forEach((ing) => {
     if (!isMatched(ing)) return;
@@ -62,11 +57,8 @@ function buildInitialMatchedIngredients(draft: RecipeDraft): {
     }
     if (ing.note !== undefined) row.note = ing.note;
     matched.push(row);
-    if (ing.unitOverridden) {
-      overrideMap.set(idx, { extractedUnit: ing.unit });
-    }
   });
-  return { matched, overrideMap, estimateIndices };
+  return { matched, estimateIndices, provenance: pairInitialRowProvenance(draft) };
 }
 
 function toRecipeIngredient(m: MatchedDraftIngredient): RecipeIngredient {
@@ -86,6 +78,7 @@ function toRecipeIngredient(m: MatchedDraftIngredient): RecipeIngredient {
 export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Props) {
   const initial = useMemo(() => buildInitialMatchedIngredients(draft), [draft]);
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(initial.matched);
+  const [rowProvenance, setRowProvenance] = useState<RowProvenance[]>(initial.provenance);
   const [estimateIndices, setEstimateIndices] = useState<Set<number>>(initial.estimateIndices);
   const [unmatched, setUnmatched] = useState<UnmatchedDraftIngredient[]>(() =>
     draft.ingredients.filter((i): i is UnmatchedDraftIngredient => !i.matched),
@@ -126,6 +119,12 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
 
   const proposalState: ProposalState = propose.isError ? 'error' : propose.isSuccess ? 'ready' : 'loading';
 
+  /** Keep each row paired with the provenance it loaded with, across edits, swaps and removals. */
+  function changeIngredients(next: RecipeIngredient[]) {
+    setRowProvenance((prev) => syncRowProvenance(ingredients, next, prev));
+    setIngredients(next);
+  }
+
   function clearEstimate(index: number) {
     setEstimateIndices((prev) => {
       if (!prev.has(index)) return prev;
@@ -136,7 +135,9 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
   }
 
   function resolveUnmatched(name: string, ingredient: MatchedDraftIngredient) {
+    // Rows that arrive through the resolve flow were never matched at import, so they carry none.
     setIngredients((prev) => [...prev, toRecipeIngredient(ingredient)]);
+    setRowProvenance((prev) => [...prev, undefined]);
     setUnmatched((prev) => prev.filter((u) => u.name !== name));
     setOpenName(null);
   }
@@ -245,7 +246,8 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
       <RecipeForm
         initial={initialRecipe}
         ingredients={ingredients}
-        onIngredientsChange={setIngredients}
+        onIngredientsChange={changeIngredients}
+        provenance={rowProvenance}
         estimateIndices={estimateIndices}
         onEstimateAcknowledged={clearEstimate}
         submitLabel={de.recipes.create}
@@ -259,25 +261,6 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
           })
         }
       />
-
-      {/* Render override hints */}
-      {initial.overrideMap.size > 0 && (
-        <ul className="space-y-1 px-4 pb-2 text-xs text-muted-foreground">
-          {ingredients.map((ing, idx) => {
-            const override = initial.overrideMap.get(idx);
-            if (!override) return null;
-            return (
-              <li
-                key={`override-${idx}`}
-                aria-label={de.aiRecipeImport.unitOverriddenAria}
-                data-testid={`unit-override-${idx}`}
-              >
-                {ing.name}: {de.aiRecipeImport.unitOverridden(override.extractedUnit, ing.unit)}
-              </li>
-            );
-          })}
-        </ul>
-      )}
 
       <ResolveSheet
         item={openItem}
@@ -303,8 +286,6 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
         }}
         onClose={() => setOpenName(null)}
       />
-
-      {draft.debug && <DebugBox debug={draft.debug} />}
     </>
   );
 }

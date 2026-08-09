@@ -379,83 +379,127 @@ When the user toggles a previously-tracked row to untracked in the review UI, th
 - **WHEN** the user toggles the row to tracked and saves
 - **THEN** the `add-recipe` payload carries `untracked: false` (or absent) and no `displayQuantity` on that row
 
-### Requirement: Optional debug payload on the import response
+### Requirement: Match provenance is returned on every import response
 
-When the backend is configured to emit debug information (env var `RECIPE_IMPORT_DEBUG=true` at startup; the variable accepts only the literal strings `true` or `false`, case-insensitive, and defaults to `false`), the import endpoint SHALL return an additional `debug` object on the recipe draft response. The `debug` object MUST contain a per-ingredient breakdown that lets a developer diagnose ingredient-matching mismatches without re-running the import.
+The import endpoint SHALL return a `provenance` object on every successful recipe-draft response, with no configuration gating. `provenance.ingredients` SHALL be a parallel array to the draft's `ingredients`: entry *i* describes how draft ingredient *i* was matched, in extraction order, so a client can correlate a row to its provenance by position without name matching.
 
-For each ingredient extracted by the vision model, the `debug.ingredients` entry MUST include:
-- `raw`: the ingredient as returned by the model, verbatim (name, amount, unit, piece-quantity fields, raw display fields if present), before any matching.
-- `candidates`: the top N candidates returned by the winning cascade tier for the raw name, in rank order. The cap N is fixed at 5. Each candidate exposes `name`, `source` (`FOODS`, `USER`, or `SCAN`), `unit`, and `untracked`.
-- `chosen`: the candidate picked as the match, or `null` when no match was found. `chosen` MUST be reference-equal in content to the corresponding entry in `candidates` (typically the first), or `null`.
-- `flags`: a flat object with the post-match flags that fired on this row: `unitOverridden`, `pieceQuantityDropped`, `untrackedInherited` (booleans).
+For each extracted ingredient, the entry MUST include:
 
-When `RECIPE_IMPORT_DEBUG` is not configured, the `debug` field MUST be absent from the response entirely (not `null`, not an empty object), so existing clients are unaffected.
+- `raw`: the ingredient exactly as returned by the vision model before any matching (name, amount, unit, piece-quantity fields, raw display fields when present, note when present).
+- `candidates`: the top candidates returned by the winning cascade tier for the raw name, in rank order, capped at 5. Each candidate exposes `name`, `source`, `unit`, and `untracked`.
+- `chosen`: the candidate picked as the match, or `null` when no tier matched.
+- `flags`: a flat object of the post-match flags that fired on this row (`unitOverridden`, `pieceQuantityDropped`, `untrackedInherited`, `missingAmount`).
 
-The `debug` payload MUST NOT be persisted anywhere. It exists only on the request-scoped response.
+The provenance payload MUST NOT be persisted anywhere; it exists only on the request-scoped response and MUST NOT appear on a saved recipe.
 
-#### Scenario: Debug field omitted by default
-- **WHEN** the backend starts without `RECIPE_IMPORT_DEBUG` set and a client calls `POST /import-recipe-from-photos` with a valid image
-- **THEN** the response is `200` with the existing draft shape
-- **AND** the response body has no `debug` property
+#### Scenario: Provenance present without configuration
 
-#### Scenario: Debug field present when enabled
-- **WHEN** the backend starts with `RECIPE_IMPORT_DEBUG=1` and a client calls `POST /import-recipe-from-photos` with a valid image whose extraction yields two ingredients
-- **THEN** the response is `200` with a `debug.ingredients` array of length 2
-- **AND** each entry contains `raw`, `candidates`, `chosen`, and `flags`
+- **WHEN** a client calls `POST /import-recipe-from-photos` with a valid image whose extraction yields two ingredients, with no import-debug environment variable set
+- **THEN** the response is `200` with a `provenance.ingredients` array of length 2, each entry containing `raw`, `candidates`, `chosen`, and `flags`
 
-#### Scenario: Matched row carries chosen and unit-override flag
-- **WHEN** debug is enabled and the model extracts `{ name: "tomato paste", amount: 2, unit: "tbsp" }` and the catalog match has `unit: "g"`
-- **THEN** the debug entry for that ingredient has a non-null `chosen` with `unit: "g"`
-- **AND** `flags.unitOverridden` is `true`
-- **AND** `flags.pieceQuantityDropped` is `false`
-- **AND** `flags.untrackedInherited` is `false`
-- **AND** `candidates[0]` matches the `chosen` candidate
+#### Scenario: Provenance is positionally parallel to the draft ingredients
 
-#### Scenario: Cascade-tier source visible per candidate
-- **WHEN** debug is enabled and an ingredient matches in the USER tier after a FOODS miss
-- **THEN** the debug entry's `candidates` carry `source: 'USER'` and `chosen.source` is `'USER'`
+- **WHEN** an import yields a draft whose second ingredient is unmatched and whose third is matched
+- **THEN** `provenance.ingredients[1].chosen` is `null` and `provenance.ingredients[2].chosen` describes the match for draft ingredient index 2
+
+#### Scenario: Matched row carries chosen and the unit-override flag
+
+- **WHEN** the model extracts `{ name: "tomato paste", amount: 2, unit: "tbsp" }` and the catalog match has `unit: "g"`
+- **THEN** that provenance entry has a non-null `chosen` with `unit: "g"`, `flags.unitOverridden` is `true`, `flags.pieceQuantityDropped` is `false`, and `candidates[0]` matches `chosen`
 
 #### Scenario: Unmatched row carries null chosen
-- **WHEN** debug is enabled and the model extracts an ingredient name that has no match in any cascade tier
-- **THEN** the debug entry has `chosen: null`
-- **AND** `candidates` is an empty array
-- **AND** all `flags` are `false`
 
-#### Scenario: Piece-quantity drop is flagged
-- **WHEN** debug is enabled and the model extracts `{ name: "Knoblauch", amount: 6, unit: "g", pieceAmount: 2, pieceUnitLabel: "Zehe", gramsPerPiece: 3 }` and the catalog match has `unit: "tbsp"`
-- **THEN** the debug entry's `flags.pieceQuantityDropped` is `true`
-- **AND** `flags.unitOverridden` is `true`
-
-#### Scenario: Untracked inheritance is flagged
-- **WHEN** debug is enabled and the model extracts `{ name: "salt", amount: 5, unit: "g" }` and the catalog match has `unit: "g"` and `untracked: true`
-- **THEN** the debug entry's `flags.untrackedInherited` is `true`
+- **WHEN** the model extracts an ingredient name that no cascade tier matches
+- **THEN** that provenance entry has `chosen: null`, an empty `candidates` array, and all `flags` false
 
 #### Scenario: Candidate cap
-- **WHEN** debug is enabled and the winning tier returns more than 5 candidates for a raw ingredient name
-- **THEN** the debug entry's `candidates` array has length exactly 5, in the original rank order
 
-### Requirement: Debug box on the import review screen
+- **WHEN** the winning tier returns more than 5 candidates for a raw ingredient name
+- **THEN** that entry's `candidates` array has length exactly 5, in the original rank order
 
-The "Add Recipe from Photo" review screen SHALL render a collapsible "Debug" box at the bottom of the screen when, and only when, the import response includes a `debug` field. The box MUST be collapsed by default; expanding it reveals one block per ingredient showing:
+#### Scenario: Provenance is not persisted
 
-- the raw extracted name (and amount/unit/piece fields if present),
-- the chosen match's name, source, and unit (or an explicit "unmatched" indicator if `chosen` is null),
-- the list of top candidates in rank order with name, source, and unit,
-- the flags that fired (`unitOverridden`, `pieceQuantityDropped`, `untrackedInherited`) when true.
+- **WHEN** the user saves a reviewed draft
+- **THEN** the stored recipe carries no provenance data
 
-The box MUST NOT render at all when `draft.debug` is undefined. The box's labels MAY remain in English (this is a developer tool, not user-facing copy).
+### Requirement: Review screen shows the raw extracted line on each imported row
 
-#### Scenario: Box hidden when debug field absent
-- **WHEN** the review screen receives a draft whose response has no `debug` field
-- **THEN** no element with the debug box role/test-id is in the rendered output
+The import review screen SHALL display, beneath each ingredient row that came from the import, the raw text the model read for that row — the extracted name together with its extracted amount and unit when present — visually subordinate to the matched name. This makes a mismatch between what the photo said and what the row now claims visible without opening a source photo.
 
-#### Scenario: Box visible when debug field present
-- **WHEN** the review screen receives a draft whose response has a `debug` field with at least one ingredient entry
-- **THEN** the debug box is rendered, collapsed by default, with a toggle to expand it
+Rows the user adds manually after import SHALL NOT show a raw line, and replacing a row's ingredient SHALL leave the raw line unchanged, because it records what was read, not what was chosen.
 
-#### Scenario: Expanded box shows raw, chosen, candidates, and flags
-- **WHEN** the user expands the debug box on a draft whose `debug.ingredients[0]` has `raw.name = "tomato paste"`, `chosen.name = "Tomatenmark"`, three candidates, and `flags.unitOverridden = true`
-- **THEN** the rendered block contains the raw name, the chosen name, all three candidate names in order, and a visible `unitOverridden` indicator
+#### Scenario: Raw line rendered under the matched name
+
+- **WHEN** the model read `2 EL Tomatenmark` and the matcher chose the catalog entry `Tomatenmark`
+- **THEN** that row shows `Tomatenmark` with the raw extracted line beneath it
+
+#### Scenario: Mismatch is visible without the photo
+
+- **WHEN** the model read `Kirschtomaten` and the matcher chose `Tomatenmark`
+- **THEN** the row shows `Tomatenmark` with `Kirschtomaten` as its raw line, so the two can be compared in place
+
+#### Scenario: Manually added row has no raw line
+
+- **WHEN** the user adds an ingredient through the picker after the draft loaded
+- **THEN** that row shows no raw extracted line
+
+#### Scenario: Raw line survives a replacement
+
+- **WHEN** the user replaces a row's ingredient with a different catalog entry
+- **THEN** the row's raw extracted line is unchanged and still shows what the model read
+
+### Requirement: Replacing an imported ingredient offers the ranked candidates first
+
+When the user opens the replace flow on an imported row, the picker SHALL present that row's provenance `candidates` as directly selectable options, in rank order, above the search input, each labelled with its name and source. Selecting a candidate SHALL apply it to the row exactly as a search result would, and SHALL close the picker. The search input SHALL remain available for anything not among the candidates. When the row has no candidates, the picker SHALL open on search as it does today, with no empty candidate section.
+
+#### Scenario: Candidates offered without typing
+
+- **WHEN** the user opens the replace flow on a row whose provenance carries three candidates
+- **THEN** all three are listed in rank order above the search input, before any query is typed
+
+#### Scenario: Selecting a candidate replaces the row
+
+- **WHEN** the user taps the second candidate
+- **THEN** the row adopts that ingredient's name, unit, and macros — keeping the row's existing amount, per the existing replace rules — and the picker closes
+
+#### Scenario: Search still available
+
+- **WHEN** the user ignores the candidates and types a query
+- **THEN** search results are returned and selecting one replaces the row as before
+
+#### Scenario: No candidate section when there are none
+
+- **WHEN** the user opens the replace flow on a row whose provenance has an empty `candidates` array
+- **THEN** the picker shows the search input with no empty candidate section
+
+#### Scenario: Manually added rows are unaffected
+
+- **WHEN** the user opens the replace flow on a row they added manually
+- **THEN** the picker shows the search input with no candidate section
+
+### Requirement: Rows with uncertain matches are marked
+
+The review screen SHALL render a quiet inline marker on any imported row whose provenance indicates the match warrants a look: any of `flags.unitOverridden`, `flags.pieceQuantityDropped`, `flags.untrackedInherited`, or `flags.missingAmount` is true, or `chosen` is non-null while `candidates` held more than one option. The marker SHALL state which condition applies in German and MUST NOT block saving or require dismissal.
+
+#### Scenario: Unit override marked
+
+- **WHEN** a row's provenance has `flags.unitOverridden` true
+- **THEN** that row shows a marker explaining the extracted unit was replaced by the catalog unit
+
+#### Scenario: Ambiguous match marked
+
+- **WHEN** a row matched while its tier returned four candidates
+- **THEN** that row shows a marker indicating alternatives exist
+
+#### Scenario: Confident match unmarked
+
+- **WHEN** a row matched as the only candidate with no flags set
+- **THEN** that row shows no marker
+
+#### Scenario: Marker never blocks saving
+
+- **WHEN** several rows carry markers and the user submits the form
+- **THEN** the recipe saves without requiring the markers to be dismissed
 
 ### Requirement: Ingredient `name` field carries the food noun only
 

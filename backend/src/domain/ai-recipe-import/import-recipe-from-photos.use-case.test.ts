@@ -503,8 +503,8 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.displayQuantity).toEqual({ unitLabel: 'n. Geschmack' });
   });
 
-  describe('debug payload', () => {
-    it('omits debug when includeDebug is not passed', async () => {
+  describe('match provenance', () => {
+    it('attaches provenance to every draft without any configuration', async () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
@@ -514,7 +514,34 @@ describe('importRecipeFromPhotos', () => {
       const search = makeSearch({ 'olive oil': [catalogResult()] });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
-      expect('debug' in draft).toBe(false);
+
+      expect(draft.provenance.ingredients).toHaveLength(1);
+      expect(draft.provenance.ingredients[0]!.raw).toEqual({ name: 'olive oil', amount: 30, unit: 'ml' });
+    });
+
+    it('keeps provenance positionally parallel to the draft ingredients across matched and unmatched rows', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          { name: 'olive oil', amount: 30, unit: 'ml' },
+          { name: 'unicorn dust', amount: 1, unit: 'tsp' },
+          { name: 'tomato paste', amount: 2, unit: 'tbsp' },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({
+        'olive oil': [catalogResult()],
+        'tomato paste': [catalogResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' })],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.provenance.ingredients).toHaveLength(draft.ingredients.length);
+      expect(draft.ingredients[1]!.matched).toBe(false);
+      expect(draft.provenance.ingredients[1]!.chosen).toBeNull();
+      expect(draft.provenance.ingredients[2]!.chosen?.name).toBe('Tomatenmark');
+      expect(draft.provenance.ingredients[2]!.raw.name).toBe('tomato paste');
     });
 
     it('populates raw, candidates, chosen, and unitOverridden flag for a matched ingredient', async () => {
@@ -531,11 +558,11 @@ describe('importRecipeFromPhotos', () => {
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug).toBeDefined();
-      expect(draft.debug!.ingredients).toHaveLength(1);
-      const entry = draft.debug!.ingredients[0]!;
+      expect(draft.provenance).toBeDefined();
+      expect(draft.provenance.ingredients).toHaveLength(1);
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.raw).toEqual({ name: 'tomato paste', amount: 2, unit: 'tbsp' });
       expect(entry.candidates).toHaveLength(2);
       expect(entry.candidates[0]).toEqual({ name: 'Tomatenmark', source: 'CATALOG', unit: 'g', untracked: false });
@@ -555,9 +582,9 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({});
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.chosen).toBeNull();
       expect(entry.candidates).toEqual([]);
       expect(entry.flags.unitOverridden).toBe(false);
@@ -581,9 +608,9 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({ knoblauch: [catalogResult({ name: 'Knoblauch', unit: 'tbsp' })] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.pieceQuantityDropped).toBe(true);
       expect(entry.flags.unitOverridden).toBe(true);
     });
@@ -606,9 +633,9 @@ describe('importRecipeFromPhotos', () => {
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.untrackedInherited).toBe(true);
       expect(entry.candidates[0]?.untracked).toBe(true);
     });
@@ -624,9 +651,9 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({ zucchini: [catalogResult({ name: 'Zucchini', unit: 'g' })] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.missingAmount).toBe(true);
       const ing = draft.ingredients[0]!;
       if (!ing.matched) throw new Error('expected matched ingredient');
@@ -642,9 +669,9 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({ 'olive oil': [catalogResult()] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
+      expect(draft.provenance.ingredients[0]!.flags.missingAmount).toBe(false);
     });
 
     it('does not flag missingAmount for an untracked match (amount defaults to 0)', async () => {
@@ -665,9 +692,9 @@ describe('importRecipeFromPhotos', () => {
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
+      expect(draft.provenance.ingredients[0]!.flags.missingAmount).toBe(false);
     });
 
     it('caps candidates at 5 even when the search returns more', async () => {
@@ -682,9 +709,9 @@ describe('importRecipeFromPhotos', () => {
       );
       const search = makeSearch({ tomato: many });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.candidates).toHaveLength(5);
       expect(entry.candidates.map((c) => c.name)).toEqual(['Tomate 0', 'Tomate 1', 'Tomate 2', 'Tomate 3', 'Tomate 4']);
     });

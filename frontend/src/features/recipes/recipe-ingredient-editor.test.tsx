@@ -593,3 +593,24 @@ describe('RecipeIngredientEditor — ingredient note', () => {
     expect(readState()[0]?.note).toBe('in Scheiben');
   });
 });
+
+describe('RecipeIngredientEditor — provenance is opt-in', () => {
+  it('renders no provenance affordances when the host passes none (ordinary recipe editor)', () => {
+    render(<Harness initial={[massOnly, pieceTracked]} />);
+
+    expect(screen.queryByTestId('row-raw-0')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('row-raw-1')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('row-uncertain-0')).not.toBeInTheDocument();
+    expect(screen.queryByText(/gelesen:/i)).not.toBeInTheDocument();
+  });
+
+  it('opens the replace picker with no candidate section when the row has no provenance', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness initial={[massOnly]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.queryByTestId('picker-candidates')).not.toBeInTheDocument();
+  });
+});

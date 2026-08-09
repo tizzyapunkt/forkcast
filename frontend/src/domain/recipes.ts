@@ -62,7 +62,8 @@ export interface UnmatchedDraftIngredient {
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
 
-export interface RawIngredientDebug {
+/** What the vision model read for one ingredient, before any catalog matching. */
+export interface RawIngredientProvenance {
   name: string;
   amount?: number;
   unit?: MeasurementUnit;
@@ -72,17 +73,17 @@ export interface RawIngredientDebug {
   note?: string;
 }
 
-export interface SearchCandidateDebug {
+export interface SearchCandidateProvenance {
   name: string;
   source: IngredientSearchSource;
   unit: MeasurementUnit;
   untracked: boolean;
 }
 
-export interface IngredientMatchDebug {
-  raw: RawIngredientDebug;
-  candidates: SearchCandidateDebug[];
-  chosen: SearchCandidateDebug | null;
+export interface IngredientMatchProvenance {
+  raw: RawIngredientProvenance;
+  candidates: SearchCandidateProvenance[];
+  chosen: SearchCandidateProvenance | null;
   flags: {
     unitOverridden: boolean;
     pieceQuantityDropped: boolean;
@@ -91,8 +92,9 @@ export interface IngredientMatchDebug {
   };
 }
 
-export interface RecipeDraftDebug {
-  ingredients: IngredientMatchDebug[];
+export interface RecipeDraftProvenance {
+  /** Positionally parallel to `RecipeDraft.ingredients` — entry *i* describes draft ingredient *i*. */
+  ingredients: IngredientMatchProvenance[];
 }
 
 export interface RecipeDraft {
@@ -100,5 +102,6 @@ export interface RecipeDraft {
   yield: number;
   ingredients: DraftIngredient[];
   steps: string[];
-  debug?: RecipeDraftDebug;
+  /** The backend always sends this; optional here so the review screen degrades rather than breaks. */
+  provenance?: RecipeDraftProvenance;
 }

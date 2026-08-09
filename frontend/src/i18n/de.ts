@@ -559,6 +559,19 @@ export const de = {
     removeNoteAria: (name: string) => `Notiz für ${name} entfernen`,
     notePlaceholder: 'Notiz, z. B. fein gehackt',
     noteAriaFor: (name: string) => `Notiz für ${name}`,
+    /** Import provenance: what the model read for this row, and why the match deserves a look. */
+    provenance: {
+      rawLine: (raw: string) => `gelesen: „${raw}“`,
+      rawLineAria: (name: string) => `Gelesener Text für ${name}`,
+      markerAria: (name: string) => `Hinweis zur Zuordnung von ${name}`,
+      unitReplaced: (extracted: string, catalog: string) => `Einheit ${extracted} → ${catalog}`,
+      unitReplacedUnknown: (catalog: string) => `Einheit aus Katalog (${catalog})`,
+      pieceQuantityDropped: 'Stückangabe verworfen',
+      untrackedInherited: 'zählt nicht in den Nährwerten',
+      missingAmount: 'Menge fehlt',
+      alternatives: (n: number) => `${n} Alternativen`,
+      separator: ' · ',
+    },
   },
 
   aiRecipeImport: {
@@ -587,9 +600,6 @@ export const de = {
     resolveUnmatchedAria: (name: string) => `Zutat „${name}“ zuordnen`,
     discardUnmatched: 'Verwerfen',
     discardUnmatchedAria: (name: string) => `Zutat „${name}“ verwerfen`,
-    unitOverridden: (extracted: string, catalog: string) =>
-      `Einheit aus Katalog (${catalog}) statt extrahierter Einheit (${extracted})`,
-    unitOverriddenAria: 'Einheit wurde aus dem Katalog übernommen',
     untrackedHint: 'Würzmittel — wird in Nährwerten nicht berücksichtigt',
     sourcePhotos: {
       heading: 'Fotos',
@@ -731,6 +741,14 @@ export const de = {
     amountPlaceholder: 'z. B. 100',
     back: 'Zurück',
     add: 'Hinzufügen',
+    /** Ranked candidates the importer already found for this row, offered before the search box. */
+    candidates: {
+      heading: 'Beim Import gefunden',
+      hint: 'Direkt übernehmen oder unten weitersuchen.',
+      optionAria: (name: string, source: string) => `${name} aus ${source} übernehmen`,
+      resolving: 'Wird übernommen…',
+      unresolvable: (name: string) => `„${name}“ gibt es nicht mehr im Katalog — bitte suchen.`,
+    },
     validation: {
       amountNumber: 'Menge muss eine Zahl sein',
       amountPositive: 'Menge muss größer als 0 sein',

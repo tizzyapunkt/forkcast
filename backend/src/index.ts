@@ -194,7 +194,6 @@ if (config.ai.anthropicApiKey) {
       extractor: recipeDraftExtractor,
       search: ingredientSearchService,
       limits: aiImageLimits,
-      includeDebug: config.ai.recipeImport.debug,
     }),
   );
   const resolutionProposer = new AnthropicFoodResolutionProposer({
@@ -220,11 +219,6 @@ if (config.ai.anthropicApiKey) {
     '/extract-product-from-photos',
     makeExtractProductFromPhotosHandler({ extractor: productDraftExtractor, limits: aiImageLimits }),
   );
-  if (config.ai.recipeImport.debug) {
-    console.warn(
-      'RECIPE_IMPORT_DEBUG is enabled — POST /import-recipe-from-photos responses include a debug payload (dev only)',
-    );
-  }
 } else {
   app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
   app.post('/extract-product-from-photos', makeUnconfiguredExtractProductFromPhotosHandler());

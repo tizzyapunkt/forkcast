@@ -24,7 +24,6 @@ export interface AppConfig {
       maxImageBytes: number;
       maxTotalBytes: number;
       maxImages: number;
-      debug: boolean;
     };
   };
 }
@@ -49,7 +48,6 @@ export function loadAppConfig(env: EnvSource): AppConfig {
   const maxImageBytes = readPositiveInt(env, 'RECIPE_IMPORT_MAX_IMAGE_BYTES', DEFAULT_MAX_IMAGE_BYTES);
   const maxTotalBytes = readPositiveInt(env, 'RECIPE_IMPORT_MAX_TOTAL_BYTES', DEFAULT_MAX_TOTAL_BYTES);
   const maxImages = readPositiveInt(env, 'RECIPE_IMPORT_MAX_IMAGES', DEFAULT_MAX_IMAGES);
-  const debug = readBoolean(env, 'RECIPE_IMPORT_DEBUG', false);
 
   const catalogPath = readOptionalNonEmpty(env, 'CATALOG_PATH') ?? DEFAULT_CATALOG_PATH;
   const catalogSeedPath = readOptionalNonEmpty(env, 'CATALOG_SEED_PATH') ?? DEFAULT_CATALOG_SEED_PATH;
@@ -68,7 +66,7 @@ export function loadAppConfig(env: EnvSource): AppConfig {
       anthropicApiKey,
       model,
       resolutionModel,
-      recipeImport: { maxImageBytes, maxTotalBytes, maxImages, debug },
+      recipeImport: { maxImageBytes, maxTotalBytes, maxImages },
     },
   };
 }
@@ -93,14 +91,4 @@ function readPositiveInt(env: EnvSource, key: string, fallback: number): number 
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
   return Math.floor(parsed);
-}
-
-function readBoolean(env: EnvSource, key: string, fallback: boolean): boolean {
-  const raw = env.get(key);
-  if (typeof raw !== 'string') return fallback;
-  const v = raw.trim().toLowerCase();
-  if (v.length === 0) return fallback;
-  if (v === 'true') return true;
-  if (v === 'false') return false;
-  throw new Error(`${key} must be "true" or "false" (got "${raw}")`);
 }
