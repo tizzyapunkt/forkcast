@@ -386,6 +386,7 @@ export const de = {
     scanBarcode: 'Barcode scannen',
     offToggle: 'Open Food Facts',
     searching: 'Suche läuft…',
+    searchFailed: 'Suche fehlgeschlagen. Bitte versuche es erneut.',
     noResults: (q: string) => `Keine Treffer für „${q}“`,
     kcalPer: (kcal: number, unit: MeasurementUnit) => {
       const { mul, label } = per100Display(unit);
@@ -753,5 +754,20 @@ export const de = {
       amountNumber: 'Menge muss eine Zahl sein',
       amountPositive: 'Menge muss größer als 0 sein',
     },
+  },
+
+  diagnostics: {
+    settingsLink: 'Diagnose',
+    settingsLinkHint: 'App- und Server-Logs',
+    screenTitle: 'Diagnose',
+    clientSection: 'App-Log',
+    serverSection: 'Server-Log',
+    empty: 'Keine Einträge',
+    refresh: 'Aktualisieren',
+    serverError: 'Server-Log konnte nicht geladen werden',
+    copy: 'Diagnose kopieren',
+    copied: 'Kopiert ✓',
+    copyError: 'Kopieren fehlgeschlagen',
+    entryCount: (n: number) => (n === 1 ? '1 Eintrag' : `${n} Einträge`),
   },
 } as const;

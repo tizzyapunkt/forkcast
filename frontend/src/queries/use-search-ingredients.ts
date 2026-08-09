@@ -9,6 +9,7 @@ export function useSearchIngredients(q: string, sources?: IngredientSearchSource
     queryFn: () => searchIngredients(q, sources),
     enabled: q.trim().length >= 2,
     staleTime: 5 * 60_000,
+    retry: false,
   });
 }
 

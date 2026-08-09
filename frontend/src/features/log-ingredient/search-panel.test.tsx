@@ -134,6 +134,16 @@ describe('SearchPanel', () => {
     expect(await screen.findByText(/keine treffer für/i)).toBeInTheDocument();
   });
 
+  it('shows an error message instead of a silent empty state when the search request fails', async () => {
+    server.use(
+      http.get('/api/search-ingredients', () => HttpResponse.json({ error: 'upstream failed' }, { status: 502 })),
+    );
+    renderWithProviders(<SearchPanel onSelect={() => {}} />);
+    await userEvent.type(screen.getByRole('searchbox'), 'whey');
+    expect(await screen.findByText(/suche fehlgeschlagen/i)).toBeInTheDocument();
+    expect(screen.queryByText(/keine treffer für/i)).not.toBeInTheDocument();
+  });
+
   describe('untracked gating (log drawer flow)', () => {
     it('renders an untracked result with the log button disabled and the inline hint', async () => {
       server.use(http.get('/api/search-ingredients', () => HttpResponse.json([untrackedSalt])));

@@ -16,4 +16,4 @@
 ## 4. Verify
 
 - [x] 4.1 `make check` green (lint + typecheck + fmt-check + tests, both workspaces); frontend 484 tests + backend green, lint/format clean — no new noise
-- [ ] 4.2 Browser smoke via `make dev-http`: Rezepte → Aus Fotos → upload a multi-page recipe → on Rezept prüfen the photo strip shows the uploaded photos in order, tapping a thumbnail opens the fullscreen viewer and pages through all photos, closing returns to the review screen with edits intact — _not run in this environment (needs a real `ANTHROPIC_API_KEY` for the extraction call to reach the review screen); recommend a manual pass before release_
+- [x] 4.2 Browser smoke via `make dev-http`: Rezepte → Aus Fotos → upload a multi-page recipe → on Rezept prüfen the photo strip shows the uploaded photos in order, tapping a thumbnail opens the fullscreen viewer and pages through all photos, closing returns to the review screen with edits intact — verified manually by the user (2026-08-09)

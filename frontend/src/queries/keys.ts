@@ -15,4 +15,5 @@ export const queryKeys = {
   weightLog: () => ['weight-log'] as const,
   weightTrend: () => ['weight-trend'] as const,
   catalog: () => ['catalog'] as const,
+  debugLogs: () => ['debug-logs'] as const,
 };

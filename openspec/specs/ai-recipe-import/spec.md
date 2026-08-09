@@ -316,6 +316,49 @@ The "never guess" rule on stated amounts continues to apply (see `Missing amount
 - **WHEN** the recipe states "200 g Mehl"
 - **THEN** the model returns the ingredient with `amount: 200, unit: "g"` and no `rawDisplayAmount`, no `rawDisplayUnitLabel`
 
+### Requirement: Importer converts spoon measures on tracked matches
+
+When the importer constructs a draft ingredient row from the extractor output and the catalog match, and ALL of the following hold:
+
+- The row was matched to a FOODS/USER/SCAN entry that is tracked (`untracked` is not `true`).
+- The row has no canonical `amount` (the extractor stated none) and no piece-derived total.
+- The extractor returned a `rawDisplayUnitLabel` whose normalized form (lowercased, trimmed) is a known spoon/volume measure: `tl`/`teelöffel`/`teeloeffel`/`tsp`/`teaspoon` (5 ml), `el`/`esslöffel`/`essloeffel`/`tbsp`/`tablespoon` (15 ml), or `tasse`/`cup` (240 ml).
+
+then the system SHALL convert the spoon measure to the matched food's `unit` and set the canonical `amount`:
+
+- volume in ml = `(rawDisplayAmount ?? 1) × mlPerSpoon`.
+- If the matched `unit` is `ml`: `amount` = that volume.
+- If the matched `unit` is `g`: `amount` = `volume × density` **only when the matched food carries a `density`**; when it has no `density`, no conversion is performed and the row is left with no `amount` (surfaced via the existing `missingAmount` flag) — the importer MUST NOT guess.
+
+A converted tracked row MUST NOT carry a `displayQuantity` (that field is reserved for untracked rows). The raw-display fields are consumed by the conversion and not persisted on the row.
+
+This conversion applies ONLY to the raw-display path. A spoon-like value carried on the canonical `unit` field (`tbsp`/`tsp`/`cup`/`oz`) keeps the existing "catalog unit wins, `unitOverridden`" behavior and is NOT converted here.
+
+#### Scenario: Tablespoon of a g-unit staple with density converts
+
+- **WHEN** the extractor returns `{ name: "Speisestärke", rawDisplayAmount: 2, rawDisplayUnitLabel: "TL" }` and the catalog match is a tracked FOODS entry with `unit: "g"` and `density: 0.55`
+- **THEN** the draft row carries `unit: "g"`, `amount ≈ 5.5` (`2 × 5 ml × 0.55`), `untracked` absent/false, and no `displayQuantity`
+
+#### Scenario: Tablespoon of an ml-unit food converts without density
+
+- **WHEN** the extractor returns `{ name: "Sojasauce", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "ml"`
+- **THEN** the draft row carries `unit: "ml"`, `amount: 30` (`2 × 15 ml`), and no `displayQuantity`
+
+#### Scenario: Spoon of a g-unit food without density is not guessed
+
+- **WHEN** the extractor returns `{ name: "Petersilie", rawDisplayAmount: 1, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
+- **THEN** the draft row carries no `amount`, no `displayQuantity`, and the row is flagged `missingAmount`
+
+#### Scenario: Non-spoon raw-display label is not converted
+
+- **WHEN** the extractor returns `{ name: "Speisestärke", rawDisplayAmount: 1, rawDisplayUnitLabel: "Prise" }` and the catalog match is a tracked FOODS entry with `unit: "g"` and `density: 0.55`
+- **THEN** no conversion is attempted; the draft row carries no `amount` and is flagged `missingAmount`
+
+#### Scenario: Stated canonical amount wins over conversion
+
+- **WHEN** the extractor returns `{ name: "Speisestärke", amount: 12, unit: "g", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "g"` and `density: 0.55`
+- **THEN** the draft row carries `amount: 12` (the stated canonical amount is kept; no conversion overrides it)
+
 ### Requirement: Importer populates displayQuantity on untracked matches
 When the importer constructs a draft ingredient row from the extractor output and the catalog match, the system SHALL populate `displayQuantity` on the draft row when ALL of the following hold:
 
@@ -324,7 +367,7 @@ When the importer constructs a draft ingredient row from the extractor output an
 
 The populated `displayQuantity` MUST be `{ amount: rawDisplayAmount ?? 1, unitLabel: rawDisplayUnitLabel.trim() }`. The `amount` defaults to `1` when the model returned a qualitative phrase without a numeric value (e.g. "Prise" alone).
 
-When the matched FOODS entry is tracked (not untracked), the importer MUST drop `rawDisplayAmount` and `rawDisplayUnitLabel` from the matched draft row — `displayQuantity` is only meaningful on untracked rows per the `recipes` capability. Unmatched rows MUST NOT carry `displayQuantity` regardless of raw display fields (they have no `untracked` flag yet; the user toggles it in the review UI, and may add a `displayQuantity` there).
+When the matched FOODS entry is tracked (not untracked), the importer MUST first attempt spoon-volume conversion per the "Importer converts spoon measures on tracked matches" requirement, and then drop `rawDisplayAmount` and `rawDisplayUnitLabel` from the matched draft row — `displayQuantity` is only meaningful on untracked rows per the `recipes` capability, so a tracked row never carries it whether or not the conversion succeeded. Unmatched rows MUST NOT carry `displayQuantity` regardless of raw display fields (they have no `untracked` flag yet; the user toggles it in the review UI, and may add a `displayQuantity` there).
 
 When the matched-untracked row has no extractor `rawDisplayUnitLabel`, `displayQuantity` MUST be left absent on the draft row. The review UI's "+ Menge ergänzen" affordance lets the user add it later.
 
@@ -604,3 +647,24 @@ When the retry returns at least one candidate, the row SHALL be matched as if th
 
 - **WHEN** the extractor returns `{ name: "Ingwer", amount: 5, unit: "g" }` and the FOODS tier returns at least one candidate
 - **THEN** the cascade runs exactly once and the row is matched
+
+### Requirement: Review screen surfaces the source photos for comparison
+
+The frontend AI-import review screen SHALL display the original photos the user submitted for extraction, in the same order they were submitted to the model, so the user can compare the AI-extracted draft against the source while reviewing and editing it. The photos SHALL be shown as a thumbnail strip near the top of the review screen, and tapping a thumbnail SHALL open a fullscreen viewer that pages through all submitted photos in order and can be dismissed back to the review screen without leaving the import flow.
+
+The photos surfaced here are the same in-memory staged photos already held for the duration of the import session; this requirement MUST NOT introduce any persistence of photos, any additional backend call, or any change to the saved recipe. The review screen's image rendering MUST own its own image references derived from the staged photo files, independent of the staging screen's preview lifecycle, so that surfacing the photos at review time does not depend on resources the staging screen may have released.
+
+#### Scenario: Submitted photos shown on the review screen
+
+- **WHEN** a user imports a recipe from three photos and the extracted draft opens on the review screen
+- **THEN** the review screen shows three source-photo thumbnails in the submitted order
+
+#### Scenario: Fullscreen view for double-checking
+
+- **WHEN** the user taps a source-photo thumbnail on the review screen
+- **THEN** a fullscreen viewer opens on that photo, lets the user page through all submitted photos in order, and can be closed to return to the review screen with any in-progress edits intact
+
+#### Scenario: Surfacing photos persists nothing
+
+- **WHEN** the user reviews a draft with its source photos visible and saves the recipe
+- **THEN** the saved recipe carries no photo data and no additional backend call was made to surface the photos

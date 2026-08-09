@@ -26,5 +26,5 @@
 ## 6. Verify
 
 - [x] 6.1 `make check` green (lint + typecheck + fmt-check + tests, both workspaces)
-- [ ] 6.2 `openspec validate convert-spoon-units-and-untrack-aromatics --strict` from repo root — _openspec CLI not installed in this environment; deltas authored to match the existing `## ADDED`/`## MODIFIED Requirements` + scenario format_
-- [ ] 6.3 Browser smoke (`make dev-http`) — _not run: needs a real `ANTHROPIC_API_KEY` for the extraction call; `make smoke` (non-AI resolution round-trip) passed and confirms the edited `foods.json` loads_
+- [x] 6.2 `openspec validate convert-spoon-units-and-untrack-aromatics --strict` from repo root — passes (2026-08-09)
+- [x] 6.3 Browser smoke (`make dev-http`) — verified manually by the user (2026-08-09); `make smoke` (non-AI resolution round-trip) also passed and confirms the edited `foods.json` loads

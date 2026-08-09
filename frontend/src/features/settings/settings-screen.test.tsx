@@ -17,4 +17,16 @@ describe('Settings navigation', () => {
     await userEvent.click(screen.getByRole('button', { name: /Tagebuch/i }));
     expect(screen.queryByRole('heading', { name: /ernährungsziel/i })).not.toBeInTheDocument();
   });
+
+  it('Diagnose link opens the diagnostics view and back returns to settings', async () => {
+    renderWithProviders(<App />, { queryClient: createTestQueryClient() });
+    await userEvent.click(screen.getByRole('button', { name: /Einstellungen/i }));
+    await screen.findByRole('heading', { name: /ernährungsziel/i });
+
+    await userEvent.click(screen.getByRole('button', { name: /Diagnose/i }));
+    expect(await screen.findByRole('button', { name: 'Diagnose kopieren' })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /zurück/i }));
+    expect(await screen.findByRole('heading', { name: /ernährungsziel/i })).toBeInTheDocument();
+  });
 });

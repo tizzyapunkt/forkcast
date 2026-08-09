@@ -17,6 +17,7 @@ The system SHALL persist the food catalog as a JSON file in the backend data dir
 - `macrosPer100`: an object with finite non-negative `calories`, `protein`, `carbs`, and `fat` values per 100 of `unit`.
 - `pieces`: an OPTIONAL array of `{ label: string; grams: number }` objects. Each `label` SHALL be unique within an entry and each `grams` SHALL be a positive finite number. The field SHALL be omitted entirely (not an empty array) when it does not apply.
 - `untracked`: an OPTIONAL boolean. When `true`, `macrosPer100` MUST equal `{ calories: 0, protein: 0, carbs: 0, fat: 0 }` exactly. The field SHALL be omitted entirely (not set to `false`) when the entry is tracked.
+- `density`: an OPTIONAL positive finite number giving the food's mass per millilitre (g/ml). It exists so volume measures stated in a recipe (e.g. spoons) can be converted to the entry's mass `unit` during import. It SHALL be present only on `g`-unit foods realistically measured by volume (dry staples such as Speisestärke and flours); `ml`-unit foods do not need it, since a volume measure already matches their unit, and most `g`-unit foods omit it. When absent, no volume conversion is attempted for that food.
 
 Entries that fail validation at load time SHALL be skipped and a single warning SHALL be logged naming the offending entry's `id`; the backend MUST still start. All writes to the store SHALL be atomic, leaving no torn state if a write is interrupted.
 
@@ -39,6 +40,30 @@ Entries that fail validation at load time SHALL be skipped and a single warning 
 
 - **WHEN** an entry has `name: "Möhre"` and `synonyms: ["Möhre", "Karotte"]`
 - **THEN** the entry is rejected and a warning is logged naming its `id`
+
+#### Scenario: Entry with a valid density loads
+
+- **WHEN** an entry is `{ id: "speisestaerke", name: "Speisestärke", synonyms: ["cornstarch"], unit: "g", macrosPer100: { calories: 381, protein: 0.6, carbs: 91, fat: 0.1 }, density: 0.55 }`
+- **THEN** the entry passes validation and is loaded into the in-memory index with `density: 0.55` retained
+
+#### Scenario: Entry with a non-positive density is rejected
+
+- **WHEN** an entry has `density: 0`
+- **THEN** the entry is rejected and a warning is logged naming its `id`
+
+#### Scenario: Entry without a density loads
+
+- **WHEN** an entry is `{ id: "moehre", name: "Möhre", synonyms: ["carrot"], unit: "g", macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 } }`
+- **THEN** the entry passes validation with no `density` field
+
+### Requirement: Low-signal aromatics ship untracked in the bundled seed
+
+The bundled starting-point catalog SHALL carry `ingwer` and `knoblauch` as entries with `untracked: true` and zero `macrosPer100`. These foods are nutritionally trivial in any culinary amount and are almost always stated in spoons or pieces; treating them as untracked keeps them in recipes and the future grocery list without polluting macro rollups. This is a per-food curated decision about seed content; it does NOT imply any amount-based untracking rule, and it constrains only the bundled starting point — the user remains free to edit or delete these entries at runtime like any other.
+
+#### Scenario: Ginger and garlic seeded untracked
+
+- **WHEN** the backend boots against a fresh data directory and installs the bundled starting point
+- **THEN** the catalog contains entries for `ingwer` and `knoblauch`, both with `untracked: true` and zero `macrosPer100`
 
 ### Requirement: Catalog is seeded from the bundled starting point only when absent
 
