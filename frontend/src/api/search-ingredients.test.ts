@@ -9,7 +9,7 @@ describe('searchIngredients', () => {
         HttpResponse.json([
           {
             id: '123',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -42,8 +42,8 @@ describe('searchIngredients', () => {
         return HttpResponse.json([]);
       }),
     );
-    await searchIngredients('oat', ['FOODS', 'OFF']);
-    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('foods,off');
+    await searchIngredients('oat', ['CATALOG', 'OFF']);
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('catalog,off');
   });
 
   it('throws ApiError on 400', async () => {

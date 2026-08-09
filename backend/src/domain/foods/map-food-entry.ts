@@ -1,7 +1,7 @@
 import type { IngredientResultSource, IngredientSearchResult } from '../ingredient-search/types.ts';
 import type { FoodEntry } from './types.ts';
 
-export function mapFoodEntry(entry: FoodEntry, source: IngredientResultSource = 'FOODS'): IngredientSearchResult {
+export function mapFoodEntry(entry: FoodEntry, source: IngredientResultSource = 'CATALOG'): IngredientSearchResult {
   const result: IngredientSearchResult = {
     id: entry.id,
     source,

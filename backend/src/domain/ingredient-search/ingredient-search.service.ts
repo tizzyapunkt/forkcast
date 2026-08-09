@@ -1,6 +1,6 @@
 import type { IngredientSearchResult } from './types.ts';
 
-export type IngredientSource = 'FOODS' | 'USER' | 'OFF' | 'SCAN';
+export type IngredientSource = 'CATALOG' | 'OFF' | 'SCAN';
 
 export interface IngredientSearchService {
   searchByName(query: string, sources?: Set<IngredientSource>): Promise<IngredientSearchResult[]>;

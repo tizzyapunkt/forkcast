@@ -1,4 +1,5 @@
 import type { MeasurementUnit, MacrosPerUnit } from './meal-log';
+import type { IngredientSearchSource } from './ingredient-search';
 
 export interface PieceQuantity {
   amount: number;
@@ -43,7 +44,7 @@ export interface MatchedDraftIngredient {
   macrosPerUnit: MacrosPerUnit;
   amount: number | null;
   unitOverridden: boolean;
-  source: 'FOODS' | 'USER' | 'OFF' | 'SCAN';
+  source: IngredientSearchSource;
   pieceQuantity?: PieceQuantity;
   untracked?: boolean;
   displayQuantity?: DisplayQuantity;
@@ -73,7 +74,7 @@ export interface RawIngredientDebug {
 
 export interface SearchCandidateDebug {
   name: string;
-  source: 'FOODS' | 'USER' | 'OFF' | 'SCAN';
+  source: IngredientSearchSource;
   unit: MeasurementUnit;
   untracked: boolean;
 }

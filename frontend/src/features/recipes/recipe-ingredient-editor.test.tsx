@@ -306,7 +306,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -335,7 +335,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -368,7 +368,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'salz',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Salz',
             unit: 'g',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -395,7 +395,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'zucker',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Zucker',
             unit: 'g',
             macrosPerUnit: { calories: 4, protein: 0, carbs: 1, fat: 0 },
@@ -422,7 +422,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'schalotte',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Schalotte',
             unit: 'g',
             macrosPerUnit: { calories: 0.7, protein: 0.025, carbs: 0.16, fat: 0.001 },
@@ -449,7 +449,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'tomatenmark',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Tomatenmark',
             unit: 'tbsp',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -491,7 +491,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -518,7 +518,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },

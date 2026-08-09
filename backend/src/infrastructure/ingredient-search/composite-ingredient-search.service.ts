@@ -8,15 +8,14 @@ import { mapScannedProduct } from '../../domain/barcode-product-capture/map-scan
 import { fold } from '../../domain/ingredient-search/fold.ts';
 import { scoreFoodMatch } from '../../domain/ingredient-search/score-food-match.ts';
 
-const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['OFF']);
+const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['CATALOG']);
 const SCAN_RESULT_CAP = 20;
 
 export class CompositeIngredientSearchService implements IngredientSearchService {
   constructor(
     private readonly off: IngredientSearchService,
-    private readonly foods: IngredientSearchService,
+    private readonly catalog: IngredientSearchService,
     private readonly scanned?: ScannedProductStore,
-    private readonly user?: IngredientSearchService,
   ) {}
 
   async searchByName(
@@ -26,13 +25,9 @@ export class CompositeIngredientSearchService implements IngredientSearchService
     const tasks: Promise<IngredientSearchResult[]>[] = [];
     const order: IngredientSource[] = [];
 
-    if (sources.has('FOODS')) {
-      tasks.push(this.foods.searchByName(query));
-      order.push('FOODS');
-    }
-    if (sources.has('USER') && this.user) {
-      tasks.push(this.user.searchByName(query));
-      order.push('USER');
+    if (sources.has('CATALOG')) {
+      tasks.push(this.catalog.searchByName(query));
+      order.push('CATALOG');
     }
     if (sources.has('SCAN')) {
       tasks.push(this.searchScannedByName(query));
@@ -57,12 +52,7 @@ export class CompositeIngredientSearchService implements IngredientSearchService
       }
     }
 
-    return [
-      ...(bySource.get('FOODS') ?? []),
-      ...(bySource.get('USER') ?? []),
-      ...(bySource.get('SCAN') ?? []),
-      ...(bySource.get('OFF') ?? []),
-    ];
+    return [...(bySource.get('CATALOG') ?? []), ...(bySource.get('SCAN') ?? []), ...(bySource.get('OFF') ?? [])];
   }
 
   async searchByBarcode(barcode: string): Promise<IngredientSearchResult | null> {

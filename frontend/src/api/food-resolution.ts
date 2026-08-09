@@ -4,7 +4,6 @@ import type {
   ConfirmResolutionResponse,
   ResolutionItemInput,
   ResolutionProposal,
-  UserFoodsOverlayExport,
 } from '../domain/food-resolution';
 
 /** Batch-propose resolutions for unmatched ingredients (one AI call, one proposal per item). */
@@ -24,14 +23,4 @@ export async function confirmResolution(payload: ConfirmResolutionPayload): Prom
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),
   });
-}
-
-/** Non-destructive read of the overlay (for the settings pending count). */
-export async function fetchUserFoods(): Promise<UserFoodsOverlayExport> {
-  return fetchJson<UserFoodsOverlayExport>('/api/user-foods');
-}
-
-/** Atomically export and clear the user-foods overlay. */
-export async function exportUserFoods(): Promise<UserFoodsOverlayExport> {
-  return fetchJson<UserFoodsOverlayExport>('/api/export-user-foods', { method: 'POST' });
 }

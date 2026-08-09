@@ -3,7 +3,7 @@ import { mapFoodEntry } from './map-food-entry.ts';
 import type { FoodEntry } from './types.ts';
 
 describe('mapFoodEntry', () => {
-  it('produces an IngredientSearchResult with source FOODS, the entry id, canonical name, and the entry unit', () => {
+  it('produces an IngredientSearchResult with source CATALOG, the entry id, canonical name, and the entry unit', () => {
     const entry: FoodEntry = {
       id: 'moehre',
       name: 'Möhre',
@@ -12,7 +12,7 @@ describe('mapFoodEntry', () => {
       macrosPer100: { calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2 },
     };
     const result = mapFoodEntry(entry);
-    expect(result.source).toBe('FOODS');
+    expect(result.source).toBe('CATALOG');
     expect(result.id).toBe('moehre');
     expect(result.name).toBe('Möhre');
     expect(result.unit).toBe('g');
@@ -76,7 +76,7 @@ describe('mapFoodEntry', () => {
 
   it('carries density through to the result when present, and omits it otherwise', () => {
     const withDensity: FoodEntry = {
-      id: 'speisestärke',
+      id: 'speisestaerke',
       name: 'Speisestärke',
       synonyms: ['cornstarch'],
       unit: 'g',

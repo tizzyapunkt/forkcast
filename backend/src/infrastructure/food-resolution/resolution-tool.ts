@@ -1,50 +1,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import { FOOD_ENTRY_SCHEMA } from '../food-drafting/food-entry-schema.ts';
 
 export const PROPOSE_RESOLUTIONS_TOOL_NAME = 'propose_resolutions';
-
-const FOOD_ENTRY_SCHEMA = {
-  type: 'object',
-  properties: {
-    id: { type: 'string', description: 'Stable ASCII kebab-case id (German romanisation: ä→ae, ö→oe, ü→ue, ß→ss).' },
-    name: { type: 'string', description: 'Canonical German display name with proper umlauts and capitalisation.' },
-    synonyms: {
-      type: 'array',
-      items: { type: 'string' },
-      description: 'Alternate names (German + 1-2 English). MUST NOT include the canonical name.',
-    },
-    unit: { type: 'string', enum: ['g', 'ml'], description: 'Reference unit. "ml" only for liquids.' },
-    macrosPer100: {
-      type: 'object',
-      properties: {
-        calories: { type: 'number' },
-        protein: { type: 'number' },
-        carbs: { type: 'number' },
-        fat: { type: 'number' },
-      },
-      required: ['calories', 'protein', 'carbs', 'fat'],
-    },
-    pieces: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: { label: { type: 'string' }, grams: { type: 'number' } },
-        required: ['label', 'grams'],
-      },
-      description: 'Optional. 1-3 typical piece weights when commonly counted by piece. Omit for liquids/powders.',
-    },
-    untracked: {
-      type: 'boolean',
-      description:
-        'Optional. true ONLY for seasonings/herbs/spices that should not count toward nutrition; then macrosPer100 MUST be all zeros.',
-    },
-    density: {
-      type: 'number',
-      description:
-        'Optional. Mass per millilitre (g/ml). Include ONLY for g-unit dry staples commonly measured by spoon (e.g. Speisestärke ≈ 0.55, flour ≈ 0.55, sugar ≈ 0.85) so spoon amounts convert to grams. Omit for liquids and non-spoon foods.',
-    },
-  },
-  required: ['id', 'name', 'synonyms', 'unit', 'macrosPer100'],
-} as const;
 
 export const PROPOSE_RESOLUTIONS_TOOL: Anthropic.Tool = {
   name: PROPOSE_RESOLUTIONS_TOOL_NAME,

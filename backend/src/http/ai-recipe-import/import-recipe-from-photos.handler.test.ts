@@ -40,7 +40,7 @@ function makeApp(opts: {
     searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
       {
         id: 'foods-1',
-        source: 'FOODS',
+        source: 'CATALOG',
         name: 'Olivenöl',
         unit: 'ml',
         macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -192,7 +192,7 @@ describe('POST /import-recipe-from-photos', () => {
       searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
         {
           id: 'foods-zwiebel',
-          source: 'FOODS',
+          source: 'CATALOG',
           name: 'Zwiebel',
           unit: 'g',
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },

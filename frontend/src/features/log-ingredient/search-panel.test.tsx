@@ -27,7 +27,7 @@ vi.mock('./barcode-scanner', () => ({
 
 const oats: IngredientSearchResult = {
   id: '1',
-  source: 'FOODS',
+  source: 'CATALOG',
   name: 'Oats',
   unit: 'g',
   macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -43,7 +43,7 @@ const scannedProduct: IngredientSearchResult = {
 
 const untrackedSalt: IngredientSearchResult = {
   id: 'salz',
-  source: 'FOODS',
+  source: 'CATALOG',
   name: 'Salz',
   unit: 'g',
   macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -80,7 +80,7 @@ describe('SearchPanel', () => {
   });
 
   it('renders a source badge for each result', async () => {
-    const foodsResult: IngredientSearchResult = { ...oats, source: 'FOODS' };
+    const catalogResult: IngredientSearchResult = { ...oats, source: 'CATALOG' };
     const offResult: IngredientSearchResult = {
       id: 'off-1',
       source: 'OFF',
@@ -88,19 +88,19 @@ describe('SearchPanel', () => {
       unit: 'g',
       macrosPerUnit: { calories: 3.6, protein: 0.13, carbs: 0.6, fat: 0.06 },
     };
-    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([foodsResult, offResult])));
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([catalogResult, offResult])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'oa');
     await screen.findByText('Oats');
-    expect(screen.getByText('FOODS')).toBeInTheDocument();
+    expect(screen.getByText('CATALOG')).toBeInTheDocument();
     expect(screen.getByText('OFF')).toBeInTheDocument();
   });
 
   it('renders two rows without key collision when OFF and FOODS share the same id', async () => {
-    const foodsResult: IngredientSearchResult = {
+    const catalogResult: IngredientSearchResult = {
       id: 'same',
-      source: 'FOODS',
-      name: 'FOODS Food',
+      source: 'CATALOG',
+      name: 'Katalog-Food',
       unit: 'g',
       macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
     };
@@ -111,10 +111,10 @@ describe('SearchPanel', () => {
       unit: 'g',
       macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
     };
-    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([foodsResult, offResult])));
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([catalogResult, offResult])));
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'fo');
-    expect(await screen.findByText('FOODS Food')).toBeInTheDocument();
+    expect(await screen.findByText('Katalog-Food')).toBeInTheDocument();
     expect(screen.getByText('OFF Food')).toBeInTheDocument();
   });
 
@@ -151,7 +151,7 @@ describe('SearchPanel', () => {
     it('does not gate tracked results in the same query', async () => {
       const tracked: IngredientSearchResult = {
         id: 'huehnchenbrust',
-        source: 'FOODS',
+        source: 'CATALOG',
         name: 'Hähnchenbrust',
         unit: 'g',
         macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.04 },
@@ -179,14 +179,19 @@ describe('SearchPanel', () => {
     });
   });
 
-  describe('FOODS toggle', () => {
-    it('renders unchecked by default (FOODS disabled, OFF only)', () => {
+  describe('source toggle', () => {
+    it('offers no control to disable the catalog', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      const toggle = screen.getByRole('checkbox', { name: /foods/i });
-      expect(toggle).not.toBeChecked();
+      expect(screen.queryByRole('checkbox', { name: /^foods$/i })).not.toBeInTheDocument();
+      expect(screen.getAllByRole('checkbox')).toHaveLength(1);
     });
 
-    it('sends only OFF sources when toggle is off', async () => {
+    it('renders the Open Food Facts toggle unchecked by default', () => {
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      expect(screen.getByRole('checkbox', { name: /open food facts/i })).not.toBeChecked();
+    });
+
+    it('searches the catalog only while the toggle is off', async () => {
       let capturedUrl = '';
       server.use(
         http.get('/api/search-ingredients', ({ request }) => {
@@ -197,10 +202,10 @@ describe('SearchPanel', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
       await userEvent.type(screen.getByRole('searchbox'), 'oa');
       await screen.findByText('Oats');
-      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('off');
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('catalog');
     });
 
-    it('sends foods,off sources when toggle is enabled', async () => {
+    it('adds Open Food Facts when the toggle is enabled', async () => {
       let capturedUrl = '';
       server.use(
         http.get('/api/search-ingredients', ({ request }) => {
@@ -209,22 +214,36 @@ describe('SearchPanel', () => {
         }),
       );
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('checkbox', { name: /foods/i }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
       await userEvent.type(screen.getByRole('searchbox'), 'oa');
       await screen.findByText('Oats');
-      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('foods,off');
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('catalog,off');
     });
 
-    it('persists toggle state in localStorage under forkcast:foods-enabled', async () => {
+    it('persists the toggle across remounts', async () => {
+      const { unmount } = renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.click(screen.getByRole('checkbox', { name: /open food facts/i }));
+      unmount();
+
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      await userEvent.click(screen.getByRole('checkbox', { name: /foods/i }));
-      expect(localStorage.getItem('forkcast:foods-enabled')).toBe('true');
+      expect(screen.getByRole('checkbox', { name: /open food facts/i })).toBeChecked();
     });
 
-    it('restores toggle state from localStorage on mount', () => {
-      localStorage.setItem('forkcast:foods-enabled', 'true');
+    it('clears the retired foods preference on mount and still searches the catalog', async () => {
+      localStorage.setItem('forkcast:foods-enabled', 'false');
+      let capturedUrl = '';
+      server.use(
+        http.get('/api/search-ingredients', ({ request }) => {
+          capturedUrl = request.url;
+          return HttpResponse.json([oats]);
+        }),
+      );
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
-      expect(screen.getByRole('checkbox', { name: /foods/i })).toBeChecked();
+      await userEvent.type(screen.getByRole('searchbox'), 'oa');
+      await screen.findByText('Oats');
+
+      expect(localStorage.getItem('forkcast:foods-enabled')).toBeNull();
+      expect(new URL(capturedUrl).searchParams.get('sources')).toBe('catalog');
     });
 
     it('removes the legacy forkcast:off-enabled key on mount (one-shot migration)', () => {

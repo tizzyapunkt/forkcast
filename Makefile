@@ -4,7 +4,7 @@
 
 # Source dirs the format gate covers — deliberately NOT the repo root, so it
 # never churns the many markdown/openspec files that oxfmt would otherwise rewrite.
-FMT_DIRS := backend/src backend/scripts frontend/src
+FMT_DIRS := backend/src frontend/src
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port

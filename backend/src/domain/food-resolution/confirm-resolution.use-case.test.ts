@@ -1,42 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { confirmResolution, type ConfirmResolutionDeps, type SynonymRegistrar } from './confirm-resolution.use-case.ts';
+import { describe, it, expect } from 'vitest';
+import { confirmResolution } from './confirm-resolution.use-case.ts';
+import { FakeCatalogStore } from '../food-catalog/catalog-store.fake.ts';
 import type { FoodEntry } from '../foods/types.ts';
-import type { UserFoodsOverlay, UserFoodsStore } from '../user-foods/types.ts';
-import type { MatchSourceFood } from '../ai-recipe-import/build-matched-row.ts';
-
-function makeOverlay(initial: UserFoodsOverlay = { foods: [], synonyms: [] }): UserFoodsStore & {
-  current: UserFoodsOverlay;
-} {
-  const state = { current: structuredClone(initial) };
-  return {
-    current: state.current,
-    load: vi.fn<() => Promise<UserFoodsOverlay>>(async () => state.current),
-    addFood: vi.fn<(entry: FoodEntry) => Promise<void>>(async (entry) => {
-      state.current.foods.push(entry);
-    }),
-    addSynonym: vi.fn<(syn: { foodId: string; synonym: string }) => Promise<void>>(async (syn) => {
-      state.current.synonyms.push(syn);
-    }),
-    exportAndClear: vi.fn<() => Promise<UserFoodsOverlay>>(async () => {
-      const snapshot = state.current;
-      state.current = { foods: [], synonyms: [] };
-      return snapshot;
-    }),
-  };
-}
-
-function makeCurated(entries: Record<string, MatchSourceFood>): SynonymRegistrar & { added: Array<[string, string]> } {
-  const added: Array<[string, string]> = [];
-  return {
-    added,
-    addSynonym: vi.fn<(foodId: string, synonym: string) => boolean>((foodId, synonym) => {
-      if (!entries[foodId]) return false;
-      added.push([foodId, synonym]);
-      return true;
-    }),
-    findById: vi.fn<(foodId: string) => MatchSourceFood | null>((foodId) => entries[foodId] ?? null),
-  };
-}
 
 const kirsch: FoodEntry = {
   id: 'kirschtomaten',
@@ -46,42 +11,50 @@ const kirsch: FoodEntry = {
   macrosPer100: { calories: 20, protein: 0.9, carbs: 3.9, fat: 0.2 },
 };
 
-describe('confirmResolution — new-food', () => {
-  it('persists the entry and returns a matched row with original amount and per-unit macros', async () => {
-    const overlay = makeOverlay();
-    const deps: ConfirmResolutionDeps = { overlay, curated: makeCurated({}) };
+const oliven: FoodEntry = {
+  id: 'oliven',
+  name: 'Oliven',
+  synonyms: [],
+  unit: 'g',
+  macrosPer100: { calories: 145, protein: 1, carbs: 6, fat: 15 },
+};
 
-    const result = await confirmResolution(deps, {
-      kind: 'new-food',
-      entry: kirsch,
-      original: { amount: 50, unit: 'g' },
-    });
+describe('confirmResolution — new-food', () => {
+  it('appends the entry to the catalog and returns a CATALOG-sourced row with the original amount', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: kirsch,
+        original: { amount: 50, unit: 'g' },
+      },
+    );
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(overlay.addFood).toHaveBeenCalledWith(kirsch);
+    expect(catalog.findById('kirschtomaten')).toEqual(kirsch);
     expect(result.ingredient).toMatchObject({
       matched: true,
       name: 'Kirschtomaten',
       unit: 'g',
       amount: 50,
-      source: 'USER',
+      source: 'CATALOG',
     });
     expect(result.ingredient.macrosPerUnit.calories).toBeCloseTo(0.2);
     expect(result.ingredient.macrosPerUnit.protein).toBeCloseTo(0.009);
   });
 
   it('preserves the note', async () => {
-    const overlay = makeOverlay();
     const result = await confirmResolution(
-      { overlay, curated: makeCurated({}) },
+      { catalog: new FakeCatalogStore() },
       { kind: 'new-food', entry: kirsch, original: { amount: 50, unit: 'g', note: 'halbiert' } },
     );
     expect(result.ok && result.ingredient.note).toBe('halbiert');
   });
 
   it('populates displayQuantity for an untracked entry with no amount', async () => {
-    const overlay = makeOverlay();
     const untracked: FoodEntry = {
       id: 'sumach',
       name: 'Sumach',
@@ -90,10 +63,12 @@ describe('confirmResolution — new-food', () => {
       macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
       untracked: true,
     };
+
     const result = await confirmResolution(
-      { overlay, curated: makeCurated({}) },
+      { catalog: new FakeCatalogStore() },
       { kind: 'new-food', entry: untracked, original: { amount: null, rawDisplayUnitLabel: 'Prise' } },
     );
+
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.ingredient.untracked).toBe(true);
@@ -101,57 +76,67 @@ describe('confirmResolution — new-food', () => {
     expect(result.ingredient.displayQuantity).toEqual({ unitLabel: 'Prise' });
   });
 
-  it('rejects an invalid entry with 422 and does not persist', async () => {
-    const overlay = makeOverlay();
+  it('rejects an invalid entry with 422 and persists nothing', async () => {
+    const catalog = new FakeCatalogStore();
+
     const result = await confirmResolution(
-      { overlay, curated: makeCurated({}) },
-      { kind: 'new-food', entry: { ...kirsch, untracked: true }, original: { amount: 50, unit: 'g' } },
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: { ...kirsch, untracked: true },
+        original: { amount: 50, unit: 'g' },
+      },
     );
+
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.status).toBe(422);
-    expect(overlay.addFood).not.toHaveBeenCalled();
+    expect(catalog.list()).toEqual([]);
   });
 
-  it('rejects a 409 collision with a curated food id and does not persist', async () => {
-    const overlay = makeOverlay();
-    const curated = makeCurated({
-      kirschtomaten: {
-        name: 'Kirschtomaten',
-        unit: 'g',
-        macrosPerUnit: { calories: 0.2, protein: 0, carbs: 0, fat: 0 },
+  it('rejects an id already in the catalog with 409 and leaves the existing entry intact', async () => {
+    const catalog = new FakeCatalogStore([kirsch]);
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: { ...kirsch, macrosPer100: { calories: 999, protein: 0, carbs: 0, fat: 0 } },
+        original: { amount: 50 },
       },
-    });
-    const result = await confirmResolution(
-      { overlay, curated },
-      { kind: 'new-food', entry: kirsch, original: { amount: 50 } },
     );
+
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.status).toBe(409);
-    expect(overlay.addFood).not.toHaveBeenCalled();
+    expect(catalog.list()).toEqual([kirsch]);
   });
 
-  it('rejects a 409 collision with an existing overlay folded name', async () => {
-    const overlay = makeOverlay({ foods: [{ ...kirsch, id: 'other', name: 'kirschtomaten' }], synonyms: [] });
+  it('rejects a folded-name collision with 409', async () => {
+    const catalog = new FakeCatalogStore([{ ...kirsch, id: 'andere', name: 'kirschtomaten' }]);
+
     const result = await confirmResolution(
-      { overlay, curated: makeCurated({}) },
-      { kind: 'new-food', entry: kirsch, original: { amount: 50 } },
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: kirsch,
+        original: { amount: 50 },
+      },
     );
+
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.status).toBe(409);
+    expect(catalog.list()).toHaveLength(1);
   });
 });
 
 describe('confirmResolution — synonym', () => {
-  it('records the synonym, registers it on the curated index, and returns the curated row', async () => {
-    const overlay = makeOverlay();
-    const curated = makeCurated({
-      oliven: { name: 'Oliven', unit: 'g', macrosPerUnit: { calories: 1.45, protein: 0.01, carbs: 0.06, fat: 0.15 } },
-    });
+  it('adds the synonym to the target entry and returns that entry as a CATALOG row', async () => {
+    const catalog = new FakeCatalogStore([oliven]);
+
     const result = await confirmResolution(
-      { overlay, curated },
+      { catalog },
       {
         kind: 'synonym',
         foodId: 'oliven',
@@ -159,22 +144,67 @@ describe('confirmResolution — synonym', () => {
         original: { amount: 25, unit: 'g', note: 'große' },
       },
     );
+
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(overlay.addSynonym).toHaveBeenCalledWith({ foodId: 'oliven', synonym: 'grüne Oliven' });
-    expect(curated.added).toEqual([['oliven', 'grüne Oliven']]);
-    expect(result.ingredient).toMatchObject({ name: 'Oliven', unit: 'g', amount: 25, note: 'große', source: 'FOODS' });
+    expect(catalog.findById('oliven')?.synonyms).toEqual(['grüne Oliven']);
+    expect(result.ingredient).toMatchObject({
+      name: 'Oliven',
+      unit: 'g',
+      amount: 25,
+      note: 'große',
+      source: 'CATALOG',
+    });
   });
 
-  it('rejects a synonym whose foodId is unknown to the curated index', async () => {
-    const overlay = makeOverlay();
-    const result = await confirmResolution(
-      { overlay, curated: makeCurated({}) },
-      { kind: 'synonym', foodId: 'ghost', synonym: 'x', original: { amount: 1 } },
+  it('makes the synonym searchable immediately', async () => {
+    const catalog = new FakeCatalogStore([oliven]);
+    await confirmResolution(
+      { catalog },
+      {
+        kind: 'synonym',
+        foodId: 'oliven',
+        synonym: 'grüne Oliven',
+        original: {},
+      },
     );
+
+    expect(catalog.indexed()[0]!.synonymsFolded).toContain('grune oliven');
+  });
+
+  it('returns 404 for an unknown foodId and persists nothing', async () => {
+    const catalog = new FakeCatalogStore([oliven]);
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'synonym',
+        foodId: 'nicht-vorhanden',
+        synonym: 'egal',
+        original: { amount: 1 },
+      },
+    );
+
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.status).toBe(422);
-    expect(overlay.addSynonym).not.toHaveBeenCalled();
+    expect(result.status).toBe(404);
+    expect(catalog.list()).toEqual([oliven]);
+  });
+
+  it('is idempotent for a synonym the entry already carries', async () => {
+    const catalog = new FakeCatalogStore([{ ...oliven, synonyms: ['grüne Oliven'] }]);
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'synonym',
+        foodId: 'oliven',
+        synonym: 'GRÜNE OLIVEN',
+        original: {},
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(catalog.findById('oliven')?.synonyms).toEqual(['grüne Oliven']);
   });
 });

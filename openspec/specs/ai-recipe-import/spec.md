@@ -46,9 +46,9 @@ The system SHALL reject requests where any image exceeds the per-image byte limi
 
 ### Requirement: Ingredient matching against existing catalog
 
-The system SHALL, for each ingredient name extracted from the photos, attempt to match it using a strict source cascade: first the curated FOODS source (including runtime-learned synonyms), then — only when FOODS returns zero candidates — the user-foods overlay (`USER`), then — only when both return zero candidates — scanned products (`SCAN`) via name search. The first tier returning at least one candidate wins; lower tiers MUST NOT be consulted. Open Food Facts MUST NOT be queried during import matching.
+The system SHALL, for each ingredient name extracted from the photos, attempt to match it using a strict source cascade: first the user's catalog (`CATALOG`, including synonyms), then — only when the catalog returns zero candidates — scanned products (`SCAN`) via name search. The first tier returning at least one candidate wins; the lower tier MUST NOT be consulted. Open Food Facts MUST NOT be queried during import matching.
 
-When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`FOODS`, `USER`, or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a match, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), and `note` (if any), without macros and without an `untracked` flag (the user sets it manually in the review UI if needed).
+When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`CATALOG` or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a match, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), and `note` (if any), without macros and without an `untracked` flag (the user sets it manually in the review UI if needed).
 
 When the model returns piece-quantity fields for an ingredient (see "Resolve piece quantities to gram weights"), the matching pipeline MUST preserve them on the draft row, subject to:
 - If the resolved catalog `unit` is `g` or `ml`, `pieceQuantity` is preserved verbatim and the catalog `unit` is used.
@@ -59,24 +59,24 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 
 #### Scenario: Matched ingredient
 
-- **WHEN** the model extracts an ingredient name "olive oil" and the FOODS tier returns a matching entry with `unit: "ml"` and known macros
+- **WHEN** the model extracts an ingredient name "olive oil" and the catalog returns a matching entry with `unit: "ml"` and known macros
 - **THEN** the draft row contains the matched name, `unit: "ml"`, the matched `macrosPerUnit`, and the model's extracted `amount`
 - **AND** the row is not flagged as unmatched
 
-#### Scenario: Overlay food matched when curated has no hit
+#### Scenario: Food confirmed in an earlier import matches on a later one
 
-- **WHEN** the model extracts `Kirschtomaten`, the FOODS tier returns zero candidates, and the user-foods overlay contains a `Kirschtomaten` entry
-- **THEN** the draft row is matched against the overlay entry with `source: 'USER'`
+- **WHEN** the model extracts `Kirschtomaten` and the catalog contains a `Kirschtomaten` entry the user confirmed during a previous import
+- **THEN** the draft row is matched against that entry with `source: 'CATALOG'`
 
-#### Scenario: Scanned product matched when curated and overlay have no hit
+#### Scenario: Scanned product matched when the catalog has no hit
 
-- **WHEN** the model extracts `Skyr`, both FOODS and USER tiers return zero candidates, and a scanned product named `Skyr` exists
+- **WHEN** the model extracts `Skyr`, the catalog returns zero candidates, and a scanned product named `Skyr` exists
 - **THEN** the draft row is matched against the scanned product with `source: 'SCAN'`
 
-#### Scenario: Higher tier wins without consulting lower tiers
+#### Scenario: Catalog hit wins without consulting scanned products
 
-- **WHEN** the model extracts an ingredient for which the FOODS tier returns at least one candidate
-- **THEN** the USER and SCAN tiers are not searched for that ingredient
+- **WHEN** the model extracts an ingredient for which the catalog returns at least one candidate
+- **THEN** the SCAN tier is not searched for that ingredient
 
 #### Scenario: OFF never queried during import
 
@@ -90,7 +90,7 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 
 #### Scenario: Unmatched ingredient
 
-- **WHEN** the model extracts an ingredient name that has no match in any cascade tier
+- **WHEN** the model extracts an ingredient name that has no match in either cascade tier
 - **THEN** the draft row is flagged as unmatched and carries only the extracted `name`, `amount`, `unit`, `pieceQuantity` (when present), and `note` (when present), with no `macrosPerUnit` and no `untracked` flag
 
 #### Scenario: Piece quantity preserved through mass-unit match
@@ -103,14 +103,14 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 - **WHEN** the model extracts `{ name: "Knoblauch", amount: 6, unit: "g", pieceAmount: 2, pieceUnitLabel: "Zehe", gramsPerPiece: 3 }` and the catalog match for "Knoblauch" has `unit: "tbsp"`
 - **THEN** the draft row uses the catalog `unit: "tbsp"`, drops the `pieceQuantity`, and is flagged `unitOverridden: true`
 
-#### Scenario: Untracked inherited from FOODS match
+#### Scenario: Untracked inherited from the catalog match
 
 - **WHEN** the model extracts `{ name: "salt", amount: 5, unit: "g" }` and the catalog match for `salz` has `unit: "g"` and `untracked: true`
-- **THEN** the matched draft row carries `untracked: true` (the flag is inherited from the FOODS match)
+- **THEN** the matched draft row carries `untracked: true` (the flag is inherited from the catalog match)
 
 #### Scenario: Tracked match yields no untracked flag on the draft row
 
-- **WHEN** the model extracts an ingredient that matches a tracked FOODS entry
+- **WHEN** the model extracts an ingredient that matches a tracked catalog entry
 - **THEN** the matched draft row carries `untracked: false` (or omits the field) — the row is treated as tracked
 
 #### Scenario: Note preserved on matched row

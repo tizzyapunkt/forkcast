@@ -117,14 +117,81 @@ export const de = {
     calculatorTitle: 'Makro-Rechner',
   },
 
-  userFoods: {
-    title: 'Eigene Lebensmittel exportieren',
-    hint: 'Beim Foto-Import per KI angelegte Lebensmittel und gelernte Synonyme. Exportieren überträgt sie in eine Datei und leert die Sammlung — die Datei ist bis zum nächsten Build die einzige Kopie.',
-    countLabel: (n: number) => (n === 1 ? '1 Eintrag offen' : `${n} Einträge offen`),
-    countEmpty: 'Nichts zu exportieren',
-    exportButton: 'Exportieren & leeren',
-    exporting: 'Wird exportiert…',
-    exportError: 'Export fehlgeschlagen — bitte erneut versuchen.',
+  catalog: {
+    // Settings panel
+    title: 'Eigene Lebensmittel',
+    hint: 'Dein Lebensmittel-Katalog: alles, was die Suche und der Foto-Import finden. Einträge lassen sich hier anlegen, korrigieren und löschen.',
+    countLabel: (n: number) => (n === 1 ? '1 Eintrag' : `${n} Einträge`),
+    manageLink: 'Katalog verwalten',
+    exportButton: 'Sicherung herunterladen',
+    exportHint:
+      'Lädt den gesamten Katalog als JSON-Datei — als Backup und als Startpunkt für eine frische Installation. Der Katalog in der App bleibt dabei unverändert.',
+    exportError: 'Download fehlgeschlagen — bitte erneut versuchen.',
+
+    // Manager screen
+    managerTitle: 'Lebensmittel-Katalog',
+    backAria: 'Zurück',
+    filterLabel: 'Katalog durchsuchen',
+    filterPlaceholder: 'Name oder Synonym…',
+    empty: 'Noch keine Einträge.',
+    noMatches: (q: string) => `Keine Treffer für „${q}“`,
+    loading: 'Laden…',
+    loadError: 'Katalog konnte nicht geladen werden.',
+    addEntry: '+ Neues Lebensmittel',
+    entryAria: (name: string) => `${name} bearbeiten`,
+    kcalPer100: (kcal: number, unit: 'g' | 'ml') => `${Math.round(kcal)} kcal / 100 ${unit}`,
+    untrackedBadge: 'Nicht gezählt',
+
+    // Editor
+    editorTitleNew: 'Neues Lebensmittel',
+    editorTitleEdit: 'Lebensmittel bearbeiten',
+    nameLabel: 'Name',
+    namePlaceholder: 'z. B. Balsamicoessig',
+    synonymsLabel: 'Synonyme',
+    synonymsHint: 'Kommagetrennt — alternative Namen, unter denen die Suche den Eintrag findet.',
+    unitLabel: 'Einheit',
+    macrosLabel: 'Nährwerte',
+    macrosPer: (unit: 'g' | 'ml') => `pro 100 ${unit}`,
+    kcalLabel: 'kcal',
+    proteinLabel: 'Eiweiß',
+    carbsLabel: 'KH',
+    fatLabel: 'Fett',
+    untrackedToggle: 'Nicht zählen',
+    untrackedHint: 'Gewürze und Kräuter zählen nicht in die Nährwerte — die Makros müssen dann 0 sein.',
+    piecesLabel: 'Stückgewichte',
+    piecesHint: 'Optional — typische Gewichte, z. B. „mittel“ 75 g.',
+    pieceLabelAria: (n: number) => `Bezeichnung für Stückgewicht ${n}`,
+    pieceGramsAria: (n: number) => `Gewicht in Gramm für Stückgewicht ${n}`,
+    pieceLabelPlaceholder: 'klein / mittel / groß',
+    addPiece: '+ Stückgewicht',
+    removePiece: (label: string) => `Stückgewicht „${label}“ entfernen`,
+    save: 'Speichern',
+    saving: 'Speichern…',
+    cancel: 'Abbrechen',
+    saveError: 'Speichern fehlgeschlagen — bitte erneut versuchen.',
+
+    // AI fill
+    aiFill: 'KI ausfüllen',
+    aiFilling: 'KI füllt aus…',
+    aiFillHint: 'Füllt Einheit, Synonyme und Nährwerte als Vorschlag — alles bleibt änderbar.',
+    aiFillNeedsName: 'Bitte zuerst einen Namen eingeben.',
+    aiFillError: 'KI-Vorschlag fehlgeschlagen — Eingaben bleiben erhalten.',
+    aiEstimateHint: 'KI-Schätzung — bitte prüfen und bei Bedarf korrigieren.',
+
+    // Duplicate handling
+    duplicateTitle: 'Gibt es schon',
+    duplicateBody: (name: string) => `„${name}“ ist bereits im Katalog.`,
+    duplicateOpen: 'Vorhandenen Eintrag öffnen',
+
+    // Delete
+    delete: 'Löschen',
+    deleteAria: (name: string) => `${name} löschen`,
+    deleteConfirmTitle: 'Eintrag löschen?',
+    deleteConfirmBody: (name: string) =>
+      `„${name}“ wird aus dem Katalog entfernt. Gespeicherte Rezepte und Einträge im Tagebuch bleiben unverändert.`,
+    deleteConfirm: 'Endgültig löschen',
+    deleteCancel: 'Abbrechen',
+    deleteError: 'Löschen fehlgeschlagen — bitte erneut versuchen.',
   },
 
   bodyProfile: {
@@ -317,6 +384,7 @@ export const de = {
     tryAgain: 'Erneut versuchen',
     placeholder: 'Zutaten suchen…',
     scanBarcode: 'Barcode scannen',
+    offToggle: 'Open Food Facts',
     searching: 'Suche läuft…',
     noResults: (q: string) => `Keine Treffer für „${q}“`,
     kcalPer: (kcal: number, unit: MeasurementUnit) => {
@@ -586,8 +654,7 @@ export const de = {
       cancel: 'Abbrechen',
       captionNewFood: 'Wird in deiner Lebensmittel-Bibliothek gespeichert · sofort durchsuchbar',
       captionSynonym: 'Synonym wird gelernt · künftig automatisch erkannt',
-      // provenance tags on resolved rows
-      tagUser: 'USER',
+      // provenance tag on resolved rows
       tagCatalog: 'Katalog',
       // create trigger (search panel host)
       createTrigger: (query: string) => `„${query}“ neu anlegen`,

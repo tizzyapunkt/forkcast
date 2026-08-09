@@ -17,12 +17,12 @@ import { buildMatchedRowWithFlags } from './build-matched-row.ts';
 const DEBUG_CANDIDATE_CAP = 5;
 
 /**
- * Import matching consults the user's own catalogs in a strict cascade — curated
- * FOODS first, then the user-foods overlay, then locally-scanned products. The
- * first tier with a hit wins; lower tiers are not consulted. Open Food Facts is
- * deliberately excluded (rate limits, packaged-product noise).
+ * Import matching consults the user's own data in a strict cascade — the food
+ * catalog first, then locally-scanned products. The first tier with a hit wins;
+ * the lower tier is not consulted. Open Food Facts is deliberately excluded
+ * (rate limits, packaged-product noise).
  */
-const IMPORT_CASCADE: readonly IngredientSource[] = ['FOODS', 'USER', 'SCAN'];
+const IMPORT_CASCADE: readonly IngredientSource[] = ['CATALOG', 'SCAN'];
 
 export interface ImportRecipeFromPhotosDeps {
   extractor: RecipeDraftExtractor;

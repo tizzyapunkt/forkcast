@@ -47,7 +47,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
         HttpResponse.json([
           {
             id: 'salz',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Salz',
             unit: 'g',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -85,7 +85,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
         HttpResponse.json([
           {
             id: 'huehnchenbrust',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Hähnchenbrust',
             unit: 'g',
             macrosPerUnit: { calories: 1.65, protein: 0.31, carbs: 0, fat: 0.04 },
@@ -119,7 +119,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
         HttpResponse.json([
           {
             id: 'olivenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Olivenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
