@@ -41,7 +41,7 @@ make smoke        # boots backend with throwaway auth, runs the auth → confirm
 make kill-port    # frees :3000 if a stray backend is listening
 ```
 
-`make smoke` is non-destructive: it backs up and restores `backend/data/user-foods.json`. It exercises the non-AI resolution path end-to-end. The **AI** propose path needs a real `ANTHROPIC_API_KEY` and is best verified in the browser/app.
+`make smoke` is non-destructive: it backs up and restores `backend/data/catalog.json`. It exercises the non-AI catalog path end-to-end (confirm → search → edit → export → delete). The **AI** propose path needs a real `ANTHROPIC_API_KEY` and is best verified in the browser/app.
 
 To boot the backend manually (it requires auth env or it exits):
 
@@ -77,8 +77,8 @@ ingredients flow), not a script to run every time:
 2. On **Rezept prüfen**, confirm the unmatched panel prefetched proposals (the
    "Zuordnen" buttons go live), open one, confirm/edit a new-food or synonym.
 3. The row leaves the panel and joins the ingredient list with its amount intact; save.
-4. Re-import the same recipe → the resolved ingredients now auto-match (USER).
-5. Settings → export overlay → confirm it downloads and drains.
+4. Re-import the same recipe → the resolved ingredients now auto-match (CATALOG).
+5. Settings → Sicherung herunterladen → confirm it downloads and the catalog still lists the same count.
 
 Avoid triggering native dialogs (`alert`/`confirm`) — they freeze the extension.
 This matches the standing instruction: disable HTTPS in Vite before browser smoke
