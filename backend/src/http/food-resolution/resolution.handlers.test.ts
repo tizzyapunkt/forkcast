@@ -4,7 +4,6 @@ import {
   makeProposeResolutionsHandler,
   makeUnconfiguredProposeResolutionsHandler,
   makeConfirmResolutionHandler,
-  makeExportUserFoodsHandler,
 } from './resolution.handlers.ts';
 import {
   FoodResolutionError,
@@ -14,8 +13,7 @@ import {
   type ResolutionVerdict,
 } from '../../domain/food-resolution/types.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
-import type { UserFoodsOverlay, UserFoodsStore } from '../../domain/user-foods/types.ts';
-import type { SynonymRegistrar } from '../../domain/food-resolution/confirm-resolution.use-case.ts';
+import { FakeCatalogStore } from '../../domain/food-catalog/catalog-store.fake.ts';
 
 const emptyFinder: ResolutionCandidateFinder = {
   findCandidates: vi.fn<(q: string, limit: number) => Promise<ResolutionCandidate[]>>().mockResolvedValue([]),
@@ -99,110 +97,81 @@ describe('POST /propose-ingredient-resolutions', () => {
   });
 });
 
-function makeOverlay(initial: UserFoodsOverlay = { foods: [], synonyms: [] }) {
-  let state = structuredClone(initial);
-  const store: UserFoodsStore = {
-    load: vi.fn<() => Promise<UserFoodsOverlay>>(async () => state),
-    addFood: vi.fn<(e: FoodEntry) => Promise<void>>(async (e) => {
-      state.foods.push(e);
-    }),
-    addSynonym: vi.fn<(s: { foodId: string; synonym: string }) => Promise<void>>(async (s) => {
-      state.synonyms.push(s);
-    }),
-    exportAndClear: vi.fn<() => Promise<UserFoodsOverlay>>(async () => {
-      const snap = state;
-      state = { foods: [], synonyms: [] };
-      return snap;
-    }),
-  };
-  return store;
+const oliven: FoodEntry = {
+  id: 'oliven',
+  name: 'Oliven',
+  synonyms: [],
+  unit: 'g',
+  macrosPer100: { calories: 145, protein: 1, carbs: 6, fat: 15 },
+};
+
+function confirmApp(catalog: FakeCatalogStore) {
+  const a = new Hono();
+  a.post('/confirm-ingredient-resolution', makeConfirmResolutionHandler({ catalog }));
+  return a;
 }
 
-function curatedWith(ids: Record<string, boolean>): SynonymRegistrar {
-  return {
-    addSynonym: vi.fn<(foodId: string, synonym: string) => boolean>((foodId) => foodId in ids),
-    findById: vi.fn<SynonymRegistrar['findById']>((foodId) =>
-      foodId in ids
-        ? { name: 'Oliven', unit: 'g' as const, macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 } }
-        : null,
-    ),
-  };
-}
-
-describe('POST /confirm-ingredient-resolution', () => {
-  it('persists a new food and returns the matched ingredient', async () => {
-    const overlay = makeOverlay();
-    const a = new Hono();
-    a.post('/confirm-ingredient-resolution', makeConfirmResolutionHandler({ overlay, curated: curatedWith({}) }));
-    const res = await a.request('/confirm-ingredient-resolution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'new-food', entry: kirsch, original: { amount: 50, unit: 'g' } }),
-    });
-    expect(res.status).toBe(200);
-    const body = (await res.json()) as { ingredient: { name: string; amount: number; source: string } };
-    expect(body.ingredient).toMatchObject({ name: 'Kirschtomaten', amount: 50, source: 'USER' });
-    expect(overlay.addFood).toHaveBeenCalled();
+const post = (a: Hono, body: unknown) =>
+  a.request('/confirm-ingredient-resolution', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
   });
 
-  it('409s on a curated id collision', async () => {
-    const overlay = makeOverlay();
-    const a = new Hono();
-    a.post(
-      '/confirm-ingredient-resolution',
-      makeConfirmResolutionHandler({ overlay, curated: curatedWith({ kirschtomaten: true }) }),
-    );
-    const res = await a.request('/confirm-ingredient-resolution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'new-food', entry: kirsch, original: { amount: 50 } }),
+describe('POST /confirm-ingredient-resolution', () => {
+  it('appends a new food to the catalog and returns the matched ingredient', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const res = await post(confirmApp(catalog), {
+      kind: 'new-food',
+      entry: kirsch,
+      original: { amount: 50, unit: 'g' },
     });
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { ingredient: { name: string; amount: number; source: string } };
+    expect(body.ingredient).toMatchObject({ name: 'Kirschtomaten', amount: 50, source: 'CATALOG' });
+    expect(catalog.findById('kirschtomaten')).not.toBeNull();
+  });
+
+  it('409s on an id collision with an existing catalog entry', async () => {
+    const catalog = new FakeCatalogStore([kirsch]);
+
+    const res = await post(confirmApp(catalog), { kind: 'new-food', entry: kirsch, original: { amount: 50 } });
+
     expect(res.status).toBe(409);
   });
 
   it('400s on a malformed body', async () => {
-    const a = new Hono();
-    a.post(
-      '/confirm-ingredient-resolution',
-      makeConfirmResolutionHandler({ overlay: makeOverlay(), curated: curatedWith({}) }),
-    );
-    const res = await a.request('/confirm-ingredient-resolution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'wat' }),
-    });
+    const res = await post(confirmApp(new FakeCatalogStore()), { kind: 'wat' });
     expect(res.status).toBe(400);
   });
 
-  it('confirms a synonym against a curated entry', async () => {
-    const overlay = makeOverlay();
-    const a = new Hono();
-    a.post(
-      '/confirm-ingredient-resolution',
-      makeConfirmResolutionHandler({ overlay, curated: curatedWith({ oliven: true }) }),
-    );
-    const res = await a.request('/confirm-ingredient-resolution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'synonym', foodId: 'oliven', synonym: 'grüne Oliven', original: { amount: 25 } }),
-    });
-    expect(res.status).toBe(200);
-    expect(overlay.addSynonym).toHaveBeenCalled();
-  });
-});
+  it('confirms a synonym against a catalog entry', async () => {
+    const catalog = new FakeCatalogStore([oliven]);
 
-describe('POST /export-user-foods', () => {
-  it('returns overlay content and clears learned synonyms', async () => {
-    const overlay = makeOverlay({ foods: [kirsch], synonyms: [{ foodId: 'oliven', synonym: 'grüne Oliven' }] });
-    const clearLearnedSynonyms = vi.fn<() => void>();
-    const a = new Hono();
-    a.post('/export-user-foods', makeExportUserFoodsHandler({ overlay, curated: { clearLearnedSynonyms } }));
-    const res = await a.request('/export-user-foods', { method: 'POST' });
+    const res = await post(confirmApp(catalog), {
+      kind: 'synonym',
+      foodId: 'oliven',
+      synonym: 'grüne Oliven',
+      original: { amount: 25 },
+    });
+
     expect(res.status).toBe(200);
-    const body = (await res.json()) as UserFoodsOverlay;
-    expect(body.foods).toHaveLength(1);
-    expect(body.synonyms).toHaveLength(1);
-    expect(clearLearnedSynonyms).toHaveBeenCalled();
-    expect((await overlay.load()).foods).toHaveLength(0);
+    expect(catalog.findById('oliven')?.synonyms).toEqual(['grüne Oliven']);
+  });
+
+  it('404s when the synonym targets a food the catalog does not have', async () => {
+    const catalog = new FakeCatalogStore([oliven]);
+
+    const res = await post(confirmApp(catalog), {
+      kind: 'synonym',
+      foodId: 'nicht-vorhanden',
+      synonym: 'egal',
+      original: {},
+    });
+
+    expect(res.status).toBe(404);
+    expect(catalog.list()).toEqual([oliven]);
   });
 });

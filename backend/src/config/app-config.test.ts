@@ -20,24 +20,13 @@ describe('loadAppConfig', () => {
     expect(config.ai.recipeImport.maxImageBytes).toBe(5 * 1024 * 1024);
     expect(config.ai.recipeImport.maxTotalBytes).toBe(20 * 1024 * 1024);
     expect(config.ai.recipeImport.maxImages).toBe(8);
-    expect(config.ai.recipeImport.debug).toBe(false);
   });
 
-  it('accepts only "true"/"false" (case-insensitive) for RECIPE_IMPORT_DEBUG and treats empty as the default', () => {
-    for (const v of ['true', 'TRUE', ' true ']) {
+  it('ignores the retired RECIPE_IMPORT_DEBUG variable instead of failing on it', () => {
+    for (const v of ['true', 'false', 'banana']) {
       const env = new InMemoryEnvSource({ ...requiredKeys, RECIPE_IMPORT_DEBUG: v });
-      expect(loadAppConfig(env).ai.recipeImport.debug).toBe(true);
-    }
-    for (const v of ['false', 'FALSE', ' false ', '', '   ']) {
-      const env = new InMemoryEnvSource({ ...requiredKeys, RECIPE_IMPORT_DEBUG: v });
-      expect(loadAppConfig(env).ai.recipeImport.debug).toBe(false);
-    }
-  });
-
-  it('throws when RECIPE_IMPORT_DEBUG is set to anything other than true/false', () => {
-    for (const v of ['1', '0', 'yes', 'no', 'on', 'off', 'banana']) {
-      const env = new InMemoryEnvSource({ ...requiredKeys, RECIPE_IMPORT_DEBUG: v });
-      expect(() => loadAppConfig(env)).toThrow(/RECIPE_IMPORT_DEBUG/);
+      expect(() => loadAppConfig(env)).not.toThrow();
+      expect(loadAppConfig(env).ai.recipeImport).not.toHaveProperty('debug');
     }
   });
 

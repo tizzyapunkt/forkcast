@@ -3,13 +3,14 @@ import { AppHeader } from '../../components/app/app-header';
 import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
 import { WeightTrackerScreen } from '../weight-log/weight-tracker-screen';
-import { UserFoodsPanel } from './user-foods-panel';
+import { CatalogPanel } from './catalog-panel';
+import { CatalogManagerScreen } from '../food-catalog/catalog-manager-screen';
 import { DiagnosticsScreen } from '../diagnostics/diagnostics-screen';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 import { Button } from '../../components/ui/button';
 
-type View = 'main' | 'weight-tracker' | 'diagnostics';
+type View = 'main' | 'weight-tracker' | 'catalog' | 'diagnostics';
 
 interface SettingsScreenProps {
   initialView?: View;
@@ -21,6 +22,10 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
 
   if (view === 'weight-tracker') {
     return <WeightTrackerScreen onBack={() => setView('main')} />;
+  }
+
+  if (view === 'catalog') {
+    return <CatalogManagerScreen onBack={() => setView('main')} />;
   }
 
   if (view === 'diagnostics') {
@@ -36,7 +41,7 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
         </h2>
         <NutritionGoalForm />
         <BodyProfileForm />
-        <UserFoodsPanel />
+        <CatalogPanel onManage={() => setView('catalog')} />
         <button
           type="button"
           onClick={() => setView('weight-tracker')}

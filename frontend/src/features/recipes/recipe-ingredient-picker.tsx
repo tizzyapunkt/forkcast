@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
 import { RecentPanel } from '../log-ingredient/recent-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
-import type { RecipeIngredient } from '../../domain/recipes';
+import type { RecipeIngredient, SearchCandidateProvenance } from '../../domain/recipes';
+import { searchIngredients } from '../../api/search-ingredients';
+import { queryKeys } from '../../queries/keys';
 import { de } from '../../i18n/de';
 import { parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
@@ -26,6 +29,9 @@ interface Props {
   mode?: PickerMode;
   /** Called when a result is picked in `'replace'` mode. Required when `mode === 'replace'`. */
   onPickResult?: (result: IngredientSearchResult) => void;
+  /** The row's import candidates, offered as one-tap options above the search input in `'replace'`
+   * mode. They carry no macros, so a pick is resolved to a real search result before it is applied. */
+  candidates?: readonly SearchCandidateProvenance[];
 }
 
 type Tab = 'search' | 'recent';
@@ -38,7 +44,7 @@ const amountSchema = z.object({
 });
 type AmountForm = z.infer<typeof amountSchema>;
 
-export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', onPickResult }: Props) {
+export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', onPickResult, candidates }: Props) {
   const [tab, setTab] = useState<Tab>('search');
   const [step, setStep] = useState<Step>({ kind: 'pick' });
   const [createQuery, setCreateQuery] = useState<string | null>(null);
@@ -60,6 +66,9 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
     }
     setStep({ kind: 'amount', result });
   }
+
+  const showCandidates =
+    mode === 'replace' && step.kind === 'pick' && tab === 'search' && (candidates?.length ?? 0) > 0;
 
   const titleText =
     step.kind === 'amount'
@@ -110,6 +119,7 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {step.kind === 'pick' && (
           <>
+            {showCandidates && <CandidateSection candidates={candidates ?? []} onResolved={handleSelect} />}
             {tab === 'search' && <SearchPanel onSelect={handleSelect} onCreate={setCreateQuery} />}
             {tab === 'recent' && <RecentPanel onSelect={handleSelect} />}
           </>
@@ -143,6 +153,81 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
         }}
       />
     </BottomSheet>
+  );
+}
+
+/**
+ * The row's import candidates as one-tap options. They carry no macros, so a pick is resolved to
+ * a real search result — exact name against the candidate's own source — before it is applied. A
+ * candidate deleted from the catalog since the import no longer resolves; that falls back to the
+ * search input with a notice rather than applying a macro-less row.
+ */
+function CandidateSection({
+  candidates,
+  onResolved,
+}: {
+  candidates: readonly SearchCandidateProvenance[];
+  onResolved: (result: IngredientSearchResult) => void;
+}) {
+  const [resolvingName, setResolvingName] = useState<string | null>(null);
+  const [unresolvableName, setUnresolvableName] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const c = de.recipeIngredientPicker.candidates;
+
+  async function select(candidate: SearchCandidateProvenance) {
+    setUnresolvableName(null);
+    setResolvingName(candidate.name);
+    try {
+      const results = await queryClient.fetchQuery({
+        queryKey: queryKeys.ingredientSearch(candidate.name, [candidate.source]),
+        queryFn: () => searchIngredients(candidate.name, [candidate.source]),
+        staleTime: 5 * 60_000,
+      });
+      const exact = results.find((r) => r.name === candidate.name);
+      if (exact) {
+        onResolved(exact);
+        return;
+      }
+      setUnresolvableName(candidate.name);
+    } catch {
+      setUnresolvableName(candidate.name);
+    } finally {
+      setResolvingName(null);
+    }
+  }
+
+  return (
+    <div data-testid="picker-candidates" className="border-b px-4 pt-3 pb-2">
+      <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{c.heading}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{c.hint}</p>
+      {unresolvableName && (
+        <p role="status" className="mt-2 text-xs text-destructive">
+          {c.unresolvable(unresolvableName)}
+        </p>
+      )}
+      <ul className="mt-2 divide-y">
+        {candidates.map((candidate, i) => (
+          <li key={`${candidate.source}:${candidate.name}:${i}`} className="min-w-0">
+            <button
+              type="button"
+              data-testid={`picker-candidate-${i}`}
+              onClick={() => void select(candidate)}
+              disabled={resolvingName !== null}
+              aria-label={c.optionAria(candidate.name, candidate.source)}
+              className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm disabled:opacity-50 hover:bg-muted/50"
+            >
+              <span className="min-w-0 flex-1 truncate font-medium">{candidate.name}</span>
+              <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                {resolvingName === candidate.name && <span>{c.resolving}</span>}
+                <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                  {candidate.source}
+                </span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search-ingredients';
-import type { IngredientSearchResult } from '../../domain/ingredient-search';
+import type { IngredientSearchResult, IngredientSearchSource } from '../../domain/ingredient-search';
 import { BarcodeScanner } from './barcode-scanner';
 import { de } from '../../i18n/de';
 import { useLocalStorage } from '../../hooks/use-local-storage';
@@ -27,13 +27,14 @@ type ScanState =
   | { mode: 'barcode-not-found'; barcode: string }
   | { mode: 'capturing-product'; barcode: string };
 
-const LEGACY_OFF_KEY = 'forkcast:off-enabled';
-const FOODS_KEY = 'forkcast:foods-enabled';
+/** Retired toggle keys. The catalog is always searched now, so neither may influence sources. */
+const LEGACY_KEYS = ['forkcast:off-enabled', 'forkcast:foods-enabled'];
+const OFF_KEY = 'forkcast:off-source-enabled';
 
-function clearLegacyToggleKey() {
+function clearLegacyToggleKeys() {
   try {
-    if (localStorage.getItem(LEGACY_OFF_KEY) !== null) {
-      localStorage.removeItem(LEGACY_OFF_KEY);
+    for (const key of LEGACY_KEYS) {
+      if (localStorage.getItem(key) !== null) localStorage.removeItem(key);
     }
   } catch {
     // ignore quota or access errors
@@ -53,10 +54,11 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
   useEffect(() => {
-    clearLegacyToggleKey();
+    clearLegacyToggleKeys();
   }, []);
-  const [foodsEnabled, setFoodsEnabled] = useLocalStorage<boolean>(FOODS_KEY, false);
-  const sources: Array<'FOODS' | 'OFF'> = foodsEnabled ? ['FOODS', 'OFF'] : ['OFF'];
+  const [offEnabled, setOffEnabled] = useLocalStorage<boolean>(OFF_KEY, false);
+  // The user's own catalog is always searched; Open Food Facts is the opt-in extra.
+  const sources: IngredientSearchSource[] = offEnabled ? ['CATALOG', 'OFF'] : ['CATALOG'];
   const { data: results, isLoading, isError } = useSearchIngredients(debouncedQuery, sources);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -170,12 +172,12 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
       <label className="flex items-center gap-2 text-xs text-muted-foreground select-none">
         <input
           type="checkbox"
-          checked={foodsEnabled}
-          onChange={(e) => setFoodsEnabled(e.target.checked)}
-          aria-label="Foods"
+          checked={offEnabled}
+          onChange={(e) => setOffEnabled(e.target.checked)}
+          aria-label={de.searchPanel.offToggle}
           className="h-3.5 w-3.5 rounded"
         />
-        Foods
+        {de.searchPanel.offToggle}
       </label>
 
       {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}

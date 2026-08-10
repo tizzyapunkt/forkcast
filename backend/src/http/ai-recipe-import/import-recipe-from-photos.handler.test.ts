@@ -21,7 +21,6 @@ function makeApp(opts: {
   extractor?: { extract: (images: RecipeImage[]) => Promise<ExtractedDraft> } | null;
   search?: IngredientSearchService;
   limits?: ImportRecipeFromPhotosLimits;
-  includeDebug?: boolean;
 }) {
   const app = new Hono();
   if (opts.extractor === null) {
@@ -40,7 +39,7 @@ function makeApp(opts: {
     searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
       {
         id: 'foods-1',
-        source: 'FOODS',
+        source: 'CATALOG',
         name: 'Olivenöl',
         unit: 'ml',
         macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -54,7 +53,6 @@ function makeApp(opts: {
       extractor,
       search,
       limits: opts.limits ?? DEFAULT_LIMITS,
-      includeDebug: opts.includeDebug,
     }),
   );
   return app;
@@ -192,7 +190,7 @@ describe('POST /import-recipe-from-photos', () => {
       searchByName: vi.fn<(q: string) => Promise<IngredientSearchResult[]>>().mockResolvedValue([
         {
           id: 'foods-zwiebel',
-          source: 'FOODS',
+          source: 'CATALOG',
           name: 'Zwiebel',
           unit: 'g',
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
@@ -213,7 +211,7 @@ describe('POST /import-recipe-from-photos', () => {
     expect(body.ingredients[0]?.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
   });
 
-  it('omits the debug field from the response by default', async () => {
+  it('includes a provenance.ingredients array on every response, with no configuration', async () => {
     const app = makeApp({});
     const res = await app.request('/import-recipe-from-photos', {
       method: 'POST',
@@ -221,20 +219,9 @@ describe('POST /import-recipe-from-photos', () => {
       body: JSON.stringify({ images: [tinyJpeg(20)] }),
     });
     expect(res.status).toBe(200);
-    const body = (await res.json()) as Record<string, unknown>;
-    expect('debug' in body).toBe(false);
-  });
-
-  it('includes a debug.ingredients array on the response when includeDebug is true', async () => {
-    const app = makeApp({ includeDebug: true });
-    const res = await app.request('/import-recipe-from-photos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ images: [tinyJpeg(20)] }),
-    });
-    expect(res.status).toBe(200);
     const body = (await res.json()) as {
-      debug?: {
+      debug?: unknown;
+      provenance: {
         ingredients: Array<{
           raw: { name: string };
           candidates: Array<{ name: string }>;
@@ -248,9 +235,9 @@ describe('POST /import-recipe-from-photos', () => {
         }>;
       };
     };
-    expect(body.debug).toBeDefined();
-    expect(body.debug!.ingredients).toHaveLength(1);
-    const entry = body.debug!.ingredients[0]!;
+    expect(body.debug).toBeUndefined();
+    expect(body.provenance.ingredients).toHaveLength(1);
+    const entry = body.provenance.ingredients[0]!;
     expect(entry.raw.name).toBe('olive oil');
     expect(entry.candidates[0]?.name).toBe('Olivenöl');
     expect(entry.chosen?.name).toBe('Olivenöl');

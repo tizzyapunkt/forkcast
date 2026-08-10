@@ -1,21 +1,11 @@
 import type { FoodEntry } from '../foods/types.ts';
+import type { CatalogStore } from '../food-catalog/types.ts';
 import type { MatchedDraftIngredient } from '../ai-recipe-import/types.ts';
 import {
   buildMatchedRow,
   type MatchSourceFood,
   type OriginalDraftFields,
 } from '../ai-recipe-import/build-matched-row.ts';
-import { validateFoodEntry } from '../foods/validate-food-entry.ts';
-import { fold } from '../ingredient-search/fold.ts';
-import type { UserFoodsStore } from '../user-foods/types.ts';
-
-/** A learned-synonym index the confirm use case registers against (the curated FOODS service). */
-export interface SynonymRegistrar {
-  /** Returns false when `foodId` is unknown (orphaned synonym). */
-  addSynonym(foodId: string, synonym: string): boolean;
-  /** Look up a curated entry by id so the resolved row can adopt its unit/macros. */
-  findById(foodId: string): MatchSourceFood | null;
-}
 
 export type ConfirmResolutionInput =
   | { kind: 'new-food'; entry: FoodEntry; original: OriginalDraftFields }
@@ -23,59 +13,46 @@ export type ConfirmResolutionInput =
 
 export type ConfirmResolutionResult =
   | { ok: true; ingredient: MatchedDraftIngredient }
-  | { ok: false; status: 409 | 422; error: string };
+  | { ok: false; status: 404 | 409 | 422; error: string };
 
 export interface ConfirmResolutionDeps {
-  overlay: UserFoodsStore;
-  curated: SynonymRegistrar;
+  catalog: CatalogStore;
+}
+
+/** The catalog entry as the import matcher wants it: per-unit macros, untracked as a plain flag. */
+function toMatchSource(entry: FoodEntry): MatchSourceFood {
+  const m = entry.macrosPer100;
+  return {
+    name: entry.name,
+    unit: entry.unit,
+    macrosPerUnit: { calories: m.calories / 100, protein: m.protein / 100, carbs: m.carbs / 100, fat: m.fat / 100 },
+    untracked: entry.untracked === true,
+    density: entry.density,
+  };
 }
 
 /**
- * Persist a confirmed resolution to the overlay and build the resolved draft row
- * by reusing the import post-match rules. New foods are validated and checked for
- * collision against the curated catalog and overlay; synonyms register on the
- * live curated index.
+ * Persist a confirmed resolution to the catalog and build the resolved draft row
+ * by reusing the import post-match rules. A `new-food` appends an entry, a
+ * `synonym` extends an existing entry's alternate names — both searchable
+ * immediately, because the store rebuilds its index on every accepted write.
+ * Nothing is persisted when the write is refused.
  */
 export async function confirmResolution(
   deps: ConfirmResolutionDeps,
   input: ConfirmResolutionInput,
 ): Promise<ConfirmResolutionResult> {
   if (input.kind === 'new-food') {
-    const validation = validateFoodEntry(input.entry);
-    if (!validation.ok) return { ok: false, status: 422, error: validation.reason };
-    const entry = validation.entry;
-
-    const foldedName = fold(entry.name);
-    if (deps.curated.findById(entry.id)) {
-      return { ok: false, status: 409, error: `a curated food already has id "${entry.id}"` };
+    const result = await deps.catalog.add(input.entry);
+    if (!result.ok) {
+      return { ok: false, status: result.kind === 'conflict' ? 409 : 422, error: result.reason };
     }
-    const overlay = await deps.overlay.load();
-    const collision = overlay.foods.some((f) => f.id === entry.id || fold(f.name) === foldedName);
-    if (collision) return { ok: false, status: 409, error: `an overlay food already matches "${entry.name}"` };
-
-    try {
-      await deps.overlay.addFood(entry);
-    } catch (err) {
-      return { ok: false, status: 422, error: err instanceof Error ? err.message : String(err) };
-    }
-    const source: MatchSourceFood = {
-      name: entry.name,
-      unit: entry.unit,
-      macrosPerUnit: {
-        calories: entry.macrosPer100.calories / 100,
-        protein: entry.macrosPer100.protein / 100,
-        carbs: entry.macrosPer100.carbs / 100,
-        fat: entry.macrosPer100.fat / 100,
-      },
-      untracked: entry.untracked === true,
-    };
-    return { ok: true, ingredient: buildMatchedRow(source, 'USER', input.original) };
+    return { ok: true, ingredient: buildMatchedRow(toMatchSource(result.entry), 'CATALOG', input.original) };
   }
 
-  // synonym
-  const food = deps.curated.findById(input.foodId);
-  if (!food) return { ok: false, status: 422, error: `no curated food with id "${input.foodId}"` };
-  await deps.overlay.addSynonym({ foodId: input.foodId, synonym: input.synonym });
-  deps.curated.addSynonym(input.foodId, input.synonym);
-  return { ok: true, ingredient: buildMatchedRow(food, 'FOODS', input.original) };
+  const result = await deps.catalog.addSynonym(input.foodId, input.synonym);
+  if (!result.ok) {
+    return { ok: false, status: result.kind === 'not-found' ? 404 : 422, error: result.reason };
+  }
+  return { ok: true, ingredient: buildMatchedRow(toMatchSource(result.entry), 'CATALOG', input.original) };
 }

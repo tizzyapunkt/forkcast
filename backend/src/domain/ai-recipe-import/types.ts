@@ -50,17 +50,17 @@ export interface UnmatchedDraftIngredient {
 
 export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
 
-export interface SearchCandidateDebug {
+export interface SearchCandidateProvenance {
   name: string;
   source: IngredientResultSource;
   unit: MeasurementUnit;
   untracked: boolean;
 }
 
-export interface IngredientMatchDebug {
+export interface IngredientMatchProvenance {
   raw: RawIngredient;
-  candidates: SearchCandidateDebug[];
-  chosen: SearchCandidateDebug | null;
+  candidates: SearchCandidateProvenance[];
+  chosen: SearchCandidateProvenance | null;
   flags: {
     unitOverridden: boolean;
     pieceQuantityDropped: boolean;
@@ -69,8 +69,9 @@ export interface IngredientMatchDebug {
   };
 }
 
-export interface RecipeDraftDebug {
-  ingredients: IngredientMatchDebug[];
+export interface RecipeDraftProvenance {
+  /** Positionally parallel to `RecipeDraft.ingredients` — entry *i* describes draft ingredient *i*. */
+  ingredients: IngredientMatchProvenance[];
 }
 
 export interface RecipeDraft {
@@ -78,5 +79,6 @@ export interface RecipeDraft {
   yield: number;
   ingredients: DraftIngredient[];
   steps: string[];
-  debug?: RecipeDraftDebug;
+  /** Always present: how each row was matched, for the review screen. Never persisted. */
+  provenance: RecipeDraftProvenance;
 }

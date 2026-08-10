@@ -4,11 +4,28 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
 import { ReviewImportScreen } from './review-import-screen';
-import type { RecipeDraft } from '../../domain/recipes';
+import type { IngredientMatchProvenance, RecipeDraft } from '../../domain/recipes';
 
 function segment(rowName: string, label: string): HTMLElement {
   const group = screen.getByRole('group', { name: new RegExp(`Maß-Steuerung für ${rowName}`, 'i') });
   return within(group).getByRole('radio', { name: label });
+}
+
+const noFlags = {
+  unitOverridden: false,
+  pieceQuantityDropped: false,
+  untrackedInherited: false,
+  missingAmount: false,
+} as const;
+
+function provenanceEntry(overrides: Partial<IngredientMatchProvenance> = {}): IngredientMatchProvenance {
+  return {
+    raw: { name: 'raw name' },
+    candidates: [],
+    chosen: null,
+    flags: { ...noFlags },
+    ...overrides,
+  };
 }
 
 const draft: RecipeDraft = {
@@ -23,7 +40,7 @@ const draft: RecipeDraft = {
       macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
       amount: 30,
       unitOverridden: false,
-      source: 'FOODS',
+      source: 'CATALOG',
     },
     {
       matched: true,
@@ -32,7 +49,7 @@ const draft: RecipeDraft = {
       macrosPerUnit: { calories: 0.8, protein: 0.04, carbs: 0.13, fat: 0 },
       amount: 50,
       unitOverridden: true,
-      source: 'FOODS',
+      source: 'CATALOG',
     },
     {
       matched: false,
@@ -52,12 +69,6 @@ describe('ReviewImportScreen', () => {
     expect(screen.getByText('Tomatenmark')).toBeInTheDocument();
     expect(screen.getByText(/1 zutat ohne treffer/i)).toBeInTheDocument();
     expect(screen.getByText('mystery herb')).toBeInTheDocument();
-  });
-
-  it('shows an unitOverridden indicator when the catalog unit replaced the model unit', () => {
-    renderWithProviders(<ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />);
-
-    expect(screen.getByTestId('unit-override-1')).toBeInTheDocument();
   });
 
   it('discards an unmatched ingredient without resolving it', async () => {
@@ -81,7 +92,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
           amount: 150,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
         },
       ],
@@ -105,7 +116,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
           amount: 150,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
         },
       ],
@@ -141,7 +152,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
           amount: 30,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
         },
         {
           matched: true,
@@ -150,7 +161,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
           amount: 5,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           untracked: true,
         },
       ],
@@ -174,7 +185,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
           amount: 30,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
         },
         {
           matched: true,
@@ -183,7 +194,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
           amount: 5,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           untracked: true,
         },
       ],
@@ -224,7 +235,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 8.84, protein: 0, carbs: 0, fat: 1 },
           amount: 30,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
         },
       ],
     };
@@ -234,7 +245,7 @@ describe('ReviewImportScreen', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -276,7 +287,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0.4, protein: 0.011, carbs: 0.093, fat: 0.001 },
           amount: 150,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
         },
       ],
@@ -286,7 +297,7 @@ describe('ReviewImportScreen', () => {
         HttpResponse.json([
           {
             id: 'schalotte',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Schalotte',
             unit: 'g',
             macrosPerUnit: { calories: 0.7, protein: 0.025, carbs: 0.16, fat: 0.001 },
@@ -321,7 +332,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
           amount: 0,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           untracked: true,
           displayQuantity: dq,
         },
@@ -367,7 +378,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
           amount: 0,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           untracked: true,
         },
       ],
@@ -408,7 +419,7 @@ describe('ReviewImportScreen', () => {
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
           amount: 5,
           unitOverridden: false,
-          source: 'FOODS',
+          source: 'CATALOG',
           untracked: true,
           displayQuantity: dq,
         },
@@ -434,49 +445,252 @@ describe('ReviewImportScreen', () => {
     expect(captured!.ingredients[0]!.displayQuantity).toBeUndefined();
   });
 
-  describe('debug box', () => {
-    it('does not render the debug box when draft.debug is undefined', () => {
-      renderWithProviders(<ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />);
-      expect(screen.queryByTestId('import-debug-box')).not.toBeInTheDocument();
+  describe('match provenance', () => {
+    // Draft index 1 is unmatched, so form row 1 is draft index 2 — the pairing must survive that gap.
+    const gappedDraft: RecipeDraft = {
+      name: 'Sugo',
+      yield: 2,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Olivenöl',
+          unit: 'ml',
+          macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
+          amount: 30,
+          unitOverridden: false,
+          source: 'CATALOG',
+        },
+        { matched: false, name: 'mystery herb', amount: 1, unit: 'tsp' },
+        {
+          matched: true,
+          name: 'Tomatenmark',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.8, protein: 0.04, carbs: 0.13, fat: 0 },
+          amount: 50,
+          unitOverridden: true,
+          source: 'CATALOG',
+        },
+      ],
+      provenance: {
+        ingredients: [
+          provenanceEntry({
+            raw: { name: 'Olivenöl', amount: 30, unit: 'ml' },
+            candidates: [{ name: 'Olivenöl', source: 'CATALOG', unit: 'ml', untracked: false }],
+            chosen: { name: 'Olivenöl', source: 'CATALOG', unit: 'ml', untracked: false },
+          }),
+          provenanceEntry({ raw: { name: 'mystery herb', amount: 1, unit: 'tsp' } }),
+          provenanceEntry({
+            raw: { name: 'Kirschtomaten', amount: 2, unit: 'tbsp' },
+            candidates: [
+              { name: 'Tomatenmark', source: 'CATALOG', unit: 'g', untracked: false },
+              { name: 'Tomaten', source: 'CATALOG', unit: 'g', untracked: false },
+            ],
+            chosen: { name: 'Tomatenmark', source: 'CATALOG', unit: 'g', untracked: false },
+            flags: { ...noFlags, unitOverridden: true },
+          }),
+        ],
+      },
+    };
+
+    it('pairs each matched row with its provenance entry by draft index, skipping unmatched rows', () => {
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.getByTestId('row-raw-0')).toHaveTextContent('30 ml Olivenöl');
+      expect(screen.getByTestId('row-raw-1')).toHaveTextContent('2 tbsp Kirschtomaten');
     });
 
-    it('renders the debug box (collapsed) and reveals raw/chosen/candidates/flags when toggled', async () => {
-      const draftWithDebug: RecipeDraft = {
-        ...draft,
-        debug: {
-          ingredients: [
+    it('renders the raw extracted line beneath the matched name so a mismatch is legible in place', () => {
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.getByText('Tomatenmark')).toBeInTheDocument();
+      expect(screen.getByLabelText(/gelesener text für tomatenmark/i)).toHaveTextContent(/Kirschtomaten/);
+    });
+
+    it('renders no provenance affordances when the draft carries none', () => {
+      renderWithProviders(<ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.queryByTestId('row-raw-0')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('row-uncertain-0')).not.toBeInTheDocument();
+    });
+
+    it('keeps every remaining row paired with its own provenance after an earlier row is removed', async () => {
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      await userEvent.click(screen.getByLabelText(/^Olivenöl entfernen$/i));
+
+      expect(screen.getByTestId('row-raw-0')).toHaveTextContent('2 tbsp Kirschtomaten');
+      expect(screen.queryByTestId('row-raw-1')).not.toBeInTheDocument();
+    });
+
+    it('keeps the raw line unchanged when the row amount is edited', async () => {
+      const { fireEvent } = await import('@testing-library/react');
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      fireEvent.change(screen.getByLabelText(/menge für tomatenmark/i), { target: { value: '75' } });
+
+      expect(screen.getByTestId('row-raw-1')).toHaveTextContent('2 tbsp Kirschtomaten');
+    });
+
+    it('keeps the raw line unchanged when the row ingredient is replaced', async () => {
+      server.use(
+        http.get('/api/search-ingredients', () =>
+          HttpResponse.json([
             {
-              raw: { name: 'tomato paste', amount: 2, unit: 'tbsp' },
-              candidates: [
-                { name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false },
-                { name: 'Tomaten', source: 'FOODS', unit: 'g', untracked: false },
-                { name: 'Tomate, getrocknet', source: 'FOODS', unit: 'g', untracked: false },
-              ],
-              chosen: { name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false },
-              flags: {
-                unitOverridden: true,
-                pieceQuantityDropped: false,
-                untrackedInherited: false,
-                missingAmount: false,
-              },
+              id: 'kirschtomaten',
+              source: 'CATALOG',
+              name: 'Kirschtomaten',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.18, protein: 0.009, carbs: 0.039, fat: 0.002 },
             },
+          ]),
+        ),
+      );
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      await userEvent.click(screen.getByTestId('replace-row-1'));
+      await userEvent.type(screen.getByRole('searchbox'), 'kirsch');
+      await userEvent.click(await screen.findByRole('button', { name: /kirschtomaten/i }));
+
+      expect(screen.getByText('Kirschtomaten')).toBeInTheDocument();
+      expect(screen.getByTestId('row-raw-1')).toHaveTextContent('2 tbsp Kirschtomaten');
+    });
+
+    it('gives a row added through the resolve flow no raw line', async () => {
+      server.use(
+        http.post('/api/propose-ingredient-resolutions', () =>
+          HttpResponse.json({ proposals: [{ verdict: 'skip', reason: 'x' }] }),
+        ),
+        http.get('/api/search-ingredients', () =>
+          HttpResponse.json([
+            {
+              id: 'oregano',
+              source: 'CATALOG',
+              name: 'Oregano',
+              unit: 'g',
+              macrosPerUnit: { calories: 2.65, protein: 0.09, carbs: 0.69, fat: 0.043 },
+            },
+          ]),
+        ),
+      );
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      await userEvent.click(await screen.findByLabelText(/mystery herb.*zuordnen/i));
+      await userEvent.click(screen.getByRole('button', { name: /^katalog$/i }));
+      await userEvent.type(screen.getByRole('searchbox'), 'oreg');
+      await userEvent.click(await screen.findByRole('button', { name: /oregano/i }));
+
+      expect(screen.getByText('Oregano')).toBeInTheDocument();
+      expect(screen.queryByTestId('row-raw-2')).not.toBeInTheDocument();
+    });
+
+    it('swaps a row from its import candidates in one tap, keeping the row amount', async () => {
+      let captured: { ingredients: Array<{ name: string; amount: number; unit: string }> } | null = null;
+      server.use(
+        http.get('/api/search-ingredients', () =>
+          HttpResponse.json([
+            {
+              id: 'tomaten',
+              source: 'CATALOG',
+              name: 'Tomaten',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.18, protein: 0.009, carbs: 0.039, fat: 0.002 },
+            },
+          ]),
+        ),
+        http.post('/api/add-recipe', async ({ request }) => {
+          captured = (await request.json()) as typeof captured;
+          return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+        }),
+      );
+
+      const onSaved = vi.fn<() => void>();
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={onSaved} onCancel={() => {}} />);
+
+      await userEvent.click(screen.getByTestId('replace-row-1'));
+      // The runner-up candidate is offered without typing a query.
+      await userEvent.click(screen.getByTestId('picker-candidate-1'));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+
+      expect(captured!.ingredients[1]!.name).toBe('Tomaten');
+      expect(captured!.ingredients[1]!.amount).toBe(50);
+      expect(captured!.ingredients[1]!.unit).toBe('g');
+    });
+
+    it('marks a row whose unit was replaced and whose tier offered alternatives', () => {
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      const marker = screen.getByTestId('row-uncertain-1');
+      expect(marker).toHaveTextContent(/Einheit tbsp → g/);
+      expect(marker).toHaveTextContent(/2 Alternativen/);
+    });
+
+    it('leaves a confident single-candidate match with no flags unmarked', () => {
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.queryByTestId('row-uncertain-0')).not.toBeInTheDocument();
+    });
+
+    it.each([
+      ['pieceQuantityDropped', { ...noFlags, pieceQuantityDropped: true }, /Stückangabe verworfen/],
+      ['untrackedInherited', { ...noFlags, untrackedInherited: true }, /zählt nicht in den Nährwerten/],
+      ['missingAmount', { ...noFlags, missingAmount: true }, /Menge fehlt/],
+    ])('names the %s condition in German on the marked row', (_label, flags, expected) => {
+      const flaggedDraft: RecipeDraft = {
+        name: 'X',
+        yield: 1,
+        steps: [],
+        ingredients: [
+          {
+            matched: true,
+            name: 'Knoblauch',
+            unit: 'g',
+            macrosPerUnit: { calories: 1.5, protein: 0.06, carbs: 0.33, fat: 0.005 },
+            amount: 6,
+            unitOverridden: false,
+            source: 'CATALOG',
+          },
+        ],
+        provenance: {
+          ingredients: [
+            provenanceEntry({
+              raw: { name: 'Knoblauch', amount: 2, unit: 'g' },
+              candidates: [{ name: 'Knoblauch', source: 'CATALOG', unit: 'g', untracked: false }],
+              chosen: { name: 'Knoblauch', source: 'CATALOG', unit: 'g', untracked: false },
+              flags,
+            }),
           ],
         },
       };
-      renderWithProviders(<ReviewImportScreen draft={draftWithDebug} onSaved={() => {}} onCancel={() => {}} />);
+      renderWithProviders(<ReviewImportScreen draft={flaggedDraft} onSaved={() => {}} onCancel={() => {}} />);
 
-      const box = screen.getByTestId('import-debug-box');
-      expect(box).toBeInTheDocument();
-      expect(screen.queryByTestId('import-debug-entry-0')).not.toBeInTheDocument();
+      expect(screen.getByTestId('row-uncertain-0')).toHaveTextContent(expected);
+    });
 
-      await userEvent.click(screen.getByTestId('import-debug-toggle'));
+    it('saves normally with markers on screen, and stores no provenance data', async () => {
+      let captured: { ingredients: Array<Record<string, unknown>> } | null = null;
+      server.use(
+        http.post('/api/add-recipe', async ({ request }) => {
+          captured = (await request.json()) as typeof captured;
+          return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+        }),
+      );
 
-      const entry = screen.getByTestId('import-debug-entry-0');
-      expect(entry).toHaveTextContent('tomato paste');
-      expect(entry).toHaveTextContent('Tomatenmark');
-      expect(entry).toHaveTextContent('Tomaten');
-      expect(entry).toHaveTextContent('Tomate, getrocknet');
-      expect(entry).toHaveTextContent(/unitOverridden/i);
+      const onSaved = vi.fn<() => void>();
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={onSaved} onCancel={() => {}} />);
+
+      expect(screen.getByTestId('row-uncertain-1')).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+
+      const body = JSON.stringify(captured);
+      expect(body).not.toMatch(/provenance|candidates|chosen|Kirschtomaten/);
+      for (const ing of captured!.ingredients) {
+        expect(ing).not.toHaveProperty('provenance');
+      }
     });
   });
 
@@ -515,7 +729,7 @@ describe('ReviewImportScreen', () => {
             macrosPerUnit: { calories: 0.8, protein: 0.018, carbs: 0.178, fat: 0.008 },
             amount: 5,
             unitOverridden: false,
-            source: 'FOODS',
+            source: 'CATALOG',
             note: 'fein gehackt',
           },
         ],
@@ -560,7 +774,7 @@ describe('ReviewImportScreen', () => {
           HttpResponse.json([
             {
               id: 'zitronen-schale',
-              source: 'FOODS',
+              source: 'CATALOG',
               name: 'Zitronenschale',
               unit: 'g',
               macrosPerUnit: { calories: 0.5, protein: 0.015, carbs: 0.16, fat: 0.003 },

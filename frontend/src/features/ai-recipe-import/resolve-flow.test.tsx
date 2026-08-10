@@ -76,7 +76,7 @@ describe('resolve flow on the review screen', () => {
             macrosPerUnit: { calories: 0.2, protein: 0.009, carbs: 0.039, fat: 0.002 },
             amount: 50,
             unitOverridden: false,
-            source: 'USER',
+            source: 'CATALOG',
           },
         }),
       ),

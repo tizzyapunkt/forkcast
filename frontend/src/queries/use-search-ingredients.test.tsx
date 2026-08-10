@@ -3,8 +3,9 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../test/msw/server';
 import { renderWithProviders } from '../test/harness';
 import { useSearchIngredients } from './use-search-ingredients';
+import type { IngredientSearchSource } from '../domain/ingredient-search';
 
-function Consumer({ q, sources }: { q: string; sources?: Array<'FOODS' | 'OFF'> }) {
+function Consumer({ q, sources }: { q: string; sources?: IngredientSearchSource[] }) {
   const { data, isLoading } = useSearchIngredients(q, sources);
   if (isLoading) return <p>loading</p>;
   return (
@@ -23,7 +24,7 @@ describe('useSearchIngredients', () => {
         HttpResponse.json([
           {
             id: '1',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -61,7 +62,7 @@ describe('useSearchIngredients', () => {
     expect(new URL(capturedUrl).searchParams.get('sources')).toBe('off');
   });
 
-  it('includes sources=foods,off in URL when sources includes FOODS', async () => {
+  it('includes sources=catalog,off in the URL when Open Food Facts is requested too', async () => {
     let capturedUrl = '';
     server.use(
       http.get('/api/search-ingredients', ({ request }) => {
@@ -69,8 +70,8 @@ describe('useSearchIngredients', () => {
         return HttpResponse.json([]);
       }),
     );
-    renderWithProviders(<Consumer q="oat" sources={['FOODS', 'OFF']} />);
+    renderWithProviders(<Consumer q="oat" sources={['CATALOG', 'OFF']} />);
     await new Promise((r) => setTimeout(r, 50));
-    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('foods,off');
+    expect(new URL(capturedUrl).searchParams.get('sources')).toBe('catalog,off');
   });
 });

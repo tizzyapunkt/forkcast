@@ -10,8 +10,9 @@ COPY backend/package.json ./backend/
 RUN pnpm install --filter @forkcast/backend --frozen-lockfile --prod --ignore-scripts
 
 COPY backend/src ./backend/src
-# foods.json is stored outside the data volume so the entrypoint can refresh it on each start
-COPY backend/data/foods.json ./backend/foods.json.img
+# The starting-point catalog lives outside the data volume; the app installs it into
+# the volume only when no catalog is there yet, so a deploy never overwrites edits.
+COPY backend/data/catalog.json ./backend/catalog.seed.json
 COPY backend/docker-entrypoint.sh ./backend/docker-entrypoint.sh
 RUN chmod +x ./backend/docker-entrypoint.sh
 

@@ -306,7 +306,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -335,7 +335,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -368,7 +368,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'salz',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Salz',
             unit: 'g',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -395,7 +395,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'zucker',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Zucker',
             unit: 'g',
             macrosPerUnit: { calories: 4, protein: 0, carbs: 1, fat: 0 },
@@ -422,7 +422,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'schalotte',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Schalotte',
             unit: 'g',
             macrosPerUnit: { calories: 0.7, protein: 0.025, carbs: 0.16, fat: 0.001 },
@@ -449,7 +449,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'tomatenmark',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Tomatenmark',
             unit: 'tbsp',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -491,7 +491,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -518,7 +518,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
         HttpResponse.json([
           {
             id: 'sonnenblumenoel',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Sonnenblumenöl',
             unit: 'ml',
             macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -591,5 +591,26 @@ describe('RecipeIngredientEditor — ingredient note', () => {
     await user.type(screen.getByTestId('ingredient-note-0'), '  in Scheiben  ');
     await user.tab();
     expect(readState()[0]?.note).toBe('in Scheiben');
+  });
+});
+
+describe('RecipeIngredientEditor — provenance is opt-in', () => {
+  it('renders no provenance affordances when the host passes none (ordinary recipe editor)', () => {
+    render(<Harness initial={[massOnly, pieceTracked]} />);
+
+    expect(screen.queryByTestId('row-raw-0')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('row-raw-1')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('row-uncertain-0')).not.toBeInTheDocument();
+    expect(screen.queryByText(/gelesen:/i)).not.toBeInTheDocument();
+  });
+
+  it('opens the replace picker with no candidate section when the row has no provenance', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness initial={[massOnly]} />);
+
+    await user.click(screen.getByTestId('replace-row-0'));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.queryByTestId('picker-candidates')).not.toBeInTheDocument();
   });
 });

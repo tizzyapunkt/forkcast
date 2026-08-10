@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import type { RecipeIngredient } from '../../domain/recipes';
+import type { IngredientMatchProvenance, RecipeIngredient } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
+import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
 import { Pencil } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 import { DecimalInput } from '../../components/ui/decimal-input';
@@ -18,13 +19,24 @@ interface Props {
   /** Indices whose `gramsPerPiece` came from an AI estimate; cleared once the user edits the value. */
   estimateIndices?: ReadonlySet<number>;
   onEstimateAcknowledged?: (index: number) => void;
+  /**
+   * Import-match provenance per row, positionally parallel to `ingredients`. Only the import
+   * review screen supplies it; rows the user added carry `undefined` and render no affordances.
+   */
+  provenance?: ReadonlyArray<IngredientMatchProvenance | undefined>;
 }
 
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices, onEstimateAcknowledged }: Props) {
+export function RecipeIngredientEditor({
+  ingredients,
+  onChange,
+  estimateIndices,
+  onEstimateAcknowledged,
+  provenance,
+}: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   // Rows whose note editor the user opened this session; rows with a stored note are always open.
@@ -182,6 +194,8 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
             const massAllowed = isMassUnit(ing.unit);
             const isEstimate = mode === 'piece' && (estimateIndices?.has(idx) ?? false);
             const untracked = mode === 'free';
+            const rowProvenance = provenance?.[idx];
+            const marker = rowProvenance ? deriveUncertaintyMarker(rowProvenance, ing.unit) : null;
 
             return (
               <li
@@ -221,6 +235,27 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
                     ✕
                   </button>
                 </div>
+
+                {rowProvenance && (
+                  <div className="-mt-1 space-y-0.5 pl-1">
+                    <p
+                      data-testid={`row-raw-${idx}`}
+                      aria-label={de.recipeIngredientEditor.provenance.rawLineAria(ing.name)}
+                      className="truncate text-xs text-muted-foreground/80"
+                    >
+                      {de.recipeIngredientEditor.provenance.rawLine(formatRawIngredient(rowProvenance.raw))}
+                    </p>
+                    {marker && (
+                      <p
+                        data-testid={`row-uncertain-${idx}`}
+                        aria-label={de.recipeIngredientEditor.provenance.markerAria(ing.name)}
+                        className="text-xs text-amber-700 dark:text-amber-400"
+                      >
+                        {marker}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <ModeSegments
                   name={ing.name}
@@ -366,6 +401,7 @@ export function RecipeIngredientEditor({ ingredients, onChange, estimateIndices,
       <RecipeIngredientPicker
         open={isPickerOpen}
         mode={pickerMode}
+        candidates={replacingIndex !== null ? provenance?.[replacingIndex]?.candidates : undefined}
         onClose={closePicker}
         onPicked={(ing) => onChange([...ingredients, ing])}
         onPickResult={(result) => {

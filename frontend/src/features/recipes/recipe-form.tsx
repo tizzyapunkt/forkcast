@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Recipe, RecipeIngredient } from '../../domain/recipes';
+import type { IngredientMatchProvenance, Recipe, RecipeIngredient } from '../../domain/recipes';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { Button } from '../../components/ui/button';
@@ -25,6 +25,8 @@ interface Props {
   /** Indices whose `gramsPerPiece` came from an AI estimate; the editor renders an estimate badge for them. */
   estimateIndices?: ReadonlySet<number>;
   onEstimateAcknowledged?: (index: number) => void;
+  /** Import-match provenance per row, parallel to `ingredients` (AI recipe import only). */
+  provenance?: ReadonlyArray<IngredientMatchProvenance | undefined>;
 }
 
 export function RecipeForm({
@@ -40,6 +42,7 @@ export function RecipeForm({
   headerSlot,
   estimateIndices,
   onEstimateAcknowledged,
+  provenance,
 }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [recipeYield, setRecipeYield] = useState<number>(initial?.yield ?? 1);
@@ -126,6 +129,7 @@ export function RecipeForm({
           onChange={setIngredients}
           estimateIndices={estimateIndices}
           onEstimateAcknowledged={onEstimateAcknowledged}
+          provenance={provenance}
         />
 
         <div className="space-y-2">

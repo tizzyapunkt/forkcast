@@ -176,12 +176,12 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get('/api/user-foods', () => {
-    return HttpResponse.json({ foods: [], synonyms: [] });
+  http.get('/api/catalog', () => {
+    return HttpResponse.json({ entries: [] });
   }),
 
-  http.post('/api/export-user-foods', () => {
-    return HttpResponse.json({ foods: [], synonyms: [] });
+  http.get('/api/export-catalog', () => {
+    return HttpResponse.json([]);
   }),
 
   http.post('/api/propose-ingredient-resolutions', () => {
@@ -197,7 +197,7 @@ export const handlers = [
         macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
         amount: 100,
         unitOverridden: false,
-        source: 'USER',
+        source: 'CATALOG',
       },
     });
   }),

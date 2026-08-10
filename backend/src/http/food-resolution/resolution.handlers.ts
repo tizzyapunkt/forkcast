@@ -3,7 +3,6 @@ import { proposeResolutions } from '../../domain/food-resolution/propose-resolut
 import {
   confirmResolution,
   type ConfirmResolutionInput,
-  type SynonymRegistrar,
 } from '../../domain/food-resolution/confirm-resolution.use-case.ts';
 import {
   FoodResolutionError,
@@ -13,7 +12,7 @@ import {
 } from '../../domain/food-resolution/types.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
 import type { OriginalDraftFields } from '../../domain/ai-recipe-import/build-matched-row.ts';
-import type { UserFoodsStore } from '../../domain/user-foods/types.ts';
+import type { CatalogStore } from '../../domain/food-catalog/types.ts';
 
 // ── propose ──────────────────────────────────────────────────────────────────
 
@@ -71,8 +70,7 @@ export function makeProposeResolutionsHandler(deps: ProposeResolutionsHandlerDep
 // ── confirm ──────────────────────────────────────────────────────────────────
 
 export interface ConfirmResolutionHandlerDeps {
-  overlay: UserFoodsStore;
-  curated: SynonymRegistrar;
+  catalog: CatalogStore;
 }
 
 function parseOriginal(raw: unknown): OriginalDraftFields {
@@ -120,25 +118,4 @@ export function makeConfirmResolutionHandler(deps: ConfirmResolutionHandlerDeps)
     if (!result.ok) return c.json({ error: result.error }, result.status);
     return c.json({ ingredient: result.ingredient });
   };
-}
-
-// ── export-and-clear ───────────────────────────────────────────────────────────
-
-export interface ExportUserFoodsHandlerDeps {
-  overlay: UserFoodsStore;
-  /** The curated index whose learned synonyms must be dropped when the overlay drains. */
-  curated: { clearLearnedSynonyms(): void };
-}
-
-export function makeExportUserFoodsHandler(deps: ExportUserFoodsHandlerDeps) {
-  return async (c: Context) => {
-    const content = await deps.overlay.exportAndClear();
-    deps.curated.clearLearnedSynonyms();
-    return c.json(content);
-  };
-}
-
-/** Non-destructive read of the overlay, used by the settings panel to show the pending count. */
-export function makeGetUserFoodsHandler(overlay: UserFoodsStore) {
-  return async (c: Context) => c.json(await overlay.load());
 }

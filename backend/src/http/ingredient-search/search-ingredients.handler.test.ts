@@ -10,7 +10,7 @@ import { makeSearchIngredientsByNameHandler } from './search-ingredients.handler
 function makeResult(id: string): IngredientSearchResult {
   return {
     id,
-    source: 'FOODS',
+    source: 'CATALOG',
     name: `Food ${id}`,
     unit: 'g',
     macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
@@ -33,49 +33,55 @@ function makeApp(svc: IngredientSearchService) {
 }
 
 describe('makeSearchIngredientsByNameHandler — sources param', () => {
-  it('defaults to OFF-only when sources param is absent', async () => {
+  it('defaults to catalog-only when the sources param is absent', async () => {
     const svc = makeService();
     const res = await makeApp(svc).request('/search-ingredients?q=oat');
     expect(res.status).toBe(200);
     const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['OFF']));
-    expect(sources.has('FOODS')).toBe(false);
-  });
-
-  it('passes FOODS-only set when sources=foods', async () => {
-    const svc = makeService();
-    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods');
-    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['FOODS']));
-  });
-
-  it('passes both sources when sources=foods,off', async () => {
-    const svc = makeService();
-    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,off');
-    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['FOODS', 'OFF']));
-  });
-
-  it('passes FOODS, USER, OFF when sources=foods,user,off', async () => {
-    const svc = makeService();
-    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,user,off');
-    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['FOODS', 'USER', 'OFF']));
-  });
-
-  it('ignores unknown values in sources param', async () => {
-    const svc = makeService();
-    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,unknown');
-    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['FOODS']));
+    expect(sources).toEqual(new Set(['CATALOG']));
     expect(sources.has('OFF')).toBe(false);
   });
 
-  it('treats legacy "bls" as unknown and falls back to default OFF', async () => {
+  it('defaults to catalog-only when the sources param is empty', async () => {
     const svc = makeService();
-    await makeApp(svc).request('/search-ingredients?q=oat&sources=bls');
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=');
     const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
-    expect(sources).toEqual(new Set(['OFF']));
+    expect(sources).toEqual(new Set(['CATALOG']));
+  });
+
+  it('passes a catalog-only set when sources=catalog', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=catalog');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['CATALOG']));
+  });
+
+  it('passes both when sources=catalog,off', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=catalog,off');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['CATALOG', 'OFF']));
+  });
+
+  it('accepts scan alongside the catalog', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=catalog,scan');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['CATALOG', 'SCAN']));
+  });
+
+  it('silently ignores unknown values, including the retired foods and user', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=catalog,foods,user,unknown');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['CATALOG']));
+  });
+
+  it('falls back to the catalog when every requested value is unknown', async () => {
+    const svc = makeService();
+    await makeApp(svc).request('/search-ingredients?q=oat&sources=foods,user,bls');
+    const [, sources] = svc.searchByName.mock.calls[0] as [string, Set<IngredientSource>];
+    expect(sources).toEqual(new Set(['CATALOG']));
   });
 
   it('returns 400 when q is missing', async () => {

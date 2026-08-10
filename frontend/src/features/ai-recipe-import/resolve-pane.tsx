@@ -72,11 +72,11 @@ function originalFields(item: ResolveItem): OriginalDraftFields {
   return fields;
 }
 
-/** Build a USER-source search result for the create host from a confirmed new-food draft. */
+/** Build a catalog-source search result for the create host from a confirmed new-food draft. */
 function draftToSearchResult(entry: FoodEntryDraft): IngredientSearchResult {
   const result: IngredientSearchResult = {
     id: entry.id,
-    source: 'USER',
+    source: 'CATALOG',
     name: entry.name,
     unit: entry.unit,
     macrosPerUnit: perUnit(entry.macrosPer100),
@@ -135,7 +135,7 @@ export function ResolvePane({
     if (proposal?.verdict !== 'synonym-of') return;
     const created: IngredientSearchResult = {
       id: proposal.food.id,
-      source: 'FOODS',
+      source: 'CATALOG',
       name: proposal.food.name,
       unit: proposal.food.unit,
       macrosPerUnit: perUnit(proposal.food.macrosPer100),
@@ -161,14 +161,8 @@ export function ResolvePane({
       macrosPerUnit: result.macrosPerUnit,
       amount: untracked ? (item.amount ?? 0) : (item.amount ?? null),
       unitOverridden: false,
-      source:
-        result.source === 'USER'
-          ? 'USER'
-          : result.source === 'SCAN'
-            ? 'SCAN'
-            : result.source === 'OFF'
-              ? 'OFF'
-              : 'FOODS',
+      // A RECENT pick is a catalog food surfaced from the log; every other source maps through.
+      source: result.source === 'RECENT' ? 'CATALOG' : result.source,
     };
     if (untracked) ingredient.untracked = true;
     // A manual pick is a different food than the unmatched line — the original note

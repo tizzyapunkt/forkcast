@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { searchIngredients, searchBarcode } from '../api/search-ingredients';
+import type { IngredientSearchSource } from '../domain/ingredient-search';
 import { queryKeys } from './keys';
 
-export function useSearchIngredients(q: string, sources?: Array<'FOODS' | 'USER' | 'OFF'>) {
+export function useSearchIngredients(q: string, sources?: IngredientSearchSource[]) {
   return useQuery({
     queryKey: queryKeys.ingredientSearch(q, sources),
     queryFn: () => searchIngredients(q, sources),

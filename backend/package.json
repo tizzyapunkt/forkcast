@@ -12,9 +12,7 @@
     "test:watch": "vitest",
     "format": "oxfmt --config ../.oxfmtrc.json src",
     "lint": "oxlint --config ../.oxlintrc.json src",
-    "typecheck": "tsc --noEmit",
-    "build:foods": "node --experimental-transform-types --env-file-if-exists=.env scripts/build-foods-data.ts",
-    "build:foods:augment": "node --experimental-transform-types --env-file-if-exists=.env scripts/build-foods-augment.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",

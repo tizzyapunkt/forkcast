@@ -59,9 +59,3 @@ export type ConfirmResolutionPayload =
 export interface ConfirmResolutionResponse {
   ingredient: MatchedDraftIngredient;
 }
-
-/** The user-foods overlay export shape (also the augment-script input). */
-export interface UserFoodsOverlayExport {
-  foods: FoodEntryDraft[];
-  synonyms: { foodId: string; synonym: string }[];
-}

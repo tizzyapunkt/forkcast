@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { confirmResolution, proposeResolutions, exportUserFoods, fetchUserFoods } from '../api/food-resolution';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { confirmResolution, proposeResolutions } from '../api/food-resolution';
 import type { ConfirmResolutionPayload, ResolutionItemInput } from '../domain/food-resolution';
 import { queryKeys } from './keys';
 
@@ -15,24 +15,14 @@ export function useProposeResolutions() {
 }
 
 export function useConfirmResolution() {
-  return useMutation({
-    mutationFn: (payload: ConfirmResolutionPayload) => confirmResolution(payload),
-  });
-}
-
-export function useUserFoodsOverlay() {
-  return useQuery({
-    queryKey: queryKeys.userFoodsOverlay(),
-    queryFn: fetchUserFoods,
-  });
-}
-
-export function useExportUserFoods() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: exportUserFoods,
+    mutationFn: (payload: ConfirmResolutionPayload) => confirmResolution(payload),
+    // A confirmed resolution writes a food or a synonym into the catalog, so both
+    // the manager's list and any cached search go stale.
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.userFoodsOverlay() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.catalog() });
+      void queryClient.invalidateQueries({ queryKey: ['ingredient-search'] });
     },
   });
 }

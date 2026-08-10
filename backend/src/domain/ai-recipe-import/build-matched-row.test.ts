@@ -26,7 +26,7 @@ const untrackedG: MatchSourceFood = {
 describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () => {
   it('converts a spoon measure of a g-unit food using density', () => {
     const raw: OriginalDraftFields = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'TL' };
-    const { row, flags } = buildMatchedRowWithFlags(trackedG(0.55), 'FOODS', raw);
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(0.55), 'CATALOG', raw);
 
     expect(row.amount).toBeCloseTo(5.5);
     expect(row.unit).toBe('g');
@@ -37,7 +37,7 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
 
   it('converts a spoon measure of an ml-unit food without density', () => {
     const raw: OriginalDraftFields = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' };
-    const { row, flags } = buildMatchedRowWithFlags(trackedMl, 'FOODS', raw);
+    const { row, flags } = buildMatchedRowWithFlags(trackedMl, 'CATALOG', raw);
 
     expect(row.amount).toBe(30);
     expect(row.unit).toBe('ml');
@@ -47,7 +47,7 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
 
   it('leaves a g-unit food without density unconverted and flags missingAmount', () => {
     const raw: OriginalDraftFields = { rawDisplayAmount: 1, rawDisplayUnitLabel: 'EL' };
-    const { row, flags } = buildMatchedRowWithFlags(trackedG(undefined), 'FOODS', raw);
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(undefined), 'CATALOG', raw);
 
     expect(row.amount).toBeNull();
     expect(row.displayQuantity).toBeUndefined();
@@ -56,7 +56,7 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
 
   it('does not convert a non-spoon raw-display label', () => {
     const raw: OriginalDraftFields = { rawDisplayAmount: 1, rawDisplayUnitLabel: 'Prise' };
-    const { row, flags } = buildMatchedRowWithFlags(trackedG(0.55), 'FOODS', raw);
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(0.55), 'CATALOG', raw);
 
     expect(row.amount).toBeNull();
     expect(flags.missingAmount).toBe(true);
@@ -64,14 +64,14 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
 
   it('keeps a stated canonical amount over any conversion', () => {
     const raw: OriginalDraftFields = { amount: 12, unit: 'g', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' };
-    const { row } = buildMatchedRowWithFlags(trackedG(0.55), 'FOODS', raw);
+    const { row } = buildMatchedRowWithFlags(trackedG(0.55), 'CATALOG', raw);
 
     expect(row.amount).toBe(12);
   });
 
   it('leaves the untracked path unchanged — spoons become a displayQuantity, amount 0, no macros', () => {
     const raw: OriginalDraftFields = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'TL' };
-    const { row } = buildMatchedRowWithFlags(untrackedG, 'FOODS', raw);
+    const { row } = buildMatchedRowWithFlags(untrackedG, 'CATALOG', raw);
 
     expect(row.untracked).toBe(true);
     expect(row.amount).toBe(0);

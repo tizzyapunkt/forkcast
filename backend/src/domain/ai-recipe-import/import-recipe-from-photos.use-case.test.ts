@@ -28,7 +28,7 @@ function makeSearch(map: Record<string, IngredientSearchResult[]>): IngredientSe
   };
 }
 
-type CascadeMap = Partial<Record<'FOODS' | 'USER' | 'SCAN' | 'OFF', Record<string, IngredientSearchResult[]>>>;
+type CascadeMap = Partial<Record<'CATALOG' | 'SCAN' | 'OFF', Record<string, IngredientSearchResult[]>>>;
 
 /** A search mock that honours the requested single-source set, for cascade-tier tests. */
 function makeCascadeSearch(bySource: CascadeMap): IngredientSearchService {
@@ -44,9 +44,9 @@ function makeCascadeSearch(bySource: CascadeMap): IngredientSearchService {
   };
 }
 
-const foodsResult = (overrides: Partial<IngredientSearchResult> = {}): IngredientSearchResult => ({
-  id: 'foods-1',
-  source: 'FOODS',
+const catalogResult = (overrides: Partial<IngredientSearchResult> = {}): IngredientSearchResult => ({
+  id: 'catalog-1',
+  source: 'CATALOG',
   name: 'Olivenöl',
   unit: 'ml',
   macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 },
@@ -79,7 +79,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
       steps: ['Boil water', 'Cook pasta'],
     });
-    const search = makeSearch({ 'olive oil': [foodsResult({ name: 'Olivenöl', unit: 'ml' })] });
+    const search = makeSearch({ 'olive oil': [catalogResult({ name: 'Olivenöl', unit: 'ml' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
@@ -99,7 +99,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'beef', amount: 500, unit: 'g' }],
       steps: ['Step 1', 'Step 2', 'Step 3'],
     });
-    const search = makeSearch({ beef: [foodsResult({ name: 'Hackfleisch', unit: 'g' })] });
+    const search = makeSearch({ beef: [catalogResult({ name: 'Hackfleisch', unit: 'g' })] });
 
     const images = threeImages();
     await importRecipeFromPhotos({ extractor, search }, images);
@@ -110,21 +110,21 @@ describe('importRecipeFromPhotos', () => {
     expect(passed.map((i) => i.mediaType)).toEqual(['image/jpeg', 'image/png', 'image/webp']);
   });
 
-  it('searches the FOODS source first and stops once it hits (no USER/SCAN, no OFF)', async () => {
+  it('searches the catalog first and stops once it hits (no SCAN, no OFF)', async () => {
     const extractor = makeExtractor({
       name: 'X',
       yield: 1,
       ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
       steps: [],
     });
-    const search = makeSearch({ 'olive oil': [foodsResult()] });
+    const search = makeSearch({ 'olive oil': [catalogResult()] });
 
     await importRecipeFromPhotos({ extractor, search }, oneImage());
 
     const calls = (search.searchByName as ReturnType<typeof vi.fn>).mock.calls;
     expect(calls).toHaveLength(1);
-    const [, sources] = calls[0] as [string, Set<'FOODS' | 'USER' | 'SCAN' | 'OFF'>];
-    expect(sources).toEqual(new Set(['FOODS']));
+    const [, sources] = calls[0] as [string, Set<'CATALOG' | 'SCAN' | 'OFF'>];
+    expect(sources).toEqual(new Set(['CATALOG']));
   });
 
   it('uses catalog unit & macros for matched ingredient and keeps extracted amount', async () => {
@@ -136,7 +136,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       'olive oil': [
-        foodsResult({ name: 'Olivenöl', unit: 'ml', macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 } }),
+        catalogResult({ name: 'Olivenöl', unit: 'ml', macrosPerUnit: { calories: 9, protein: 0, carbs: 0, fat: 1 } }),
       ],
     });
 
@@ -149,7 +149,7 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.amount).toBe(25);
     expect(ing.macrosPerUnit).toEqual({ calories: 9, protein: 0, carbs: 0, fat: 1 });
     expect(ing.unitOverridden).toBe(false);
-    expect(ing.source).toBe('FOODS');
+    expect(ing.source).toBe('CATALOG');
   });
 
   it('flags unitOverridden when extracted unit conflicts with catalog unit', async () => {
@@ -160,7 +160,7 @@ describe('importRecipeFromPhotos', () => {
       steps: [],
     });
     const search = makeSearch({
-      'tomato paste': [foodsResult({ name: 'Tomatenmark', unit: 'g' })],
+      'tomato paste': [catalogResult({ name: 'Tomatenmark', unit: 'g' })],
     });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -197,7 +197,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'salt' }],
       steps: [],
     });
-    const search = makeSearch({ salt: [foodsResult({ name: 'Salz', unit: 'g' })] });
+    const search = makeSearch({ salt: [catalogResult({ name: 'Salz', unit: 'g' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
@@ -237,7 +237,7 @@ describe('importRecipeFromPhotos', () => {
       ],
       steps: [],
     });
-    const search = makeSearch({ zwiebel: [foodsResult({ name: 'Zwiebel', unit: 'g' })] });
+    const search = makeSearch({ zwiebel: [catalogResult({ name: 'Zwiebel', unit: 'g' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -261,7 +261,7 @@ describe('importRecipeFromPhotos', () => {
       ],
       steps: [],
     });
-    const search = makeSearch({ knoblauch: [foodsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
+    const search = makeSearch({ knoblauch: [catalogResult({ name: 'Knoblauch', unit: 'tbsp' })] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -293,7 +293,7 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'rare squash', gramsPerPiece: 200 });
   });
 
-  it('inherits untracked: true from a matched untracked FOODS entry', async () => {
+  it('inherits untracked: true from a matched untracked catalog entry', async () => {
     const extractor = makeExtractor({
       name: 'Pasta',
       yield: 1,
@@ -302,7 +302,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       salt: [
-        foodsResult({
+        catalogResult({
           name: 'Salz',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -317,14 +317,14 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.untracked).toBe(true);
   });
 
-  it('omits untracked on a matched tracked FOODS entry', async () => {
+  it('omits untracked on a matched tracked catalog entry', async () => {
     const extractor = makeExtractor({
       name: 'X',
       yield: 1,
       ingredients: [{ name: 'olive oil', amount: 25, unit: 'ml' }],
       steps: [],
     });
-    const search = makeSearch({ 'olive oil': [foodsResult()] });
+    const search = makeSearch({ 'olive oil': [catalogResult()] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -356,7 +356,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       salt: [
-        foodsResult({
+        catalogResult({
           name: 'Salz',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -381,7 +381,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       pepper: [
-        foodsResult({
+        catalogResult({
           name: 'Pfeffer',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -406,7 +406,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       salz: [
-        foodsResult({
+        catalogResult({
           name: 'Salz',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -432,7 +432,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       salt: [
-        foodsResult({
+        catalogResult({
           name: 'Salz',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -455,7 +455,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' }],
       steps: [],
     });
-    const search = makeSearch({ 'olive oil': [foodsResult()] });
+    const search = makeSearch({ 'olive oil': [catalogResult()] });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
     const [ing] = draft.ingredients;
@@ -487,7 +487,7 @@ describe('importRecipeFromPhotos', () => {
     });
     const search = makeSearch({
       salt: [
-        foodsResult({
+        catalogResult({
           name: 'Salz',
           unit: 'g',
           macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -503,18 +503,45 @@ describe('importRecipeFromPhotos', () => {
     expect(ing.displayQuantity).toEqual({ unitLabel: 'n. Geschmack' });
   });
 
-  describe('debug payload', () => {
-    it('omits debug when includeDebug is not passed', async () => {
+  describe('match provenance', () => {
+    it('attaches provenance to every draft without any configuration', async () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
         ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
         steps: [],
       });
-      const search = makeSearch({ 'olive oil': [foodsResult()] });
+      const search = makeSearch({ 'olive oil': [catalogResult()] });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
-      expect('debug' in draft).toBe(false);
+
+      expect(draft.provenance.ingredients).toHaveLength(1);
+      expect(draft.provenance.ingredients[0]!.raw).toEqual({ name: 'olive oil', amount: 30, unit: 'ml' });
+    });
+
+    it('keeps provenance positionally parallel to the draft ingredients across matched and unmatched rows', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          { name: 'olive oil', amount: 30, unit: 'ml' },
+          { name: 'unicorn dust', amount: 1, unit: 'tsp' },
+          { name: 'tomato paste', amount: 2, unit: 'tbsp' },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({
+        'olive oil': [catalogResult()],
+        'tomato paste': [catalogResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' })],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.provenance.ingredients).toHaveLength(draft.ingredients.length);
+      expect(draft.ingredients[1]!.matched).toBe(false);
+      expect(draft.provenance.ingredients[1]!.chosen).toBeNull();
+      expect(draft.provenance.ingredients[2]!.chosen?.name).toBe('Tomatenmark');
+      expect(draft.provenance.ingredients[2]!.raw.name).toBe('tomato paste');
     });
 
     it('populates raw, candidates, chosen, and unitOverridden flag for a matched ingredient', async () => {
@@ -526,20 +553,20 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         'tomato paste': [
-          foodsResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' }),
-          foodsResult({ id: 'foods-tom', name: 'Tomaten', unit: 'g' }),
+          catalogResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' }),
+          catalogResult({ id: 'foods-tom', name: 'Tomaten', unit: 'g' }),
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug).toBeDefined();
-      expect(draft.debug!.ingredients).toHaveLength(1);
-      const entry = draft.debug!.ingredients[0]!;
+      expect(draft.provenance).toBeDefined();
+      expect(draft.provenance.ingredients).toHaveLength(1);
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.raw).toEqual({ name: 'tomato paste', amount: 2, unit: 'tbsp' });
       expect(entry.candidates).toHaveLength(2);
-      expect(entry.candidates[0]).toEqual({ name: 'Tomatenmark', source: 'FOODS', unit: 'g', untracked: false });
-      expect(entry.candidates[1]).toEqual({ name: 'Tomaten', source: 'FOODS', unit: 'g', untracked: false });
+      expect(entry.candidates[0]).toEqual({ name: 'Tomatenmark', source: 'CATALOG', unit: 'g', untracked: false });
+      expect(entry.candidates[1]).toEqual({ name: 'Tomaten', source: 'CATALOG', unit: 'g', untracked: false });
       expect(entry.chosen).toEqual(entry.candidates[0]);
       expect(entry.flags.unitOverridden).toBe(true);
       expect(entry.flags.pieceQuantityDropped).toBe(false);
@@ -555,9 +582,9 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({});
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.chosen).toBeNull();
       expect(entry.candidates).toEqual([]);
       expect(entry.flags.unitOverridden).toBe(false);
@@ -579,16 +606,16 @@ describe('importRecipeFromPhotos', () => {
         ],
         steps: [],
       });
-      const search = makeSearch({ knoblauch: [foodsResult({ name: 'Knoblauch', unit: 'tbsp' })] });
+      const search = makeSearch({ knoblauch: [catalogResult({ name: 'Knoblauch', unit: 'tbsp' })] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.pieceQuantityDropped).toBe(true);
       expect(entry.flags.unitOverridden).toBe(true);
     });
 
-    it('flags untrackedInherited when the FOODS match is untracked', async () => {
+    it('flags untrackedInherited when the catalog match is untracked', async () => {
       const extractor = makeExtractor({
         name: 'Pasta',
         yield: 1,
@@ -597,7 +624,7 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         salt: [
-          foodsResult({
+          catalogResult({
             name: 'Salz',
             unit: 'g',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -606,9 +633,9 @@ describe('importRecipeFromPhotos', () => {
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.untrackedInherited).toBe(true);
       expect(entry.candidates[0]?.untracked).toBe(true);
     });
@@ -622,11 +649,11 @@ describe('importRecipeFromPhotos', () => {
         ingredients: [{ name: 'Zucchini', rawDisplayAmount: 0.5, rawDisplayUnitLabel: 'mittelgroße' }],
         steps: [],
       });
-      const search = makeSearch({ zucchini: [foodsResult({ name: 'Zucchini', unit: 'g' })] });
+      const search = makeSearch({ zucchini: [catalogResult({ name: 'Zucchini', unit: 'g' })] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.flags.missingAmount).toBe(true);
       const ing = draft.ingredients[0]!;
       if (!ing.matched) throw new Error('expected matched ingredient');
@@ -640,11 +667,11 @@ describe('importRecipeFromPhotos', () => {
         ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }],
         steps: [],
       });
-      const search = makeSearch({ 'olive oil': [foodsResult()] });
+      const search = makeSearch({ 'olive oil': [catalogResult()] });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
+      expect(draft.provenance.ingredients[0]!.flags.missingAmount).toBe(false);
     });
 
     it('does not flag missingAmount for an untracked match (amount defaults to 0)', async () => {
@@ -656,7 +683,7 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         salt: [
-          foodsResult({
+          catalogResult({
             name: 'Salz',
             unit: 'g',
             macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
@@ -665,9 +692,9 @@ describe('importRecipeFromPhotos', () => {
         ],
       });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      expect(draft.debug!.ingredients[0]!.flags.missingAmount).toBe(false);
+      expect(draft.provenance.ingredients[0]!.flags.missingAmount).toBe(false);
     });
 
     it('caps candidates at 5 even when the search returns more', async () => {
@@ -678,13 +705,13 @@ describe('importRecipeFromPhotos', () => {
         steps: [],
       });
       const many: IngredientSearchResult[] = Array.from({ length: 9 }, (_, i) =>
-        foodsResult({ id: `f-${i}`, name: `Tomate ${i}`, unit: 'g' }),
+        catalogResult({ id: `f-${i}`, name: `Tomate ${i}`, unit: 'g' }),
       );
       const search = makeSearch({ tomato: many });
 
-      const draft = await importRecipeFromPhotos({ extractor, search, includeDebug: true }, oneImage());
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      const entry = draft.debug!.ingredients[0]!;
+      const entry = draft.provenance.ingredients[0]!;
       expect(entry.candidates).toHaveLength(5);
       expect(entry.candidates.map((c) => c.name)).toEqual(['Tomate 0', 'Tomate 1', 'Tomate 2', 'Tomate 3', 'Tomate 4']);
     });
@@ -697,7 +724,7 @@ describe('importRecipeFromPhotos', () => {
       ingredients: [{ name: 'olive oil', amount: 10, unit: 'ml' }],
       steps: [],
     });
-    const search = makeSearch({ 'olive oil': [foodsResult()] });
+    const search = makeSearch({ 'olive oil': [catalogResult()] });
     const repo = makeRepo();
 
     await importRecipeFromPhotos({ extractor, search, repo }, oneImage());
@@ -715,13 +742,13 @@ describe('importRecipeFromPhotos', () => {
         ingredients: [{ name: 'Ingwer, fein gehackt', amount: 5, unit: 'g' }],
         steps: [],
       });
-      const search = makeSearch({ ingwer: [foodsResult({ name: 'Ingwer', unit: 'g' })] });
+      const search = makeSearch({ ingwer: [catalogResult({ name: 'Ingwer', unit: 'g' })] });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
 
       const queries = (search.searchByName as ReturnType<typeof vi.fn>).mock.calls.map((c) => (c as [string])[0]);
-      // raw name misses every tier (3 calls), normalized name hits FOODS (1 call).
-      expect(queries).toEqual(['Ingwer, fein gehackt', 'Ingwer, fein gehackt', 'Ingwer, fein gehackt', 'Ingwer']);
+      // raw name misses both tiers (2 calls), normalized name hits the catalog (1 call).
+      expect(queries).toEqual(['Ingwer, fein gehackt', 'Ingwer, fein gehackt', 'Ingwer']);
 
       const [ing] = draft.ingredients;
       if (!ing || !ing.matched) throw new Error('expected matched ingredient');
@@ -736,7 +763,7 @@ describe('importRecipeFromPhotos', () => {
         ingredients: [{ name: 'Ingwer', amount: 5, unit: 'g' }],
         steps: [],
       });
-      const search = makeSearch({ ingwer: [foodsResult({ name: 'Ingwer', unit: 'g' })] });
+      const search = makeSearch({ ingwer: [catalogResult({ name: 'Ingwer', unit: 'g' })] });
 
       await importRecipeFromPhotos({ extractor, search }, oneImage());
 
@@ -754,31 +781,13 @@ describe('importRecipeFromPhotos', () => {
 
       await importRecipeFromPhotos({ extractor, search }, oneImage());
 
-      // One cascade attempt (FOODS, USER, SCAN); the normalized form equals the raw form, so no retry.
-      expect(search.searchByName).toHaveBeenCalledTimes(3);
+      // One cascade attempt (CATALOG, SCAN); the normalized form equals the raw form, so no retry.
+      expect(search.searchByName).toHaveBeenCalledTimes(2);
     });
   });
 
-  describe('source cascade FOODS → USER → SCAN', () => {
-    it('matches an overlay (USER) food when FOODS has no hit', async () => {
-      const extractor = makeExtractor({
-        name: 'X',
-        yield: 1,
-        ingredients: [{ name: 'Kirschtomaten', amount: 50, unit: 'g' }],
-        steps: [],
-      });
-      const search = makeCascadeSearch({
-        USER: { kirschtomaten: [foodsResult({ id: 'u1', name: 'Kirschtomaten', unit: 'g', source: 'USER' })] },
-      });
-
-      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
-      const [ing] = draft.ingredients;
-      if (!ing || !ing.matched) throw new Error('expected matched ingredient');
-      expect(ing.source).toBe('USER');
-      expect(ing.amount).toBe(50);
-    });
-
-    it('matches a scanned (SCAN) product when FOODS and USER have no hit', async () => {
+  describe('source cascade CATALOG → SCAN', () => {
+    it('matches a scanned (SCAN) product when the catalog has no hit', async () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
@@ -786,7 +795,7 @@ describe('importRecipeFromPhotos', () => {
         steps: [],
       });
       const search = makeCascadeSearch({
-        SCAN: { skyr: [foodsResult({ id: '111', name: 'Skyr Natur', unit: 'g', source: 'SCAN' })] },
+        SCAN: { skyr: [catalogResult({ id: '111', name: 'Skyr Natur', unit: 'g', source: 'SCAN' })] },
       });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -795,7 +804,7 @@ describe('importRecipeFromPhotos', () => {
       expect(ing.source).toBe('SCAN');
     });
 
-    it('prefers FOODS over USER/SCAN and does not consult lower tiers on a FOODS hit', async () => {
+    it('lets a catalog hit win without consulting scanned products', async () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
@@ -803,15 +812,15 @@ describe('importRecipeFromPhotos', () => {
         steps: [],
       });
       const search = makeCascadeSearch({
-        FOODS: { tomaten: [foodsResult({ name: 'Tomaten', unit: 'g', source: 'FOODS' })] },
-        USER: { tomaten: [foodsResult({ id: 'u', name: 'Tomaten USER', unit: 'g', source: 'USER' })] },
+        CATALOG: { tomaten: [catalogResult({ name: 'Tomaten', unit: 'g' })] },
+        SCAN: { tomaten: [catalogResult({ id: '111', name: 'Tomaten gescannt', unit: 'g', source: 'SCAN' })] },
       });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
       const [ing] = draft.ingredients;
       if (!ing || !ing.matched) throw new Error('expected matched ingredient');
-      expect(ing.source).toBe('FOODS');
-      // Only the FOODS tier was queried.
+      expect(ing.source).toBe('CATALOG');
+      // Only the catalog tier was queried.
       expect(search.searchByName).toHaveBeenCalledTimes(1);
     });
 
@@ -822,7 +831,7 @@ describe('importRecipeFromPhotos', () => {
         ingredients: [{ name: 'unicorn dust', amount: 1, unit: 'tsp' }],
         steps: [],
       });
-      const search = makeCascadeSearch({ OFF: { 'unicorn dust': [foodsResult({ source: 'FOODS' })] } });
+      const search = makeCascadeSearch({ OFF: { 'unicorn dust': [catalogResult()] } });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
       const queriedSources = (search.searchByName as ReturnType<typeof vi.fn>).mock.calls.map(
@@ -859,7 +868,7 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         ingwer: [
-          foodsResult({ name: 'Ingwer', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 } }),
+          catalogResult({ name: 'Ingwer', unit: 'g', macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 } }),
         ],
       });
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -892,7 +901,7 @@ describe('importRecipeFromPhotos', () => {
         ],
         steps: [],
       });
-      const search = makeSearch({ olivenöl: [foodsResult({ name: 'Olivenöl', unit: 'ml' })] });
+      const search = makeSearch({ olivenöl: [catalogResult({ name: 'Olivenöl', unit: 'ml' })] });
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
       expect(draft.ingredients[0]!).not.toHaveProperty('note');
       expect(draft.ingredients[1]!).not.toHaveProperty('note');
@@ -923,7 +932,7 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         'tomato paste': [
-          foodsResult({
+          catalogResult({
             name: 'Tomatenmark',
             unit: 'g',
             macrosPerUnit: { calories: 0.82, protein: 0.044, carbs: 0.179, fat: 0.005 },
@@ -946,7 +955,7 @@ describe('importRecipeFromPhotos', () => {
       });
       const search = makeSearch({
         speisestärke: [
-          foodsResult({
+          catalogResult({
             name: 'Speisestärke',
             unit: 'g',
             macrosPerUnit: { calories: 3.81, protein: 0.006, carbs: 0.91, fat: 0.001 },

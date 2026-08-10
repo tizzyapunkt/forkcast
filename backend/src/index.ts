@@ -7,8 +7,9 @@ import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-bo
 import { JsonWeightLogRepository } from './infrastructure/weight-log/json-weight-log.repository.ts';
 import { JsonRecipeRepository } from './infrastructure/recipes/json-recipe.repository.ts';
 import { JsonScannedProductStore } from './infrastructure/scanned-products/json-scanned-products.store.ts';
-import { JsonUserFoodsStore } from './infrastructure/user-foods/json-user-foods.store.ts';
-import { UserFoodsSearchService } from './infrastructure/user-foods/user-foods-search.service.ts';
+import { JsonCatalogStore } from './infrastructure/food-catalog/json-catalog.store.ts';
+import { CatalogSearchService } from './infrastructure/food-catalog/catalog-search.service.ts';
+import { migrateUserFoodsOverlay } from './infrastructure/food-catalog/migrate-user-foods-overlay.ts';
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
@@ -30,7 +31,6 @@ import {
   makeGetWeightTrendHandler,
 } from './http/weight-log/weight-log.handler.ts';
 import { OpenFoodFactsService } from './infrastructure/ingredient-search/open-food-facts.service.ts';
-import { InMemoryFoodsService } from './infrastructure/ingredient-search/in-memory-foods.service.ts';
 import { CompositeIngredientSearchService } from './infrastructure/ingredient-search/composite-ingredient-search.service.ts';
 import {
   makeSearchIngredientsByNameHandler,
@@ -60,14 +60,22 @@ import {
 } from './http/barcode-product-capture/extract-product-from-photos.handler.ts';
 import { makeSaveScannedProductHandler } from './http/barcode-product-capture/save-scanned-product.handler.ts';
 import { AnthropicFoodResolutionProposer } from './infrastructure/food-resolution/anthropic-food-resolution-proposer.ts';
-import { CompositeResolutionCandidateFinder } from './infrastructure/food-resolution/composite-candidate-finder.ts';
+import { CatalogResolutionCandidateFinder } from './infrastructure/food-resolution/catalog-candidate-finder.ts';
 import {
   makeProposeResolutionsHandler,
   makeUnconfiguredProposeResolutionsHandler,
   makeConfirmResolutionHandler,
-  makeExportUserFoodsHandler,
-  makeGetUserFoodsHandler,
 } from './http/food-resolution/resolution.handlers.ts';
+import { AnthropicCatalogEntryDrafter } from './infrastructure/food-catalog/anthropic-catalog-entry-drafter.ts';
+import {
+  makeGetCatalogHandler,
+  makeExportCatalogHandler,
+  makeAddCatalogEntryHandler,
+  makeUpdateCatalogEntryHandler,
+  makeRemoveCatalogEntryHandler,
+  makeDraftCatalogEntryHandler,
+  makeUnconfiguredDraftCatalogEntryHandler,
+} from './http/food-catalog/catalog.handlers.ts';
 import { loadAppConfig } from './config/app-config.ts';
 import { DotenvEnvSource } from './infrastructure/config/dotenv-env-source.ts';
 import { DiagnosticsLog } from './domain/diagnostics/diagnostics-log.ts';
@@ -95,36 +103,39 @@ const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json'
 const weightLogRepo = new JsonWeightLogRepository('./data/weight-log.json');
 const recipeRepo = new JsonRecipeRepository('./data/recipes.json');
 const scannedProductStore = new JsonScannedProductStore('./data/scanned-products.json');
-const userFoodsStore = new JsonUserFoodsStore('./data/user-foods.json');
-const foodsService = new InMemoryFoodsService('./data/foods.json');
-const userFoodsSearch = new UserFoodsSearchService(userFoodsStore);
+// The runtime catalog lives in the data volume; the image's copy is only a starting
+// point, installed by the store when the volume has no catalog yet.
+const catalogStore = new JsonCatalogStore({
+  filePath: config.catalog.path,
+  seedPath: config.catalog.seedPath,
+  legacyPath: config.catalog.legacyPath,
+});
+const catalogSearch = new CatalogSearchService(catalogStore);
 const diagnosticsLog = new DiagnosticsLog();
 const ingredientSearchService = new CompositeIngredientSearchService(
   new OpenFoodFactsService(globalThis.fetch, diagnosticsLog),
-  foodsService,
+  catalogSearch,
   scannedProductStore,
-  userFoodsSearch,
 );
 
-await bootstrap([
-  logEntryRepo,
-  nutritionGoalRepo,
-  bodyProfileRepo,
-  weightLogRepo,
-  recipeRepo,
-  scannedProductStore,
-  userFoodsStore,
-  foodsService,
-]);
-
-// Re-apply learned synonyms from the overlay onto the curated index now that both have loaded.
-const overlay = await userFoodsStore.load();
-if (overlay.synonyms.length > 0) {
-  const { orphaned } = foodsService.applySynonyms(overlay.synonyms);
-  if (orphaned.length > 0) {
-    console.warn(`user-foods: ${orphaned.length} learned synonym(s) skipped — their curated entry no longer exists`);
-  }
+try {
+  await bootstrap([
+    logEntryRepo,
+    nutritionGoalRepo,
+    bodyProfileRepo,
+    weightLogRepo,
+    recipeRepo,
+    scannedProductStore,
+    catalogStore,
+  ]);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : String(err));
+  process.exit(1);
 }
+
+// One-time fold of the retired user-foods overlay into the catalog. The legacy
+// file's presence is the marker; it is deleted once its content is merged.
+await migrateUserFoodsOverlay(catalogStore, config.catalog.legacyOverlayPath);
 
 const app = new Hono();
 
@@ -166,12 +177,13 @@ app.delete('/recipe/:id', makeDeleteRecipeHandler(recipeRepo));
 app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
 app.post('/remove-recipe-log', makeRemoveRecipeLogHandler(logEntryRepo));
 
-app.post(
-  '/confirm-ingredient-resolution',
-  makeConfirmResolutionHandler({ overlay: userFoodsStore, curated: foodsService }),
-);
-app.get('/user-foods', makeGetUserFoodsHandler(userFoodsStore));
-app.post('/export-user-foods', makeExportUserFoodsHandler({ overlay: userFoodsStore, curated: foodsService }));
+app.post('/confirm-ingredient-resolution', makeConfirmResolutionHandler({ catalog: catalogStore }));
+
+app.get('/catalog', makeGetCatalogHandler(catalogStore));
+app.get('/export-catalog', makeExportCatalogHandler(catalogStore));
+app.post('/add-catalog-entry', makeAddCatalogEntryHandler(catalogStore));
+app.post('/update-catalog-entry', makeUpdateCatalogEntryHandler(catalogStore));
+app.post('/remove-catalog-entry', makeRemoveCatalogEntryHandler(catalogStore));
 
 if (config.ai.anthropicApiKey) {
   const anthropicClient = new Anthropic({ apiKey: config.ai.anthropicApiKey });
@@ -190,17 +202,22 @@ if (config.ai.anthropicApiKey) {
       extractor: recipeDraftExtractor,
       search: ingredientSearchService,
       limits: aiImageLimits,
-      includeDebug: config.ai.recipeImport.debug,
     }),
   );
   const resolutionProposer = new AnthropicFoodResolutionProposer({
     client: anthropicClient,
     model: config.ai.resolutionModel,
   });
-  const candidateFinder = new CompositeResolutionCandidateFinder(foodsService, userFoodsStore);
+  const candidateFinder = new CatalogResolutionCandidateFinder(catalogSearch);
   app.post(
     '/propose-ingredient-resolutions',
     makeProposeResolutionsHandler({ candidates: candidateFinder, proposer: resolutionProposer }),
+  );
+  app.post(
+    '/draft-catalog-entry',
+    makeDraftCatalogEntryHandler(
+      new AnthropicCatalogEntryDrafter({ client: anthropicClient, model: config.ai.resolutionModel }),
+    ),
   );
   const productDraftExtractor = new AnthropicProductDraftExtractor({
     client: anthropicClient,
@@ -210,15 +227,11 @@ if (config.ai.anthropicApiKey) {
     '/extract-product-from-photos',
     makeExtractProductFromPhotosHandler({ extractor: productDraftExtractor, limits: aiImageLimits }),
   );
-  if (config.ai.recipeImport.debug) {
-    console.warn(
-      'RECIPE_IMPORT_DEBUG is enabled — POST /import-recipe-from-photos responses include a debug payload (dev only)',
-    );
-  }
 } else {
   app.post('/import-recipe-from-photos', makeUnconfiguredImportRecipeFromPhotosHandler());
   app.post('/extract-product-from-photos', makeUnconfiguredExtractProductFromPhotosHandler());
   app.post('/propose-ingredient-resolutions', makeUnconfiguredProposeResolutionsHandler());
+  app.post('/draft-catalog-entry', makeUnconfiguredDraftCatalogEntryHandler());
 }
 
 serve({ fetch: app.fetch, port: 3000 }, () => {

@@ -239,7 +239,7 @@ describe('Recent tab', () => {
         HttpResponse.json([
           {
             id: 'foods-oats',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
@@ -283,7 +283,7 @@ describe('Recent tab', () => {
         HttpResponse.json([
           {
             id: 'foods-oats',
-            source: 'FOODS',
+            source: 'CATALOG',
             name: 'Oats',
             unit: 'g',
             macrosPerUnit: { calories: 3.89, protein: 0.17, carbs: 0.66, fat: 0.07 },
