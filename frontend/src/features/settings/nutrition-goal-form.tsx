@@ -5,7 +5,9 @@ import { z } from 'zod';
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useSetNutritionGoal } from '../../queries/use-set-nutrition-goal';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
 import { de } from '../../i18n/de';
 
 const schema = z.object({
@@ -66,10 +68,7 @@ export function NutritionGoalForm() {
       {error && <ErrorBanner error={error} />}
       {saved && <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.nutritionGoal.saved}</p>}
 
-      <div className="space-y-1">
-        <label htmlFor={`goal-${kcalField.key}`} className="text-sm font-medium">
-          {kcalField.label}
-        </label>
+      <Field label={kcalField.label} htmlFor={`goal-${kcalField.key}`} error={errors[kcalField.key]?.message}>
         <Controller
           name={kcalField.key}
           control={control}
@@ -80,20 +79,16 @@ export function NutritionGoalForm() {
               onValueChange={field.onChange}
               onBlur={field.onBlur}
               ref={field.ref}
-              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+              className="w-full"
               placeholder="0"
             />
           )}
         />
-        {errors[kcalField.key] && <p className="text-xs text-destructive">{errors[kcalField.key]?.message}</p>}
-      </div>
+      </Field>
 
       <div className="grid grid-cols-3 gap-2">
         {macroFields.map(({ key, label }) => (
-          <div key={key} className="space-y-1">
-            <label htmlFor={`goal-${key}`} className="text-sm font-medium">
-              {label}
-            </label>
+          <Field key={key} label={label} htmlFor={`goal-${key}`} error={errors[key]?.message}>
             <Controller
               name={key}
               control={control}
@@ -104,23 +99,18 @@ export function NutritionGoalForm() {
                   onValueChange={field.onChange}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  className="w-full rounded-md border px-3 py-2 text-base tabular-nums sm:text-sm"
+                  className="w-full"
                   placeholder="0"
                 />
               )}
             />
-            {errors[key] && <p className="text-xs text-destructive">{errors[key]?.message}</p>}
-          </div>
+          </Field>
         ))}
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-      >
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? de.nutritionGoal.saving : de.nutritionGoal.save}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -6,7 +6,9 @@ import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measuremen
 import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
 import { Pencil } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 const DISPLAY_QUANTITY_UNIT_LABEL_MAX = 24;
 const NOTE_MAX_LENGTH = 80;
@@ -173,14 +175,14 @@ export function RecipeIngredientEditor({
           {de.recipeIngredientEditor.title}
           {ingredients.length > 0 && <span className="text-muted-foreground"> · {ingredients.length}</span>}
         </h3>
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setPickerOpen(true)}
-          className="rounded-md border px-3 py-1 text-xs"
           aria-label={de.recipeIngredientEditor.addAria}
         >
           {de.recipeIngredientEditor.add}
-        </button>
+        </Button>
       </div>
 
       {ingredients.length === 0 ? (
@@ -247,7 +249,7 @@ export function RecipeIngredientEditor({
                       <p
                         data-testid={`row-uncertain-${idx}`}
                         aria-label={de.recipeIngredientEditor.provenance.markerAria(ing.name)}
-                        className="text-xs text-amber-700 dark:text-amber-400"
+                        className="text-xs text-amber-700"
                       >
                         {marker}
                       </p>
@@ -268,7 +270,9 @@ export function RecipeIngredientEditor({
                       aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
                       value={ing.amount}
                       onValueChange={(v) => v !== null && handleEditMassAmount(idx, v)}
-                      className="h-10 w-24 rounded-md border px-2 text-right text-base sm:h-9 sm:py-1 sm:text-sm"
+                      numeric
+                      size="sm"
+                      className="h-10 w-24 sm:h-9"
                     />
                     <span className="text-xs text-muted-foreground">{ing.unit}</span>
                   </div>
@@ -280,15 +284,18 @@ export function RecipeIngredientEditor({
                       aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
                       value={ing.pieceQuantity.amount}
                       onValueChange={(v) => v !== null && handleEditPieceCount(idx, v)}
-                      className="w-16 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
+                      numeric
+                      size="sm"
+                      className="w-16"
                     />
-                    <input
+                    <Input
                       aria-label={de.recipeIngredientEditor.pieceLabelFor(ing.name)}
                       type="text"
                       value={ing.pieceQuantity.unitLabel}
                       placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
                       onChange={(e) => handleEditUnitLabel(idx, e.target.value)}
-                      className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
+                      size="sm"
+                      className="flex-1"
                     />
                     <span aria-hidden>×</span>
                     <span className="whitespace-nowrap">{de.recipeIngredientEditor.perPiecePrefix}</span>
@@ -296,13 +303,15 @@ export function RecipeIngredientEditor({
                       aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
                       value={ing.pieceQuantity.gramsPerPiece}
                       onValueChange={(v) => v !== null && handleEditGramsPerPiece(idx, v)}
-                      className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
+                      numeric
+                      size="sm"
+                      className="w-20"
                     />
                     <span className="text-xs">{ing.unit}/Stk</span>
                     {isEstimate && (
                       <span
                         data-testid={`piece-estimate-${idx}`}
-                        className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                        className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800"
                       >
                         {de.recipeIngredientEditor.estimateBadge}
                       </span>
@@ -318,16 +327,19 @@ export function RecipeIngredientEditor({
                         value={ing.displayQuantity ? ing.displayQuantity.amount : ing.amount}
                         placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
                         onValueChange={(v) => handleEditFreeAmount(idx, v)}
-                        className="w-20 rounded-md border px-2 py-1 text-right text-base sm:text-sm"
+                        numeric
+                        size="sm"
+                        className="w-20"
                       />
-                      <input
+                      <Input
                         aria-label={de.recipeIngredientEditor.displayQuantityUnitAria(ing.name)}
                         type="text"
                         maxLength={DISPLAY_QUANTITY_UNIT_LABEL_MAX}
                         value={ing.displayQuantity?.unitLabel ?? ''}
                         placeholder={de.recipeIngredientEditor.freeUnitPlaceholder}
                         onChange={(e) => handleEditFreeUnit(idx, e.target.value)}
-                        className="min-w-0 flex-1 rounded-md border px-2 py-1 text-base sm:text-sm"
+                        size="sm"
+                        className="flex-1"
                       />
                     </div>
                     <p className="text-[11px] text-muted-foreground/80">{de.recipeIngredientEditor.freeCaption}</p>
@@ -374,7 +386,7 @@ export function RecipeIngredientEditor({
                         });
                       }}
                       aria-label={de.recipeIngredientEditor.removeNoteAria(ing.name)}
-                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive sm:h-6 sm:w-6"
                     >
                       ✕
                     </button>

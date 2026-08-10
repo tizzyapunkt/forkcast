@@ -3,6 +3,8 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import { parseDecimal } from '../../lib/decimal';
 import type { ProductDraft } from '../../api/extract-product-from-photos';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 interface Props {
   draft: ProductDraft;
@@ -17,8 +19,9 @@ function parseNonNegative(value: string): number {
   return n !== null && n >= 0 ? n : 0;
 }
 
-const fieldClass =
-  'w-full rounded-md border px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
+const fieldClass = 'w-full';
+// `<select>` has no primitive yet — it keeps the Input base classes inline.
+const selectClass = 'w-full rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm';
 
 /** Editable review of an extracted product — the user corrects AI misreads before saving. */
 export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }: Props) {
@@ -67,7 +70,7 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted-foreground">{de.productCapture.nameLabel}</span>
-        <input
+        <Input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -82,7 +85,7 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
           value={unit}
           onChange={(e) => setUnit(e.target.value as 'g' | 'ml')}
           aria-label={de.productCapture.unitLabel}
-          className={fieldClass}
+          className={selectClass}
         >
           <option value="g">g</option>
           <option value="ml">ml</option>
@@ -102,7 +105,7 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
         ).map(([label, value, setter]) => (
           <label key={label} className="flex flex-col gap-1 text-sm">
             <span className="text-muted-foreground">{label}</span>
-            <input
+            <Input
               type="text"
               inputMode="decimal"
               value={value}
@@ -116,13 +119,9 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
 
       {normalizedError && <ErrorBanner error={normalizedError} />}
 
-      <button
-        type="submit"
-        disabled={isSaving || trimmedName.length === 0}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-      >
+      <Button type="submit" disabled={isSaving || trimmedName.length === 0} className="w-full">
         {isSaving ? de.productCapture.saving : de.productCapture.save}
-      </button>
+      </Button>
     </form>
   );
 }

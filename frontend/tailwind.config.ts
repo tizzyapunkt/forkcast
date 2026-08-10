@@ -2,7 +2,6 @@ import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
 
 const config: Config = {
-  darkMode: ['class'],
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
@@ -47,16 +46,6 @@ const config: Config = {
           300: '#9f8ae8',
           400: '#8a76e3',
           500: '#7a67e6',
-        },
-        text: {
-          100: '#333333',
-          200: '#5c5c5c',
-          300: '#8a8a8a',
-        },
-        bg: {
-          100: '#f5f5ff',
-          200: '#ebebf5',
-          300: '#c2c2cc',
         },
         focus: '#7a67e6',
         success: '#10b981',

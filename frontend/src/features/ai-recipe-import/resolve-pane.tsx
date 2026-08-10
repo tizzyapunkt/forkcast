@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { DecimalInput } from '../../components/ui/decimal-input';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
 import { de } from '../../i18n/de';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MacrosPerUnit, MeasurementUnit } from '../../domain/meal-log';
 import type { MatchedDraftIngredient, PieceQuantity } from '../../domain/recipes';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
 import type {
   ConfirmResolutionPayload,
   FoodEntryDraft,
@@ -181,9 +184,9 @@ export function ResolvePane({
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium text-destructive">{t.errorTitle}</p>
         <p className="text-sm text-muted-foreground">{t.errorBody}</p>
-        <button type="button" onClick={onRetry} className="self-start rounded-md border px-3 py-1.5 text-sm">
+        <Button variant="outline" onClick={onRetry} className="self-start px-3 py-1.5">
           {t.errorRetry}
-        </button>
+        </Button>
       </div>
     );
     footer = <FallbackActions onManual={() => setManual(true)} onDiscard={onDiscard} />;
@@ -259,16 +262,12 @@ function LoadingState() {
 function FallbackActions({ onManual, onDiscard }: { onManual: () => void; onDiscard: () => void }) {
   return (
     <div className="flex gap-2">
-      <button type="button" onClick={onManual} className="h-11 flex-1 rounded-md border text-sm font-medium">
+      <Button variant="outline" onClick={onManual} className="h-11 flex-1 py-0">
         {t.catalogFallback}
-      </button>
-      <button
-        type="button"
-        onClick={onDiscard}
-        className="h-11 flex-1 rounded-md border border-destructive text-sm font-medium text-destructive"
-      >
+      </Button>
+      <Button variant="destructiveOutline" onClick={onDiscard} className="h-11 flex-1 py-0">
         {de.aiRecipeImport.discardUnmatched}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -297,19 +296,19 @@ function SynonymProposal({
         <span className="text-xs font-semibold uppercase tracking-wide text-primary">{t.synonymEyebrow}</span>
         <ConfidenceChip confidence={proposal.confidence} />
       </div>
-      <div className="rounded-md border border-input bg-card p-3">
+      <Card padding="sm">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">{food.name}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">{t.catalogChip}</span>
+          <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase">{t.catalogChip}</span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           {Math.round(food.macrosPer100.calories)} {t.kcalLabel} · {t.macrosPer(food.unit)}
         </p>
-      </div>
+      </Card>
       <p className="text-sm text-muted-foreground">{t.synonymExplain(rawName, food.name)}</p>
-      <button type="button" onClick={onManual} className="self-start text-sm font-medium text-primary">
+      <Button variant="ghost" onClick={onManual} className="self-start p-0">
         {t.synonymOtherLink}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -361,11 +360,11 @@ function NewFoodEditor({
       </span>
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">{t.nameLabel}</span>
-        <input
+        <Input
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
           aria-label={t.nameLabel}
-          className="h-11 w-full rounded-md border px-3 text-base font-medium sm:text-sm"
+          className="h-11 w-full py-0 font-medium"
         />
       </label>
 
@@ -436,9 +435,9 @@ function NewFoodEditor({
         </div>
       )}
 
-      <button type="button" onClick={onManual} className="self-start text-sm font-medium text-primary">
+      <Button variant="ghost" onClick={onManual} className="self-start p-0">
         {t.manualLink}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -448,9 +447,9 @@ function ManualMatch({ onPick, onBack }: { onPick: (r: IngredientSearchResult) =
     <div className="flex min-h-0 flex-col gap-2">
       <span className="text-xs font-semibold uppercase tracking-wide text-primary">{t.manualEyebrow}</span>
       <SearchPanel onSelect={onPick} />
-      <button type="button" onClick={onBack} className="self-start text-sm font-medium text-primary">
+      <Button variant="ghost" onClick={onBack} className="self-start p-0">
         {t.manualBack}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -474,17 +473,12 @@ function ConfirmFooter({
     <div className="flex flex-col gap-2">
       {error && <p className="text-center text-xs text-destructive">{t.errorBody}</p>}
       <div className="flex gap-2">
-        <button type="button" onClick={onCancel} className="h-12 flex-1 rounded-md border text-sm font-medium">
+        <Button variant="outline" onClick={onCancel} className="h-12 flex-1 py-0">
           {t.cancel}
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={pending}
-          className="h-12 flex-[1.5] rounded-md bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
-        >
+        </Button>
+        <Button onClick={onConfirm} disabled={pending} className="h-12 flex-[1.5] py-0 font-semibold">
           {label}
-        </button>
+        </Button>
       </div>
       <p className="text-center text-[11px] text-muted-foreground">{caption}</p>
     </div>

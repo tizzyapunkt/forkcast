@@ -13,6 +13,8 @@ import { searchIngredients } from '../../api/search-ingredients';
 import { queryKeys } from '../../queries/keys';
 import { de } from '../../i18n/de';
 import { parseDecimal } from '../../lib/decimal';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 type PickerMode = 'add' | 'replace';
 
@@ -217,7 +219,7 @@ function CandidateSection({
               <span className="min-w-0 flex-1 truncate font-medium">{candidate.name}</span>
               <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                 {resolvingName === candidate.name && <span>{c.resolving}</span>}
-                <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                <span className="rounded bg-muted px-1 py-0.5 text-[11px] font-semibold tracking-wide uppercase">
                   {candidate.source}
                 </span>
               </span>
@@ -265,7 +267,7 @@ function AmountStep({
         <label htmlFor="amount" className="text-sm font-medium">
           {de.recipeIngredientPicker.amountLabel(result.unit)}
         </label>
-        <input
+        <Input
           id="amount"
           type="text"
           inputMode="decimal"
@@ -279,23 +281,19 @@ function AmountStep({
               void submit();
             }
           }}
-          className="h-12 w-full rounded-md border px-3 text-base sm:h-10 sm:text-sm"
+          className="h-12 w-full py-0 sm:h-10"
           autoFocus
           placeholder={de.recipeIngredientPicker.amountPlaceholder}
         />
         {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={onBack} className="h-11 flex-1 rounded-md border px-4 text-sm sm:h-10">
+        <Button variant="outline" onClick={onBack} className="h-11 flex-1 py-0 sm:h-10">
           {de.recipeIngredientPicker.back}
-        </button>
-        <button
-          type="button"
-          onClick={() => void submit()}
-          className="h-11 flex-1 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-10"
-        >
+        </Button>
+        <Button onClick={() => void submit()} className="h-11 flex-1 py-0 sm:h-10">
           {de.recipeIngredientPicker.add}
-        </button>
+        </Button>
       </div>
     </div>
   );

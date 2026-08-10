@@ -1,7 +1,9 @@
-import { forwardRef, useState, type InputHTMLAttributes } from 'react';
+import { forwardRef, useState } from 'react';
 import { formatDecimal, parseDecimal } from '../../lib/decimal';
+import { cn } from '../../lib/cn';
+import { Input, type InputProps } from './input';
 
-type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'inputMode'> & {
+type Props = Omit<InputProps, 'value' | 'onChange' | 'type' | 'inputMode'> & {
   /** The committed numeric value, or `null`/`undefined` to render an empty field. */
   value: number | null | undefined;
   /**
@@ -20,7 +22,7 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 
  * reformats to the committed value in the active locale on blur.
  */
 export const DecimalInput = forwardRef<HTMLInputElement, Props>(function DecimalInput(
-  { value, onValueChange, locale, onBlur, ...rest },
+  { value, onValueChange, locale, onBlur, className, ...rest },
   ref,
 ) {
   const [draft, setDraft] = useState<string | null>(null);
@@ -29,11 +31,13 @@ export const DecimalInput = forwardRef<HTMLInputElement, Props>(function Decimal
   const display = draft ?? formatted;
 
   return (
-    <input
+    <Input
       {...rest}
       ref={ref}
       type="text"
       inputMode="decimal"
+      // Tabular figures keep the field from re-flowing digit by digit as it is typed.
+      className={cn('tabular-nums', className)}
       value={display}
       onChange={(e) => {
         const raw = e.target.value;

@@ -3,6 +3,7 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
 import type { IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, NotFoundException } from '@zxing/library';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
 
 export interface BarcodeScannerProps {
   onDetect: (barcode: string) => void;
@@ -70,9 +71,9 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
           <div className="absolute inset-x-0 top-1/2 h-0.5 bg-primary/70 animate-pulse" />
         </div>
       )}
-      <button type="button" onClick={onCancel} className="w-full rounded-md border px-3 py-2 text-sm">
+      <Button variant="outline" onClick={onCancel} className="w-full px-3">
         {de.barcodeScanner.cancel}
-      </button>
+      </Button>
     </div>
   );
 }

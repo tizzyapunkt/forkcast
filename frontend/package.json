@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "module": "dist-ui/forkcast-ui.js",
+  "types": "dist-ui/types/components/ui/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:ui": "vite build --config vite.config.lib.ts && tsc -p tsconfig.lib.json",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -14,6 +14,8 @@ import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-r
 import { de, slotLabelsDe } from '../../i18n/de';
 import type { DailyLog, MealSlot } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
@@ -125,7 +127,7 @@ export function PlannerScreen() {
               </div>
               {goal ? (
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
                     {de.planner.avgMacrosLabel}
                   </p>
                   <div className="mt-1 flex gap-4">
@@ -209,20 +211,15 @@ export function PlannerScreen() {
         )}
 
         {copyConfirm && (
-          <div className="rounded-md border bg-card p-3">
+          <Card padding="sm">
             <p className="mb-1 text-sm font-medium">{de.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
             <p className="mb-2 text-xs text-muted-foreground">{de.planner.copyDayBody}</p>
             {copyMutation.error && <ErrorBanner error={copyMutation.error} />}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setCopyConfirm(null)}
-                className="flex-1 rounded-md border px-3 py-2 text-sm"
-              >
+              <Button variant="outline" onClick={() => setCopyConfirm(null)} className="flex-1 px-3">
                 {de.recipeForm.cancel}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 disabled={copyMutation.isPending}
                 onClick={() =>
                   copyMutation.mutate(
@@ -230,12 +227,12 @@ export function PlannerScreen() {
                     { onSuccess: () => setCopyConfirm(null) },
                   )
                 }
-                className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                className="flex-1 px-3"
               >
                 {de.planner.copyDayConfirm(de.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
         <LogIngredientDrawer
@@ -277,7 +274,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
       >
         <span className="w-12 shrink-0 text-center">
           <span className="block text-sm font-semibold">{de.planner.weekdays[weekdayIndexOf(day.date)]}</span>
-          <span className="block text-[10px] leading-tight text-muted-foreground">{label}</span>
+          <span className="block text-[11px] leading-tight text-muted-foreground">{label}</span>
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-2">
@@ -307,7 +304,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
         <div className="border-t px-3 pb-3 pt-2">
           {hasEntries && goal && (
             <div className="mb-2 rounded-md bg-muted p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {de.planner.dayTotal}
               </p>
               <div className="mt-1.5 flex gap-4">
@@ -340,9 +337,9 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
                         type="button"
                         onClick={() => onAdd(slot)}
                         aria-label={de.planner.addToSlotAria(slotLabelsDe[slot], label)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-primary"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-primary hover:bg-accent/20"
                       >
-                        <Plus size={16} aria-hidden="true" />
+                        <Plus size={20} aria-hidden="true" />
                       </button>
                     </div>
                   </div>

@@ -5,7 +5,9 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { Field } from '../../components/ui/field';
+import { DecimalInput } from '../../components/ui/decimal-input';
 import { Check } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 
@@ -79,26 +81,24 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="amount" className="text-sm font-medium">
-          {de.fullEntry.amount(result.unit)}
-        </label>
-        <Controller
-          name="amount"
-          control={control}
-          render={({ field }) => (
-            <DecimalInput
-              id="amount"
-              value={field.value}
-              onValueChange={field.onChange}
-              onBlur={field.onBlur}
-              ref={field.ref}
-              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-              placeholder={de.fullEntry.amountPlaceholder}
-              autoFocus
-            />
-          )}
-        />
-        {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
+        <Field label={de.fullEntry.amount(result.unit)} htmlFor="amount" error={errors.amount?.message}>
+          <Controller
+            name="amount"
+            control={control}
+            render={({ field }) => (
+              <DecimalInput
+                id="amount"
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className="w-full"
+                placeholder={de.fullEntry.amountPlaceholder}
+                autoFocus
+              />
+            )}
+          />
+        </Field>
 
         <div className="flex flex-wrap gap-1.5 pt-1">
           {QUICK_AMOUNTS.map((a) => (
@@ -133,22 +133,18 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
 
       <div className="flex gap-2">
         {onBack && (
-          <button type="button" onClick={onBack} className="flex-1 rounded-md border px-4 py-2 text-sm">
+          <Button variant="outline" onClick={onBack} className="flex-1">
             {de.fullEntry.back}
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          <Check size={17} aria-hidden="true" className="-ml-1 mr-1.5 inline-block align-[-3px]" />
+        <Button type="submit" disabled={isPending} className="flex-1">
+          <Check size={17} aria-hidden="true" />
           {isPending
             ? de.fullEntry.saving
             : amount !== null
               ? de.fullEntry.logAmount(amount, result.unit)
               : de.fullEntry.log}
-        </button>
+        </Button>
       </div>
     </form>
   );

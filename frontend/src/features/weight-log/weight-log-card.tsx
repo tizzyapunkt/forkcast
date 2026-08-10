@@ -6,6 +6,9 @@ import { useLogWeight } from '../../queries/use-log-weight';
 import { de } from '../../i18n/de';
 import { today } from '../../domain/date';
 import { parseDecimal } from '../../lib/decimal';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
 
 interface WeightLogCardProps {
   onOpenTracker: () => void;
@@ -37,7 +40,7 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
   }
 
   return (
-    <section aria-label={de.weightLog.cardTitle} className="rounded-md border border-input bg-card p-3">
+    <Card aria-label={de.weightLog.cardTitle} padding="sm">
       <div className="flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 text-base font-semibold">
           <Scale size={16} aria-hidden="true" className="shrink-0 text-primary" />
@@ -54,35 +57,31 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
 
       {inEditMode ? (
         <div className="mt-2 flex items-center gap-2">
-          <input
+          <Input
             aria-label={de.weightLog.cardPromptEmpty}
             type="text"
             inputMode="decimal"
             placeholder={todaysEntry ? todaysEntry.weightKg.toString() : de.weightLog.cardInputPlaceholder}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="flex-1 rounded-md border border-input px-3 py-2 text-base sm:text-sm"
+            className="flex-1"
           />
           <span className="text-sm text-muted-foreground">{de.weightLog.cardKgSuffix}</span>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={logMutation.isPending || draft.trim() === ''}
-            className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-          >
+          <Button onClick={submit} disabled={logMutation.isPending || draft.trim() === ''} className="px-3">
             {logMutation.isPending ? de.weightLog.cardSubmitting : de.weightLog.cardSubmit}
-          </button>
+          </Button>
           {todaysEntry && editing && (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setEditing(false);
                 setDraft('');
               }}
-              className="rounded-md border px-2 py-2 text-xs"
+              className="px-2 py-2"
             >
               {de.weightLog.historyCancel}
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -118,6 +117,6 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
           </button>
         </div>
       )}
-    </section>
+    </Card>
   );
 }

@@ -3,6 +3,8 @@ import { exportCatalog } from '../../api/catalog';
 import { useCatalog } from '../../queries/use-catalog';
 import type { CatalogEntry } from '../../domain/food-catalog';
 import { de } from '../../i18n/de';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 
 const t = de.catalog;
 
@@ -56,30 +58,21 @@ export function CatalogPanel({ onManage }: CatalogPanelProps) {
   }
 
   return (
-    <section data-testid="catalog-panel" className="rounded-md border border-input bg-card p-4">
+    <Card data-testid="catalog-panel">
       <h3 className="text-sm font-semibold">{t.title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{t.hint}</p>
       <p className="mt-2 text-xs font-medium">{t.countLabel(count)}</p>
 
-      <button
-        type="button"
-        onClick={onManage}
-        className="mt-3 flex w-full items-center justify-between rounded-md border border-input px-3 py-2 text-left text-sm hover:bg-accent"
-      >
+      <Button variant="outline" onClick={onManage} className="mt-3 w-full justify-between px-3 text-left">
         <span className="font-medium">{t.manageLink}</span>
         <span aria-hidden="true">→</span>
-      </button>
+      </Button>
 
-      <button
-        type="button"
-        onClick={() => void onExport()}
-        disabled={exporting}
-        className="mt-2 w-full rounded-md border border-input px-3 py-2 text-sm font-medium disabled:opacity-50"
-      >
+      <Button variant="outline" onClick={() => void onExport()} disabled={exporting} className="mt-2 w-full px-3">
         {t.exportButton}
-      </button>
+      </Button>
       <p className="mt-1 text-[11px] text-muted-foreground">{t.exportHint}</p>
       {failed && <p className="mt-2 text-xs text-destructive">{t.exportError}</p>}
-    </section>
+    </Card>
   );
 }

@@ -174,7 +174,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
 
   const unmatchedPanel =
     unmatched.length > 0 ? (
-      <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700/60 dark:bg-amber-900/20">
+      <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
         <p className="font-medium">{de.aiRecipeImport.unmatchedHeading(unmatched.length)}</p>
         <p className="mt-1 text-xs text-muted-foreground">{de.aiRecipeImport.unmatchedHint}</p>
         <ul className="mt-2 space-y-1">

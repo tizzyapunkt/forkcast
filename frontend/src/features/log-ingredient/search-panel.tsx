@@ -1,11 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search-ingredients';
 import type { IngredientSearchResult, IngredientSearchSource } from '../../domain/ingredient-search';
-import { BarcodeScanner } from './barcode-scanner';
 import { de } from '../../i18n/de';
+
+// Lazy: @zxing/browser + @zxing/library only download once the user actually taps
+// "scan", instead of shipping in every SearchPanel bundle (log drawer, recipe picker).
+const BarcodeScanner = lazy(() => import('./barcode-scanner').then((m) => ({ default: m.BarcodeScanner })));
 import { useLocalStorage } from '../../hooks/use-local-storage';
 import { CaptureProductFlow } from '../extract-product-from-photos/capture-product-flow';
 import { useProductCaptureConfigured } from '../extract-product-from-photos/use-product-capture-configured';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -101,7 +106,11 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   const hasQuery = debouncedQuery.trim().length >= 2;
 
   if (scanState.mode === 'scanning') {
-    return <BarcodeScanner onDetect={handleBarcodeDetected} onCancel={() => setScanState({ mode: 'text' })} />;
+    return (
+      <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">{de.searchPanel.scannerLoading}</p>}>
+        <BarcodeScanner onDetect={handleBarcodeDetected} onCancel={() => setScanState({ mode: 'text' })} />
+      </Suspense>
+    );
   }
 
   if (scanState.mode === 'barcode-loading') {
@@ -128,24 +137,19 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
       <div className="flex flex-col gap-3 p-4">
         <p className="text-sm text-destructive">{de.searchPanel.notFound}</p>
         {captureConfigured !== false ? (
-          <button
-            type="button"
+          <Button
             onClick={() => setScanState({ mode: 'capturing-product', barcode: notFoundBarcode })}
             aria-label={de.productCapture.ctaAria}
-            className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+            className="w-full px-3"
           >
             {de.productCapture.cta}
-          </button>
+          </Button>
         ) : (
           <p className="text-xs text-muted-foreground">{de.productCapture.notConfigured}</p>
         )}
-        <button
-          type="button"
-          onClick={() => setScanState({ mode: 'scanning' })}
-          className="w-full rounded-md border px-3 py-2 text-sm"
-        >
+        <Button variant="outline" onClick={() => setScanState({ mode: 'scanning' })} className="w-full px-3">
           {de.searchPanel.tryAgain}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -153,23 +157,23 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4">
       <div className="flex min-w-0 gap-2">
-        <input
+        <Input
           ref={inputRef}
           role="searchbox"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={de.searchPanel.placeholder}
-          className="min-w-0 flex-1 appearance-none rounded-md border px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+          className="flex-1 appearance-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
         />
-        <button
-          type="button"
+        <Button
+          variant="outline"
           aria-label={de.searchPanel.scanBarcode}
           onClick={() => setScanState({ mode: 'scanning' })}
-          className="shrink-0 rounded-md border px-3 py-2 text-sm"
+          className="shrink-0 px-3"
         >
           📷
-        </button>
+        </Button>
       </div>
 
       <label className="flex items-center gap-2 text-xs text-muted-foreground select-none">
@@ -234,7 +238,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
                 >
                   <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
                   <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
+                    <span className="rounded px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
                       {result.source}
                     </span>
                     {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}

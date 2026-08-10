@@ -384,6 +384,7 @@ export const de = {
     tryAgain: 'Erneut versuchen',
     placeholder: 'Zutaten suchen…',
     scanBarcode: 'Barcode scannen',
+    scannerLoading: 'Kamera wird geladen…',
     offToggle: 'Open Food Facts',
     searching: 'Suche läuft…',
     searchFailed: 'Suche fehlgeschlagen. Bitte versuche es erneut.',
@@ -586,6 +587,7 @@ export const de = {
     moveUp: (n: number) => `Foto ${n} nach oben`,
     moveDown: (n: number) => `Foto ${n} nach unten`,
     removePhoto: (n: number) => `Foto ${n} entfernen`,
+    photoAlt: (n: number) => `Foto ${n}`,
     submit: 'Rezept lesen',
     submitting: 'Rezept wird gelesen…',
     cancel: 'Abbrechen',
@@ -610,6 +612,7 @@ export const de = {
       prevAria: 'Vorheriges Foto',
       nextAria: 'Nächstes Foto',
       position: (n: number, total: number) => `${n} / ${total}`,
+      photoAlt: (n: number, total: number) => `Foto ${n} von ${total}`,
     },
     resolve: {
       assignCta: 'Zuordnen',
@@ -676,6 +679,7 @@ export const de = {
 
   weightLog: {
     screenTitle: 'Gewicht-Tracker',
+    loading: 'Laden…',
     settingsLink: 'Gewicht-Tracker',
     settingsLinkHint: 'Trend, Diagramm, Historie',
     cardTitle: 'Heutiges Gewicht',

@@ -7,6 +7,7 @@ import { de } from '../../i18n/de';
 import { PhotoStaging, type StagedPhoto } from './photo-staging';
 import { ReviewImportScreen } from './review-import-screen';
 import { useImportRecipeFromPhotos } from './use-import-recipe-from-photos';
+import { Button } from '../../components/ui/button';
 
 interface Props {
   onCancel: () => void;
@@ -64,14 +65,9 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
 
         {error && <ErrorBanner error={error} />}
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={photos.length === 0 || importMutation.isPending}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
+        <Button onClick={handleSubmit} disabled={photos.length === 0 || importMutation.isPending} className="w-full">
           {importMutation.isPending ? de.aiRecipeImport.submitting : de.aiRecipeImport.submit}
-        </button>
+        </Button>
       </div>
     </>
   );

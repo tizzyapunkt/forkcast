@@ -117,3 +117,13 @@ The API should tell the domain story, not the database story:
 - UI state: local `useState` / `useReducer` — no global client state library
 
 **Module structure:** feature folders mirror domain language (e.g. `features/daily-log/`, `features/log-ingredient/`) — DDD ubiquitous language applies here too
+
+**Design system:** `components/ui/` holds the presentation primitives — `Button`, `Input`, `DecimalInput`, `Card`, `Field`, `SegmentedControl` — built with CVA variants over the design tokens in `index.css` / `tailwind.config.ts`. They carry no domain knowledge and are the only place where the base look of a control is defined.
+
+- Reach for a primitive before writing `rounded-md border px-3 py-2 …` by hand; if none fits, add a variant there rather than a one-off class string at the call site
+- Pass layout and one-off overrides through `className` — `cn()` (`lib/cn.ts`) merges them so a caller-supplied class wins over the variant default
+- `components/app/` stays for composites that *do* know the app (header, bottom nav, sheets, error banner)
+- `<select>` and `<textarea>` have no primitive yet — add one when a second call site needs it
+- Tokens live in `components/ui/tokens.css` (imported by `index.css`) — the single place a colour, radius or focus ring is defined
+
+**Packaging the design system:** `pnpm --filter @forkcast/frontend build:ui` bundles `components/ui/` into `dist-ui/` (JS + scoped CSS + `.d.ts`) via `vite.config.lib.ts` — the artefact `/design-sync` uploads so Claude Design builds screens from the real components. Adding a primitive means exporting it from `components/ui/index.ts`; nothing else needs touching. The sync itself needs `/design-login`, so it only runs from a local terminal.

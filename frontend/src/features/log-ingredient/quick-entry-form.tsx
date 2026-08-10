@@ -4,7 +4,10 @@ import { z } from 'zod';
 import type { MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
+import { Input } from '../../components/ui/input';
 import { de } from '../../i18n/de';
 
 // An empty / cleared macro field (DecimalInput emits null) means "not provided".
@@ -69,23 +72,11 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
       {error && <ErrorBanner error={error} />}
 
-      <div className="space-y-1">
-        <label htmlFor="label" className="text-sm font-medium">
-          {de.quickEntry.label}
-        </label>
-        <input
-          id="label"
-          {...register('label')}
-          className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
-          placeholder={de.quickEntry.labelPlaceholder}
-        />
-        {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
-      </div>
+      <Field label={de.quickEntry.label} htmlFor="label" error={errors.label?.message}>
+        <Input id="label" {...register('label')} className="w-full" placeholder={de.quickEntry.labelPlaceholder} />
+      </Field>
 
-      <div className="space-y-1">
-        <label htmlFor="calories" className="text-sm font-medium">
-          {de.quickEntry.calories}
-        </label>
+      <Field label={de.quickEntry.calories} htmlFor="calories" error={errors.calories?.message}>
         <Controller
           name="calories"
           control={control}
@@ -96,20 +87,16 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
               onValueChange={field.onChange}
               onBlur={field.onBlur}
               ref={field.ref}
-              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
+              className="w-full"
               placeholder="0"
             />
           )}
         />
-        {errors.calories && <p className="text-xs text-destructive">{errors.calories.message}</p>}
-      </div>
+      </Field>
 
       <div className="grid grid-cols-3 gap-2">
         {(['protein', 'carbs', 'fat'] as const).map((macro) => (
-          <div key={macro} className="space-y-1">
-            <label htmlFor={macro} className="text-xs font-medium text-muted-foreground">
-              {de.editEntry.macroLabel(de.macros[macro])}
-            </label>
+          <Field key={macro} label={de.editEntry.macroLabel(de.macros[macro])} htmlFor={macro} size="sm">
             <Controller
               name={macro}
               control={control}
@@ -120,22 +107,19 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
                   onValueChange={field.onChange}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  className="w-full rounded-md border px-2 py-1.5 text-base sm:text-sm"
+                  size="sm"
+                  className="w-full"
                   placeholder="—"
                 />
               )}
             />
-          </div>
+          </Field>
         ))}
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-      >
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? de.quickEntry.saving : mode === 'edit' ? de.quickEntry.saveChanges : de.quickEntry.addEntry}
-      </button>
+      </Button>
     </form>
   );
 }

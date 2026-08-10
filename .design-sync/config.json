@@ -1,0 +1,12 @@
+{
+  "projectId": "ad111940-bb79-4d35-8d6c-aeb9cb19dc85",
+  "shape": "package",
+  "pkg": "@forkcast/frontend",
+  "globalName": "ForkcastUI",
+  "buildCmd": "pnpm --filter @forkcast/frontend build:ui",
+  "cssEntry": "dist-ui/forkcast-ui.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "Button": { "cardMode": "column" }
+  }
+}

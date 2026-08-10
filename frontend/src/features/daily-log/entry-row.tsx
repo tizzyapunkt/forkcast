@@ -43,7 +43,7 @@ export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
         <div className="flex flex-col gap-0.5">
           <span className="font-medium">{label}</span>
           {recipeName && (
-            <span className="text-[10px] uppercase tracking-wide text-muted-foreground" data-testid="recipe-hint">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground" data-testid="recipe-hint">
               {de.entryRow.fromRecipe(recipeName)}
             </span>
           )}

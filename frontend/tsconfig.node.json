@@ -13,5 +13,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "tailwind.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "vite.config.lib.ts",
+    "vitest.config.ts",
+    "tailwind.config.ts",
+    "tailwind.config.lib.ts"
+  ]
 }
