@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { DecimalInput } from '../../components/app/decimal-input';
+import { Button } from '../../components/ui/button';
+import { DecimalInput } from '../../components/ui/decimal-input';
+import { Field } from '../../components/ui/field';
+import { Input } from '../../components/ui/input';
 import { de } from '../../i18n/de';
 import type { CatalogEntry, CatalogEntryDraft, CatalogPieceWeight } from '../../domain/food-catalog';
 import type { MacrosPerUnit } from '../../domain/meal-log';
@@ -99,39 +102,36 @@ export function CatalogEntryEditor({
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t.nameLabel}</span>
-        <input
+      <Field label={t.nameLabel}>
+        <Input
           value={draft.name}
           onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
           aria-label={t.nameLabel}
           placeholder={t.namePlaceholder}
-          className="h-11 w-full rounded-md border px-3 text-base font-medium sm:text-sm"
+          className="h-11 w-full py-0 font-medium"
         />
-      </label>
+      </Field>
 
       <div className="flex flex-col gap-1">
-        <button
-          type="button"
+        <Button
+          variant="outline"
           onClick={runFill}
           disabled={fill.isPending}
-          className="self-start rounded-md border border-dashed border-primary/60 px-3 py-1.5 text-sm font-medium text-primary disabled:opacity-60"
+          className="self-start border-dashed border-primary/60 py-1.5 px-3 text-primary"
         >
           {fill.isPending ? t.aiFilling : t.aiFill}
-        </button>
+        </Button>
         <span className="text-[11px] text-muted-foreground">{t.aiFillHint}</span>
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t.synonymsLabel}</span>
-        <input
+      <Field label={t.synonymsLabel} hint={t.synonymsHint}>
+        <Input
           value={synonymsText}
           onChange={(e) => setSynonymsText(e.target.value)}
           aria-label={t.synonymsLabel}
-          className="h-11 w-full rounded-md border px-3 text-base sm:text-sm"
+          className="h-11 w-full py-0"
         />
-        <span className="text-[11px] text-muted-foreground">{t.synonymsHint}</span>
-      </label>
+      </Field>
 
       <div className="flex items-end justify-between gap-3">
         <div>
@@ -203,21 +203,24 @@ export function CatalogEntryEditor({
         <span className="-mt-1 text-[11px] text-muted-foreground">{t.piecesHint}</span>
         {(draft.pieces ?? []).map((piece, index) => (
           <div key={index} className="flex items-center gap-2">
-            <input
+            <Input
               value={piece.label}
               onChange={(e) => setPiece(index, { label: e.target.value })}
               aria-label={t.pieceLabelAria(index + 1)}
               placeholder={t.pieceLabelPlaceholder}
-              className="h-10 min-w-0 flex-1 rounded-md border px-2 text-sm"
+              size="sm"
+              className="h-10 flex-1"
             />
             <DecimalInput
               value={piece.grams}
-              onValueChange={(v) => setPiece(index, { grams: v ?? 0 })}
+              onValueChange={(v: number | null) => setPiece(index, { grams: v ?? 0 })}
               aria-label={t.pieceGramsAria(index + 1)}
-              className="h-10 w-24 rounded-md border px-2 text-right text-sm"
+              numeric
+              size="sm"
+              className="h-10 w-24"
             />
-            <button
-              type="button"
+            <Button
+              variant="outline"
               onClick={() =>
                 setDraft((d) => {
                   const next = (d.pieces ?? []).filter((_, i) => i !== index);
@@ -225,47 +228,42 @@ export function CatalogEntryEditor({
                 })
               }
               aria-label={t.removePiece(piece.label)}
-              className="shrink-0 rounded-md border px-2 py-1.5 text-sm text-muted-foreground"
+              className="shrink-0 px-2 py-1.5 text-muted-foreground"
             >
               ×
-            </button>
+            </Button>
           </div>
         ))}
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={() => setDraft((d) => ({ ...d, pieces: [...(d.pieces ?? []), { label: '', grams: 0 }] }))}
-          className="self-start text-sm font-medium text-primary"
+          className="self-start p-0"
         >
           {t.addPiece}
-        </button>
+        </Button>
       </div>
 
       {shownError && <p className="text-sm text-destructive">{shownError}</p>}
       {duplicateAction}
 
       <div className="flex gap-2">
-        <button type="button" onClick={onCancel} className="h-12 flex-1 rounded-md border text-sm font-medium">
+        <Button variant="outline" onClick={onCancel} className="h-12 flex-1 py-0">
           {t.cancel}
-        </button>
-        <button
-          type="button"
-          onClick={submit}
-          disabled={pending}
-          className="h-12 flex-[1.5] rounded-md bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
-        >
+        </Button>
+        <Button onClick={submit} disabled={pending} className="h-12 flex-[1.5] py-0 font-semibold">
           {pending ? t.saving : t.save}
-        </button>
+        </Button>
       </div>
 
       {onDelete && entry && (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={onDelete}
           aria-label={t.deleteAria(entry.name)}
-          className="self-start text-sm font-medium text-destructive"
+          className="self-start p-0 text-destructive hover:text-destructive/80"
         >
           {t.delete}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -290,9 +288,11 @@ function MacroField({
       </span>
       <DecimalInput
         value={Number.isFinite(value) ? value : 0}
-        onValueChange={(v) => onChange(v ?? 0)}
+        onValueChange={(v: number | null) => onChange(v ?? 0)}
         aria-label={label}
-        className="h-10 w-full rounded-md border px-2 text-right text-sm"
+        numeric
+        size="sm"
+        className="h-10 w-full"
       />
     </label>
   );

@@ -3,6 +3,8 @@ import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { BottomSheet } from '../../components/app/bottom-sheet';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import { CatalogEntryEditor } from './catalog-entry-editor';
 import {
   useAddCatalogEntry,
@@ -104,23 +106,19 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
     <>
       {header}
       <div className="flex flex-col gap-3 p-4">
-        <input
+        <Input
           role="searchbox"
           type="search"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           aria-label={t.filterLabel}
           placeholder={t.filterPlaceholder}
-          className="h-11 w-full appearance-none rounded-md border px-3 text-base sm:text-sm"
+          className="h-11 w-full appearance-none py-0"
         />
 
-        <button
-          type="button"
-          onClick={() => setEditor({ mode: 'create' })}
-          className="h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground"
-        >
+        <Button onClick={() => setEditor({ mode: 'create' })} className="h-11 w-full py-0 font-semibold">
           {t.addEntry}
-        </button>
+        </Button>
 
         <p className="text-xs text-muted-foreground">{t.countLabel(entries.length)}</p>
 
@@ -171,8 +169,8 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
                 error={saveError instanceof Error ? saveError.message : null}
                 duplicateAction={
                   duplicateId !== undefined ? (
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
                       onClick={() => {
                         const existing = entries.find((e) => e.id === duplicateId);
                         if (existing) {
@@ -180,10 +178,10 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
                           setEditor({ mode: 'edit', entry: existing });
                         }
                       }}
-                      className="self-start text-sm font-medium text-primary"
+                      className="self-start p-0"
                     >
                       {t.duplicateOpen}
-                    </button>
+                    </Button>
                   ) : undefined
                 }
               />
@@ -203,21 +201,17 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
             <p className="text-sm text-muted-foreground">{t.deleteConfirmBody(pendingDelete.name)}</p>
             {removeMutation.isError && <p className="text-sm text-destructive">{t.deleteError}</p>}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setPendingDelete(null)}
-                className="h-12 flex-1 rounded-md border text-sm font-medium"
-              >
+              <Button variant="outline" onClick={() => setPendingDelete(null)} className="h-12 flex-1 py-0">
                 {t.deleteCancel}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={confirmDelete}
                 disabled={removeMutation.isPending}
-                className="h-12 flex-[1.5] rounded-md bg-destructive text-sm font-semibold text-destructive-foreground disabled:opacity-60"
+                className="h-12 flex-[1.5] py-0 font-semibold"
               >
                 {t.deleteConfirm}
-              </button>
+              </Button>
             </div>
           </div>
         )}
