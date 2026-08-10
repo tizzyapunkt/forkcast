@@ -16,6 +16,7 @@ import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
+import { SegmentedControl } from '../../components/ui/segmented-control';
 
 const schema = z.object({
   weightKg: z.coerce
@@ -79,6 +80,11 @@ const PHASE_OPTIONS: { value: GoalPhase; label: string }[] = [
 ];
 
 type AdjustmentDirection = 'deficit' | 'maintenance' | 'surplus';
+
+const SEX_OPTIONS: { value: Sex; label: string }[] = [
+  { value: 'male', label: de.bodyProfile.sexMale },
+  { value: 'female', label: de.bodyProfile.sexFemale },
+];
 
 const DIRECTION_OPTIONS: { value: AdjustmentDirection; label: string }[] = [
   { value: 'deficit', label: de.bodyProfile.adjustmentDirection.deficit },
@@ -276,23 +282,12 @@ export function BodyProfileForm() {
             name="sex"
             control={control}
             render={({ field }) => (
-              <div className="flex gap-2" role="radiogroup" aria-label={de.bodyProfile.sex}>
-                {(['male', 'female'] as Sex[]).map((s) => (
-                  <label
-                    key={s}
-                    className={`flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${field.value === s ? 'border-primary bg-primary/10' : 'border-input'}`}
-                  >
-                    <input
-                      type="radio"
-                      className="sr-only"
-                      value={s}
-                      checked={field.value === s}
-                      onChange={() => field.onChange(s)}
-                    />
-                    {s === 'male' ? de.bodyProfile.sexMale : de.bodyProfile.sexFemale}
-                  </label>
-                ))}
-              </div>
+              <SegmentedControl
+                label={de.bodyProfile.sex}
+                value={field.value}
+                onChange={field.onChange}
+                options={SEX_OPTIONS}
+              />
             )}
           />
         </Field>
@@ -357,26 +352,13 @@ export function BodyProfileForm() {
         label={de.bodyProfile.adjustment}
         error={errors.adjustmentPercent?.message}
       >
-        <div role="radiogroup" aria-label={de.bodyProfile.adjustmentDirectionLabel} className="mb-2 flex gap-2">
-          {DIRECTION_OPTIONS.map((opt) => (
-            <label
-              key={opt.value}
-              className={`flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${
-                adjustmentDirection === opt.value ? 'border-primary bg-primary/10' : 'border-input'
-              }`}
-            >
-              <input
-                type="radio"
-                className="sr-only"
-                name="bp-adjustment-direction"
-                value={opt.value}
-                checked={adjustmentDirection === opt.value}
-                onChange={() => onDirectionChange(opt.value)}
-              />
-              {opt.label}
-            </label>
-          ))}
-        </div>
+        <SegmentedControl
+          label={de.bodyProfile.adjustmentDirectionLabel}
+          value={adjustmentDirection}
+          onChange={onDirectionChange}
+          options={DIRECTION_OPTIONS}
+          className="mb-2"
+        />
         <Input
           id="bp-adjustment-magnitude"
           type="number"

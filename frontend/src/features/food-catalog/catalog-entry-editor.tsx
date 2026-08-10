@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
+import { SegmentedControl } from '../../components/ui/segmented-control';
 import { de } from '../../i18n/de';
 import type { CatalogEntry, CatalogEntryDraft, CatalogPieceWeight } from '../../domain/food-catalog';
 import type { MacrosPerUnit } from '../../domain/meal-log';
@@ -11,6 +12,11 @@ import { useDraftCatalogEntry } from '../../queries/use-catalog';
 const t = de.catalog;
 
 const ZERO_MACROS: MacrosPerUnit = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+const UNIT_OPTIONS = [
+  { value: 'g' as const, label: 'g' },
+  { value: 'ml' as const, label: 'ml' },
+];
 
 export function emptyDraft(): CatalogEntryDraft {
   return { name: '', synonyms: [], unit: 'g', macrosPer100: { ...ZERO_MACROS } };
@@ -136,21 +142,12 @@ export function CatalogEntryEditor({
       <div className="flex items-end justify-between gap-3">
         <div>
           <span className="mb-1 block text-sm font-medium">{t.unitLabel}</span>
-          <div className="flex gap-1 rounded-md bg-muted p-1">
-            {(['g', 'ml'] as const).map((u) => (
-              <button
-                key={u}
-                type="button"
-                onClick={() => setDraft((d) => ({ ...d, unit: u }))}
-                aria-pressed={draft.unit === u}
-                className={`rounded px-4 py-1.5 text-sm font-medium ${
-                  draft.unit === u ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
-                }`}
-              >
-                {u}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            label={t.unitLabel}
+            value={draft.unit}
+            onChange={(unit) => setDraft((d) => ({ ...d, unit }))}
+            options={UNIT_OPTIONS}
+          />
         </div>
         <label className="flex items-center gap-2 pb-1 text-sm">
           <input

@@ -118,7 +118,7 @@ The API should tell the domain story, not the database story:
 
 **Module structure:** feature folders mirror domain language (e.g. `features/daily-log/`, `features/log-ingredient/`) — DDD ubiquitous language applies here too
 
-**Design system:** `components/ui/` holds the presentation primitives — `Button`, `Input`, `DecimalInput`, `Card`, `Field` — built with CVA variants over the design tokens in `index.css` / `tailwind.config.ts`. They carry no domain knowledge and are the only place where the base look of a control is defined.
+**Design system:** `components/ui/` holds the presentation primitives — `Button`, `Input`, `DecimalInput`, `Card`, `Field`, `SegmentedControl` — built with CVA variants over the design tokens in `index.css` / `tailwind.config.ts`. They carry no domain knowledge and are the only place where the base look of a control is defined.
 
 - Reach for a primitive before writing `rounded-md border px-3 py-2 …` by hand; if none fits, add a variant there rather than a one-off class string at the call site
 - Pass layout and one-off overrides through `className` — `cn()` (`lib/cn.ts`) merges them so a caller-supplied class wins over the variant default

@@ -15,3 +15,4 @@ export { Card, type CardProps } from './card';
 export { DecimalInput } from './decimal-input';
 export { Field, useFieldControl } from './field';
 export { Input, type InputProps } from './input';
+export { SegmentedControl, type SegmentedControlOption, type SegmentedControlProps } from './segmented-control';

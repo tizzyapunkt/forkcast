@@ -229,7 +229,7 @@ describe('CatalogManagerScreen — creating', () => {
 
     expect(await screen.findByLabelText('Synonyme')).toHaveValue('Balsamico-Essig, balsamic vinegar');
     expect(screen.getByLabelText('kcal')).toHaveValue('88');
-    expect(screen.getByRole('button', { name: 'ml' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('radio', { name: 'ml' })).toBeChecked();
     expect(screen.getByText(/KI-Schätzung/i)).toBeInTheDocument();
 
     const kcal = screen.getByLabelText('kcal');
