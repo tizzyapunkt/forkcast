@@ -249,7 +249,7 @@ export function RecipeIngredientEditor({
                       <p
                         data-testid={`row-uncertain-${idx}`}
                         aria-label={de.recipeIngredientEditor.provenance.markerAria(ing.name)}
-                        className="text-xs text-amber-700 dark:text-amber-400"
+                        className="text-xs text-amber-700"
                       >
                         {marker}
                       </p>
@@ -311,7 +311,7 @@ export function RecipeIngredientEditor({
                     {isEstimate && (
                       <span
                         data-testid={`piece-estimate-${idx}`}
-                        className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                        className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800"
                       >
                         {de.recipeIngredientEditor.estimateBadge}
                       </span>
@@ -386,7 +386,7 @@ export function RecipeIngredientEditor({
                         });
                       }}
                       aria-label={de.recipeIngredientEditor.removeNoteAria(ing.name)}
-                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive sm:h-6 sm:w-6"
                     >
                       ✕
                     </button>

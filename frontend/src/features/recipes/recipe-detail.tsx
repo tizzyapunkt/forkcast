@@ -119,7 +119,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
 
         <section>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-medium">{de.recipes.ingredients}</h3>
+            <h2 className="text-sm font-medium">{de.recipes.ingredients}</h2>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">{de.recipes.servingsLabel}</span>
               {(servings ?? recipe.yield) !== recipe.yield && (
@@ -198,7 +198,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
         </section>
 
         <section>
-          <h3 className="mb-2 text-sm font-medium">{de.recipes.steps}</h3>
+          <h2 className="mb-2 text-sm font-medium">{de.recipes.steps}</h2>
           {recipe.steps.length === 0 ? (
             <p className="text-sm text-muted-foreground">{de.recipes.noSteps}</p>
           ) : (

@@ -95,7 +95,7 @@ function PhotoViewer({ urls, index, onIndexChange, onClose }: ViewerProps) {
       </div>
 
       <div className="flex flex-1 items-center justify-center overflow-hidden p-2" onClick={(e) => e.stopPropagation()}>
-        <img src={urls[index]} alt="" className="max-h-full max-w-full object-contain" />
+        <img src={urls[index]} alt={c.photoAlt(index + 1, count)} className="max-h-full max-w-full object-contain" />
       </div>
 
       {count > 1 && (

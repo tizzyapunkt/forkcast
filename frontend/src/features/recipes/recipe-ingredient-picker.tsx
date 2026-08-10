@@ -219,7 +219,7 @@ function CandidateSection({
               <span className="min-w-0 flex-1 truncate font-medium">{candidate.name}</span>
               <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                 {resolvingName === candidate.name && <span>{c.resolving}</span>}
-                <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                <span className="rounded bg-muted px-1 py-0.5 text-[11px] font-semibold tracking-wide uppercase">
                   {candidate.source}
                 </span>
               </span>

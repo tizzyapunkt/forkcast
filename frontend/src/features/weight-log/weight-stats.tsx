@@ -55,7 +55,7 @@ function StatCard({ title, value, hint }: { title: string; value: string; hint?:
     <Card padding="sm">
       <p className="text-xs text-muted-foreground">{title}</p>
       <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
-      {hint && <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] leading-tight text-muted-foreground">{hint}</p>}
     </Card>
   );
 }

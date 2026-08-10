@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { AppHeader } from '../../components/app/app-header';
 import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
-import { WeightTrackerScreen } from '../weight-log/weight-tracker-screen';
 import { CatalogPanel } from './catalog-panel';
 import { CatalogManagerScreen } from '../food-catalog/catalog-manager-screen';
 import { DiagnosticsScreen } from '../diagnostics/diagnostics-screen';
 import { useAuth } from '../auth/use-auth';
 import { de } from '../../i18n/de';
 import { Button } from '../../components/ui/button';
+
+// Lazy: recharts (weight-chart) only downloads once the user opens the tracker,
+// instead of shipping in every settings-screen bundle.
+const WeightTrackerScreen = lazy(() =>
+  import('../weight-log/weight-tracker-screen').then((m) => ({ default: m.WeightTrackerScreen })),
+);
 
 type View = 'main' | 'weight-tracker' | 'catalog' | 'diagnostics';
 
@@ -21,7 +26,11 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
   const { logout } = useAuth();
 
   if (view === 'weight-tracker') {
-    return <WeightTrackerScreen onBack={() => setView('main')} />;
+    return (
+      <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">{de.weightLog.loading}</p>}>
+        <WeightTrackerScreen onBack={() => setView('main')} />
+      </Suspense>
+    );
   }
 
   if (view === 'catalog') {

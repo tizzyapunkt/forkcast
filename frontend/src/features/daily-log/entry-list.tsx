@@ -69,10 +69,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
   const label = recipeName ?? de.entryList.fallbackRecipeName;
 
   return (
-    <div
-      data-testid={`recipe-batch-${batchId}`}
-      className="rounded-md border border-l-2 border-l-primary/60 bg-accent/5 px-2.5 pb-0.5 pt-1.5"
-    >
+    <div data-testid={`recipe-batch-${batchId}`} className="rounded-md border bg-accent/5 px-2.5 pb-0.5 pt-1.5">
       <div className="flex items-center gap-1.5">
         <BookOpen size={13} aria-hidden="true" className="shrink-0 text-primary" />
         <span className="min-w-0 flex-1 truncate text-xs font-semibold text-primary">{label}</span>
@@ -86,7 +83,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           onClick={() => removeMutation.mutate({ recipeBatchId: batchId, date: first.date })}
           disabled={removeMutation.isPending}
           aria-label={de.entryList.removeGroupAria(label)}
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground hover:text-destructive disabled:opacity-50"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground hover:text-destructive disabled:opacity-50 sm:h-6 sm:w-6"
         >
           <X size={14} aria-hidden="true" />
         </button>

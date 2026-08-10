@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-10T11:45:00Z",
+  "title": "Design System: forkcast",
+  "extensions": {
+    "colorMeta": {
+      "training-indigo": {
+        "role": "primary",
+        "displayName": "Training Indigo",
+        "canonical": "hsl(244 36% 44%)",
+        "tonalRamp": ["hsl(244 36% 15%)", "hsl(244 36% 28%)", "hsl(244 36% 41%)", "hsl(244 36% 54%)", "hsl(244 36% 67%)", "hsl(244 36% 80%)", "hsl(244 36% 88%)", "hsl(244 36% 95%)"]
+      },
+      "training-indigo-gradient-start": {
+        "role": "primary",
+        "displayName": "Training Indigo Gradient Start",
+        "canonical": "hsl(244 36% 47%)",
+        "tonalRamp": ["hsl(244 36% 15%)", "hsl(244 36% 28%)", "hsl(244 36% 41%)", "hsl(244 36% 54%)", "hsl(244 36% 67%)", "hsl(244 36% 80%)", "hsl(244 36% 88%)", "hsl(244 36% 95%)"]
+      },
+      "training-indigo-gradient-end": {
+        "role": "primary",
+        "displayName": "Training Indigo Gradient End",
+        "canonical": "hsl(244 38% 40%)",
+        "tonalRamp": ["hsl(244 38% 15%)", "hsl(244 38% 28%)", "hsl(244 38% 41%)", "hsl(244 38% 54%)", "hsl(244 38% 67%)", "hsl(244 38% 80%)", "hsl(244 38% 88%)", "hsl(244 38% 95%)"]
+      },
+      "bright-periwinkle": {
+        "role": "secondary",
+        "displayName": "Bright Periwinkle",
+        "canonical": "hsl(249 72% 65%)",
+        "tonalRamp": ["hsl(249 72% 15%)", "hsl(249 72% 28%)", "hsl(249 72% 41%)", "hsl(249 72% 54%)", "hsl(249 72% 67%)", "hsl(249 72% 80%)", "hsl(249 72% 88%)", "hsl(249 72% 95%)"]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "hsl(300 100% 99%)",
+        "tonalRamp": ["hsl(300 100% 15%)", "hsl(300 100% 28%)", "hsl(300 100% 41%)", "hsl(300 100% 54%)", "hsl(300 100% 67%)", "hsl(300 100% 80%)", "hsl(300 100% 88%)", "hsl(300 100% 95%)"]
+      },
+      "lavender-surface": {
+        "role": "neutral",
+        "displayName": "Lavender Surface",
+        "canonical": "hsl(240 100% 98%)",
+        "tonalRamp": ["hsl(240 100% 15%)", "hsl(240 100% 28%)", "hsl(240 100% 41%)", "hsl(240 100% 54%)", "hsl(240 100% 67%)", "hsl(240 100% 80%)", "hsl(240 100% 88%)", "hsl(240 100% 95%)"]
+      },
+      "soft-lavender": {
+        "role": "neutral",
+        "displayName": "Soft Lavender",
+        "canonical": "hsl(240 33% 94%)",
+        "tonalRamp": ["hsl(240 33% 15%)", "hsl(240 33% 28%)", "hsl(240 33% 41%)", "hsl(240 33% 54%)", "hsl(240 33% 67%)", "hsl(240 33% 80%)", "hsl(240 33% 88%)", "hsl(240 33% 95%)"]
+      },
+      "lavender-border": {
+        "role": "neutral",
+        "displayName": "Lavender Border",
+        "canonical": "hsl(240 9% 78%)",
+        "tonalRamp": ["hsl(240 9% 15%)", "hsl(240 9% 28%)", "hsl(240 9% 41%)", "hsl(240 9% 54%)", "hsl(240 9% 67%)", "hsl(240 9% 80%)", "hsl(240 9% 88%)", "hsl(240 9% 95%)"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "hsl(0 0% 20%)",
+        "tonalRamp": ["hsl(0 0% 15%)", "hsl(0 0% 28%)", "hsl(0 0% 41%)", "hsl(0 0% 54%)", "hsl(0 0% 67%)", "hsl(0 0% 80%)", "hsl(0 0% 88%)", "hsl(0 0% 95%)"]
+      },
+      "alert-red": {
+        "role": "status",
+        "displayName": "Alert Red",
+        "canonical": "hsl(0 84% 60%)",
+        "tonalRamp": ["hsl(0 84% 15%)", "hsl(0 84% 28%)", "hsl(0 84% 41%)", "hsl(0 84% 54%)", "hsl(0 84% 67%)", "hsl(0 84% 80%)", "hsl(0 84% 88%)", "hsl(0 84% 95%)"]
+      },
+      "macro-protein": {
+        "role": "identity",
+        "displayName": "Protein Green",
+        "canonical": "hsl(146 52% 43%)",
+        "tonalRamp": ["hsl(146 52% 15%)", "hsl(146 52% 28%)", "hsl(146 52% 41%)", "hsl(146 52% 54%)", "hsl(146 52% 67%)", "hsl(146 52% 80%)", "hsl(146 52% 88%)", "hsl(146 52% 95%)"]
+      },
+      "macro-carb": {
+        "role": "identity",
+        "displayName": "Carb Amber",
+        "canonical": "hsl(28 80% 52%)",
+        "tonalRamp": ["hsl(28 80% 15%)", "hsl(28 80% 28%)", "hsl(28 80% 41%)", "hsl(28 80% 54%)", "hsl(28 80% 67%)", "hsl(28 80% 80%)", "hsl(28 80% 88%)", "hsl(28 80% 95%)"]
+      },
+      "macro-fat": {
+        "role": "identity",
+        "displayName": "Fat Blue",
+        "canonical": "hsl(199 70% 48%)",
+        "tonalRamp": ["hsl(199 70% 15%)", "hsl(199 70% 28%)", "hsl(199 70% 41%)", "hsl(199 70% 54%)", "hsl(199 70% 67%)", "hsl(199 70% 80%)", "hsl(199 70% 88%)", "hsl(199 70% 95%)"]
+      }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "Screen/sub-screen name in the sticky header — the only heading-weight text in the app." },
+      "body": { "displayName": "Body", "purpose": "Default control and copy size on desktop." },
+      "body-mobile-input": { "displayName": "Body (mobile input)", "purpose": "Text/decimal inputs on mobile; 16px is load-bearing against iOS Safari zoom-on-focus." },
+      "label": { "displayName": "Label", "purpose": "Field labels, hints, error text, nav labels, macro captions." },
+      "micro": { "displayName": "Micro", "purpose": "Floor of the type scale, one size (11px): uppercase tracking-wider eyebrows and sparing sentence-case captions, reused across ~15 files." }
+    },
+    "shadows": [
+      { "name": "header-lift", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Sticky AppHeader separating pinned chrome from scrolled content." },
+      { "name": "overlay-lift", "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", "purpose": "BottomSheet and other content floating above the base page." }
+    ],
+    "motion": [
+      { "name": "color-transition", "value": "background-color 150ms, color 150ms, border-color 150ms", "purpose": "Default hover/focus state change on buttons, inputs, and nav items — no motion beyond a plain color shift." },
+      { "name": "sheet-height", "value": "height 200ms", "purpose": "BottomSheet height transitions between fixed and content-sized." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary action of a screen or sheet.",
+      "html": "<button class=\"ds-btn-primary\">Speichern</button>",
+      "css": ".ds-btn-primary { background: hsl(244 36% 44%); color: hsl(0 0% 100%); padding: 8px 16px; font-size: 0.875rem; font-weight: 500; border-radius: 6px; border: none; transition: background-color 150ms; } .ds-btn-primary:hover { background: hsl(244 36% 44% / 0.9); } .ds-btn-primary:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action next to a primary one (cancel, alternative path).",
+      "html": "<button class=\"ds-btn-outline\">Abbrechen</button>",
+      "css": ".ds-btn-outline { background: hsl(300 100% 99%); color: hsl(0 0% 20%); padding: 8px 16px; font-size: 0.875rem; font-weight: 500; border-radius: 6px; border: 1px solid hsl(240 9% 78%); transition: background-color 150ms; } .ds-btn-outline:hover { background: hsl(240 33% 94%); } .ds-btn-outline:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; }"
+    },
+    {
+      "name": "Destructive Outline Button",
+      "kind": "button",
+      "refersTo": "button-destructiveOutline",
+      "description": "Opens a removal (asks for confirmation first) — stays quieter than the filled destructive button.",
+      "html": "<button class=\"ds-btn-destructive-outline\">Löschen</button>",
+      "css": ".ds-btn-destructive-outline { background: transparent; color: hsl(0 84% 60%); padding: 8px 16px; font-size: 0.875rem; font-weight: 500; border-radius: 6px; border: 1px solid hsl(0 84% 60%); transition: background-color 150ms; } .ds-btn-destructive-outline:hover { background: hsl(0 84% 60% / 0.1); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Inline, link-like action inside dense lists and cards.",
+      "html": "<button class=\"ds-btn-ghost\">Bearbeiten</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: hsl(244 36% 44%); padding: 4px 12px; font-size: 0.75rem; font-weight: 500; border: none; border-radius: 6px; transition: color 150ms; } .ds-btn-ghost:hover { color: hsl(244 36% 44% / 0.8); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "The app's text/decimal input. text-base on mobile is load-bearing against iOS Safari zoom-on-focus.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"120\" />",
+      "css": ".ds-input { background: hsl(300 100% 99%); color: hsl(0 0% 20%); border: 1px solid hsl(240 9% 78%); border-radius: 6px; padding: 8px 12px; font-size: 0.875rem; min-width: 0; } .ds-input:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The app's surface primitive — flat, bordered, no shadow.",
+      "html": "<section class=\"ds-card\">Card content</section>",
+      "css": ".ds-card { background: hsl(240 100% 98%); border: 1px solid hsl(240 9% 78%); border-radius: 8px; padding: 16px; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented-control",
+      "description": "Signature component: picks exactly one of a handful of mutually exclusive, always-visible options via hidden native radios.",
+      "html": "<div class=\"ds-segmented\" role=\"radiogroup\"><label class=\"ds-segmented-option ds-segmented-option--selected\">Woche</label><label class=\"ds-segmented-option\">Monat</label></div>",
+      "css": ".ds-segmented { display: flex; gap: 8px; } .ds-segmented-option { flex: 1; border-radius: 6px; border: 1px solid hsl(240 9% 78%); padding: 8px 12px; text-align: center; font-size: 0.875rem; cursor: pointer; } .ds-segmented-option--selected { border-color: hsl(244 36% 44%); background: hsl(244 36% 44% / 0.1); font-weight: 500; }"
+    },
+    {
+      "name": "Bottom Sheet",
+      "kind": "custom",
+      "refersTo": "bottom-sheet",
+      "description": "Signature component: portal-rendered drawer used for every full-screen form/picker/search flow instead of a route change.",
+      "html": "<div class=\"ds-sheet-backdrop\"></div><div class=\"ds-sheet\" role=\"dialog\" aria-modal=\"true\"><div class=\"ds-sheet-handle\"></div><div class=\"ds-sheet-body\">Sheet content</div></div>",
+      "css": ".ds-sheet-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.4); } .ds-sheet { position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px 12px 0 0; background: hsl(300 100% 99%); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); height: 82dvh; } .ds-sheet-handle { margin: 8px auto 0; height: 4px; width: 40px; flex-shrink: 0; border-radius: 9999px; background: hsl(240 33% 94%); }"
+    },
+    {
+      "name": "App Header",
+      "kind": "nav",
+      "refersTo": "app-header",
+      "description": "Signature component: sticky indigo-gradient header naming the current screen, with optional macro-goal cells.",
+      "html": "<header class=\"ds-header\"><h1 class=\"ds-header-title\">Tagebuch</h1></header>",
+      "css": ".ds-header { position: sticky; top: 0; background-image: linear-gradient(160deg, hsl(244 36% 47%), hsl(244 38% 40%)); border-bottom: 1px solid rgb(0 0 0 / 0.1); padding: 12px 16px; color: white; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-header-title { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Training Kitchen",
+    "overview": "forkcast treats meal planning and fitness/weight goals as one discipline, not two apps stitched together: the same screen that plans Tuesday's dinner also reads against the macro goal driving it. The visual language matches that — a precision instrument built for someone with a full-time job and a young family, meant to be operated correctly in seconds, not admired. Training Indigo is the single signature note (primary actions, the sticky header gradient); everything else stays quiet — flat lavender-tinted neutrals, thin borders, no decorative texture — so the indigo and the three fixed macro-identity colors (protein green, carb amber, fat blue) are the only things that ever call for attention.\n\nDensity is deliberately high but never cramped: dense rows (ingredient amounts, log entries) use the sm control size and tabular numerals so figures line up; primary screens use the roomier md size that clears a comfortable tap target. The system has no ornamental flourish, no illustration, no imagery — it is entirely typographic and color-coded, and German-only (lang=\"de\", no i18n abstraction beyond the single locale).",
+    "keyCharacteristics": [
+      "One accent color (Training Indigo) for commitment/primary action; a brighter sibling (Bright Periwinkle) for focus and interactive accents only",
+      "Flat-at-rest, bordered surfaces; shadow reserved for things floating above the page",
+      "Fixed three-color macro identity system (protein/carb/fat) that never changes meaning",
+      "System font stack only — no custom typeface, no display type",
+      "Tight, native-app-like density with iOS-safe input sizing (16px minimum on mobile)"
+    ],
+    "rules": [
+      { "name": "The One Indigo Rule", "body": "Training Indigo fills at most one control per screen — the single primary action or the header. Every other button variant stays neutral or uses indigo as text only, never as a second fill competing with the primary action.", "section": "colors" },
+      { "name": "The Macro Identity Rule", "body": "Protein/carb/fat always render in their fixed green/amber/blue identity color for the dot and bar. Only the accompanying value text may re-tint for status; the identity color itself never changes meaning.", "section": "colors" },
+      { "name": "The No-Display-Type Rule", "body": "There is no hero/display type scale. The 18px header title is the ceiling.", "section": "typography" },
+      { "name": "The Micro-Is-The-Floor Rule", "body": "11px is the smallest text the system uses — one size, not a shrinking ramp. Below Label, text is either an uppercase tracking-wider eyebrow or a sparing one-line caption; it is never a shrunk paragraph.", "section": "typography" },
+      { "name": "The Flat-at-Rest Rule", "body": "Surfaces are flat and bordered at rest. Shadow is reserved for things literally floating above the page (sticky header, sheets, dialogs) — never used to add weight to an ordinary card or button.", "section": "elevation" },
+      { "name": "The Two-Radius Rule", "body": "Interactive controls (buttons, inputs, segmented-control options) use md (6px). Containers that hold content (cards) use lg (8px). Full-screen overlays (the bottom sheet) use xl (12px) on their leading edge only.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Training Indigo to one fill per screen (the primary action or the header)",
+      "Do use the fixed macro green/amber/blue for protein/carb/fat identity everywhere they appear, never reassigned",
+      "Do use text-base (16px) for any text input rendered on mobile — smaller sizes trigger iOS Safari's zoom-on-focus",
+      "Do route full-screen forms/pickers through BottomSheet rather than a new route, keeping the header/nav context in place",
+      "Do keep numeric values tabular (tabular-nums) wherever a figure updates or several must align in a column"
+    ],
+    "donts": [
+      "Don't add a shadow to an element that isn't literally floating above the page",
+      "Don't introduce a display/hero type size — 18px semibold is the ceiling",
+      "Don't fill a second control with Training Indigo on the same screen as the primary action; use outline or ghost instead",
+      "Don't reuse a macro-identity color (protein/carb/fat) for anything other than that macro"
+    ]
+  }
+}

@@ -127,8 +127,12 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
               className="relative overflow-hidden rounded-md border bg-card"
               data-testid={`staged-photo-${idx}`}
             >
-              <img src={photo.previewUrl} alt="" className="aspect-square w-full object-cover" />
-              <span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+              <img
+                src={photo.previewUrl}
+                alt={de.aiRecipeImport.photoAlt(idx + 1)}
+                className="aspect-square w-full object-cover"
+              />
+              <span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">
                 {idx + 1}
               </span>
               <div className="absolute right-1 bottom-1 flex gap-1">
@@ -137,7 +141,7 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
                   onClick={() => move(idx, -1)}
                   disabled={idx === 0}
                   aria-label={de.aiRecipeImport.moveUp(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[10px] text-white disabled:opacity-40"
+                  className="rounded bg-black/60 px-1.5 text-[11px] text-white disabled:opacity-40"
                 >
                   ↑
                 </button>
@@ -146,7 +150,7 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
                   onClick={() => move(idx, 1)}
                   disabled={idx === photos.length - 1}
                   aria-label={de.aiRecipeImport.moveDown(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[10px] text-white disabled:opacity-40"
+                  className="rounded bg-black/60 px-1.5 text-[11px] text-white disabled:opacity-40"
                 >
                   ↓
                 </button>
@@ -154,7 +158,7 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
                   type="button"
                   onClick={() => remove(idx)}
                   aria-label={de.aiRecipeImport.removePhoto(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[10px] text-white"
+                  className="rounded bg-black/60 px-1.5 text-[11px] text-white"
                 >
                   ✕
                 </button>
