@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "module": "dist-ui/forkcast-ui.js",
+  "types": "dist-ui/types/components/ui/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
