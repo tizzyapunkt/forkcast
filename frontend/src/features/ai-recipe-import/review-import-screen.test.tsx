@@ -572,6 +572,19 @@ describe('ReviewImportScreen', () => {
             },
           ]),
         ),
+        http.post('/api/confirm-ingredient-resolution', () =>
+          HttpResponse.json({
+            ingredient: {
+              matched: true,
+              name: 'Oregano',
+              unit: 'g',
+              macrosPerUnit: { calories: 2.65, protein: 0.09, carbs: 0.69, fat: 0.043 },
+              amount: 2,
+              unitOverridden: false,
+              source: 'CATALOG',
+            },
+          }),
+        ),
       );
       renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);
 
@@ -780,6 +793,21 @@ describe('ReviewImportScreen', () => {
               macrosPerUnit: { calories: 0.5, protein: 0.015, carbs: 0.16, fat: 0.003 },
             },
           ]),
+        ),
+        // The pick teaches "Yuzu-Schale" as an alias of the picked entry, so the resolved
+        // row comes back from confirm rather than being built client-side.
+        http.post('/api/confirm-ingredient-resolution', () =>
+          HttpResponse.json({
+            ingredient: {
+              matched: true,
+              name: 'Zitronenschale',
+              unit: 'g',
+              macrosPerUnit: { calories: 0.5, protein: 0.015, carbs: 0.16, fat: 0.003 },
+              amount: 2,
+              unitOverridden: false,
+              source: 'CATALOG',
+            },
+          }),
         ),
         http.post('/api/add-recipe', async ({ request }) => {
           captured = (await request.json()) as typeof captured;

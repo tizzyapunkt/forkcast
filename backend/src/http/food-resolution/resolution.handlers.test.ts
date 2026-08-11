@@ -147,6 +147,41 @@ describe('POST /confirm-ingredient-resolution', () => {
     expect(res.status).toBe(400);
   });
 
+  it('stores an entry renamed in the resolve sheet under an id derived from the new name', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const res = await post(confirmApp(catalog), {
+      kind: 'new-food',
+      entry: {
+        id: 'duenne-reisnudeln',
+        name: 'Reisnudeln',
+        synonyms: ['dünne Reisnudeln'],
+        unit: 'g',
+        macrosPer100: { calories: 360, protein: 6, carbs: 82, fat: 0.5 },
+      },
+      original: { amount: 200, unit: 'g', note: 'dünne' },
+    });
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { ingredient: { name: string; amount: number; note?: string } };
+    expect(body.ingredient).toMatchObject({ name: 'Reisnudeln', amount: 200, note: 'dünne' });
+    expect(catalog.findById('duenne-reisnudeln')).toBeNull();
+    expect(catalog.findById('reisnudeln')?.synonyms).toEqual(['dünne Reisnudeln']);
+  });
+
+  it('422s on an entry whose name yields no usable id', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const res = await post(confirmApp(catalog), {
+      kind: 'new-food',
+      entry: { ...kirsch, name: '???' },
+      original: { amount: 50 },
+    });
+
+    expect(res.status).toBe(422);
+    expect(catalog.list()).toEqual([]);
+  });
+
   it('confirms a synonym against a catalog entry', async () => {
     const catalog = new FakeCatalogStore([oliven]);
 

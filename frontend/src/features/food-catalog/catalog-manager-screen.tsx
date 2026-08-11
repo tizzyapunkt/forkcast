@@ -14,17 +14,10 @@ import {
 } from '../../queries/use-catalog';
 import { ApiError } from '../../api/client';
 import { de } from '../../i18n/de';
+import { fold } from '../../lib/fold';
 import type { CatalogEntry, CatalogEntryDraft } from '../../domain/food-catalog';
 
 const t = de.catalog;
-
-/** Same folding rule as the backend search, so the filter matches what the picker would find. */
-function fold(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
-}
 
 type EditorState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; entry: CatalogEntry };
 

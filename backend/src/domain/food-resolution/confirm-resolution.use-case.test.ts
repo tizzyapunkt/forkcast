@@ -112,6 +112,104 @@ describe('confirmResolution — new-food', () => {
     expect(catalog.list()).toEqual([kirsch]);
   });
 
+  it('persists a renamed entry under an id derived from its canonical name', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: {
+          id: 'duenne-reisnudeln',
+          name: 'Reisnudeln',
+          synonyms: ['dünne Reisnudeln'],
+          unit: 'g',
+          macrosPer100: { calories: 360, protein: 6, carbs: 82, fat: 0.5 },
+        },
+        original: { amount: 200, unit: 'g' },
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(catalog.findById('duenne-reisnudeln')).toBeNull();
+    expect(catalog.findById('reisnudeln')).toMatchObject({
+      id: 'reisnudeln',
+      name: 'Reisnudeln',
+      synonyms: ['dünne Reisnudeln'],
+    });
+  });
+
+  it('keeps the proposed id when the name was not edited', async () => {
+    const catalog = new FakeCatalogStore();
+
+    await confirmResolution({ catalog }, { kind: 'new-food', entry: kirsch, original: { amount: 50 } });
+
+    expect(catalog.findById('kirschtomaten')).toEqual(kirsch);
+  });
+
+  it('drops a submitted synonym that folds to the canonical name', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: { ...kirsch, synonyms: ['KIRSCHTOMATEN', 'Cocktailtomaten'] },
+        original: { amount: 50 },
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(catalog.findById('kirschtomaten')?.synonyms).toEqual(['Cocktailtomaten']);
+  });
+
+  it('deduplicates submitted synonyms case- and diacritic-insensitively, keeping the first spelling', async () => {
+    const catalog = new FakeCatalogStore();
+
+    await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: { ...kirsch, synonyms: ['Cocktailtomaten', 'cocktailtomaten', 'Kirschtomätchen', 'Kirschtomatchen'] },
+        original: { amount: 50 },
+      },
+    );
+
+    expect(catalog.findById('kirschtomaten')?.synonyms).toEqual(['Cocktailtomaten', 'Kirschtomätchen']);
+  });
+
+  it('rejects a name that yields no id with 422 and persists nothing', async () => {
+    const catalog = new FakeCatalogStore();
+
+    const result = await confirmResolution(
+      { catalog },
+      { kind: 'new-food', entry: { ...kirsch, name: '???' }, original: { amount: 50 } },
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.status).toBe(422);
+    expect(catalog.list()).toEqual([]);
+  });
+
+  it('rejects a derived id that collides with an existing entry with 409', async () => {
+    const catalog = new FakeCatalogStore([{ ...kirsch, id: 'reisnudeln', name: 'Reisnudeln' }]);
+
+    const result = await confirmResolution(
+      { catalog },
+      {
+        kind: 'new-food',
+        entry: { ...kirsch, id: 'duenne-reisnudeln', name: 'Reisnudeln' },
+        original: { amount: 200 },
+      },
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.status).toBe(409);
+    expect(catalog.list()).toHaveLength(1);
+  });
+
   it('rejects a folded-name collision with 409', async () => {
     const catalog = new FakeCatalogStore([{ ...kirsch, id: 'andere', name: 'kirschtomaten' }]);
 

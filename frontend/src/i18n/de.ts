@@ -648,6 +648,18 @@ export const de = {
       synonymExplain: (raw: string, food: string) =>
         `„${raw}“ wird als Synonym für ${food} gelernt — künftig automatisch erkannt.`,
       synonymOtherLink: 'Anderes Lebensmittel wählen',
+      rejectSynonymLink: 'Stattdessen eigenen Eintrag anlegen',
+      draftingTitle: 'KI erstellt einen Eintrag…',
+      synonymsLabel: 'Synonyme',
+      synonymAddPlaceholder: 'Synonym hinzufügen',
+      synonymAdd: 'Hinzufügen',
+      synonymRemoveAria: (s: string) => `Synonym „${s}“ entfernen`,
+      noteLabel: 'Notiz für dieses Rezept',
+      notePlaceholder: 'z. B. dünne',
+      noteHint: 'Gilt nur für diese Zutat im Rezept, nicht für den Katalogeintrag.',
+      synonymLabel: 'Wird gelernt als',
+      learnSynonymToggle: (raw: string) => `„${raw}“ als Synonym lernen`,
+      learnSynonymHint: 'Künftig automatisch erkannt.',
       // skip / error
       noProposalTitle: 'Kein KI-Vorschlag',
       noProposalBody: (raw: string) =>

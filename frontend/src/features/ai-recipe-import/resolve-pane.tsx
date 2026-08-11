@@ -1,25 +1,34 @@
 import { useEffect, useState } from 'react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
-import { DecimalInput } from '../../components/ui/decimal-input';
-import { SearchPanel } from '../log-ingredient/search-panel';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
+import { useDraftCatalogEntry } from '../../queries/use-catalog';
 import { de } from '../../i18n/de';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MacrosPerUnit, MeasurementUnit } from '../../domain/meal-log';
 import type { MatchedDraftIngredient, PieceQuantity } from '../../domain/recipes';
 import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
+import { fold } from '../../lib/fold';
+import { droppedQualifier } from './dropped-qualifier';
+import { ManualMatch } from './resolve-manual-match';
+import { NewFoodEditor } from './resolve-new-food-editor';
+import { SynonymProposal } from './resolve-synonym-proposal';
 import type {
   ConfirmResolutionPayload,
   FoodEntryDraft,
   OriginalDraftFields,
-  ResolutionConfidence,
   ResolutionProposal,
 } from '../../domain/food-resolution';
 
 export type ProposalState = 'loading' | 'ready' | 'error';
 export type ResolveContext = 'import' | 'create';
+
+/**
+ * Which body the sheet shows. `proposal` renders whatever verdict came back;
+ * the other two are user overrides of it, so the verdict alone can no longer
+ * decide what is on screen.
+ */
+type ResolveMode = 'proposal' | 'new-food' | 'manual';
 
 /** The unmatched line (or search query) being resolved. */
 export interface ResolveItem {
@@ -45,12 +54,6 @@ interface ResolvePaneProps {
   onRetry: () => void;
   onClose: () => void;
 }
-
-const CONFIDENCE_LABEL: Record<ResolutionConfidence, string> = {
-  high: de.aiRecipeImport.resolve.confidenceHigh,
-  medium: de.aiRecipeImport.resolve.confidenceMedium,
-  low: de.aiRecipeImport.resolve.confidenceLow,
-};
 
 function perUnit(macrosPer100: MacrosPerUnit): MacrosPerUnit {
   return {
@@ -104,17 +107,94 @@ export function ResolvePane({
   const [draft, setDraft] = useState<FoodEntryDraft | null>(() =>
     proposal?.verdict === 'new-food' ? { ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } } : null,
   );
+  /** The name the draft arrived under — retained as a synonym once the user renames it. */
+  const [proposedName, setProposedName] = useState<string | null>(() =>
+    proposal?.verdict === 'new-food' ? proposal.entry.name : null,
+  );
+  const [retainProposedName, setRetainProposedName] = useState(true);
   // The sheet often mounts before the proposal arrives (prefetch / create flow), so the
   // useState initializer above sees a null proposal. Seed the editable draft once the
   // new-food proposal lands; the `draft === null` guard preserves any edits the user made.
   useEffect(() => {
     if (proposal?.verdict === 'new-food' && draft === null) {
       setDraft({ ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } });
+      setProposedName(proposal.entry.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposal]);
-  const [manual, setManual] = useState(false);
+  const [mode, setMode] = useState<ResolveMode>('proposal');
+  const [returnMode, setReturnMode] = useState<ResolveMode>('proposal');
+  /** A manual pick teaches the catalog the raw name, unless the user says it is no alias. */
+  const [learnSynonym, setLearnSynonym] = useState(true);
+  /** The alias a synonym verdict will store — editable, so a too-specific one can be trimmed. */
+  const [synonymText, setSynonymText] = useState(() =>
+    proposal?.verdict === 'synonym-of' ? proposal.synonym : item.name,
+  );
+  useEffect(() => {
+    if (proposal?.verdict === 'synonym-of') setSynonymText(proposal.synonym);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proposal]);
   const confirmMutation = useConfirmResolution();
+  const draftMutation = useDraftCatalogEntry();
+
+  function goTo(next: ResolveMode) {
+    setReturnMode(mode);
+    setMode(next);
+  }
+
+  /**
+   * Reject a synonym verdict and build an own entry for the raw name instead.
+   * The draft is fetched once — coming back to a draft already on screen keeps
+   * whatever the user edited into it.
+   */
+  function rejectSynonymForOwnEntry() {
+    goTo('new-food');
+    if (draft !== null || draftMutation.isPending) return;
+    setProposedName(item.name);
+    draftMutation.mutate(item.name, {
+      onSuccess: (entry) => setDraft({ ...entry, macrosPer100: { ...entry.macrosPer100 } }),
+      onError: () =>
+        setDraft({
+          id: '',
+          name: item.name,
+          synonyms: [],
+          unit: 'g',
+          macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        }),
+    });
+  }
+
+  /**
+   * The proposed name, still worth keeping as an alias because the user renamed the
+   * entry to something more generic — `null` once they drop it or rename back.
+   */
+  const retainedName =
+    draft && proposedName !== null && retainProposedName && fold(draft.name) !== fold(proposedName)
+      ? proposedName
+      : null;
+  const synonyms = draft ? (retainedName ? [...draft.synonyms, retainedName] : draft.synonyms) : [];
+
+  function setSynonyms(next: string[]) {
+    if (!draft) return;
+    if (retainedName !== null && !next.some((s) => fold(s) === fold(retainedName))) {
+      setRetainProposedName(false);
+    }
+    setDraft({ ...draft, synonyms: next.filter((s) => retainedName === null || fold(s) !== fold(retainedName)) });
+  }
+
+  // The recipe row's note. Renaming the entry to something generic leaves the recipe's
+  // own qualifier ("dünne") homeless, so it is offered here — until the user types.
+  const [note, setNote] = useState('');
+  const [noteEdited, setNoteEdited] = useState(false);
+  const statedNote = item.note !== undefined && item.note.trim().length > 0 ? item.note : '';
+  const noteValue = noteEdited ? note : statedNote || (draft ? droppedQualifier(item.name, draft.name) : '');
+
+  function original(): OriginalDraftFields {
+    const fields = originalFields(item);
+    if (noteValue.trim().length > 0) fields.note = noteValue;
+    else delete fields.note;
+    return fields;
+  }
 
   function emitResolved(result: { ingredient: MatchedDraftIngredient; created?: IngredientSearchResult }) {
     if (isCreate && result.created && onCreated) onCreated(result.created);
@@ -128,7 +208,8 @@ export function ResolvePane({
 
   function confirmNewFood() {
     if (!draft) return;
-    void submit({ kind: 'new-food', entry: draft, original: originalFields(item) }, draftToSearchResult(draft));
+    const entry: FoodEntryDraft = { ...draft, synonyms };
+    void submit({ kind: 'new-food', entry, original: original() }, draftToSearchResult(entry));
   }
 
   function confirmSynonym() {
@@ -142,13 +223,32 @@ export function ResolvePane({
       ...(proposal.food.untracked ? { untracked: true as const } : {}),
     };
     void submit(
-      { kind: 'synonym', foodId: proposal.foodId, synonym: proposal.synonym, original: originalFields(item) },
+      {
+        kind: 'synonym',
+        foodId: proposal.foodId,
+        synonym: synonymText.trim() || proposal.synonym,
+        original: original(),
+      },
       created,
     );
   }
 
-  /** Manual catalog pick — an existing food, no persistence needed; build the row client-side. */
-  function pickManual(result: IngredientSearchResult) {
+  /**
+   * Whether picking `result` teaches the catalog anything. Only a catalog entry can
+   * carry an alias (an OFF or SCAN hit has no catalog id, a RECENT one only a
+   * synthetic key), and a raw name that already *is* the entry's name is no alias.
+   */
+  function teachesSynonym(result: IngredientSearchResult): boolean {
+    return (
+      learnSynonym &&
+      result.source === 'CATALOG' &&
+      item.name.trim().length > 0 &&
+      fold(item.name) !== fold(result.name)
+    );
+  }
+
+  /** Resolve against a picked food without touching the catalog. */
+  function resolveLocally(result: IngredientSearchResult) {
     if (isCreate) {
       onCreated?.(result);
       return;
@@ -170,13 +270,70 @@ export function ResolvePane({
     onResolved?.(ingredient);
   }
 
+  /** Manual catalog pick — resolves the row, and teaches the raw name as a synonym unless declined. */
+  function pickManual(result: IngredientSearchResult) {
+    if (!teachesSynonym(result)) {
+      resolveLocally(result);
+      return;
+    }
+    // The note carries the same picker-replace rule as `resolveLocally`: it described the
+    // old food, not this one. A failed write must not block the import, so the row still
+    // resolves — only the alias is lost.
+    const { note: _note, ...withoutNote } = originalFields(item);
+    confirmMutation
+      .mutateAsync({ kind: 'synonym', foodId: result.id, synonym: item.name, original: withoutNote })
+      .then((res) => emitResolved({ ingredient: res.ingredient, created: result }))
+      .catch(() => resolveLocally(result));
+  }
+
   const confirmError = confirmMutation.isError;
+  /** An overridden verdict shows the editor with whatever the per-item draft call produced. */
+  const editorAiAssisted = mode === 'new-food' ? draftMutation.isSuccess : aiAssisted;
 
   let body: React.ReactNode;
   let footer: React.ReactNode = null;
+  /** The note belongs to the recipe row, so it shows wherever a row is about to be confirmed. */
+  let showNote = false;
 
-  if (manual) {
-    body = <ManualMatch onPick={pickManual} onBack={() => setManual(false)} />;
+  if (mode === 'manual') {
+    body = (
+      <ManualMatch
+        onPick={pickManual}
+        onBack={() => setMode(returnMode)}
+        rawName={item.name}
+        learnSynonym={learnSynonym}
+        setLearnSynonym={setLearnSynonym}
+      />
+    );
+  } else if (mode === 'new-food') {
+    body = draft ? (
+      <NewFoodEditor
+        draft={draft}
+        setDraft={setDraft}
+        synonyms={synonyms}
+        setSynonyms={setSynonyms}
+        aiAssisted={editorAiAssisted}
+        onManual={() => goTo('manual')}
+        onBack={() => setMode(returnMode)}
+      />
+    ) : (
+      <DraftingState />
+    );
+    showNote = draft !== null;
+    footer = draft ? (
+      <ConfirmFooter
+        label={isCreate ? t.confirmCreate : t.confirmImport}
+        caption={t.captionNewFood}
+        pending={confirmMutation.isPending}
+        error={confirmError}
+        onCancel={onClose}
+        onConfirm={confirmNewFood}
+      />
+    ) : (
+      <Button variant="outline" onClick={() => setMode(returnMode)} className="h-11 w-full py-0">
+        {t.cancel}
+      </Button>
+    );
   } else if (state === 'loading') {
     body = <LoadingState />;
   } else if (state === 'error') {
@@ -189,7 +346,7 @@ export function ResolvePane({
         </Button>
       </div>
     );
-    footer = <FallbackActions onManual={() => setManual(true)} onDiscard={onDiscard} />;
+    footer = <FallbackActions onManual={() => goTo('manual')} onDiscard={onDiscard} />;
   } else if (!proposal || proposal.verdict === 'skip') {
     body = (
       <div className="flex flex-col gap-3">
@@ -197,9 +354,19 @@ export function ResolvePane({
         <p className="text-sm text-muted-foreground">{t.noProposalBody(item.name)}</p>
       </div>
     );
-    footer = <FallbackActions onManual={() => setManual(true)} onDiscard={onDiscard} />;
+    footer = <FallbackActions onManual={() => goTo('manual')} onDiscard={onDiscard} />;
   } else if (proposal.verdict === 'synonym-of') {
-    body = <SynonymProposal proposal={proposal} rawName={item.name} onManual={() => setManual(true)} />;
+    showNote = true;
+    body = (
+      <SynonymProposal
+        proposal={proposal}
+        rawName={item.name}
+        synonym={synonymText}
+        setSynonym={setSynonymText}
+        onManual={() => goTo('manual')}
+        onRejectForOwnEntry={rejectSynonymForOwnEntry}
+      />
+    );
     footer = (
       <ConfirmFooter
         label={isCreate ? t.confirmCreate : t.confirmImport}
@@ -211,7 +378,17 @@ export function ResolvePane({
       />
     );
   } else if (draft) {
-    body = <NewFoodEditor draft={draft} setDraft={setDraft} aiAssisted={aiAssisted} onManual={() => setManual(true)} />;
+    showNote = true;
+    body = (
+      <NewFoodEditor
+        draft={draft}
+        setDraft={setDraft}
+        synonyms={synonyms}
+        setSynonyms={setSynonyms}
+        aiAssisted={aiAssisted}
+        onManual={() => goTo('manual')}
+      />
+    );
     footer = (
       <ConfirmFooter
         label={isCreate ? t.confirmCreate : t.confirmImport}
@@ -227,7 +404,7 @@ export function ResolvePane({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-2">
-        {context === 'import' && !manual && (
+        {context === 'import' && mode !== 'manual' && (
           <div className="mb-3 rounded-md border border-input bg-accent/40 p-3">
             <span className="text-base font-bold">{item.name}</span>
             {(item.amount != null || item.unit) && (
@@ -239,8 +416,40 @@ export function ResolvePane({
           </div>
         )}
         {body}
+        {showNote && !isCreate && (
+          <label className="mt-3 flex flex-col gap-1">
+            <span className="text-sm font-medium">{t.noteLabel}</span>
+            <Input
+              value={noteValue}
+              onChange={(e) => {
+                setNoteEdited(true);
+                setNote(e.target.value);
+              }}
+              placeholder={t.notePlaceholder}
+              aria-label={t.noteLabel}
+              className="h-10 w-full py-0 text-sm"
+            />
+            <span className="text-[11px] text-muted-foreground">{t.noteHint}</span>
+          </label>
+        )}
       </div>
       {footer && <div className="shrink-0 border-t p-4">{footer}</div>}
+    </div>
+  );
+}
+
+/** The per-item draft call fired by rejecting a synonym verdict. */
+function DraftingState() {
+  return (
+    <div className="flex flex-col gap-3 py-2">
+      <p className="text-sm font-medium text-primary">{t.draftingTitle}</p>
+      <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+      <div className="grid grid-cols-4 gap-2">
+        <div className="h-12 animate-pulse rounded-md bg-muted" />
+        <div className="h-12 animate-pulse rounded-md bg-muted" />
+        <div className="h-12 animate-pulse rounded-md bg-muted" />
+        <div className="h-12 animate-pulse rounded-md bg-muted" />
+      </div>
     </div>
   );
 }
@@ -267,188 +476,6 @@ function FallbackActions({ onManual, onDiscard }: { onManual: () => void; onDisc
       </Button>
       <Button variant="destructiveOutline" onClick={onDiscard} className="h-11 flex-1 py-0">
         {de.aiRecipeImport.discardUnmatched}
-      </Button>
-    </div>
-  );
-}
-
-function ConfidenceChip({ confidence }: { confidence: ResolutionConfidence }) {
-  return (
-    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-      {t.confidence(CONFIDENCE_LABEL[confidence])}
-    </span>
-  );
-}
-
-function SynonymProposal({
-  proposal,
-  rawName,
-  onManual,
-}: {
-  proposal: Extract<ResolutionProposal, { verdict: 'synonym-of' }>;
-  rawName: string;
-  onManual: () => void;
-}) {
-  const { food } = proposal;
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-primary">{t.synonymEyebrow}</span>
-        <ConfidenceChip confidence={proposal.confidence} />
-      </div>
-      <Card padding="sm">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">{food.name}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase">{t.catalogChip}</span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {Math.round(food.macrosPer100.calories)} {t.kcalLabel} · {t.macrosPer(food.unit)}
-        </p>
-      </Card>
-      <p className="text-sm text-muted-foreground">{t.synonymExplain(rawName, food.name)}</p>
-      <Button variant="ghost" onClick={onManual} className="self-start p-0">
-        {t.synonymOtherLink}
-      </Button>
-    </div>
-  );
-}
-
-function NumberField({
-  label,
-  value,
-  estimate,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  estimate: boolean;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-        {label}
-        {estimate && <span className="h-1.5 w-1.5 rounded-full bg-warning" aria-hidden="true" />}
-      </span>
-      <DecimalInput
-        value={Number.isFinite(value) ? value : 0}
-        onValueChange={(v) => onChange(v ?? 0)}
-        className="h-10 w-full rounded-md border px-2 text-right text-sm"
-      />
-    </label>
-  );
-}
-
-function NewFoodEditor({
-  draft,
-  setDraft,
-  aiAssisted,
-  onManual,
-}: {
-  draft: FoodEntryDraft;
-  setDraft: (d: FoodEntryDraft) => void;
-  aiAssisted: boolean;
-  onManual: () => void;
-}) {
-  const setMacro = (k: keyof MacrosPerUnit, v: number) =>
-    setDraft({ ...draft, macrosPer100: { ...draft.macrosPer100, [k]: v } });
-
-  return (
-    <div className="flex flex-col gap-3">
-      <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-        {aiAssisted ? t.newEntryEyebrow : t.newEntryEyebrowManual}
-      </span>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t.nameLabel}</span>
-        <Input
-          value={draft.name}
-          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          aria-label={t.nameLabel}
-          className="h-11 w-full py-0 font-medium"
-        />
-      </label>
-
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <span className="mb-1 block text-sm font-medium">{t.unitLabel}</span>
-          <div className="flex gap-1 rounded-md bg-muted p-1">
-            {(['g', 'ml'] as const).map((u) => (
-              <button
-                key={u}
-                type="button"
-                onClick={() => setDraft({ ...draft, unit: u })}
-                aria-pressed={draft.unit === u}
-                className={`rounded px-4 py-1.5 text-sm font-medium ${
-                  draft.unit === u ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
-                }`}
-              >
-                {u}
-              </button>
-            ))}
-          </div>
-        </div>
-        <label className="flex items-center gap-2 pb-1 text-sm">
-          <input
-            type="checkbox"
-            checked={draft.untracked === true}
-            onChange={(e) => setDraft({ ...draft, untracked: e.target.checked || undefined })}
-            aria-label={t.untrackedToggle}
-            className="h-4 w-4 rounded"
-          />
-          {t.untrackedToggle}
-        </label>
-      </div>
-
-      {draft.untracked !== true && (
-        <div>
-          <span className="mb-1.5 block text-sm font-medium">
-            {t.macrosLabel}{' '}
-            <span className="text-xs font-normal text-muted-foreground">· {t.macrosPer(draft.unit)}</span>
-          </span>
-          <div className="grid grid-cols-4 gap-2">
-            <NumberField
-              label={t.kcalLabel}
-              value={draft.macrosPer100.calories}
-              estimate={aiAssisted}
-              onChange={(v) => setMacro('calories', v)}
-            />
-            <NumberField
-              label={t.proteinLabel}
-              value={draft.macrosPer100.protein}
-              estimate={aiAssisted}
-              onChange={(v) => setMacro('protein', v)}
-            />
-            <NumberField
-              label={t.carbsLabel}
-              value={draft.macrosPer100.carbs}
-              estimate={aiAssisted}
-              onChange={(v) => setMacro('carbs', v)}
-            />
-            <NumberField
-              label={t.fatLabel}
-              value={draft.macrosPer100.fat}
-              estimate={aiAssisted}
-              onChange={(v) => setMacro('fat', v)}
-            />
-          </div>
-          {aiAssisted && <p className="mt-2 text-[11px] text-muted-foreground">{t.aiEstimateHint}</p>}
-        </div>
-      )}
-
-      <Button variant="ghost" onClick={onManual} className="self-start p-0">
-        {t.manualLink}
-      </Button>
-    </div>
-  );
-}
-
-function ManualMatch({ onPick, onBack }: { onPick: (r: IngredientSearchResult) => void; onBack: () => void }) {
-  return (
-    <div className="flex min-h-0 flex-col gap-2">
-      <span className="text-xs font-semibold uppercase tracking-wide text-primary">{t.manualEyebrow}</span>
-      <SearchPanel onSelect={onPick} />
-      <Button variant="ghost" onClick={onBack} className="self-start p-0">
-        {t.manualBack}
       </Button>
     </div>
   );
