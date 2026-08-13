@@ -1,0 +1,75 @@
+version: 2
+
+updates:
+  # pnpm workspace — root lockfile covers backend/ and frontend/
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    groups:
+      # One PR for all routine bumps — reviewed as a batch, not one-by-one.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+      # Majors are grouped per stack so a breaking change lands with its peers
+      # (react + react-dom + @types/*, vite + its plugins, vitest + @vitest/ui).
+      react-major:
+        patterns:
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - major
+      vite-major:
+        patterns:
+          - vite
+          - "@vitejs/*"
+          - vite-plugin-pwa
+        update-types:
+          - major
+      vitest-major:
+        patterns:
+          - vitest
+          - "@vitest/*"
+        update-types:
+          - major
+    ignore:
+      # Node 22 LTS is what the Dockerfiles run — don't drag types ahead of it.
+      - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 3
+    groups:
+      base-images:
+        patterns:
+          - "*"
