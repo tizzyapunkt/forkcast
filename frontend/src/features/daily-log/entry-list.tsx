@@ -3,6 +3,7 @@ import type { LogEntry } from '../../domain/meal-log';
 import { useRecipes } from '../../queries/use-recipes';
 import { useRemoveRecipeLog } from '../../queries/use-remove-recipe-log';
 import { EntryRow } from './entry-row';
+import { Button } from '../../components/ui/button';
 import { de } from '../../i18n/de';
 
 interface EntryListProps {
@@ -78,15 +79,16 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
             {de.entryList.portions(first.recipePortions)}
           </span>
         )}
-        <button
-          type="button"
+        <Button
+          variant="quietDestructive"
+          size="iconSm"
           onClick={() => removeMutation.mutate({ recipeBatchId: batchId, date: first.date })}
           disabled={removeMutation.isPending}
           aria-label={de.entryList.removeGroupAria(label)}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground hover:text-destructive disabled:opacity-50 sm:h-6 sm:w-6"
+          className="-my-1"
         >
           <X size={14} aria-hidden="true" />
-        </button>
+        </Button>
       </div>
       <div className="divide-y">
         {entries.map((entry) => (

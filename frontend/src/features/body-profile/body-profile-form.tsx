@@ -8,6 +8,8 @@ import { useApplyBodyProfileAsGoals } from '../../queries/use-apply-body-profile
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useWeightTrend } from '../../queries/use-weight-trend';
 import { ErrorBanner } from '../../components/app/error-banner';
+import { Banner } from '../../components/ui/banner';
+import { Select } from '../../components/ui/select';
 import { de } from '../../i18n/de';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
 import { PHASE_PRESETS } from './phase-presets';
@@ -218,18 +220,16 @@ export function BodyProfileForm() {
       </h2>
 
       {error && <ErrorBanner error={error} />}
-      {savedFlash === 'profile' && (
-        <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.bodyProfile.saved}</p>
-      )}
-      {savedFlash === 'goals' && (
-        <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.bodyProfile.appliedAsGoals}</p>
-      )}
+      {savedFlash === 'profile' && <Banner tone="success">{de.bodyProfile.saved}</Banner>}
+      {savedFlash === 'goals' && <Banner tone="success">{de.bodyProfile.appliedAsGoals}</Banner>}
 
       {divergence && existing && activeGoal && (
-        <div role="status" className="rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
-          <p className="font-medium">{de.bodyProfile.divergenceTitle}</p>
-          <p>{de.bodyProfile.divergenceBody(existing.computed.targetCalories, activeGoal.calories)}</p>
-        </div>
+        <Banner
+          tone="warning"
+          hint={de.bodyProfile.divergenceBody(existing.computed.targetCalories, activeGoal.calories)}
+        >
+          {de.bodyProfile.divergenceTitle}
+        </Banner>
       )}
 
       <div className="grid grid-cols-2 gap-3">
@@ -294,28 +294,23 @@ export function BodyProfileForm() {
       </div>
 
       <Field htmlFor="bp-activity" label={de.bodyProfile.activity} error={errors.activityFactor?.message}>
-        <select id="bp-activity" {...register('activityFactor')} className={selectCls}>
+        <Select id="bp-activity" {...register('activityFactor')}>
           {ACTIVITY_FACTORS.map((factor) => (
             <option key={factor} value={factor}>
               {ACTIVITY_LABELS[factor]}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
 
       <Field htmlFor="bp-phase" label={de.bodyProfile.phase} error={errors.goalPhase?.message}>
-        <select
-          id="bp-phase"
-          value={values.goalPhase}
-          onChange={(e) => onPhaseChange(e.target.value as GoalPhase)}
-          className={selectCls}
-        >
+        <Select id="bp-phase" value={values.goalPhase} onChange={(e) => onPhaseChange(e.target.value as GoalPhase)}>
           {PHASE_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
@@ -394,8 +389,8 @@ export function BodyProfileForm() {
           <dd className="text-right tabular-nums">{preview.carbsGrams} g</dd>
           {preview.proteinFatExceedsTarget && (
             <>
-              <dt className="col-span-2 mt-2 font-medium text-warning">{de.bodyProfile.warningTitle}</dt>
-              <dd className="col-span-2 text-warning">{de.bodyProfile.warningBody}</dd>
+              <dt className="col-span-2 mt-2 font-medium text-warning-ink">{de.bodyProfile.warningTitle}</dt>
+              <dd className="col-span-2 text-warning-ink">{de.bodyProfile.warningBody}</dd>
             </>
           )}
         </dl>
@@ -417,6 +412,3 @@ export function BodyProfileForm() {
     </form>
   );
 }
-
-// `<select>` has no primitive yet — it keeps the Input base classes inline.
-const selectCls = 'w-full rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm';

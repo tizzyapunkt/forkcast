@@ -68,6 +68,27 @@ describe('Button', () => {
     expect(new Set([primary, outline, destructive, destructiveOutline, ghost]).size).toBe(5);
   });
 
+  it('styles each icon variant differently', () => {
+    const { rerender } = render(<Button variant="quiet" size="iconSm" aria-label="x" />);
+    const quiet = screen.getByRole('button').className;
+    rerender(<Button variant="quietDestructive" size="iconSm" aria-label="x" />);
+    const quietDestructive = screen.getByRole('button').className;
+    rerender(<Button variant="onDark" size="iconSm" aria-label="x" />);
+    const onDark = screen.getByRole('button').className;
+    rerender(<Button variant="scrim" size="icon" aria-label="x" />);
+    const scrim = screen.getByRole('button').className;
+
+    expect(new Set([quiet, quietDestructive, onDark, scrim]).size).toBe(4);
+  });
+
+  it('keeps the dense icon size at the 36px tap-target floor', () => {
+    const { rerender } = render(<Button size="icon" aria-label="x" />);
+    expect(screen.getByRole('button').className).toContain('h-10 w-10');
+
+    rerender(<Button size="iconSm" aria-label="x" />);
+    expect(screen.getByRole('button').className).toContain('h-9 w-9');
+  });
+
   it('lets a caller-supplied class win over the variant default', () => {
     render(
       <Button variant="primary" className="bg-warning">

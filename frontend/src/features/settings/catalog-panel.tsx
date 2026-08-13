@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { exportCatalog } from '../../api/catalog';
 import { useCatalog } from '../../queries/use-catalog';
 import type { CatalogEntry } from '../../domain/food-catalog';
@@ -65,7 +66,7 @@ export function CatalogPanel({ onManage }: CatalogPanelProps) {
 
       <Button variant="outline" onClick={onManage} className="mt-3 w-full justify-between px-3 text-left">
         <span className="font-medium">{t.manageLink}</span>
-        <span aria-hidden="true">→</span>
+        <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0" />
       </Button>
 
       <Button variant="outline" onClick={() => void onExport()} disabled={exporting} className="mt-2 w-full px-3">

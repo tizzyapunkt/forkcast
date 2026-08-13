@@ -106,13 +106,15 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
             <Pencil size={14} aria-hidden="true" />
             {de.recipes.edit}
           </Button>
-          <button
+          <Button
+            variant="quietDestructive"
+            size="iconSm"
             onClick={() => setConfirmDelete(true)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-destructive hover:bg-destructive/10"
+            className="text-destructive"
             aria-label={de.recipes.deleteAria}
           >
             <Trash2 size={17} aria-hidden="true" />
-          </button>
+          </Button>
         </div>
 
         <RecipeTotalsStrip ingredients={recipe.ingredients} yield={recipe.yield} />

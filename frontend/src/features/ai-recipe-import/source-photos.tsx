@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Button } from '../../components/ui/button';
 import { de } from '../../i18n/de';
 import type { StagedPhoto } from './photo-staging';
 
@@ -74,10 +76,12 @@ function PhotoViewer({ urls, index, onIndexChange, onClose }: ViewerProps) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && index > 0) onIndexChange(index - 1);
+      if (e.key === 'ArrowRight' && index < count - 1) onIndexChange(index + 1);
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, onIndexChange, index, count]);
 
   return (
     <div
@@ -89,9 +93,9 @@ function PhotoViewer({ urls, index, onIndexChange, onClose }: ViewerProps) {
     >
       <div className="flex items-center justify-between p-3 text-white" onClick={(e) => e.stopPropagation()}>
         <span className="text-sm tabular-nums">{c.position(index + 1, count)}</span>
-        <button type="button" onClick={onClose} aria-label={c.closeAria} className="rounded p-2 text-lg leading-none">
-          ✕
-        </button>
+        <Button variant="onDark" size="icon" onClick={onClose} aria-label={c.closeAria} className="-mr-1 h-11 w-11">
+          <X aria-hidden="true" className="h-5 w-5" />
+        </Button>
       </div>
 
       <div className="flex flex-1 items-center justify-center overflow-hidden p-2" onClick={(e) => e.stopPropagation()}>
@@ -100,24 +104,26 @@ function PhotoViewer({ urls, index, onIndexChange, onClose }: ViewerProps) {
 
       {count > 1 && (
         <div className="flex items-center justify-between p-4 text-white" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
+          <Button
+            variant="onDark"
+            size="icon"
             disabled={index === 0}
             onClick={() => onIndexChange(index - 1)}
             aria-label={c.prevAria}
-            className="rounded px-5 py-2 text-2xl leading-none disabled:opacity-40"
+            className="h-12 w-12"
           >
-            ‹
-          </button>
-          <button
-            type="button"
+            <ChevronLeft aria-hidden="true" className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="onDark"
+            size="icon"
             disabled={index === count - 1}
             onClick={() => onIndexChange(index + 1)}
             aria-label={c.nextAria}
-            className="rounded px-5 py-2 text-2xl leading-none disabled:opacity-40"
+            className="h-12 w-12"
           >
-            ›
-          </button>
+            <ChevronRight aria-hidden="true" className="h-6 w-6" />
+          </Button>
         </div>
       )}
     </div>

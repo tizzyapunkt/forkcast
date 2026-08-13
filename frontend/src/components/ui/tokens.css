@@ -39,6 +39,10 @@
     --success: #10b981;
     --warning: #f59e0b;
     --error: #ef4444;
+    /* Text-safe siblings: the status fills above are identity colors and only reach
+     * ~2.5:1 on Paper White. Status *text* uses these darker variants (≥4.5:1). */
+    --success-ink: #047857;
+    --warning-ink: #b45309;
     --header-grad: linear-gradient(160deg, hsl(244 36% 47%), hsl(244 38% 40%));
     /* Macro identity colors — Eiweiß (green, selected "Grün" variant) / KH (amber) / Fett (blue). */
     --macro-p: 146 52% 43%;

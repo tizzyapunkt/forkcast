@@ -4,7 +4,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
 import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
-import { Pencil } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Button } from '../../components/ui/button';
@@ -226,14 +226,15 @@ export function RecipeIngredientEditor({
                       {de.recipeIngredientEditor.addNote}
                     </button>
                   )}
-                  <button
-                    type="button"
+                  <Button
+                    variant="quietDestructive"
+                    size="icon"
                     onClick={() => handleRemove(idx)}
                     aria-label={de.recipeIngredientEditor.remove(ing.name)}
-                    className="-mr-1 inline-flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-destructive sm:h-8 sm:w-8"
+                    className="-mr-1 sm:h-9 sm:w-9"
                   >
-                    ✕
-                  </button>
+                    <X aria-hidden="true" className="h-4 w-4" />
+                  </Button>
                 </div>
 
                 {rowProvenance && (
@@ -249,7 +250,7 @@ export function RecipeIngredientEditor({
                       <p
                         data-testid={`row-uncertain-${idx}`}
                         aria-label={de.recipeIngredientEditor.provenance.markerAria(ing.name)}
-                        className="text-xs text-amber-700"
+                        className="text-xs text-warning-ink"
                       >
                         {marker}
                       </p>
@@ -311,7 +312,7 @@ export function RecipeIngredientEditor({
                     {isEstimate && (
                       <span
                         data-testid={`piece-estimate-${idx}`}
-                        className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800"
+                        className="rounded-sm bg-warning/15 px-1.5 py-0.5 text-[11px] font-medium text-warning-ink"
                       >
                         {de.recipeIngredientEditor.estimateBadge}
                       </span>
@@ -375,8 +376,9 @@ export function RecipeIngredientEditor({
                       }}
                       className="min-w-0 flex-1 bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
                     />
-                    <button
-                      type="button"
+                    <Button
+                      variant="quietDestructive"
+                      size="iconSm"
                       onClick={() => {
                         handleEditNote(idx, '');
                         setOpenNotes((cur) => {
@@ -386,10 +388,10 @@ export function RecipeIngredientEditor({
                         });
                       }}
                       aria-label={de.recipeIngredientEditor.removeNoteAria(ing.name)}
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-xs text-muted-foreground/60 hover:text-destructive sm:h-6 sm:w-6"
+                      className="text-muted-foreground/60"
                     >
-                      ✕
-                    </button>
+                      <X aria-hidden="true" className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 )}
               </li>
@@ -443,10 +445,10 @@ function ModeSegments({ name, mode, massAllowed, onSelect }: ModeSegmentsProps) 
             aria-label={seg.label}
             disabled={seg.disabled}
             onClick={() => onSelect(seg.key)}
-            // Transition `color` only — flipping background/shadow instantly avoids the stuck-segment bug.
+            // Transition `color` only — flipping the background instantly avoids the stuck-segment bug.
             style={{ transition: 'color 150ms' }}
-            className={`flex-1 rounded px-2 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
-              active ? 'bg-white text-primary shadow-sm' : 'bg-transparent text-muted-foreground'
+            className={`flex-1 rounded-md px-2 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
+              active ? 'bg-background text-primary' : 'bg-transparent text-muted-foreground'
             }`}
           >
             {seg.label}

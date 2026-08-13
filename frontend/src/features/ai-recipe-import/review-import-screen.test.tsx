@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -864,5 +865,83 @@ describe('ReviewImportScreen', () => {
     expect(screen.getByTestId('source-photo-0')).toBeInTheDocument();
     // the unmatched panel still renders alongside the photos
     expect(screen.getByText(/1 zutat ohne treffer/i)).toBeInTheDocument();
+  });
+
+  describe('repeated unmatched names', () => {
+    const twiceListed: RecipeDraft = {
+      name: 'Nudelwasser & Sauce',
+      yield: 2,
+      steps: [],
+      ingredients: [
+        { matched: false, name: 'Salz', amount: 1, unit: 'tsp', note: 'fürs Nudelwasser' },
+        { matched: false, name: 'Salz', amount: 2, unit: 'g', note: 'für die Sauce' },
+      ],
+    };
+
+    it('lists a name that appears twice as two separate lines', async () => {
+      renderWithProviders(<ReviewImportScreen draft={twiceListed} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.getByText(/2 zutaten ohne treffer/i)).toBeInTheDocument();
+      expect(await screen.findAllByLabelText(/salz.*verwerfen/i)).toHaveLength(2);
+    });
+
+    it('discards only the line the user acted on', async () => {
+      renderWithProviders(<ReviewImportScreen draft={twiceListed} onSaved={() => {}} onCancel={() => {}} />);
+
+      const discards = await screen.findAllByLabelText(/salz.*verwerfen/i);
+      await userEvent.click(discards[0] as HTMLElement);
+
+      expect(screen.getByText(/1 zutat ohne treffer/i)).toBeInTheDocument();
+      expect(screen.getByText('für die Sauce')).toBeInTheDocument();
+      expect(screen.queryByText('fürs Nudelwasser')).not.toBeInTheDocument();
+    });
+
+    it('keeps each line with its own proposal instead of collapsing them by name', async () => {
+      server.use(
+        http.post('/api/propose-ingredient-resolutions', () =>
+          HttpResponse.json({
+            proposals: [
+              { verdict: 'skip', reason: 'no idea' },
+              {
+                verdict: 'new-food',
+                confidence: 'high',
+                entry: {
+                  id: 'salz',
+                  name: 'Salz',
+                  synonyms: [],
+                  unit: 'g',
+                  macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+                },
+              },
+            ],
+          }),
+        ),
+      );
+
+      renderWithProviders(<ReviewImportScreen draft={twiceListed} onSaved={() => {}} onCancel={() => {}} />);
+
+      const buttons = await screen.findAllByLabelText(/zutat „salz“ zuordnen/i);
+      await waitFor(() => expect(buttons[0]).toHaveTextContent(/kein vorschlag/i));
+      expect(buttons[1]).toHaveTextContent(/^zuordnen$/i);
+    });
+  });
+
+  it('bills one proposer call per draft, even when React double-mounts the screen', async () => {
+    let calls = 0;
+    server.use(
+      http.post('/api/propose-ingredient-resolutions', () => {
+        calls += 1;
+        return HttpResponse.json({ proposals: [{ verdict: 'skip', reason: 'x' }] });
+      }),
+    );
+
+    renderWithProviders(
+      <StrictMode>
+        <ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />
+      </StrictMode>,
+    );
+
+    await waitFor(() => expect(screen.getByText(/kein vorschlag/i)).toBeInTheDocument());
+    expect(calls).toBe(1);
   });
 });

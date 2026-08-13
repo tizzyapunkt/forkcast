@@ -8,6 +8,7 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
+import { Banner } from '../../components/ui/banner';
 import { de } from '../../i18n/de';
 
 const schema = z.object({
@@ -66,7 +67,7 @@ export function NutritionGoalForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-lg border bg-card p-4">
       {error && <ErrorBanner error={error} />}
-      {saved && <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{de.nutritionGoal.saved}</p>}
+      {saved && <Banner tone="success">{de.nutritionGoal.saved}</Banner>}
 
       <Field label={kcalField.label} htmlFor={`goal-${kcalField.key}`} error={errors[kcalField.key]?.message}>
         <Controller

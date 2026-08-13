@@ -7,6 +7,7 @@ import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
 import { PerPortionHero } from './per-portion-hero';
+import { ArrowDown, ArrowUp, X } from 'lucide-react';
 import { de } from '../../i18n/de';
 
 interface Props {
@@ -153,30 +154,30 @@ export function RecipeForm({
                     className="min-h-[3rem] min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm"
                   />
                   <div className="flex flex-col gap-1">
-                    <button
-                      type="button"
+                    <Button
+                      variant="quiet"
+                      size="iconSm"
                       aria-label={de.recipeForm.moveStepUp(idx + 1)}
                       onClick={() => moveStep(idx, -1)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
                     >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
+                      <ArrowUp aria-hidden="true" className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="quiet"
+                      size="iconSm"
                       aria-label={de.recipeForm.moveStepDown(idx + 1)}
                       onClick={() => moveStep(idx, 1)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
                     >
-                      ↓
-                    </button>
-                    <button
-                      type="button"
+                      <ArrowDown aria-hidden="true" className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="quietDestructive"
+                      size="iconSm"
                       aria-label={de.recipeForm.removeStep(idx + 1)}
                       onClick={() => removeStep(idx)}
-                      className="text-xs text-muted-foreground hover:text-destructive"
                     >
-                      ✕
-                    </button>
+                      <X aria-hidden="true" className="h-4 w-4" />
+                    </Button>
                   </div>
                 </li>
               ))}

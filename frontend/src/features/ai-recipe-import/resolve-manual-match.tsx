@@ -29,7 +29,7 @@ export function ManualMatch({
             checked={learnSynonym}
             onChange={(e) => setLearnSynonym(e.target.checked)}
             aria-label={t.learnSynonymToggle(rawName)}
-            className="mt-0.5 h-4 w-4 rounded"
+            className="mt-0.5 h-4 w-4 rounded-sm"
           />
           <span className="min-w-0">
             {t.learnSynonymToggle(rawName)}

@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { AppHeader } from '../../components/app/app-header';
 import { NutritionGoalForm } from './nutrition-goal-form';
 import { BodyProfileForm } from '../body-profile/body-profile-form';
@@ -60,7 +61,7 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
             <span className="font-medium">{de.weightLog.settingsLink}</span>
             <span className="ml-2 text-xs text-muted-foreground">{de.weightLog.settingsLinkHint}</span>
           </span>
-          <span aria-hidden="true">→</span>
+          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
         <button
           type="button"
@@ -71,7 +72,7 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
             <span className="font-medium">{de.diagnostics.settingsLink}</span>
             <span className="ml-2 text-xs text-muted-foreground">{de.diagnostics.settingsLinkHint}</span>
           </span>
-          <span aria-hidden="true">→</span>
+          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
         <div className="pt-4">
           <Button variant="destructiveOutline" onClick={() => logout()} className="w-full">

@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import type { FullIngredientEntry, LogEntry, QuickIngredientEntry } from '../../domain/meal-log';
 import { useRecipes } from '../../queries/use-recipes';
 import { EditEntryDrawer } from '../edit-remove/edit-entry-drawer';
 import { RemoveEntryConfirm } from '../edit-remove/remove-entry-confirm';
 import { InlineAmountInput } from './inline-amount-input';
+import { Button } from '../../components/ui/button';
 import { de } from '../../i18n/de';
 
 interface EntryRowProps {
@@ -73,13 +75,15 @@ export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
               {de.entryRow.edit}
             </button>
           )}
-          <button
+          <Button
+            variant="quietDestructive"
+            size="iconSm"
             onClick={() => setRemoving(true)}
             aria-label={de.entryRow.removeAria}
-            className="text-xs text-muted-foreground hover:text-destructive"
+            className="-my-1"
           >
-            ✕
-          </button>
+            <X aria-hidden="true" className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 

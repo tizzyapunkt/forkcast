@@ -443,7 +443,7 @@ function DraftingState() {
   return (
     <div className="flex flex-col gap-3 py-2">
       <p className="text-sm font-medium text-primary">{t.draftingTitle}</p>
-      <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+      <div className="h-3 w-2/3 animate-pulse rounded-sm bg-muted" />
       <div className="grid grid-cols-4 gap-2">
         <div className="h-12 animate-pulse rounded-md bg-muted" />
         <div className="h-12 animate-pulse rounded-md bg-muted" />
@@ -458,7 +458,7 @@ function LoadingState() {
   return (
     <div className="flex flex-col gap-3 py-2">
       <p className="text-sm font-medium text-primary">{t.loadingEyebrow}</p>
-      <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+      <div className="h-3 w-2/3 animate-pulse rounded-sm bg-muted" />
       <div className="flex gap-2">
         <div className="h-12 flex-1 animate-pulse rounded-md bg-muted" />
         <div className="h-12 flex-1 animate-pulse rounded-md bg-muted" />

@@ -47,7 +47,7 @@ export function SynonymProposal({
       <Card padding="sm">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">{food.name}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase">{t.catalogChip}</span>
+          <span className="rounded-sm bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase">{t.catalogChip}</span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           {Math.round(food.macrosPer100.calories)} {t.kcalLabel} · {t.macrosPer(food.unit)}

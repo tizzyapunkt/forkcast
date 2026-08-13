@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Input } from '../../components/ui/input';
@@ -50,15 +51,17 @@ function SynonymList({ synonyms, setSynonyms }: { synonyms: string[]; setSynonym
       {synonyms.length > 0 && (
         <ul className="flex flex-wrap gap-1.5">
           {synonyms.map((s) => (
-            <li key={s} className="flex items-center gap-1 rounded-full bg-muted py-1 pl-2.5 pr-1 text-xs">
-              {s}
+            <li className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-xs" key={s}>
+              <span className="max-w-[14rem] truncate" title={s}>
+                {s}
+              </span>
               <button
                 type="button"
                 onClick={() => setSynonyms(synonyms.filter((x) => x !== s))}
                 aria-label={t.synonymRemoveAria(s)}
-                className="rounded-full px-1 text-muted-foreground hover:text-destructive"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               >
-                ✕
+                <X aria-hidden="true" className="h-3.5 w-3.5" />
               </button>
             </li>
           ))}
@@ -134,8 +137,8 @@ export function NewFoodEditor({
                 type="button"
                 onClick={() => setDraft({ ...draft, unit: u })}
                 aria-pressed={draft.unit === u}
-                className={`rounded px-4 py-1.5 text-sm font-medium ${
-                  draft.unit === u ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
+                className={`rounded-md px-4 py-1.5 text-sm font-medium ${
+                  draft.unit === u ? 'bg-background text-primary' : 'text-muted-foreground'
                 }`}
               >
                 {u}
@@ -149,7 +152,7 @@ export function NewFoodEditor({
             checked={draft.untracked === true}
             onChange={(e) => setDraft({ ...draft, untracked: e.target.checked || undefined })}
             aria-label={t.untrackedToggle}
-            className="h-4 w-4 rounded"
+            className="h-4 w-4 rounded-sm"
           />
           {t.untrackedToggle}
         </label>

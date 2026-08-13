@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { ChevronRight, Plus } from 'lucide-react';
 import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search-ingredients';
 import type { IngredientSearchResult, IngredientSearchSource } from '../../domain/ingredient-search';
 import { de } from '../../i18n/de';
@@ -182,7 +183,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           checked={offEnabled}
           onChange={(e) => setOffEnabled(e.target.checked)}
           aria-label={de.searchPanel.offToggle}
-          className="h-3.5 w-3.5 rounded"
+          className="h-3.5 w-3.5 rounded-sm"
         />
         {de.searchPanel.offToggle}
       </label>
@@ -203,7 +204,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           className="flex w-full items-center gap-3 rounded-md border border-dashed border-primary/60 bg-accent/40 px-3 py-3 text-left"
         >
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background text-primary">
-            +
+            <Plus aria-hidden="true" className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-primary">
@@ -211,9 +212,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
             </span>
             <span className="block text-xs text-muted-foreground">{de.aiRecipeImport.resolve.createTriggerHint}</span>
           </span>
-          <span aria-hidden="true" className="text-primary">
-            ›
-          </span>
+          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
         </button>
       )}
 
@@ -238,7 +237,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
                 >
                   <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
                   <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="rounded px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
+                    <span className="rounded-sm px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
                       {result.source}
                     </span>
                     {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}

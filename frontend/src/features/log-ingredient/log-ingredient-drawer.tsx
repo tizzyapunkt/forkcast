@@ -4,6 +4,7 @@ import type { MealSlot } from '../../domain/meal-log';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { Recipe } from '../../domain/recipes';
 import { BottomSheet } from '../../components/app/bottom-sheet';
+import { Button } from '../../components/ui/button';
 import { de, slotLabelsDe } from '../../i18n/de';
 import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
@@ -71,14 +72,15 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <div className="flex min-w-0 items-center gap-1">
             {inSubStep && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="iconSm"
                 onClick={handleBack}
                 aria-label={de.logIngredient.back}
-                className="-ml-2 inline-flex h-9 w-9 shrink-0 items-center justify-center text-primary"
+                className="-ml-2"
               >
                 <ChevronLeft size={22} aria-hidden="true" />
-              </button>
+              </Button>
             )}
             <h2 className="min-w-0 truncate text-sm font-semibold">{de.logIngredient.addToSlot(slotLabel)}</h2>
           </div>
