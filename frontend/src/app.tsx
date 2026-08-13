@@ -28,7 +28,7 @@ export function App() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className={`flex-1 ${navHidden ? '' : 'pb-16'}`}>
+      <main className={`flex-1 ${navHidden ? 'pb-safe-b' : 'pb-nav-safe'}`}>
         {view === 'log' && (
           <DailyLogScreen
             date={date}

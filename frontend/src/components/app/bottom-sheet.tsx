@@ -42,7 +42,7 @@ export function BottomSheet({ open, onClose, ariaLabel, heightClassName = 'h-[82
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
-        className={`fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden rounded-t-xl bg-background shadow-lg transition-[height] duration-200 ${heightClassName}`}
+        className={`pb-safe-b fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden rounded-t-xl bg-background shadow-lg transition-[height] duration-200 ${heightClassName}`}
       >
         <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-muted" />
         {children}

@@ -66,6 +66,12 @@ const config: Config = {
           'f-on': 'hsl(var(--macro-f-on))',
         },
       },
+      spacing: {
+        // iOS safe areas. `safe-b` is the home-indicator gutter on its own, `nav-safe`
+        // is the bottom nav (4rem) plus that gutter — the space content must clear.
+        'safe-b': 'env(safe-area-inset-bottom)',
+        'nav-safe': 'calc(4rem + env(safe-area-inset-bottom))',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

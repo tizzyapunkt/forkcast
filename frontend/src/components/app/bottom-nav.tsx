@@ -23,10 +23,12 @@ const TABS: Tab[] = [
 
 export function BottomNav({ active, onChange }: Props) {
   return (
+    // pb-safe-b pads out the iOS home-indicator gutter so the tab row stays tappable
+    // in the installed PWA; it is 0 everywhere else.
     <nav
       role="navigation"
       aria-label={de.nav.primary}
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background"
+      className="pb-safe-b fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background"
     >
       {TABS.map(({ view, label, Icon }) => {
         const isActive = view === active;
