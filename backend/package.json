@@ -16,15 +16,15 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^1.19.15",
     "@openfoodfacts/openfoodfacts-nodejs": "2.0.0-alpha.30",
     "dotenv": "^17.4.2",
-    "hono": "^4.12.14",
+    "hono": "^4.12.34",
     "jose": "^6.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.2.6"
   }
 }
