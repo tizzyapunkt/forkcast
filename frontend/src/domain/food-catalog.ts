@@ -20,3 +20,22 @@ export interface CatalogEntry {
 
 /** A new or edited entry as the editor holds it — the id is derived from the name by the backend. */
 export type CatalogEntryDraft = Omit<CatalogEntry, 'id'> & { id?: string };
+
+const ZERO_MACROS: MacrosPerUnit = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+/**
+ * An entry as an editor can hold it, whatever the server sent. An AI-drafted entry
+ * is the one entry that does not come from the store, so a field it omits would
+ * otherwise reach the editor as `undefined` and take the screen down with it —
+ * a missing value is an empty one the user can fill in.
+ */
+export function toEditableEntry(entry: Partial<CatalogEntry>): CatalogEntry {
+  return {
+    ...entry,
+    id: entry.id ?? '',
+    name: entry.name ?? '',
+    synonyms: Array.isArray(entry.synonyms) ? entry.synonyms : [],
+    unit: entry.unit === 'ml' ? 'ml' : 'g',
+    macrosPer100: { ...ZERO_MACROS, ...entry.macrosPer100 },
+  };
+}

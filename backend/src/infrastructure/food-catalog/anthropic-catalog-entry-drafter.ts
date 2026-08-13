@@ -1,8 +1,9 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type { Message, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages';
 import { CatalogDraftError, type CatalogEntryDrafter } from '../../domain/food-catalog/catalog-entry-drafter.ts';
-import { slugifyName } from '../../domain/food-catalog/slugify-name.ts';
+import { normalizeDraftedEntry } from '../../domain/food-catalog/normalize-drafted-entry.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
+import { validateFoodEntry } from '../../domain/foods/validate-food-entry.ts';
 import { FOOD_ENTRY_GUIDANCE, FOOD_ENTRY_SCHEMA } from '../food-drafting/food-entry-schema.ts';
 
 export interface AnthropicMessagesClient {
@@ -75,6 +76,12 @@ export class AnthropicCatalogEntryDrafter implements CatalogEntryDrafter {
     if (typeof drafted.name !== 'string' || drafted.name.trim().length === 0) {
       throw new CatalogDraftError('drafted entry has no name');
     }
-    return { ...(drafted as FoodEntry), id: slugifyName(drafted.name) };
+    // A half-drafted entry (no macros, a made-up unit) would reach the editor as a
+    // partial food and break it, so it is refused here — the caller falls back to a
+    // blank entry the user can fill in. Same bar the resolve proposals are held to.
+    const normalized = normalizeDraftedEntry(drafted);
+    const result = validateFoodEntry(normalized);
+    if (!result.ok) throw new CatalogDraftError(`drafted entry invalid: ${result.reason}`);
+    return result.entry;
   }
 }

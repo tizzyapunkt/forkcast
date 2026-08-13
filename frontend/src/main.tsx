@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-qu
 import { registerSW } from 'virtual:pwa-register';
 import { App } from './app';
 import { AuthGuard } from './features/auth/auth-guard';
+import { ErrorBoundary } from './components/app/error-boundary';
 import { ApiError } from './api/client';
 import { SESSION_KEY } from './features/auth/use-auth';
 import { installClientDiagnostics } from './lib/client-log';
@@ -29,9 +30,11 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthGuard>
-        <App />
-      </AuthGuard>
+      <ErrorBoundary>
+        <AuthGuard>
+          <App />
+        </AuthGuard>
+      </ErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,
 );
