@@ -5,7 +5,12 @@ import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
 import { SegmentedControl } from '../../components/ui/segmented-control';
 import { de } from '../../i18n/de';
-import type { CatalogEntry, CatalogEntryDraft, CatalogPieceWeight } from '../../domain/food-catalog';
+import {
+  toEditableEntry,
+  type CatalogEntry,
+  type CatalogEntryDraft,
+  type CatalogPieceWeight,
+} from '../../domain/food-catalog';
 import type { MacrosPerUnit } from '../../domain/meal-log';
 import { useDraftCatalogEntry } from '../../queries/use-catalog';
 
@@ -74,7 +79,8 @@ export function CatalogEntryEditor({
     }
     setLocalError(null);
     fill.mutate(name, {
-      onSuccess: (filled) => {
+      onSuccess: (entry) => {
+        const filled = toEditableEntry(entry);
         // The user's typed name wins over the model's canonical form only when they
         // already committed to one; everything else is a suggestion they can edit.
         setDraft((d) => ({

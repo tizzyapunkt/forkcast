@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
 import { useDraftCatalogEntry } from '../../queries/use-catalog';
+import { toEditableEntry } from '../../domain/food-catalog';
 import { de } from '../../i18n/de';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MacrosPerUnit, MeasurementUnit } from '../../domain/meal-log';
@@ -105,7 +106,7 @@ export function ResolvePane({
   const aiAssisted = state === 'ready' && proposal !== null;
 
   const [draft, setDraft] = useState<FoodEntryDraft | null>(() =>
-    proposal?.verdict === 'new-food' ? { ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } } : null,
+    proposal?.verdict === 'new-food' ? toEditableEntry(proposal.entry) : null,
   );
   /** The name the draft arrived under — retained as a synonym once the user renames it. */
   const [proposedName, setProposedName] = useState<string | null>(() =>
@@ -117,7 +118,7 @@ export function ResolvePane({
   // new-food proposal lands; the `draft === null` guard preserves any edits the user made.
   useEffect(() => {
     if (proposal?.verdict === 'new-food' && draft === null) {
-      setDraft({ ...proposal.entry, macrosPer100: { ...proposal.entry.macrosPer100 } });
+      setDraft(toEditableEntry(proposal.entry));
       setProposedName(proposal.entry.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,15 +153,8 @@ export function ResolvePane({
     if (draft !== null || draftMutation.isPending) return;
     setProposedName(item.name);
     draftMutation.mutate(item.name, {
-      onSuccess: (entry) => setDraft({ ...entry, macrosPer100: { ...entry.macrosPer100 } }),
-      onError: () =>
-        setDraft({
-          id: '',
-          name: item.name,
-          synonyms: [],
-          unit: 'g',
-          macrosPer100: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-        }),
+      onSuccess: (entry) => setDraft(toEditableEntry(entry)),
+      onError: () => setDraft(toEditableEntry({ name: item.name })),
     });
   }
 

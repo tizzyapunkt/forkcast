@@ -342,6 +342,20 @@ describe('rejecting a synonym proposal for an own entry', () => {
     expect(bodies[0]!.entry).toMatchObject({ name: 'Limettensaft' });
   });
 
+  it('opens the editor on a partial drafted entry instead of tearing down', async () => {
+    server.use(
+      http.post('/api/draft-catalog-entry', () =>
+        HttpResponse.json({ entry: { id: 'zitronensaft', name: 'Zitronensaft', unit: 'ml' } }),
+      ),
+    );
+
+    renderPane(synonymProposal, { name: 'Zitronensaft', amount: 2, unit: 'ml' });
+    await userEvent.click(screen.getByRole('button', { name: /eigenen eintrag anlegen/i }));
+
+    expect(await screen.findByLabelText('Name')).toHaveValue('Zitronensaft');
+    expect(screen.getByLabelText('kcal')).toHaveValue('0');
+  });
+
   it('falls back to a blank editable entry when the draft request fails', async () => {
     server.use(http.post('/api/draft-catalog-entry', () => HttpResponse.json({ error: 'nope' }, { status: 502 })));
 

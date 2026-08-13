@@ -110,6 +110,9 @@ export const de = {
 
   errors: {
     generic: 'Etwas ist schiefgelaufen',
+    boundaryRetry: 'Erneut versuchen',
+    boundaryReload: 'App neu laden',
+    boundaryHint: 'Der Fehler steht auch unter Einstellungen › Diagnose, solange die App nicht neu geladen wird.',
   },
 
   settings: {
