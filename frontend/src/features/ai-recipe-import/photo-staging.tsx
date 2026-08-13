@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { ArrowDown, ArrowUp, ImageOff, X } from 'lucide-react';
 import type { SupportedImageMediaType } from '../../api/import-recipe-from-photos';
 import { de } from '../../i18n/de';
+import { Banner } from '../../components/ui/banner';
 import { Button } from '../../components/ui/button';
+import { prepareImageForUpload } from './prepare-image';
 
 export interface StagedPhoto {
   id: string;
@@ -16,8 +19,13 @@ interface Props {
   onChange: (next: StagedPhoto[]) => void;
   maxImages: number;
   maxImageBytes: number;
+  /** Combined budget the server enforces for one request. */
+  maxTotalBytes?: number;
   disabled?: boolean;
 }
+
+/** Mirrors `RECIPE_IMPORT_MAX_TOTAL_BYTES` in the backend config. */
+const DEFAULT_MAX_TOTAL_BYTES = 20 * 1024 * 1024;
 
 const SUPPORTED: SupportedImageMediaType[] = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -25,50 +33,102 @@ function isSupported(type: string): type is SupportedImageMediaType {
   return (SUPPORTED as string[]).includes(type);
 }
 
-export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disabled }: Props) {
+function megabytes(bytes: number): number {
+  return Math.round(bytes / (1024 * 1024));
+}
+
+function formatMegabytes(bytes: number): string {
+  return (bytes / (1024 * 1024)).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+}
+
+export function PhotoStaging({
+  photos,
+  onChange,
+  maxImages,
+  maxImageBytes,
+  maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES,
+  disabled,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [preparing, setPreparing] = useState(false);
+  const [brokenIds, setBrokenIds] = useState<string[]>([]);
 
+  // Object URLs outlive any single render of `photos`, so the set of live URLs is tracked
+  // separately: revoking straight from a `photos` effect kills previews of photos that are
+  // still staged the moment the array changes (add, reorder, remove).
+  const liveUrls = useRef(new Set<string>());
+  const mounted = useRef(true);
   useEffect(() => {
+    mounted.current = true;
+    const urls = liveUrls.current;
     return () => {
-      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      mounted.current = false;
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.clear();
     };
-  }, [photos]);
+  }, []);
 
-  function handleFiles(fileList: FileList | null) {
+  function releaseUrl(url: string) {
+    if (!liveUrls.current.has(url)) return;
+    liveUrls.current.delete(url);
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
     const incoming = Array.from(fileList);
+    if (inputRef.current) inputRef.current.value = '';
+
     const newErrors: string[] = [];
     const accepted: StagedPhoto[] = [];
 
     const remaining = maxImages - photos.length;
-    if (incoming.length > remaining) {
-      newErrors.push(de.aiRecipeImport.tooManyImages(maxImages));
+    if (incoming.length > remaining) newErrors.push(de.aiRecipeImport.tooManyImages(maxImages));
+
+    let totalBytes = photos.reduce((sum, p) => sum + p.sizeBytes, 0);
+
+    setPreparing(true);
+    try {
+      const allowedSlice = incoming.slice(0, Math.max(0, remaining));
+      for (const [idx, file] of allowedSlice.entries()) {
+        const positionInSet = photos.length + idx + 1;
+        if (!isSupported(file.type)) {
+          newErrors.push(de.aiRecipeImport.unsupportedType(file.type || 'unknown'));
+          continue;
+        }
+
+        // Sequential on purpose: decoding eight 12 MP photos at once trips mobile memory limits.
+        const prepared = await prepareImageForUpload(file);
+        if (!mounted.current) return;
+
+        if (prepared.size > maxImageBytes) {
+          newErrors.push(de.aiRecipeImport.imageTooLarge(positionInSet, megabytes(maxImageBytes)));
+          continue;
+        }
+        if (totalBytes + prepared.size > maxTotalBytes) {
+          newErrors.push(de.aiRecipeImport.totalTooLarge(megabytes(maxTotalBytes)));
+          break;
+        }
+        totalBytes += prepared.size;
+
+        const previewUrl = URL.createObjectURL(prepared);
+        liveUrls.current.add(previewUrl);
+        accepted.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file: prepared,
+          mediaType: isSupported(prepared.type) ? prepared.type : file.type,
+          previewUrl,
+          sizeBytes: prepared.size,
+        });
+      }
+    } finally {
+      if (mounted.current) setPreparing(false);
     }
-    const allowedSlice = incoming.slice(0, remaining);
 
-    allowedSlice.forEach((file, idx) => {
-      const idxAcrossSet = photos.length + idx + 1;
-      if (!isSupported(file.type)) {
-        newErrors.push(de.aiRecipeImport.unsupportedType(file.type || 'unknown'));
-        return;
-      }
-      if (file.size > maxImageBytes) {
-        newErrors.push(de.aiRecipeImport.imageTooLarge(idxAcrossSet, Math.round(maxImageBytes / (1024 * 1024))));
-        return;
-      }
-      accepted.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        file,
-        mediaType: file.type,
-        previewUrl: URL.createObjectURL(file),
-        sizeBytes: file.size,
-      });
-    });
-
+    if (!mounted.current) return;
     setErrors(newErrors);
     if (accepted.length > 0) onChange([...photos, ...accepted]);
-    if (inputRef.current) inputRef.current.value = '';
   }
 
   function move(index: number, dir: -1 | 1) {
@@ -83,19 +143,33 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
 
   function remove(index: number) {
     const removed = photos[index];
-    if (removed) URL.revokeObjectURL(removed.previewUrl);
+    if (removed) {
+      releaseUrl(removed.previewUrl);
+      setBrokenIds((prev) => prev.filter((id) => id !== removed.id));
+    }
     onChange(photos.filter((_, i) => i !== index));
   }
 
+  const totalBytes = photos.reduce((sum, p) => sum + p.sizeBytes, 0);
+  const busy = disabled || preparing;
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">{de.aiRecipeImport.photoCount(photos.length, maxImages)}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground">
+            {de.aiRecipeImport.photoCount(photos.length, maxImages)}
+            {photos.length > 0 && ` · ${de.aiRecipeImport.photoTotalSize(formatMegabytes(totalBytes))}`}
+          </p>
+          <p className="text-[11px] text-muted-foreground/80">
+            {de.aiRecipeImport.photoHint(megabytes(maxImageBytes))}
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => inputRef.current?.click()}
-          disabled={disabled || photos.length >= maxImages}
+          disabled={busy || photos.length >= maxImages}
           aria-label={photos.length === 0 ? de.aiRecipeImport.pickPhotosAria : de.aiRecipeImport.addMore}
         >
           {photos.length === 0 ? `+ ${de.aiRecipeImport.pickPhotos}` : `+ ${de.aiRecipeImport.addMore}`}
@@ -108,15 +182,28 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
         accept="image/jpeg,image/png,image/webp"
         multiple
         className="hidden"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => void handleFiles(e.target.files)}
       />
 
+      <p aria-live="polite" className="sr-only">
+        {preparing ? de.aiRecipeImport.preparingPhotos : ''}
+      </p>
+      {preparing && (
+        <p className="text-xs text-muted-foreground" data-testid="preparing-photos">
+          {de.aiRecipeImport.preparingPhotos}
+        </p>
+      )}
+
       {errors.length > 0 && (
-        <ul className="space-y-1 rounded-md border border-destructive bg-destructive/5 p-2 text-xs text-destructive">
-          {errors.map((err, idx) => (
-            <li key={idx}>{err}</li>
-          ))}
-        </ul>
+        <Banner tone="error" density="sm" onDismiss={() => setErrors([])} dismissLabel={de.aiRecipeImport.dismissHints}>
+          <ul className="space-y-1">
+            {errors.map((err, idx) => (
+              <li key={idx} className="break-words">
+                {err}
+              </li>
+            ))}
+          </ul>
+        </Banner>
       )}
 
       {photos.length > 0 && (
@@ -127,41 +214,49 @@ export function PhotoStaging({ photos, onChange, maxImages, maxImageBytes, disab
               className="relative overflow-hidden rounded-md border bg-card"
               data-testid={`staged-photo-${idx}`}
             >
-              <img
-                src={photo.previewUrl}
-                alt={de.aiRecipeImport.photoAlt(idx + 1)}
-                className="aspect-square w-full object-cover"
-              />
-              <span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">
+              {brokenIds.includes(photo.id) ? (
+                <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 bg-muted px-2 text-center">
+                  <ImageOff aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-[11px] text-muted-foreground">{de.aiRecipeImport.photoUnavailable}</span>
+                </div>
+              ) : (
+                <img
+                  src={photo.previewUrl}
+                  alt={de.aiRecipeImport.photoAlt(idx + 1)}
+                  onError={() => setBrokenIds((prev) => (prev.includes(photo.id) ? prev : [...prev, photo.id]))}
+                  className="aspect-square w-full object-cover"
+                />
+              )}
+              <span className="absolute top-1 left-1 rounded-sm bg-black/60 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-white">
                 {idx + 1}
               </span>
               <div className="absolute right-1 bottom-1 flex gap-1">
-                <button
-                  type="button"
+                <Button
+                  variant="scrim"
+                  size="icon"
                   onClick={() => move(idx, -1)}
                   disabled={idx === 0}
                   aria-label={de.aiRecipeImport.moveUp(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[11px] text-white disabled:opacity-40"
                 >
-                  ↑
-                </button>
-                <button
-                  type="button"
+                  <ArrowUp aria-hidden="true" className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="scrim"
+                  size="icon"
                   onClick={() => move(idx, 1)}
                   disabled={idx === photos.length - 1}
                   aria-label={de.aiRecipeImport.moveDown(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[11px] text-white disabled:opacity-40"
                 >
-                  ↓
-                </button>
-                <button
-                  type="button"
+                  <ArrowDown aria-hidden="true" className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="scrim"
+                  size="icon"
                   onClick={() => remove(idx)}
                   aria-label={de.aiRecipeImport.removePhoto(idx + 1)}
-                  className="rounded bg-black/60 px-1.5 text-[11px] text-white"
                 >
-                  ✕
-                </button>
+                  <X aria-hidden="true" className="h-4 w-4" />
+                </Button>
               </div>
             </li>
           ))}

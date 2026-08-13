@@ -105,4 +105,21 @@ describe('SourcePhotos', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('walks through the photos with the arrow keys and stops at both ends', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<SourcePhotos photos={[makePhoto('a'), makePhoto('b')]} />);
+
+    await user.click(screen.getByTestId('source-photo-0'));
+    expect(screen.getByText('1 / 2')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(screen.getByText('1 / 2')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+  });
 });

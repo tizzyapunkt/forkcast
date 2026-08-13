@@ -4,6 +4,7 @@ import { de, slotLabelsDe } from '../../i18n/de';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
 import { useLogIngredientDrawer } from '../log-ingredient/use-log-ingredient-drawer';
 import { EntryList } from './entry-list';
+import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 
 interface SlotCardProps {
@@ -30,13 +31,14 @@ export function SlotCard({ summary, date }: SlotCardProps) {
                   {de.dailyLog.kcalSuffix}
                 </span>
               )}
-              <button
+              <Button
+                variant="accent"
+                size="icon"
                 onClick={() => openDrawer(summary.slot)}
                 aria-label={de.dailyLog.add}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-primary hover:bg-accent/20"
               >
                 <Plus size={20} aria-hidden="true" />
-              </button>
+              </Button>
             </div>
           </div>
           {hasMacros && (

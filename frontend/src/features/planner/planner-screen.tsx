@@ -81,9 +81,9 @@ function toneClass(tone: DayTone): string {
     case 'empty':
       return 'text-muted-foreground';
     case 'onTarget':
-      return 'text-emerald-600';
+      return 'text-success-ink';
     case 'over':
-      return 'text-amber-600';
+      return 'text-warning-ink';
     default:
       return 'text-primary';
   }
@@ -162,25 +162,15 @@ export function PlannerScreen() {
         }
       >
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={goPrevWeek}
-            aria-label={de.planner.prevWeek}
-            className="inline-flex h-9 w-9 items-center justify-center text-white/80 hover:text-white"
-          >
+          <Button variant="onDark" size="iconSm" onClick={goPrevWeek} aria-label={de.planner.prevWeek}>
             <ChevronLeft size={20} aria-hidden="true" />
-          </button>
+          </Button>
           <span className="min-w-[7rem] text-center text-sm font-medium tabular-nums">
             {weekRangeLabel(weekStart, weekEnd)}
           </span>
-          <button
-            type="button"
-            onClick={goNextWeek}
-            aria-label={de.planner.nextWeek}
-            className="inline-flex h-9 w-9 items-center justify-center text-white/80 hover:text-white"
-          >
+          <Button variant="onDark" size="iconSm" onClick={goNextWeek} aria-label={de.planner.nextWeek}>
             <ChevronRight size={20} aria-hidden="true" />
-          </button>
+          </Button>
         </div>
       </AppHeader>
       <div className="space-y-3 p-4">
@@ -333,14 +323,14 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
                           {r(summary?.totals.calories ?? 0)} kcal
                         </span>
                       )}
-                      <button
-                        type="button"
+                      <Button
+                        variant="accent"
+                        size="icon"
                         onClick={() => onAdd(slot)}
                         aria-label={de.planner.addToSlotAria(slotLabelsDe[slot], label)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-primary hover:bg-accent/20"
                       >
                         <Plus size={20} aria-hidden="true" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                   {entries.length > 0 && (

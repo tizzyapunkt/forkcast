@@ -3,6 +3,7 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
 import type { IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, NotFoundException } from '@zxing/library';
 import { de } from '../../i18n/de';
+import { Banner } from '../../components/ui/banner';
 import { Button } from '../../components/ui/button';
 
 export interface BarcodeScannerProps {
@@ -60,11 +61,11 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
   return (
     <div className="flex flex-col gap-3 p-4">
       {error ? (
-        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <Banner tone="error">
           {error.toLowerCase().includes('notallowed') || error.toLowerCase().includes('permission')
             ? de.barcodeScanner.cameraDenied
             : de.barcodeScanner.cameraUnavailable}
-        </div>
+        </Banner>
       ) : (
         <div className="relative overflow-hidden rounded-lg bg-black aspect-[4/3]">
           <video ref={videoRef} className="w-full h-full object-cover" />

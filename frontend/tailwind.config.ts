@@ -48,8 +48,10 @@ const config: Config = {
           500: '#7a67e6',
         },
         focus: '#7a67e6',
-        success: '#10b981',
-        warning: '#f59e0b',
+        // `DEFAULT` is the identity fill (dots, bars, tinted surfaces); `ink` is the
+        // text-safe variant — the fills only reach ~2.5:1 on the app background.
+        success: { DEFAULT: '#10b981', ink: '#047857' },
+        warning: { DEFAULT: '#f59e0b', ink: '#b45309' },
         error: '#ef4444',
         // Macro identity colors — the single source of truth for every macro dot/bar/diagram
         // (design tokens --macro-* from design_handoff_forkcast_2/design/fc-tokens.css; protein

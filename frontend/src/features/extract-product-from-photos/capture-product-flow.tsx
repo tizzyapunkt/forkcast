@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
@@ -67,10 +68,11 @@ export function CaptureProductFlow({ barcode, onCancel, onCaptured, maxImages, m
         <button
           type="button"
           onClick={onCancel}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="-ml-2 flex items-center gap-1 rounded-md py-2 pr-2 pl-1 text-sm text-muted-foreground hover:text-foreground"
           aria-label={de.productCapture.back}
         >
-          ← {de.productCapture.back}
+          <ChevronLeft aria-hidden="true" className="h-4 w-4" />
+          {de.productCapture.back}
         </button>
         <span className="w-12" />
       </div>

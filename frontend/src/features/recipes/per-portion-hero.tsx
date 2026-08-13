@@ -34,7 +34,7 @@ export function PerPortionHero({ ingredients, servings, onServingsChange }: Prop
     <section
       aria-label={de.recipeTotals.sectionAria}
       data-testid="per-portion-hero"
-      className="rounded-lg border border-border/60 bg-gradient-to-b from-accent/10 to-card px-4 py-3 shadow-sm"
+      className="rounded-lg border border-border/60 bg-gradient-to-b from-accent/10 to-card px-4 py-3"
     >
       <div className="flex items-start justify-between gap-3">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">

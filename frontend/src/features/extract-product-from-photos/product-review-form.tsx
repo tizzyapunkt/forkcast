@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { de } from '../../i18n/de';
 import { parseDecimal } from '../../lib/decimal';
 import type { ProductDraft } from '../../api/extract-product-from-photos';
 import { Button } from '../../components/ui/button';
+import { Select } from '../../components/ui/select';
 import { Input } from '../../components/ui/input';
 
 interface Props {
@@ -20,8 +22,6 @@ function parseNonNegative(value: string): number {
 }
 
 const fieldClass = 'w-full';
-// `<select>` has no primitive yet — it keeps the Input base classes inline.
-const selectClass = 'w-full rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm';
 
 /** Editable review of an extracted product — the user corrects AI misreads before saving. */
 export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }: Props) {
@@ -57,10 +57,11 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
         <button
           type="button"
           onClick={onBack}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="-ml-2 flex items-center gap-1 rounded-md py-2 pr-2 pl-1 text-sm text-muted-foreground hover:text-foreground"
           aria-label={de.productCapture.back}
         >
-          ← {de.productCapture.back}
+          <ChevronLeft aria-hidden="true" className="h-4 w-4" />
+          {de.productCapture.back}
         </button>
         <h2 className="text-base font-semibold">{de.productCapture.reviewTitle}</h2>
         <span className="w-12" />
@@ -81,15 +82,14 @@ export function ProductReviewForm({ draft, isSaving, error, onBack, onConfirm }:
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted-foreground">{de.productCapture.unitLabel}</span>
-        <select
+        <Select
           value={unit}
           onChange={(e) => setUnit(e.target.value as 'g' | 'ml')}
           aria-label={de.productCapture.unitLabel}
-          className={selectClass}
         >
           <option value="g">g</option>
           <option value="ml">ml</option>
-        </select>
+        </Select>
       </label>
 
       <p className="text-xs font-medium text-muted-foreground">{de.productCapture.per100(unit)}</p>

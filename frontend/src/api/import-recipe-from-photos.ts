@@ -15,12 +15,13 @@ export interface ImportImagePayload {
   mediaType: SupportedImageMediaType;
 }
 
-export async function importRecipeFromPhotos(images: ImportImagePayload[]): Promise<RecipeDraft> {
+export async function importRecipeFromPhotos(images: ImportImagePayload[], signal?: AbortSignal): Promise<RecipeDraft> {
   try {
     return await fetchJson<RecipeDraft>('/api/import-recipe-from-photos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ images }),
+      ...(signal ? { signal } : {}),
     });
   } catch (err) {
     if (err instanceof ApiError && err.status === 503 && err.message === 'ai-import-not-configured') {

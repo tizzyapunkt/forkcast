@@ -155,7 +155,7 @@ export function CatalogEntryEditor({
             checked={untracked}
             onChange={(e) => setDraft((d) => ({ ...d, untracked: e.target.checked || undefined }))}
             aria-label={t.untrackedToggle}
-            className="h-4 w-4 rounded"
+            className="h-4 w-4 rounded-sm"
           />
           {t.untrackedToggle}
         </label>
