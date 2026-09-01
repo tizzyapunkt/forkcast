@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders, createTestQueryClient } from '../../test/harness';
 import { makeDailyLog } from '../../test/msw/fixtures';
+import { serveFavorites } from '../../test/msw/favorites';
 import { SlotCard } from '../daily-log/slot-card';
 import type { SlotSummary, RecentlyUsedIngredient } from '../../domain/meal-log';
 
@@ -342,7 +343,7 @@ describe('Recipes tab', () => {
     updatedAt: '',
   };
 
-  it('shows tabs in order Suche → Zuletzt → Rezepte → Schnell', async () => {
+  it('shows tabs in order Suche → Favoriten → Zuletzt → Rezepte → Schnell', async () => {
     renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
       queryClient: createTestQueryClient(),
     });
@@ -352,8 +353,8 @@ describe('Recipes tab', () => {
     const tabs = dialog.querySelectorAll('button');
     const tabLabels = Array.from(tabs)
       .map((b) => b.textContent?.trim() ?? '')
-      .filter((t) => ['Suche', 'Zuletzt', 'Rezepte', 'Schnell'].includes(t));
-    expect(tabLabels).toEqual(['Suche', 'Zuletzt', 'Rezepte', 'Schnell']);
+      .filter((t) => ['Suche', 'Favoriten', 'Zuletzt', 'Rezepte', 'Schnell'].includes(t));
+    expect(tabLabels).toEqual(['Suche', 'Favoriten', 'Zuletzt', 'Rezepte', 'Schnell']);
   });
 
   it('logs the recipe via POST /log-recipe with the chosen portions when picking from the Recipes tab', async () => {
@@ -443,5 +444,84 @@ describe('Recipes tab', () => {
 
     expect(await screen.findByText('Oats Bowl')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/rezepte filtern/i)).toBeInTheDocument();
+  });
+});
+
+describe('Favoriten tab', () => {
+  const skyr = {
+    name: 'Skyr Natur',
+    unit: 'g' as const,
+    macrosPerUnit: { calories: 0.63, protein: 0.11, carbs: 0.04, fat: 0.002 },
+    favoritedAt: '2026-01-01T08:00:00.000Z',
+    lastAmount: 180,
+    lastUsedAt: '2026-02-08T07:00:00.000Z',
+  };
+
+  it('opens on Search, not on Favoriten', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    expect(screen.getByPlaceholderText('Zutaten suchen…')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Favoriten filtern…')).not.toBeInTheDocument();
+  });
+
+  it('loads favorites on open so the star on Search rows is correct straight away', async () => {
+    let calls = 0;
+    server.use(
+      http.get('/api/favorite-ingredients', () => {
+        calls += 1;
+        return HttpResponse.json([skyr]);
+      }),
+    );
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+
+    await waitFor(() => expect(calls).toBe(1));
+  });
+
+  it('pre-fills the confirm step with the favorite last amount', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+    await userEvent.click(screen.getByRole('button', { name: 'Favoriten' }));
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Skyr Natur/ }));
+
+    expect(await screen.findByLabelText(/Menge/)).toHaveValue('180');
+  });
+
+  it('opens the confirm step empty for a favorite that has never been logged', async () => {
+    serveFavorites([{ ...skyr, lastAmount: undefined, lastUsedAt: undefined }]);
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+    await userEvent.click(screen.getByRole('button', { name: 'Favoriten' }));
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Skyr Natur/ }));
+
+    expect(await screen.findByLabelText(/Menge/)).toHaveValue('');
+  });
+
+  it('returns to the Favoriten tab (not Search) when Back is pressed from confirm', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<SlotCard summary={makeEmptySlot('breakfast')} date="2026-04-21" />, {
+      queryClient: createTestQueryClient(),
+    });
+    await openDrawer();
+    await userEvent.click(screen.getByRole('button', { name: 'Favoriten' }));
+    await userEvent.click(await screen.findByRole('button', { name: /^Skyr Natur/ }));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Zurück' }));
+
+    expect(await screen.findByPlaceholderText('Favoriten filtern…')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Zutaten suchen…')).not.toBeInTheDocument();
   });
 });

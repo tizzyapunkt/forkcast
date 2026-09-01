@@ -10,6 +10,7 @@ export const queryKeys = {
   ingredientSearch: (q: string, sources?: IngredientSearchSource[]) =>
     ['ingredient-search', q, sources ?? ['CATALOG']] as const,
   recentlyUsedIngredients: () => ['recently-used-ingredients'] as const,
+  favoriteIngredients: () => ['favorite-ingredients'] as const,
   recipes: () => ['recipes'] as const,
   recipe: (id: string) => ['recipe', id] as const,
   weightLog: () => ['weight-log'] as const,

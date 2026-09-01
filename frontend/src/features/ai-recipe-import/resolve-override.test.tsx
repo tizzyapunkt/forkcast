@@ -188,7 +188,7 @@ describe('teaching the catalog from a manual pick', () => {
   async function pickFromCatalog(name: string) {
     await userEvent.click(screen.getByRole('button', { name: /katalog zuordnen|anderes lebensmittel/i }));
     await userEvent.type(screen.getByRole('searchbox'), 'Reis');
-    await userEvent.click(await screen.findByRole('button', { name: new RegExp(name, 'i') }));
+    await userEvent.click(await screen.findByRole('button', { name: new RegExp(`^${name}`, 'i') }));
   }
 
   it('learns the raw name as a synonym of the picked entry by default', async () => {
@@ -226,7 +226,7 @@ describe('teaching the catalog from a manual pick', () => {
     await userEvent.click(screen.getByRole('button', { name: /katalog zuordnen|anderes lebensmittel/i }));
     await userEvent.click(screen.getByLabelText(/als synonym lernen/i));
     await userEvent.type(screen.getByRole('searchbox'), 'Reis');
-    await userEvent.click(await screen.findByRole('button', { name: /reisnudeln/i }));
+    await userEvent.click(await screen.findByRole('button', { name: /^reisnudeln/i }));
 
     await waitFor(() => expect(onResolved).toHaveBeenCalled());
     expect(bodies).toHaveLength(0);

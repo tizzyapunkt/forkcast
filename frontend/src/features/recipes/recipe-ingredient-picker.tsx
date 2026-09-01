@@ -7,6 +7,7 @@ import { BottomSheet } from '../../components/app/bottom-sheet';
 import { SearchPanel } from '../log-ingredient/search-panel';
 import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
 import { RecentPanel } from '../log-ingredient/recent-panel';
+import { FavoritesPanel } from '../log-ingredient/favorites-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecipeIngredient, SearchCandidateProvenance } from '../../domain/recipes';
 import { searchIngredients } from '../../api/search-ingredients';
@@ -34,7 +35,7 @@ interface Props {
   candidates?: readonly SearchCandidateProvenance[];
 }
 
-type Tab = 'search' | 'recent';
+type Tab = 'search' | 'favorites' | 'recent';
 type Step = { kind: 'pick' } | { kind: 'amount'; result: IngredientSearchResult };
 
 const amountSchema = z.object({
@@ -97,18 +98,25 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
         </div>
 
         {step.kind === 'pick' && (
-          <div className="flex gap-4 border-b px-4 text-sm">
+          <div className="flex gap-4 overflow-x-auto border-b px-4 text-sm whitespace-nowrap">
             <button
               type="button"
               onClick={() => setTab('search')}
-              className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'search' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.recipeIngredientPicker.search}
             </button>
             <button
               type="button"
+              onClick={() => setTab('favorites')}
+              className={`shrink-0 pb-2 ${tab === 'favorites' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.recipeIngredientPicker.favorites}
+            </button>
+            <button
+              type="button"
               onClick={() => setTab('recent')}
-              className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'recent' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.recipeIngredientPicker.recent}
             </button>
@@ -121,6 +129,9 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
           <>
             {showCandidates && <CandidateSection candidates={candidates ?? []} onResolved={handleSelect} />}
             {tab === 'search' && <SearchPanel onSelect={handleSelect} onCreate={setCreateQuery} />}
+            {/* No `showLastAmount`: a recipe amount is a property of the recipe,
+                not of the user's logging history, so the amount step opens empty. */}
+            {tab === 'favorites' && <FavoritesPanel onSelect={handleSelect} />}
             {tab === 'recent' && <RecentPanel onSelect={handleSelect} />}
           </>
         )}

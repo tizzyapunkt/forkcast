@@ -22,6 +22,19 @@ export const handlers = [
     return HttpResponse.json({ ok: true });
   }),
 
+  http.get('/api/favorite-ingredients', () => {
+    return HttpResponse.json([]);
+  }),
+
+  http.post('/api/favorite-ingredient', async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ ...body, favoritedAt: '2026-01-01T08:00:00.000Z' });
+  }),
+
+  http.post('/api/unfavorite-ingredient', () => {
+    return HttpResponse.json({ ok: true });
+  }),
+
   http.get('/api/daily-log/:date', () => {
     return HttpResponse.json(makeDailyLog());
   }),
