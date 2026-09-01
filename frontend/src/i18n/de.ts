@@ -1,4 +1,5 @@
 import type { MealSlot, MeasurementUnit } from '../domain/meal-log';
+import { formatDecimal } from '../lib/decimal';
 
 export const slotLabelsDe: Record<MealSlot, string> = {
   breakfast: 'Frühstück',
@@ -324,6 +325,7 @@ export const de = {
     cancel: 'Abbrechen',
     back: 'Zurück',
     search: 'Suche',
+    favorites: 'Favoriten',
     recent: 'Zuletzt',
     recipesTab: 'Rezepte',
     quick: 'Schnell',
@@ -430,6 +432,28 @@ export const de = {
       const { mul, label } = per100Display(unit);
       return `${Math.round(kcal * mul)} kcal / ${label}`;
     },
+  },
+
+  favoritesPanel: {
+    placeholder: 'Favoriten filtern…',
+    loading: 'Laden…',
+    empty:
+      'Noch keine Favoriten — tippe in „Suche“ oder „Zuletzt“ auf den Stern, dann sammeln sich deine Alltags-Zutaten hier.',
+    noMatches: (q: string) => `Keine Treffer für „${q}“`,
+    kcalPer: (kcal: number, unit: MeasurementUnit) => {
+      const { mul, label } = per100Display(unit);
+      return `${Math.round(kcal * mul)} kcal / ${label}`;
+    },
+    /** Last logged amount, shown ahead of the energy density on a drawer row. */
+    lastAmount: (amount: number, unit: MeasurementUnit) => `zuletzt ${formatDecimal(amount)} ${unit}`,
+    /** Stands in for the last amount on a favorite the user has never logged. */
+    neverLogged: 'noch nicht geloggt',
+  },
+
+  favoriteStar: {
+    add: (name: string) => `„${name}“ zu Favoriten hinzufügen`,
+    remove: (name: string) => `„${name}“ aus Favoriten entfernen`,
+    failed: 'Favorit konnte nicht gespeichert werden. Bitte versuche es erneut.',
   },
 
   recipePanel: {
@@ -785,6 +809,7 @@ export const de = {
     titleAmount: (name: string) => `Menge — ${name}`,
     cancel: 'Abbrechen',
     search: 'Suche',
+    favorites: 'Favoriten',
     recent: 'Zuletzt',
     perUnit: (unit: MeasurementUnit, cals: number, p: number, cb: number, f: number) => {
       const { mul, label } = per100Display(unit);

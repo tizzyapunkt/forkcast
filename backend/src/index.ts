@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { bootstrap } from './bootstrap.ts';
 import { JsonLogEntryRepository } from './infrastructure/meal-log/json-log-entry.repository.ts';
+import { JsonFavoriteIngredientRepository } from './infrastructure/favorite-ingredients/json-favorite-ingredient.repository.ts';
 import { JsonNutritionGoalRepository } from './infrastructure/nutrition/json-nutrition-goal.repository.ts';
 import { JsonBodyProfileRepository } from './infrastructure/body-profile/json-body-profile.repository.ts';
 import { JsonWeightLogRepository } from './infrastructure/weight-log/json-weight-log.repository.ts';
@@ -16,6 +17,11 @@ import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
 import { makeCopyLogDayHandler } from './http/meal-log/copy-log-day.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
+import {
+  makeListFavoriteIngredientsHandler,
+  makeFavoriteIngredientHandler,
+  makeUnfavoriteIngredientHandler,
+} from './http/favorite-ingredients/favorite-ingredients.handler.ts';
 import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
 import { makeRemoveRecipeLogHandler } from './http/meal-log/remove-recipe-log.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
@@ -98,6 +104,7 @@ if (!config.ai.anthropicApiKey) {
 }
 
 const logEntryRepo = new JsonLogEntryRepository('./data/log-entries.json');
+const favoriteIngredientRepo = new JsonFavoriteIngredientRepository('./data/favorite-ingredients.json');
 const nutritionGoalRepo = new JsonNutritionGoalRepository('./data/nutrition-goal.json');
 const bodyProfileRepo = new JsonBodyProfileRepository('./data/body-profile.json');
 const weightLogRepo = new JsonWeightLogRepository('./data/weight-log.json');
@@ -121,6 +128,7 @@ const ingredientSearchService = new CompositeIngredientSearchService(
 try {
   await bootstrap([
     logEntryRepo,
+    favoriteIngredientRepo,
     nutritionGoalRepo,
     bodyProfileRepo,
     weightLogRepo,
@@ -156,6 +164,9 @@ app.post('/copy-log-day', makeCopyLogDayHandler(logEntryRepo));
 app.patch('/log-entry/:id', makeEditLogEntryHandler(logEntryRepo));
 app.delete('/log-entry/:id', makeRemoveLogEntryHandler(logEntryRepo));
 app.get('/recently-used-ingredients', makeListRecentlyUsedIngredientsHandler(logEntryRepo));
+app.get('/favorite-ingredients', makeListFavoriteIngredientsHandler(favoriteIngredientRepo, logEntryRepo));
+app.post('/favorite-ingredient', makeFavoriteIngredientHandler(favoriteIngredientRepo));
+app.post('/unfavorite-ingredient', makeUnfavoriteIngredientHandler(favoriteIngredientRepo));
 app.put('/nutrition-goal', makeSetNutritionGoalHandler(nutritionGoalRepo));
 app.get('/nutrition-goal', makeGetNutritionGoalHandler(nutritionGoalRepo));
 app.get('/body-profile', makeGetBodyProfileHandler(bodyProfileRepo));

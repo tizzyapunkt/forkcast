@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
+import { serveFavorites } from '../../test/msw/favorites';
 import { RecentPanel } from './recent-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecentlyUsedIngredient } from '../../domain/meal-log';
@@ -104,5 +105,50 @@ describe('RecentPanel', () => {
     expect(result.id).toMatch(/^recent:/);
     expect(result.source).toBe('RECENT');
     expect(defaultAmount).toBe(80);
+  });
+
+  describe('favorite star', () => {
+    it('reflects the cached favorites list on each row', async () => {
+      server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([oats, skyr])));
+      serveFavorites([
+        { name: 'skyr', unit: 'g', macrosPerUnit: skyr.macrosPerUnit, favoritedAt: '2026-01-01T08:00:00.000Z' },
+      ]);
+
+      renderWithProviders(<RecentPanel onSelect={() => {}} />);
+
+      expect(await screen.findByRole('button', { name: '„Skyr“ aus Favoriten entfernen' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '„Oats“ zu Favoriten hinzufügen' })).toBeInTheDocument();
+    });
+
+    it('unfavorites from the recent list without selecting the row', async () => {
+      server.use(http.get('/api/recently-used-ingredients', () => HttpResponse.json([skyr])));
+      const { posted } = serveFavorites([
+        { name: 'Skyr', unit: 'g', macrosPerUnit: skyr.macrosPerUnit, favoritedAt: '2026-01-01T08:00:00.000Z' },
+      ]);
+      const onSelect = vi.fn<(r: IngredientSearchResult, amount: number) => void>();
+
+      renderWithProviders(<RecentPanel onSelect={onSelect} />);
+      await userEvent.click(await screen.findByRole('button', { name: /aus Favoriten entfernen/ }));
+
+      await screen.findByRole('button', { name: /zu Favoriten hinzufügen/ });
+      expect(posted).toEqual([{ name: 'Skyr', unit: 'g' }]);
+      expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('surfaces an error and reverts when the write fails', async () => {
+      server.use(
+        http.get('/api/recently-used-ingredients', () => HttpResponse.json([skyr])),
+        http.post('/api/favorite-ingredient', () => HttpResponse.json({ error: 'nope' }, { status: 500 })),
+      );
+
+      renderWithProviders(<RecentPanel onSelect={() => {}} />);
+      await userEvent.click(await screen.findByRole('button', { name: /zu Favoriten hinzufügen/ }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/nicht gespeichert/i);
+      expect(await screen.findByRole('button', { name: '„Skyr“ zu Favoriten hinzufügen' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+    });
   });
 });

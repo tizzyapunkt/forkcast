@@ -70,6 +70,22 @@ Same structure: fuse.js over `name` with the same options, same loading/empty/no
 
 A favorite is converted to an `IngredientSearchResult` with `source: 'RECENT'` and a synthetic id, exactly as `RecentPanel` does today, so the downstream confirm step needs no change. A dedicated `'FAVORITE'` source literal was considered and rejected: `source` drives the attribution badge and the search-source toggle, and adding a literal there would ripple into the backend's shared type for no user-visible gain.
 
+### Visual contract comes from the design handoff
+
+`design_handoff_favorite_ingredients/` holds a high-fidelity prototype (`Favoriten.dc.html`, states `1a`–`1e`, with 2x renders in `screens/`). It is a **reference, not code to copy**: the sheet, drawer header, tab strip, search field, row list and confirm step all exist already and are reused rather than rebuilt. Colours, radii and type in the prototype are inlined HSL literals of the app's own tokens — implement against the Tailwind tokens, never the literals. The genuinely new surface is the Favorites panel, the star button, and the two row variants.
+
+Points the prototype settles that the spec states only as behaviour:
+
+- **Row anatomy.** `<li>` is a flex row: the text block is the row's own button and takes the remaining width with `min-w-0` + truncation on the name; the star is its sibling at the 36px tap-target floor, with a 4px gap. Keyboard order per row is text block, then star.
+- **Two row variants.** The drawer row is two-line (name, then last amount + energy density, with the never-logged phrase one step lighter than muted); the picker row is single-line. Same component, one flag.
+- **Empty state keeps the filter input mounted** so the tab does not jump the moment the first favorite lands, and the message shows the star glyph beside naming it — tapping that star elsewhere is the only way in, so the copy names it and the glyph makes it recognisable.
+- **Confirm step is unchanged** apart from the seeded amount. The quick-amount chips already derive their selected state from the current amount, so a pre-filled 180 correctly selects none; the pre-fill is never snapped to the nearest chip.
+- **Icons** come from the lucide set the app already imports, not from the prototype's inline paths.
+
+One item in the handoff's `spec-delta-lastAmount.md` is **not** adopted: it specifies that a favorite with no `lastAmount` falls back to "the app's existing default for a search pick (100 g / 100 ml by unit)". No such default exists — `FullEntryConfirm` computes `defaultAmount ?? result.servingQuantity`, and `servingQuantity` is only ever populated from Open Food Facts products. The handoff's stated intent, "behave like a search pick", therefore means an empty focused field, which is what this change already specifies. Introducing a 100 g default would change the confirm step for every pick, well outside this change.
+
+The delta's persistence notes (`LATERAL` / `DISTINCT ON`, "no schema change to the favorites table") describe a SQL store this project does not have; the equivalent here is the in-memory join over the JSON log-entry repository described above, which reaches the same result.
+
 ## Risks / Trade-offs
 
 - **Frozen macros drift from a corrected catalog entry** → re-favoriting is an idempotent upsert that refreshes them; the same trade-off already governs recipes and log entries.

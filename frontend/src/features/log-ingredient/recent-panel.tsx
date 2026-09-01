@@ -5,6 +5,9 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecentlyUsedIngredient } from '../../domain/meal-log';
 import { de } from '../../i18n/de';
 import { Input } from '../../components/ui/input';
+import { Banner } from '../../components/ui/banner';
+import { FavoriteStar } from './favorite-star';
+import { useFavorites, toFavoriteUnit } from './use-favorites';
 
 interface RecentPanelProps {
   onSelect: (result: IngredientSearchResult, defaultAmount: number) => void;
@@ -22,6 +25,7 @@ function toSearchResult(recent: RecentlyUsedIngredient): IngredientSearchResult 
 
 export function RecentPanel({ onSelect }: RecentPanelProps) {
   const { data: recents, isLoading } = useRecentlyUsedIngredients({ enabled: true });
+  const { isFavorite, toggle: toggleFavorite, error: favoriteError } = useFavorites();
   const [query, setQuery] = useState('');
 
   const fuse = useMemo(
@@ -48,6 +52,12 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
         className="w-full appearance-none"
       />
 
+      {favoriteError && (
+        <Banner tone="error" density="sm">
+          {de.favoriteStar.failed}
+        </Banner>
+      )}
+
       {isLoading && <p className="text-sm text-muted-foreground">{de.recentPanel.loading}</p>}
 
       {!isLoading && (recents?.length ?? 0) === 0 && (
@@ -61,17 +71,24 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
       {filtered.length > 0 && (
         <ul className="w-full min-w-0 divide-y">
           {filtered.map((recent) => (
-            <li key={`${recent.name.toLowerCase()}|${recent.unit}`} className="min-w-0">
+            <li key={`${recent.name.toLowerCase()}|${recent.unit}`} className="flex min-w-0 items-center gap-1">
               <button
                 type="button"
                 onClick={() => onSelect(toSearchResult(recent), recent.lastAmount)}
-                className="flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
+                className="flex min-w-0 flex-1 items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recent.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {de.recentPanel.kcalPer(recent.macrosPerUnit.calories, recent.unit)}
                 </span>
               </button>
+              {toFavoriteUnit(recent.unit) !== null && (
+                <FavoriteStar
+                  name={recent.name}
+                  favorited={isFavorite(recent.name, recent.unit)}
+                  onToggle={() => toggleFavorite(recent)}
+                />
+              )}
             </li>
           ))}
         </ul>

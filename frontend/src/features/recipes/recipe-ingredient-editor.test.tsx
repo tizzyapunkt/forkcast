@@ -320,7 +320,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'sonne');
-    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    const result = await screen.findByRole('button', { name: /^sonnenblumenöl/i });
     await user.click(result);
 
     const state = readState();
@@ -348,7 +348,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'sonne');
-    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    const result = await screen.findByRole('button', { name: /^sonnenblumenöl/i });
     await user.click(result);
 
     const state = readState();
@@ -435,7 +435,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'schal');
-    const result = await screen.findByRole('button', { name: /schalotte/i });
+    const result = await screen.findByRole('button', { name: /^schalotte/i });
     await user.click(result);
 
     const state = readState();
@@ -504,7 +504,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'sonne');
-    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    const result = await screen.findByRole('button', { name: /^sonnenblumenöl/i });
     await user.click(result);
 
     const state = readState();
@@ -531,7 +531,7 @@ describe('RecipeIngredientEditor — replace ingredient via picker', () => {
 
     await user.click(screen.getByTestId('replace-row-0'));
     await user.type(screen.getByRole('searchbox'), 'sonne');
-    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    const result = await screen.findByRole('button', { name: /^sonnenblumenöl/i });
     await user.click(result);
 
     expect(screen.queryByLabelText(/menge pro rezept/i)).not.toBeInTheDocument();

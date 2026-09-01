@@ -264,7 +264,7 @@ describe('ReviewImportScreen', () => {
 
     await userEvent.click(screen.getByTestId('replace-row-0'));
     await userEvent.type(screen.getByRole('searchbox'), 'sonne');
-    const result = await screen.findByRole('button', { name: /sonnenblumenöl/i });
+    const result = await screen.findByRole('button', { name: /^sonnenblumenöl/i });
     await userEvent.click(result);
 
     await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
@@ -313,7 +313,7 @@ describe('ReviewImportScreen', () => {
 
     await userEvent.click(screen.getByTestId('replace-row-0'));
     await userEvent.type(screen.getByRole('searchbox'), 'schal');
-    const result = await screen.findByRole('button', { name: /schalotte/i });
+    const result = await screen.findByRole('button', { name: /^schalotte/i });
     await userEvent.click(result);
 
     expect(screen.queryByTestId('piece-estimate-0')).not.toBeInTheDocument();
@@ -551,7 +551,7 @@ describe('ReviewImportScreen', () => {
 
       await userEvent.click(screen.getByTestId('replace-row-1'));
       await userEvent.type(screen.getByRole('searchbox'), 'kirsch');
-      await userEvent.click(await screen.findByRole('button', { name: /kirschtomaten/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /^kirschtomaten/i }));
 
       expect(screen.getByText('Kirschtomaten')).toBeInTheDocument();
       expect(screen.getByTestId('row-raw-1')).toHaveTextContent('2 tbsp Kirschtomaten');
@@ -592,7 +592,7 @@ describe('ReviewImportScreen', () => {
       await userEvent.click(await screen.findByLabelText(/mystery herb.*zuordnen/i));
       await userEvent.click(screen.getByRole('button', { name: /^katalog$/i }));
       await userEvent.type(screen.getByRole('searchbox'), 'oreg');
-      await userEvent.click(await screen.findByRole('button', { name: /oregano/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /^oregano/i }));
 
       expect(screen.getByText('Oregano')).toBeInTheDocument();
       expect(screen.queryByTestId('row-raw-2')).not.toBeInTheDocument();
@@ -824,7 +824,7 @@ describe('ReviewImportScreen', () => {
       // Skip verdict → fall back to the in-sheet catalog search.
       await userEvent.click(screen.getByRole('button', { name: /^katalog$/i }));
       await userEvent.type(screen.getByRole('searchbox'), 'zitr');
-      const result = await screen.findByRole('button', { name: /zitronenschale/i });
+      const result = await screen.findByRole('button', { name: /^zitronenschale/i });
       await userEvent.click(result);
 
       await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));

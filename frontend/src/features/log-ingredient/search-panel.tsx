@@ -12,6 +12,9 @@ import { CaptureProductFlow } from '../extract-product-from-photos/capture-produ
 import { useProductCaptureConfigured } from '../extract-product-from-photos/use-product-capture-configured';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { Banner } from '../../components/ui/banner';
+import { FavoriteStar } from './favorite-star';
+import { useFavorites, toFavoriteUnit } from './use-favorites';
 
 interface SearchPanelProps {
   onSelect: (result: IngredientSearchResult) => void;
@@ -67,6 +70,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [scanState, setScanState] = useState<ScanState>({ mode: 'text' });
+  const { isFavorite, toggle: toggleFavorite, error: favoriteError } = useFavorites();
 
   const barcodeToLookup = scanState.mode === 'barcode-loading' ? scanState.barcode : '';
   const {
@@ -188,6 +192,12 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
         {de.searchPanel.offToggle}
       </label>
 
+      {favoriteError && (
+        <Banner tone="error" density="sm">
+          {de.favoriteStar.failed}
+        </Banner>
+      )}
+
       {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}
 
       {hasQuery && !isLoading && isError && <p className="text-sm text-destructive">{de.searchPanel.searchFailed}</p>}
@@ -220,29 +230,41 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
         <ul className="w-full min-w-0 divide-y">
           {results.map((result) => {
             const gated = disableUntracked && result.untracked === true;
+            // Gating gates the pick, never the star: favoriting a seasoning is
+            // still useful for recipes.
+            const favoritable = toFavoriteUnit(result.unit) !== null;
             return (
               <li
                 key={`${result.source}:${result.id}`}
                 className="min-w-0"
                 data-untracked={result.untracked === true || undefined}
               >
-                <button
-                  type="button"
-                  onClick={() => onSelect(result)}
-                  disabled={gated}
-                  aria-disabled={gated || undefined}
-                  className={`flex w-full min-w-0 items-center justify-between gap-2 py-2.5 text-left text-sm ${
-                    gated ? 'cursor-not-allowed text-muted-foreground' : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
-                  <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="rounded-sm px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
-                      {result.source}
+                <div className="flex min-w-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onSelect(result)}
+                    disabled={gated}
+                    aria-disabled={gated || undefined}
+                    className={`flex min-w-0 flex-1 items-center justify-between gap-2 py-2.5 text-left text-sm ${
+                      gated ? 'cursor-not-allowed text-muted-foreground' : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
+                    <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="rounded-sm px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
+                        {result.source}
+                      </span>
+                      {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
                     </span>
-                    {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
-                  </span>
-                </button>
+                  </button>
+                  {favoritable && (
+                    <FavoriteStar
+                      name={result.name}
+                      favorited={isFavorite(result.name, result.unit)}
+                      onToggle={() => toggleFavorite(result)}
+                    />
+                  )}
+                </div>
                 {gated && <p className="px-0 pb-2 text-[11px] text-muted-foreground">{de.searchPanel.untrackedHint}</p>}
               </li>
             );

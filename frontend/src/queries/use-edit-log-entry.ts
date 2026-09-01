@@ -106,6 +106,7 @@ export function useEditLogEntry() {
       queryClient.invalidateQueries({ queryKey: queryKeys.dailyLog(date) });
       queryClient.invalidateQueries({ queryKey: queryKeys.weekLogAll() });
       queryClient.invalidateQueries({ queryKey: queryKeys.recentlyUsedIngredients() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.favoriteIngredients() });
     },
   });
 }

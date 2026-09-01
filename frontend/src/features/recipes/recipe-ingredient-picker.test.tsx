@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
+import { serveFavorites } from '../../test/msw/favorites';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import type { RecipeIngredient, SearchCandidateProvenance } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
@@ -120,7 +121,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
     renderWithProviders(<PickerHarness onPicked={onPicked} />);
 
     await user.type(screen.getByRole('searchbox'), 'huh');
-    const resultButton = await screen.findByRole('button', { name: /hähnchenbrust/i });
+    const resultButton = await screen.findByRole('button', { name: /^hähnchenbrust/i });
     await user.click(resultButton);
 
     const amountInput = await screen.findByLabelText(/menge pro rezept/i);
@@ -154,7 +155,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
     renderWithProviders(<PickerHarness onPicked={onPicked} />);
 
     await user.type(screen.getByRole('searchbox'), 'oliven');
-    const resultButton = await screen.findByRole('button', { name: /olivenöl/i });
+    const resultButton = await screen.findByRole('button', { name: /^olivenöl/i });
     await user.click(resultButton);
 
     const amountInput = await screen.findByLabelText(/menge pro rezept/i);
@@ -185,7 +186,7 @@ describe('RecipeIngredientPicker — untracked propagation', () => {
     renderWithProviders(<PickerHarness onPicked={onPicked} />);
 
     await user.type(screen.getByRole('searchbox'), 'product');
-    const resultButton = await screen.findByRole('button', { name: /some product/i });
+    const resultButton = await screen.findByRole('button', { name: /^some product/i });
     await user.click(resultButton);
 
     const amountInput = await screen.findByLabelText(/menge pro rezept/i);
@@ -295,7 +296,7 @@ describe('RecipeIngredientPicker — import candidates in replace mode', () => {
     expect(screen.queryByTestId('picker-candidates')).not.toBeInTheDocument();
 
     await userEvent.type(screen.getByRole('searchbox'), 'schal');
-    await userEvent.click(await screen.findByRole('button', { name: /schalotte/i }));
+    await userEvent.click(await screen.findByRole('button', { name: /^schalotte/i }));
 
     await waitFor(() => expect(onPickResult).toHaveBeenCalledTimes(1));
     expect(onPickResult.mock.calls[0]?.[0]?.name).toBe('Schalotte');
@@ -306,5 +307,68 @@ describe('RecipeIngredientPicker — import candidates in replace mode', () => {
 
     expect(screen.queryByTestId('picker-candidates')).not.toBeInTheDocument();
     expect(screen.getByRole('searchbox')).toBeInTheDocument();
+  });
+});
+
+describe('RecipeIngredientPicker — Favoriten tab', () => {
+  const skyr = {
+    name: 'Skyr Natur',
+    unit: 'g' as const,
+    macrosPerUnit: { calories: 0.63, protein: 0.11, carbs: 0.04, fat: 0.002 },
+    favoritedAt: '2026-01-01T08:00:00.000Z',
+    lastAmount: 180,
+    lastUsedAt: '2026-02-08T07:00:00.000Z',
+  };
+
+  it('shows tabs in order Suche → Favoriten → Zuletzt, with Suche selected', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+
+    const dialog = await screen.findByRole('dialog');
+    const tabLabels = Array.from(dialog.querySelectorAll('button'))
+      .map((b) => b.textContent?.trim() ?? '')
+      .filter((t) => ['Suche', 'Favoriten', 'Zuletzt'].includes(t));
+    expect(tabLabels).toEqual(['Suche', 'Favoriten', 'Zuletzt']);
+    expect(screen.getByPlaceholderText('Zutaten suchen…')).toBeInTheDocument();
+  });
+
+  it('opens the amount step empty — a recipe amount is not log history', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Favoriten' }));
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Skyr Natur/ }));
+
+    expect(await screen.findByLabelText(/Menge pro Rezept/)).toHaveValue('');
+  });
+
+  it('omits the last amount from picker rows', async () => {
+    serveFavorites([skyr]);
+    renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Favoriten' }));
+
+    const row = await screen.findByRole('button', { name: /^Skyr Natur/ });
+    expect(row).toHaveTextContent('63 kcal / 100g');
+    expect(row).not.toHaveTextContent('zuletzt');
+  });
+
+  it('adds the picked favorite to the recipe with the typed amount', async () => {
+    serveFavorites([skyr]);
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Favoriten' }));
+    await userEvent.click(await screen.findByRole('button', { name: /^Skyr Natur/ }));
+
+    await userEvent.type(await screen.findByLabelText(/Menge pro Rezept/), '250');
+    await userEvent.click(screen.getByRole('button', { name: 'Hinzufügen' }));
+
+    expect(onPicked).toHaveBeenCalledTimes(1);
+    expect(onPicked.mock.calls[0]![0]).toMatchObject({
+      name: 'Skyr Natur',
+      unit: 'g',
+      amount: 250,
+      macrosPerUnit: skyr.macrosPerUnit,
+    });
   });
 });

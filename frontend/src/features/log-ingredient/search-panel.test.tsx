@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
+import { serveFavorites, type StoredFavorite } from '../../test/msw/favorites';
 import { SearchPanel } from './search-panel';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { BarcodeScannerProps } from './barcode-scanner';
@@ -150,7 +151,7 @@ describe('SearchPanel', () => {
       const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
       renderWithProviders(<SearchPanel onSelect={onSelect} disableUntracked />);
       await userEvent.type(screen.getByRole('searchbox'), 'salz');
-      const button = await screen.findByRole('button', { name: /salz/i });
+      const button = await screen.findByRole('button', { name: /^salz/i });
       expect(button).toBeDisabled();
       expect(screen.getByText(/würzmittel.*nicht getrackt/i)).toBeInTheDocument();
       // Clicking the disabled button does not invoke onSelect
@@ -171,7 +172,7 @@ describe('SearchPanel', () => {
       renderWithProviders(<SearchPanel onSelect={onSelect} disableUntracked />);
       await userEvent.type(screen.getByRole('searchbox'), 'mix');
       await screen.findByText('Hähnchenbrust');
-      const trackedBtn = screen.getByRole('button', { name: /hähnchenbrust/i });
+      const trackedBtn = screen.getByRole('button', { name: /^hähnchenbrust/i });
       expect(trackedBtn).not.toBeDisabled();
       await userEvent.click(trackedBtn);
       expect(onSelect).toHaveBeenCalledWith(tracked);
@@ -182,10 +183,99 @@ describe('SearchPanel', () => {
       const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
       renderWithProviders(<SearchPanel onSelect={onSelect} />);
       await userEvent.type(screen.getByRole('searchbox'), 'salz');
-      const button = await screen.findByRole('button', { name: /salz/i });
+      const button = await screen.findByRole('button', { name: /^salz/i });
       expect(button).not.toBeDisabled();
       await userEvent.click(button);
       expect(onSelect).toHaveBeenCalledWith(untrackedSalt);
+    });
+  });
+
+  describe('favorite star', () => {
+    function storedOats(name = 'Oats'): StoredFavorite {
+      return { name, unit: 'g', macrosPerUnit: oats.macrosPerUnit, favoritedAt: '2026-01-01T08:00:00.000Z' };
+    }
+
+    it('renders the star unfilled for an ingredient that is not favorited', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oats');
+
+      const star = await screen.findByRole('button', { name: '„Oats“ zu Favoriten hinzufügen' });
+      expect(star).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('renders the star filled for an ingredient already in the cached favorites list', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
+      // Stored under different casing — the identity rule is case-insensitive.
+      serveFavorites([storedOats('oats')]);
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oats');
+
+      const star = await screen.findByRole('button', { name: '„Oats“ aus Favoriten entfernen' });
+      expect(star).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('favorites the ingredient without selecting the row', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
+      const { posted } = serveFavorites();
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oats');
+
+      await userEvent.click(await screen.findByRole('button', { name: /zu Favoriten hinzufügen/ }));
+
+      await screen.findByRole('button', { name: /aus Favoriten entfernen/ });
+      expect(posted).toEqual([{ name: 'Oats', unit: 'g', macrosPerUnit: oats.macrosPerUnit }]);
+      expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('unfavorites an already favorited ingredient', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
+      const { posted } = serveFavorites([storedOats()]);
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oats');
+
+      await userEvent.click(await screen.findByRole('button', { name: /aus Favoriten entfernen/ }));
+
+      await screen.findByRole('button', { name: /zu Favoriten hinzufügen/ });
+      expect(posted).toEqual([{ name: 'Oats', unit: 'g' }]);
+    });
+
+    it('reverts the star and surfaces an error when the write fails', async () => {
+      server.use(
+        http.get('/api/search-ingredients', () => HttpResponse.json([oats])),
+        http.post('/api/favorite-ingredient', () => HttpResponse.json({ error: 'nope' }, { status: 500 })),
+      );
+      renderWithProviders(<SearchPanel onSelect={() => {}} />);
+      await userEvent.type(screen.getByRole('searchbox'), 'oats');
+
+      await userEvent.click(await screen.findByRole('button', { name: /zu Favoriten hinzufügen/ }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/nicht gespeichert/i);
+      expect(await screen.findByRole('button', { name: '„Oats“ zu Favoriten hinzufügen' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+    });
+
+    it('keeps the star operable on a gated untracked row', async () => {
+      server.use(http.get('/api/search-ingredients', () => HttpResponse.json([untrackedSalt])));
+      const { posted } = serveFavorites();
+      const onSelect = vi.fn<(r: IngredientSearchResult) => void>();
+      renderWithProviders(<SearchPanel onSelect={onSelect} disableUntracked />);
+      await userEvent.type(screen.getByRole('searchbox'), 'salz');
+
+      expect(await screen.findByRole('button', { name: /^salz/i })).toBeDisabled();
+      const star = screen.getByRole('button', { name: /zu Favoriten hinzufügen/ });
+      expect(star).not.toBeDisabled();
+
+      await userEvent.click(star);
+
+      await screen.findByRole('button', { name: /aus Favoriten entfernen/ });
+      expect(posted).toEqual([
+        { name: 'Salz', unit: 'g', macrosPerUnit: untrackedSalt.macrosPerUnit, untracked: true },
+      ]);
+      expect(onSelect).not.toHaveBeenCalled();
     });
   });
 

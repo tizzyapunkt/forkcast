@@ -10,11 +10,12 @@ import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
 import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
 import { RecentPanel } from './recent-panel';
+import { FavoritesPanel } from './favorites-panel';
 import { RecipePanel } from './recipe-panel';
 import { FullEntryConfirm } from './full-entry-confirm';
 import { RecipeConfirm } from './recipe-confirm';
 
-type Tab = 'search' | 'recent' | 'recipes' | 'quick';
+type Tab = 'search' | 'favorites' | 'recent' | 'recipes' | 'quick';
 type Step =
   | { kind: 'search' }
   | { kind: 'confirm'; result: IngredientSearchResult; defaultAmount?: number }
@@ -45,6 +46,12 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
   }
 
   function handleRecentSelect(result: IngredientSearchResult, defaultAmount: number) {
+    setStep({ kind: 'confirm', result, defaultAmount });
+  }
+
+  // A favorite the user has never logged has no amount to offer, so the confirm
+  // step opens empty rather than guessing one.
+  function handleFavoriteSelect(result: IngredientSearchResult, defaultAmount?: number) {
     setStep({ kind: 'confirm', result, defaultAmount });
   }
 
@@ -94,28 +101,34 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
         </div>
 
         {!inSubStep && (
-          <div className="flex gap-4 border-b px-4 text-sm">
+          <div className="flex gap-4 overflow-x-auto border-b px-4 text-sm whitespace-nowrap">
             <button
               onClick={() => handleTabChange('search')}
-              className={`pb-2 ${tab === 'search' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'search' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.logIngredient.search}
             </button>
             <button
+              onClick={() => handleTabChange('favorites')}
+              className={`shrink-0 pb-2 ${tab === 'favorites' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+            >
+              {de.logIngredient.favorites}
+            </button>
+            <button
               onClick={() => handleTabChange('recent')}
-              className={`pb-2 ${tab === 'recent' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'recent' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.logIngredient.recent}
             </button>
             <button
               onClick={() => handleTabChange('recipes')}
-              className={`pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.logIngredient.recipesTab}
             </button>
             <button
               onClick={() => handleTabChange('quick')}
-              className={`pb-2 ${tab === 'quick' ? 'border-b-2 border-primary-300 font-medium' : 'text-muted-foreground'}`}
+              className={`shrink-0 pb-2 ${tab === 'quick' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
               {de.logIngredient.quick}
             </button>
@@ -130,6 +143,9 @@ export function LogIngredientDrawer({ open, slot, date, onClose }: LogIngredient
 
         {tab === 'search' && step.kind === 'search' && (
           <SearchPanel onSelect={handleSelect} disableUntracked onCreate={setCreateQuery} />
+        )}
+        {tab === 'favorites' && step.kind === 'search' && (
+          <FavoritesPanel onSelect={handleFavoriteSelect} showLastAmount />
         )}
         {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleRecentSelect} />}
         {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}

@@ -1,8 +1,10 @@
+# favorite-ingredients
+
 ## Purpose
 
 Give the user a curated, stable set of everyday ingredients that is reachable in one tap while logging a meal or assembling a recipe. Unlike the mechanical recency list, membership is chosen by the user and does not shift when other foods are logged.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: A favorite is a snapshot identified by name and unit
 
@@ -161,11 +163,15 @@ Unauthenticated calls to any of the three MUST return `401` and leave the favori
 - **WHEN** an unauthenticated client calls any of the three endpoints
 - **THEN** the response is `401` and the favorites set is unchanged
 
-### Requirement: Favorite star on search and recent rows
+### Requirement: Favorite star on every ingredient row
 
-Every ingredient row in the search-results list and in the recently-used list SHALL render a favorite toggle showing whether that row's identity is currently favorited. This applies in both the log drawer and the recipe ingredient picker, since both surfaces share those lists.
+Every ingredient row in the search-results list, the recently-used list, and the favorites list SHALL render a favorite toggle showing whether that row's identity is currently favorited. This applies in both the log drawer and the recipe ingredient picker, since both surfaces share those lists.
 
 Activating the toggle SHALL flip the favorite state for that row's identity and MUST NOT select the row, open the confirm/amount step, or close the surface. The toggle SHALL carry an accessible label stating which action it performs, and its state MUST update as soon as the write succeeds.
+
+On the Favorites tab the toggle is always in the favorited state, and activating it SHALL remove the favorite in place — the row leaves the list without the user having to find the ingredient again in Search or Recent.
+
+The toggle SHALL remain operable on rows whose *selection* is gated because the ingredient is untracked. Such a row's text stays unselectable while its star stays enabled: favoriting an untracked seasoning is meaningful for the recipe picker.
 
 When the write fails, the toggle SHALL return to its previous state and an error SHALL be surfaced, leaving the list otherwise usable.
 
@@ -194,11 +200,27 @@ When the write fails, the toggle SHALL return to its previous state and an error
 - **WHEN** the user opens the recipe ingredient picker and searches for an ingredient
 - **THEN** each result row offers the same favorite toggle
 
+#### Scenario: Removing a favorite from the Favorites tab
+
+- **WHEN** the user activates the star on a row in the Favorites tab
+- **THEN** the ingredient is no longer favorited and the row leaves the list
+- **AND** the confirm/amount step is not opened
+
+#### Scenario: Star stays enabled on an untracked row
+
+- **WHEN** a search result is untracked and the surface gates its selection
+- **THEN** the row's text is not selectable
+- **AND** its star is still operable, and activating it favorites the ingredient
+
 ### Requirement: Favorites tab in the log drawer and the recipe ingredient picker
 
 The log drawer SHALL present its tabs in the order Search, Favorites, Recent, Recipes, Quick. The recipe ingredient picker SHALL present its tabs in the order Search, Favorites, Recent. In both surfaces the Search tab SHALL remain the tab selected on open.
 
-The Favorites tab SHALL list the favorites in the order returned by the list query, showing each ingredient's name and its calories per unit, and SHALL offer a search input that filters the loaded list **client-side** with fuzzy matching, firing no network request. An empty query SHALL show the full list. Sort order of filtered results SHOULD reflect fuzzy match score, falling back to the list query's order for equal scores.
+The Favorites tab SHALL list the favorites in the order returned by the list query, and SHALL offer a search input that filters the loaded list **client-side** with fuzzy matching, firing no network request. An empty query SHALL show the full list. Sort order of filtered results SHOULD reflect fuzzy match score, falling back to the list query's order for equal scores.
+
+Each row SHALL show the ingredient's name. In the **log drawer** the row SHALL additionally show, on a second line, the favorite's `lastAmount` with its unit followed by the calories per unit; when the favorite carries no `lastAmount` that line SHALL show the calories per unit followed by a phrase stating the ingredient has not been logged yet, so the two cases are distinguishable at a glance rather than by omission.
+
+In the **recipe ingredient picker** the row SHALL show the name and the calories per unit only, and MUST NOT show a last amount — a last amount is log history and has no meaning while assembling a recipe.
 
 When nothing is favorited, the tab SHALL show an empty state explaining that ingredients are favorited via the star in the Search and Recent lists.
 
@@ -216,6 +238,21 @@ When nothing is favorited, the tab SHALL show an empty state explaining that ing
 
 - **WHEN** the user types `skir` in the Favorites tab's filter and `Skyr` is favorited
 - **THEN** `Skyr` appears in the filtered results and no network request is sent
+
+#### Scenario: Row shows the last used amount
+
+- **WHEN** the log drawer's Favorites tab lists a favorite whose `lastAmount` is 180 g
+- **THEN** the row shows its name, the amount 180 g, and the calories per unit
+
+#### Scenario: Never-logged row says so
+
+- **WHEN** the log drawer's Favorites tab lists a favorite carrying no `lastAmount`
+- **THEN** the row shows the calories per unit and a phrase stating the ingredient has not been logged yet
+
+#### Scenario: Picker rows omit the last amount
+
+- **WHEN** the recipe ingredient picker's Favorites tab lists a favorite whose `lastAmount` is 180 g
+- **THEN** the row shows the name and the calories per unit, and no amount
 
 #### Scenario: Empty state points at the star
 

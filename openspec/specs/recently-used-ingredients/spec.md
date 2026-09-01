@@ -59,11 +59,11 @@ The response MUST be a JSON array of `{ name, unit, macrosPerUnit, lastUsedAt, l
 - **THEN** the response contains the full unfiltered list (server-side `q` is not implemented)
 
 ### Requirement: "Recent" tab in the log drawer
-The log drawer SHALL present a "Recent" tab as the second tab, with the order Search → Recent → Quick. The default selected tab on drawer open remains "Search".
+The log drawer SHALL present a "Recent" tab as the third tab, with the order Search → Favorites → Recent → Recipes → Quick. The default selected tab on drawer open remains "Search".
 
 #### Scenario: Tab ordering
 - **WHEN** the log drawer opens
-- **THEN** the tab bar shows three tabs in the order: Search, Recent, Quick
+- **THEN** the tab bar shows five tabs in the order: Search, Favorites, Recent, Recipes, Quick
 
 #### Scenario: Default tab unchanged
 - **WHEN** the log drawer opens
@@ -104,7 +104,7 @@ The Recent tab SHALL provide a search input that filters the loaded list **clien
 - **THEN** the panel shows an empty-result state
 
 ### Requirement: Selecting a recent ingredient flows through full-entry confirm
-When the user picks an ingredient from the Recent list, the drawer MUST transition to the existing full-entry confirm step (amount input + log), reusing the same code path as a Search-result selection. The picked ingredient MUST contribute its `name`, `unit`, and `macrosPerUnit` to the resulting log entry. The confirm step's amount input MUST be pre-filled with the picked ingredient's `lastAmount`. Selections originating from non-Recent paths (Search, Barcode) MUST continue to open the confirm step with an empty amount input.
+When the user picks an ingredient from the Recent list, the drawer MUST transition to the existing full-entry confirm step (amount input + log), reusing the same code path as a Search-result selection. The picked ingredient MUST contribute its `name`, `unit`, and `macrosPerUnit` to the resulting log entry. The confirm step's amount input MUST be pre-filled with the picked ingredient's `lastAmount`. Selections originating from Search or Barcode MUST continue to open the confirm step with an empty amount input. Picks from the Favorites tab are governed by the `favorite-ingredients` capability, which pre-fills from the favorite's `lastAmount`.
 
 #### Scenario: Pick from Recent tab pre-fills the amount
 - **WHEN** the user taps an ingredient in the Recent tab whose `lastAmount` is 80
