@@ -11,6 +11,7 @@ export const EXTRACT_RECIPE_TOOL_NAME = 'extract_recipe';
 const SUPPORTED_UNITS: MeasurementUnit[] = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp'];
 
 const NOTE_MAX_LENGTH = 80;
+const SOURCE_TEXT_MAX_LENGTH = 200;
 
 export const EXTRACT_RECIPE_TOOL = {
   name: EXTRACT_RECIPE_TOOL_NAME,
@@ -36,6 +37,13 @@ export const EXTRACT_RECIPE_TOOL = {
           type: 'object',
           required: ['name'],
           properties: {
+            // First on purpose: the model tends to fill fields in schema order, so the line is
+            // transcribed before the naming and quantification rules start reshaping it.
+            sourceText: {
+              type: 'string',
+              description:
+                'The ingredient line transcribed VERBATIM, exactly as printed in the images, in the original language and casing — amount as written (e.g. "½", "1-2", "eine"), unit word as written (e.g. "EL", "Zehen", "Dose"), size adjectives, brand words and inline preparation modifiers included. Strip only a leading list marker (bullet, dash, checkbox). This field is exempt from every naming and quantification rule: do NOT normalize, translate, convert units, resolve fractions, or add an estimated weight. Always populate it.',
+            },
             name: {
               type: 'string',
               description:
@@ -97,6 +105,11 @@ export const EXTRACT_RECIPE_TOOL = {
 export const EXTRACT_RECIPE_INSTRUCTIONS = [
   'You will receive one or more images that all depict the same recipe. They may be different pages, angles, or screenshots of one Instagram post — interpret them in order and merge the content into a single recipe.',
   'Use the extract_recipe tool to return the result.',
+  'Transcription rule:',
+  '- For every ingredient, first populate sourceText with its ingredient line transcribed verbatim — exactly the characters printed, in the original language and casing. It records what was read, so the user can check your interpretation against it.',
+  '- sourceText is exempt from all naming and quantification rules below: keep fraction glyphs and ranges as written ("½", "1-2"), keep the unit word as written ("EL", "Zehen", "Dose"), keep size adjectives and prep modifiers, never convert units, never add an estimated weight, never translate or tidy the wording. Strip only a leading list marker (bullet, dash, checkbox).',
+  '- When one printed line yields several ingredients (e.g. "Salz und Pfeffer" → Salz and Pfeffer), give each of them the same full line as sourceText. When a line continues from one image onto the next, sourceText is the joined line.',
+  'Worked examples — transcription: "1 mittelgroße Zwiebel, gewürfelt" → sourceText "1 mittelgroße Zwiebel, gewürfelt" (while name is "Zwiebel" and note is "gewürfelt"); "2 EL Olivenöl" → sourceText "2 EL Olivenöl"; "½ TL Kreuzkümmel" → sourceText "½ TL Kreuzkümmel" (not "0.5 TL"); "• 200 g Mehl" → sourceText "200 g Mehl".',
   'Quantification rules:',
   '- If an ingredient amount or unit is not visible (e.g. "salt to taste"), omit those fields rather than guessing.',
   '- When an ingredient is given as a COUNT of a food rather than a mass (e.g. "1 onion", "½ medium zucchini", "2 cloves garlic", "1 medium tomato", and the German equivalents "1 Zwiebel", "½ mittelgroße Zucchini", "2 Zehen Knoblauch", "1 Dose Kichererbsen"), populate pieceAmount, pieceUnitLabel, and gramsPerPiece with your best estimate of a typical piece weight in grams. Always also populate amount and unit with the resulting total weight (amount = pieceAmount * gramsPerPiece, unit = "g"). Use unit = "ml" only when the recipe explicitly frames the piece as a liquid quantity (e.g. "juice of 1 lemon").',
@@ -114,6 +127,7 @@ export const EXTRACT_RECIPE_INSTRUCTIONS = [
 ].join(' ');
 
 interface RawToolInputIngredient {
+  sourceText?: unknown;
   name?: unknown;
   amount?: unknown;
   unit?: unknown;
@@ -205,6 +219,13 @@ export function parseToolInput(input: unknown): ExtractedDraft {
       throw new Error(`Ingredient at index ${idx} is missing a name`);
     }
     const result: RawIngredient = { name: ing.name.trim() };
+    // Dropped rather than truncated: a clipped line would no longer be what was printed.
+    if (typeof ing.sourceText === 'string') {
+      const trimmed = ing.sourceText.trim();
+      if (trimmed.length > 0 && trimmed.length <= SOURCE_TEXT_MAX_LENGTH) {
+        result.sourceText = trimmed;
+      }
+    }
     let amount: number | undefined;
     if (typeof ing.amount === 'number' && Number.isFinite(ing.amount)) {
       amount = ing.amount;

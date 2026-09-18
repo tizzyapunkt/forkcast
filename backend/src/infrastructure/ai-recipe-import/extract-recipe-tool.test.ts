@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { EXTRACT_RECIPE_TOOL, parseToolInput } from './extract-recipe-tool.ts';
+import { EXTRACT_RECIPE_INSTRUCTIONS, EXTRACT_RECIPE_TOOL, parseToolInput } from './extract-recipe-tool.ts';
 
 describe('parseToolInput — piece quantities', () => {
   it('passes complete piece info through verbatim when amount is consistent', () => {
@@ -171,6 +171,18 @@ describe('EXTRACT_RECIPE_TOOL schema', () => {
     expect(unitEnum).not.toContain('piece');
     expect(unitEnum).toEqual(['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp']);
   });
+
+  it('asks for the verbatim ingredient line first, as an optional string', () => {
+    const items = EXTRACT_RECIPE_TOOL.input_schema.properties.ingredients.items;
+    expect(Object.keys(items.properties)[0]).toBe('sourceText');
+    expect(items.properties.sourceText.type).toBe('string');
+    expect(items.required).not.toContain('sourceText');
+  });
+
+  it('instructs the model to transcribe each ingredient line verbatim', () => {
+    expect(EXTRACT_RECIPE_INSTRUCTIONS).toMatch(/sourceText/);
+    expect(EXTRACT_RECIPE_INSTRUCTIONS).toMatch(/verbatim/i);
+  });
 });
 
 describe('parseToolInput — note field', () => {
@@ -250,5 +262,108 @@ describe('parseToolInput — note field', () => {
       steps: [],
     });
     expect(draft.ingredients[0]!.note).toBeUndefined();
+  });
+});
+
+describe('parseToolInput — verbatim source text', () => {
+  it('keeps the ingredient line as printed on the raw ingredient', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Olivenöl', sourceText: '2 EL Olivenöl', amount: 30, unit: 'ml' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.sourceText).toBe('2 EL Olivenöl');
+  });
+
+  it('trims surrounding whitespace', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Kreuzkümmel', sourceText: '  ½ TL Kreuzkümmel \n' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.sourceText).toBe('½ TL Kreuzkümmel');
+  });
+
+  it('drops an empty or whitespace-only source text', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [
+        { name: 'Salz', sourceText: '' },
+        { name: 'Pfeffer', sourceText: '   ' },
+      ],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!).not.toHaveProperty('sourceText');
+    expect(draft.ingredients[1]!).not.toHaveProperty('sourceText');
+  });
+
+  it('drops an overlong source text and keeps the rest of the ingredient', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [
+        {
+          name: 'Zwiebel',
+          sourceText: 'a'.repeat(201),
+          amount: 150,
+          unit: 'g',
+          pieceAmount: 1,
+          pieceUnitLabel: 'Zwiebel',
+          gramsPerPiece: 150,
+          note: 'gewürfelt',
+        },
+      ],
+      steps: [],
+    });
+    const ing = draft.ingredients[0]!;
+    expect(ing).not.toHaveProperty('sourceText');
+    expect(ing).toEqual({
+      name: 'Zwiebel',
+      amount: 150,
+      unit: 'g',
+      pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+      note: 'gewürfelt',
+    });
+  });
+
+  it('accepts a source text exactly 200 chars long', () => {
+    const exact = 'a'.repeat(200);
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [{ name: 'Mehl', sourceText: exact }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!.sourceText).toBe(exact);
+  });
+
+  it('omits source text when the model did not return it', () => {
+    const draft = parseToolInput({
+      name: 'Cake',
+      ingredients: [{ name: 'flour', amount: 200, unit: 'g' }],
+      steps: [],
+    });
+    expect(draft.ingredients[0]!).not.toHaveProperty('sourceText');
+  });
+
+  it('does not change how a counted food resolves its amount', () => {
+    const draft = parseToolInput({
+      name: 'Soup',
+      ingredients: [
+        {
+          name: 'Zwiebel',
+          sourceText: '1 mittelgroße Zwiebel, gewürfelt',
+          amount: 200,
+          unit: 'g',
+          pieceAmount: 1,
+          pieceUnitLabel: 'Zwiebel',
+          gramsPerPiece: 150,
+        },
+      ],
+      steps: [],
+    });
+    const ing = draft.ingredients[0]!;
+    expect(ing.sourceText).toBe('1 mittelgroße Zwiebel, gewürfelt');
+    expect(ing.amount).toBe(150);
+    expect(ing.unit).toBe('g');
+    expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
   });
 });

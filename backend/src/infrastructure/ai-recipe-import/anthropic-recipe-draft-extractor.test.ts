@@ -26,7 +26,10 @@ const sampleResponse = {
       input: {
         name: 'Pasta',
         yield: 2,
-        ingredients: [{ name: 'olive oil', amount: 30, unit: 'ml' }, { name: 'salt' }],
+        ingredients: [
+          { sourceText: '30 ml olive oil, extra virgin', name: 'olive oil', amount: 30, unit: 'ml' },
+          { name: 'salt' },
+        ],
         steps: ['Boil water', 'Cook pasta'],
       },
     },
@@ -85,7 +88,10 @@ describe('AnthropicRecipeDraftExtractor', () => {
 
     expect(draft.name).toBe('Pasta');
     expect(draft.yield).toBe(2);
-    expect(draft.ingredients).toEqual([{ name: 'olive oil', amount: 30, unit: 'ml' }, { name: 'salt' }]);
+    expect(draft.ingredients).toEqual([
+      { sourceText: '30 ml olive oil, extra virgin', name: 'olive oil', amount: 30, unit: 'ml' },
+      { name: 'salt' },
+    ]);
     expect(draft.steps).toEqual(['Boil water', 'Cook pasta']);
   });
 
@@ -115,6 +121,7 @@ describe('AnthropicRecipeDraftExtractor', () => {
     const stringified = JSON.stringify(logged);
     expect(stringified).not.toContain('Pasta');
     expect(stringified).not.toContain('olive oil');
+    expect(stringified).not.toContain('extra virgin');
   });
 
   it('throws RecipeDraftExtractionError when the SDK call fails', async () => {
