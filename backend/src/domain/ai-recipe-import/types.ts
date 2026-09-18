@@ -10,6 +10,8 @@ export interface RecipeImage {
 
 export interface RawIngredient {
   name: string;
+  /** The ingredient line exactly as printed in the photos — display-only, never matched on or saved. */
+  sourceText?: string;
   amount?: number;
   unit?: MeasurementUnit;
   pieceQuantity?: PieceQuantity;

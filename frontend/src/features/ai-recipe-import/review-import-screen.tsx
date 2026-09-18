@@ -18,6 +18,8 @@ import type { ResolutionProposal } from '../../domain/food-resolution';
 import { de } from '../../i18n/de';
 import { Button } from '../../components/ui/button';
 import { pairInitialRowProvenance, syncRowProvenance, type RowProvenance } from './row-provenance';
+import { formatRawIngredient } from '../recipes/ingredient-provenance';
+import { RawReadLine } from '../recipes/raw-read-line';
 
 const r = de.aiRecipeImport.resolve;
 
@@ -67,12 +69,16 @@ function buildInitialMatchedIngredients(draft: RecipeDraft): {
 interface UnmatchedEntry {
   key: string;
   item: UnmatchedDraftIngredient;
+  /** What the model read for this line, paired by draft index like the matched rows' provenance. */
+  rawLine?: string;
 }
 
 function collectUnmatched(draft: RecipeDraft): UnmatchedEntry[] {
   const entries: UnmatchedEntry[] = [];
   draft.ingredients.forEach((ing, index) => {
-    if (!isMatched(ing)) entries.push({ key: `${index}:${ing.name}`, item: ing });
+    if (isMatched(ing)) return;
+    const raw = draft.provenance?.ingredients[index]?.raw;
+    entries.push({ key: `${index}:${ing.name}`, item: ing, ...(raw ? { rawLine: formatRawIngredient(raw) } : {}) });
   });
   return entries;
 }
@@ -186,6 +192,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
       unit: u.unit,
       ...(u.note !== undefined ? { note: u.note } : {}),
       ...(u.pieceQuantity ? { pieceQuantity: u.pieceQuantity } : {}),
+      ...(entry.rawLine !== undefined ? { rawLine: entry.rawLine } : {}),
     };
   }, [unmatched, openKey]);
 
@@ -195,12 +202,12 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
         <p className="font-medium">{de.aiRecipeImport.unmatchedHeading(unmatched.length)}</p>
         <p className="mt-1 text-xs text-muted-foreground">{de.aiRecipeImport.unmatchedHint}</p>
         <ul className="mt-2 space-y-1">
-          {unmatched.map(({ key, item: u }) => {
+          {unmatched.map(({ key, item: u, rawLine }) => {
             const proposal = proposalsByKey.get(key) ?? null;
             const hasProposal = proposalState === 'ready' && proposal !== null && proposal.verdict !== 'skip';
             return (
               <li key={key} className="flex items-center justify-between gap-2 text-sm">
-                <span className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
                   <span className="block truncate">
                     <span className="font-medium" title={u.name}>
                       {u.name}
@@ -211,6 +218,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
                       </span>
                     ) : null}
                   </span>
+                  {rawLine !== undefined && <RawReadLine text={rawLine} name={u.name} />}
                   {u.note !== undefined && (
                     <span
                       data-testid={`unmatched-note-${u.name}`}
@@ -220,7 +228,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
                       {u.note}
                     </span>
                   )}
-                </span>
+                </div>
                 {proposalState === 'loading' ? (
                   <span className="shrink-0 text-xs font-medium text-primary">{r.checking}</span>
                 ) : (

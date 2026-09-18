@@ -544,6 +544,37 @@ describe('importRecipeFromPhotos', () => {
       expect(draft.provenance.ingredients[2]!.raw.name).toBe('tomato paste');
     });
 
+    it('carries the verbatim source line on raw for matched and unmatched rows, never onto the draft rows', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          {
+            sourceText: '1 mittelgroße Zwiebel, gewürfelt',
+            name: 'Zwiebel',
+            amount: 150,
+            unit: 'g',
+            pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+            note: 'gewürfelt',
+          },
+          { sourceText: '2 Stangen Zitronengras, angedrückt', name: 'Zitronengras', note: 'angedrückt' },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({
+        zwiebel: [catalogResult({ id: 'foods-zw', name: 'Zwiebel', unit: 'g' })],
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.ingredients[0]!.matched).toBe(true);
+      expect(draft.ingredients[1]!.matched).toBe(false);
+      expect(draft.provenance.ingredients[0]!.raw.sourceText).toBe('1 mittelgroße Zwiebel, gewürfelt');
+      expect(draft.provenance.ingredients[1]!.raw.sourceText).toBe('2 Stangen Zitronengras, angedrückt');
+      expect(draft.ingredients[0]!).not.toHaveProperty('sourceText');
+      expect(draft.ingredients[1]!).not.toHaveProperty('sourceText');
+    });
+
     it('populates raw, candidates, chosen, and unitOverridden flag for a matched ingredient', async () => {
       const extractor = makeExtractor({
         name: 'X',

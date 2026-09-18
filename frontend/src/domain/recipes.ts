@@ -65,6 +65,8 @@ export type DraftIngredient = MatchedDraftIngredient | UnmatchedDraftIngredient;
 /** What the vision model read for one ingredient, before any catalog matching. */
 export interface RawIngredientProvenance {
   name: string;
+  /** The ingredient line exactly as printed — the model's transcription, before any interpretation. */
+  sourceText?: string;
   amount?: number;
   unit?: MeasurementUnit;
   pieceQuantity?: PieceQuantity;

@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { fold } from '../../lib/fold';
 import { droppedQualifier } from './dropped-qualifier';
+import { RawReadLine } from '../recipes/raw-read-line';
 import { ManualMatch } from './resolve-manual-match';
 import { NewFoodEditor } from './resolve-new-food-editor';
 import { SynonymProposal } from './resolve-synonym-proposal';
@@ -40,6 +41,8 @@ export interface ResolveItem {
   pieceQuantity?: PieceQuantity;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  /** What the photo said for this line, pre-formatted — only an import has one. Display-only. */
+  rawLine?: string;
 }
 
 interface ResolvePaneProps {
@@ -407,6 +410,7 @@ export function ResolvePane({
               </span>
             )}
             {item.note && <span className="ml-1 text-xs italic text-muted-foreground">· {item.note}</span>}
+            {item.rawLine !== undefined && <RawReadLine text={item.rawLine} name={item.name} className="mt-1" />}
           </div>
         )}
         {body}

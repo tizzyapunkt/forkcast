@@ -4,6 +4,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
 import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measurement-mode';
 import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
+import { RawReadLine } from './raw-read-line';
 import { Pencil, X } from 'lucide-react';
 import { de, formatMacroTriplet } from '../../i18n/de';
 import { DecimalInput } from '../../components/ui/decimal-input';
@@ -239,13 +240,11 @@ export function RecipeIngredientEditor({
 
                 {rowProvenance && (
                   <div className="-mt-1 space-y-0.5 pl-1">
-                    <p
-                      data-testid={`row-raw-${idx}`}
-                      aria-label={de.recipeIngredientEditor.provenance.rawLineAria(ing.name)}
-                      className="truncate text-xs text-muted-foreground/80"
-                    >
-                      {de.recipeIngredientEditor.provenance.rawLine(formatRawIngredient(rowProvenance.raw))}
-                    </p>
+                    <RawReadLine
+                      testId={`row-raw-${idx}`}
+                      text={formatRawIngredient(rowProvenance.raw)}
+                      name={ing.name}
+                    />
                     {marker && (
                       <p
                         data-testid={`row-uncertain-${idx}`}

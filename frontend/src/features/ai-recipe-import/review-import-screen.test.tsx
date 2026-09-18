@@ -708,6 +708,81 @@ describe('ReviewImportScreen', () => {
     });
   });
 
+  describe('verbatim read', () => {
+    const verbatimDraft: RecipeDraft = {
+      name: 'Curry',
+      yield: 2,
+      steps: [],
+      ingredients: [
+        {
+          matched: true,
+          name: 'Zwiebel',
+          unit: 'g',
+          macrosPerUnit: { calories: 0.4, protein: 0.012, carbs: 0.08, fat: 0.001 },
+          amount: 150,
+          unitOverridden: false,
+          source: 'CATALOG',
+          pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+          note: 'gewürfelt',
+        },
+        { matched: false, name: 'Zitronengras', amount: null, unit: null, note: 'angedrückt' },
+      ],
+      provenance: {
+        ingredients: [
+          provenanceEntry({
+            raw: {
+              sourceText: '1 mittelgroße Zwiebel, gewürfelt',
+              name: 'Zwiebel',
+              amount: 150,
+              unit: 'g',
+              pieceQuantity: { amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 },
+              note: 'gewürfelt',
+            },
+            candidates: [{ name: 'Zwiebel', source: 'CATALOG', unit: 'g', untracked: false }],
+            chosen: { name: 'Zwiebel', source: 'CATALOG', unit: 'g', untracked: false },
+          }),
+          provenanceEntry({
+            raw: { sourceText: '2 Stangen Zitronengras, angedrückt', name: 'Zitronengras', note: 'angedrückt' },
+          }),
+        ],
+      },
+    };
+
+    it('shows the printed line under a counted food instead of its gram estimate', () => {
+      renderWithProviders(<ReviewImportScreen draft={verbatimDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      const raw = screen.getByTestId('row-raw-0');
+      expect(raw).toHaveTextContent('1 mittelgroße Zwiebel, gewürfelt');
+      expect(raw).not.toHaveTextContent('150 g');
+    });
+
+    it('shows the printed line on an unmatched row', () => {
+      renderWithProviders(<ReviewImportScreen draft={verbatimDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.getByLabelText(/gelesener text für zitronengras/i)).toHaveTextContent(
+        '2 Stangen Zitronengras, angedrückt',
+      );
+    });
+
+    it('shows the printed line in the resolve sheet opened for an unmatched row', async () => {
+      renderWithProviders(<ReviewImportScreen draft={verbatimDraft} onSaved={() => {}} onCancel={() => {}} />);
+
+      await userEvent.click(await screen.findByLabelText(/zitronengras.*zuordnen/i));
+
+      const sheet = screen.getByRole('dialog');
+      expect(within(sheet).getByLabelText(/gelesener text für zitronengras/i)).toHaveTextContent(
+        '2 Stangen Zitronengras, angedrückt',
+      );
+    });
+
+    it('shows no read line on an unmatched row when the draft carries no provenance', () => {
+      renderWithProviders(<ReviewImportScreen draft={draft} onSaved={() => {}} onCancel={() => {}} />);
+
+      expect(screen.getByText('mystery herb')).toBeInTheDocument();
+      expect(screen.queryByLabelText(/gelesener text für mystery herb/i)).not.toBeInTheDocument();
+    });
+  });
+
   describe('ingredient note', () => {
     it('renders a note subtitle on an unmatched draft row', () => {
       const draftWithUnmatchedNote: RecipeDraft = {

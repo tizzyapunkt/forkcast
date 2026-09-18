@@ -63,3 +63,42 @@ describe('ResolvePane', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('Sumach');
   });
 });
+
+describe('ResolvePane item header', () => {
+  function renderPane(paneItem: ResolveItem, context: 'import' | 'create') {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    return render(
+      <QueryClientProvider client={qc}>
+        <ResolvePane
+          item={paneItem}
+          state="ready"
+          proposal={newFood}
+          context={context}
+          onResolved={noop}
+          onCreated={noop}
+          onDiscard={noop}
+          onRetry={noop}
+          onClose={noop}
+        />
+      </QueryClientProvider>,
+    );
+  }
+
+  it('shows what the photo said for the import line being resolved', () => {
+    renderPane({ name: 'Sumach', rawLine: '1 TL Sumach, gemahlen' }, 'import');
+
+    expect(screen.getByLabelText(/gelesener text für sumach/i)).toHaveTextContent('1 TL Sumach, gemahlen');
+  });
+
+  it('shows no read line when the item carries none', () => {
+    renderPane({ name: 'Sumach' }, 'import');
+
+    expect(screen.queryByLabelText(/gelesener text für sumach/i)).not.toBeInTheDocument();
+  });
+
+  it('shows no read line outside an import', () => {
+    renderPane({ name: 'Sumach', rawLine: '1 TL Sumach, gemahlen' }, 'create');
+
+    expect(screen.queryByLabelText(/gelesener text für sumach/i)).not.toBeInTheDocument();
+  });
+});
