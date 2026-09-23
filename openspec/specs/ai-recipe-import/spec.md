@@ -3,7 +3,9 @@
 ## Purpose
 
 Extract a draft recipe from one or more user-supplied photos of a single recipe using a vision LLM, match each parsed ingredient against the existing ingredient catalog, and return an editable draft. The draft is held only in memory/transit — persistence happens only via the existing `add-recipe` command after user review.
+
 ## Requirements
+
 ### Requirement: Import recipe draft from one or more photos
 The system SHALL expose a command that accepts an ordered, non-empty list of images of a single recipe and returns a recipe draft consisting of a name, yield, ordered ingredients, and ordered steps. The system MUST send all submitted images to the vision model in a single call, in the order provided, so the model can resolve content that spans multiple images.
 
@@ -48,7 +50,7 @@ The system SHALL reject requests where any image exceeds the per-image byte limi
 
 The system SHALL, for each ingredient name extracted from the photos, attempt to match it using a strict source cascade: first the user's catalog (`CATALOG`, including synonyms), then — only when the catalog returns zero candidates — scanned products (`SCAN`) via name search. The first tier returning at least one candidate wins; the lower tier MUST NOT be consulted. Open Food Facts MUST NOT be queried during import matching.
 
-When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`CATALOG` or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a match, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), and `note` (if any), without macros and without an `untracked` flag (the user sets it manually in the review UI if needed).
+When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`CATALOG` or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a match, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), `note` (if any), and the spoon measure — `rawDisplayAmount`, `rawDisplayUnitLabel` and `gramsPerSpoon` (each if any) — without macros, without `displayQuantity`, and without an `untracked` flag (the user sets it manually in the review UI if needed).
 
 When the model returns piece-quantity fields for an ingredient (see "Resolve piece quantities to gram weights"), the matching pipeline MUST preserve them on the draft row, subject to:
 - If the resolved catalog `unit` is `g` or `ml`, `pieceQuantity` is preserved verbatim and the catalog `unit` is used.
@@ -85,13 +87,18 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 
 #### Scenario: Unit override flagged
 
-- **WHEN** the model extracts `{ name: "tomato paste", amount: 2, unit: "tbsp" }` and the catalog match has `unit: "g"`
-- **THEN** the draft row uses `unit: "g"` (catalog wins), keeps `amount: 2`, and is flagged `unitOverridden: true`
+- **WHEN** the model extracts `{ name: "Joghurt", amount: 150, unit: "ml" }` and the catalog match has `unit: "g"`
+- **THEN** the draft row uses `unit: "g"` (catalog wins), keeps `amount: 150`, and is flagged `unitOverridden: true`
 
 #### Scenario: Unmatched ingredient
 
 - **WHEN** the model extracts an ingredient name that has no match in either cascade tier
-- **THEN** the draft row is flagged as unmatched and carries only the extracted `name`, `amount`, `unit`, `pieceQuantity` (when present), and `note` (when present), with no `macrosPerUnit` and no `untracked` flag
+- **THEN** the draft row is flagged as unmatched and carries only the extracted `name`, `amount`, `unit`, `pieceQuantity` (when present), `note` (when present), and the spoon measure fields (when present), with no `macrosPerUnit` and no `untracked` flag
+
+#### Scenario: Unmatched ingredient keeps its spoon measure
+
+- **WHEN** the model extracts `{ name: "Erdnussmus", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL", gramsPerSpoon: 16 }` and no cascade tier has a match for `Erdnussmus`
+- **THEN** the unmatched draft row carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, `gramsPerSpoon: 16`, no `amount`, and no `displayQuantity`
 
 #### Scenario: Piece quantity preserved through mass-unit match
 
@@ -131,11 +138,18 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 ### Requirement: Missing amount surfaced, never guessed
 When an ingredient amount or unit is not visible in any of the submitted photos, the system MUST return that field as missing rather than guess. Unmatched rows with missing amounts and matched rows with missing amounts MUST both be representable in the draft.
 
-The "never guess" rule applies to the *amount the recipe states*. It does NOT apply to the typical-weight-per-piece estimate the model produces for piece-counted ingredients (see "Resolve piece quantities to gram weights"), which is intentionally an estimate and is surfaced as such in the review UI.
+The "never guess" rule applies to the *amount the recipe states*. It does NOT apply to two intentional estimates, each surfaced as such in the review UI:
+
+- the typical-weight-per-piece estimate the model produces for piece-counted ingredients (see "Resolve piece quantities to gram weights")
+- the per-spoon weight estimate (`gramsPerSpoon`) the model produces for spoon- or cup-measured ingredients (see "Importer converts spoon measures on tracked matches" and "Estimated spoon amounts are flagged and marked")
 
 #### Scenario: Amount not shown in photos
 - **WHEN** the model extracts an ingredient whose amount is not visible (e.g. "salt to taste")
 - **THEN** the draft row carries the ingredient with no `amount`, no `unit`, and no `pieceQuantity`, and the row is included in the draft
+
+#### Scenario: Spoon estimate is not a stated amount
+- **WHEN** the recipe states "2 EL Haferflocken"
+- **THEN** the extracted ingredient carries the stated count and label on `rawDisplayAmount: 2` and `rawDisplayUnitLabel: "EL"`, the estimate on `gramsPerSpoon`, and no `amount` or `unit`
 
 ### Requirement: Configuration error returned when AI provider not configured
 When `ANTHROPIC_API_KEY` is missing at startup, the import endpoint SHALL return `503` with a stable error code (`ai-import-not-configured`) so the frontend can hide the import entry point. The rest of the API MUST continue to function unchanged.
@@ -211,7 +225,7 @@ The system SHALL surface the resolved `pieceQuantity` on the draft row using the
 - **THEN** the draft row has `unit: "ml"`, `amount: 30`, and `pieceQuantity = { amount: 1, unitLabel: "lemon", gramsPerPiece: 30 }`
 
 ### Requirement: Validate model-returned piece arithmetic
-On parsing the tool output, the system SHALL validate the piece fields:
+On parsing the tool output, the system SHALL validate the piece fields. Piece fields whose `pieceUnitLabel` is a spoon or cup measure are not pieces. "Parser moves spoon and ounce values off the canonical unit" turns them into a spoon measure before these rules apply.
 
 - If `pieceAmount` is present, both `pieceUnitLabel` (non-empty string) and `gramsPerPiece` (positive finite number) MUST also be present; otherwise the system SHALL drop all piece fields for that ingredient and treat it as mass-only.
 - If `gramsPerPiece` is present without `pieceAmount`, the system SHALL drop `gramsPerPiece` and treat the ingredient as mass-only.
@@ -230,7 +244,7 @@ These adjustments MUST happen during draft construction; the user MUST NOT see i
 
 #### Scenario: Piece fields with non-mass unit dropped
 - **WHEN** the model returns `{ name: "olive oil", amount: 2, unit: "tbsp", pieceAmount: 2, pieceUnitLabel: "tbsp", gramsPerPiece: 14 }`
-- **THEN** the draft row carries `amount: 2`, `unit: "tbsp"`, and no `pieceQuantity`
+- **THEN** the draft row carries no `pieceQuantity`, and the ingredient is a spoon measure of `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "tbsp"`, `gramsPerSpoon: 14` with no `amount` or `unit` before matching
 
 ### Requirement: Review UI shows piece quantity and weight together
 The frontend review-import screen SHALL render piece-tracked ingredient rows with both the piece count and the resolved weight visible (e.g. `1 onion (≈ 150 g)`), and SHALL allow the user to edit either the piece count or `gramsPerPiece` before saving the recipe. Editing the piece count MUST recompute `amount` using the existing `gramsPerPiece`. Editing `gramsPerPiece` MUST recompute `amount` using the existing piece count. The same detachment behavior defined in the `recipes` capability applies if the user edits the mass `amount` directly.
@@ -291,18 +305,29 @@ When a row's `pieceQuantity` was AI-estimated (visible via the estimate badge) a
 - **THEN** the swap action (tap-the-name → pick) is sufficient — there is no requirement to first delete the row using the row's ✕ button
 
 ### Requirement: Extractor captures literal display quantity for untracked-eligible rows
-The vision model's `extract_recipe` tool schema SHALL accept two additional optional fields on each ingredient that capture the literal textual amount and unit as written in the recipe, for cases where the unit is outside the canonical `MeasurementUnit` enum (`g | ml | oz | cup | tbsp | tsp | piece`):
+The vision model's `extract_recipe` tool schema SHALL accept these optional fields on each ingredient. They capture the literal textual amount and unit as written in the recipe when the recipe does not state the ingredient in grams or millilitres. `g` and `ml` are the only canonical units the extraction schema offers.
 
 - `rawDisplayAmount` (number, optional): the literal amount as written, e.g. `1`, `0.5`, `2`. Fractional values permitted.
 - `rawDisplayUnitLabel` (string, optional): the literal textual unit as written, e.g. `"TL"`, `"EL"`, `"Prise"`, `"Schuss"`, `"Teelöffel"`, or `"n. Geschmack"` when the recipe uses a qualitative phrase.
+- `gramsPerSpoon` (number, optional): the model's estimate of the mass in grams of one level spoon or cup of this specific food, as named by `rawDisplayUnitLabel`. Examples: `8` for 1 EL Haferflocken, `14` for 1 EL Erdnussmus, `2.5` for 1 TL Zimt.
 
-The model MUST populate these fields when the recipe states the ingredient using a unit outside the canonical enum (typical for seasonings/spices/herbs). When the recipe states the ingredient using a canonical unit, the model SHOULD omit these fields. When the ingredient has no quantity at all (e.g. "Salz n. Geschmack"), the model MAY populate `rawDisplayUnitLabel` alone with the qualitative phrase and omit `rawDisplayAmount`.
+When the recipe states the ingredient using a unit other than `g` or `ml` (spoons, cups, pinches, splashes, qualitative phrases), the model MUST populate the raw-display fields. The rules for spoon and cup measures (`EL`, `TL`, `Esslöffel`, `Teelöffel`, `Tasse`, `tbsp`, `tsp`, `cup`):
 
-The "never guess" rule on stated amounts continues to apply (see `Missing amount surfaced, never guessed`): the model MUST NOT invent `rawDisplayAmount` or `rawDisplayUnitLabel`. These fields capture only what is literally present in the photos.
+- They MUST be reported on the raw-display fields and MUST NOT be converted into `amount`/`unit`.
+- The model populates `amount`/`unit` only when the recipe itself prints a weight or volume in `g` or `ml`.
+- The model MUST also populate `gramsPerSpoon`.
+
+When the recipe states the ingredient in `g` or `ml`, the model SHOULD omit the raw-display fields. When the ingredient has no quantity at all (e.g. "Salz n. Geschmack"), the model MAY populate `rawDisplayUnitLabel` alone with the qualitative phrase and omit `rawDisplayAmount`.
+
+The "never guess" rule on stated amounts continues to apply (see `Missing amount surfaced, never guessed`): the model MUST NOT invent `rawDisplayAmount` or `rawDisplayUnitLabel`. These fields capture only what is literally present in the photos. `gramsPerSpoon` is an intentional estimate, like `gramsPerPiece`.
 
 #### Scenario: Teaspoon seasoning captured
 - **WHEN** the recipe states "1 TL Salz"
 - **THEN** the model returns the ingredient with `rawDisplayAmount: 1` and `rawDisplayUnitLabel: "TL"`
+
+#### Scenario: Tablespoon captured unconverted with a per-spoon estimate
+- **WHEN** the recipe states "2 EL Olivenöl"
+- **THEN** the model returns the ingredient with `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, a positive `gramsPerSpoon`, and no `amount` or `unit`
 
 #### Scenario: Pinch captured without amount
 - **WHEN** the recipe states "eine Prise Pfeffer"
@@ -316,23 +341,28 @@ The "never guess" rule on stated amounts continues to apply (see `Missing amount
 - **WHEN** the recipe states "200 g Mehl"
 - **THEN** the model returns the ingredient with `amount: 200, unit: "g"` and no `rawDisplayAmount`, no `rawDisplayUnitLabel`
 
+#### Scenario: Extraction schema offers only grams and millilitres
+- **WHEN** the `extract_recipe` tool schema is sent to the model
+- **THEN** the ingredient `unit` enum contains exactly `g` and `ml`
+
 ### Requirement: Importer converts spoon measures on tracked matches
 
 When the importer constructs a draft ingredient row from the extractor output and the catalog match, and ALL of the following hold:
 
 - The row was matched to a FOODS/USER/SCAN entry that is tracked (`untracked` is not `true`).
-- The row has no canonical `amount` (the extractor stated none) and no piece-derived total.
-- The extractor returned a `rawDisplayUnitLabel` whose normalized form (lowercased, trimmed) is a known spoon/volume measure: `tl`/`teelöffel`/`teeloeffel`/`tsp`/`teaspoon` (5 ml), `el`/`esslöffel`/`essloeffel`/`tbsp`/`tablespoon` (15 ml), or `tasse`/`cup` (240 ml).
+- The row has no canonical `amount` (the recipe printed none) and no piece-derived total.
+- The extractor returned a `rawDisplayUnitLabel` whose normalized form (lowercased, trimmed, trailing dots removed) is a known spoon/volume measure: `tl`/`teelöffel`/`teeloeffel`/`tsp`/`teaspoon` (5 ml), `el`/`esslöffel`/`essloeffel`/`tbsp`/`tablespoon` (15 ml), or `tasse`/`cup` (240 ml).
 
-then the system SHALL convert the spoon measure to the matched food's `unit` and set the canonical `amount`:
+then the system SHALL set the canonical `amount` in the matched food's `unit` from the first rule that applies. Throughout, the spoon count is `rawDisplayAmount ?? 1` and the volume in ml is `count × mlPerSpoon`.
 
-- volume in ml = `(rawDisplayAmount ?? 1) × mlPerSpoon`.
-- If the matched `unit` is `ml`: `amount` = that volume.
-- If the matched `unit` is `g`: `amount` = `volume × density` **only when the matched food carries a `density`**; when it has no `density`, no conversion is performed and the row is left with no `amount` (surfaced via the existing `missingAmount` flag) — the importer MUST NOT guess.
+1. The matched `unit` is `ml`: `amount` = the volume.
+2. The matched `unit` is `g` and the matched food carries a `density`: `amount` = volume × density.
+3. The matched `unit` is `g`, the food has no `density`, and the extractor returned a plausible `gramsPerSpoon`: `amount` = count × `gramsPerSpoon`. The row is flagged `spoonEstimated` (see "Match provenance is returned on every import response"). An estimate is plausible when it is at most 1.5 g per ml of that spoon's volume (7.5 g for a TL, 22.5 g for an EL, 360 g for a Tasse). Nothing a kitchen spoon holds is denser than honey (about 1.4 g/ml), so a heavier estimate means the model mixed up spoon sizes, and it is ignored.
+4. Otherwise (including an implausible estimate) no conversion is performed. The row is left with no `amount` and is surfaced via the existing `missingAmount` flag. The importer MUST NOT guess beyond the model's own estimate.
 
-A converted tracked row MUST NOT carry a `displayQuantity` (that field is reserved for untracked rows). The raw-display fields are consumed by the conversion and not persisted on the row.
+Converted amounts are rounded to one decimal. A converted tracked row MUST NOT carry a `displayQuantity` (that field is reserved for untracked rows). The raw-display fields and `gramsPerSpoon` are consumed by the conversion and not persisted on the row.
 
-This conversion applies ONLY to the raw-display path. A spoon-like value carried on the canonical `unit` field (`tbsp`/`tsp`/`cup`/`oz`) keeps the existing "catalog unit wins, `unitOverridden`" behavior and is NOT converted here.
+Every spoon measure reaches this conversion. Spoon values the model reported on the canonical `unit` or on the piece fields are moved to the raw-display fields during parsing (see "Parser moves spoon and ounce values off the canonical unit"), so a spoon is never kept as a bare number under the catalog unit.
 
 #### Scenario: Tablespoon of a g-unit staple with density converts
 
@@ -344,10 +374,30 @@ This conversion applies ONLY to the raw-display path. A spoon-like value carried
 - **WHEN** the extractor returns `{ name: "Sojasauce", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "ml"`
 - **THEN** the draft row carries `unit: "ml"`, `amount: 30` (`2 × 15 ml`), and no `displayQuantity`
 
+#### Scenario: Density wins over the model's estimate
+
+- **WHEN** the extractor returns `{ name: "Speisestärke", rawDisplayAmount: 2, rawDisplayUnitLabel: "TL", gramsPerSpoon: 4 }` and the catalog match is a tracked FOODS entry with `unit: "g"` and `density: 0.55`
+- **THEN** the draft row carries `amount ≈ 5.5` (from density, not `2 × 4`) and is not flagged `spoonEstimated`
+
+#### Scenario: Spoon of a g-unit food without density uses the per-spoon estimate
+
+- **WHEN** the extractor returns `{ name: "Haferflocken", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL", gramsPerSpoon: 8 }` and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
+- **THEN** the draft row carries `unit: "g"`, `amount: 16`, no `displayQuantity`, is flagged `spoonEstimated`, and is not flagged `missingAmount`
+
+#### Scenario: Implausible per-spoon estimate is ignored
+
+- **WHEN** the extractor returns `{ name: "Honig", rawDisplayAmount: 1.5, rawDisplayUnitLabel: "TL", gramsPerSpoon: 21 }` (21 g for one 5 ml TL is 4.2 g/ml) and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
+- **THEN** the draft row carries no `amount`, is flagged `missingAmount`, and is not flagged `spoonEstimated`
+
 #### Scenario: Spoon of a g-unit food without density is not guessed
 
-- **WHEN** the extractor returns `{ name: "Petersilie", rawDisplayAmount: 1, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
+- **WHEN** the extractor returns `{ name: "Petersilie", rawDisplayAmount: 1, rawDisplayUnitLabel: "EL" }` and the catalog match is a tracked FOODS entry with `unit: "g"`, no `density`, and no `gramsPerSpoon` was returned
 - **THEN** the draft row carries no `amount`, no `displayQuantity`, and the row is flagged `missingAmount`
+
+#### Scenario: Tablespoon the model put on the canonical unit converts
+
+- **WHEN** the model returns `{ name: "Olivenöl", amount: 2, unit: "tbsp" }` and the catalog match is a tracked FOODS entry with `unit: "ml"`
+- **THEN** the draft row carries `unit: "ml"`, `amount: 30`, and is not flagged `unitOverridden`
 
 #### Scenario: Non-spoon raw-display label is not converted
 
@@ -428,10 +478,10 @@ The import endpoint SHALL return a `provenance` object on every successful recip
 
 For each extracted ingredient, the entry MUST include:
 
-- `raw`: the ingredient exactly as returned by the vision model before any matching (name, amount, unit, piece-quantity fields, raw display fields when present, note when present, and `sourceText` when present).
+- `raw`: the parsed ingredient before any matching (name, amount, unit, piece-quantity fields, raw display fields and `gramsPerSpoon` when present, note when present, and `sourceText` when present). Its structured fields reflect the parser's validation and spoon normalization (see "Validate model-returned piece arithmetic" and "Parser moves spoon and ounce values off the canonical unit"). `sourceText` is the one field no parsing step alters, and it records the line exactly as read.
 - `candidates`: the top candidates returned by the winning cascade tier for the raw name, in rank order, capped at 5. Each candidate exposes `name`, `source`, `unit`, and `untracked`.
 - `chosen`: the candidate picked as the match, or `null` when no tier matched.
-- `flags`: a flat object of the post-match flags that fired on this row (`unitOverridden`, `pieceQuantityDropped`, `untrackedInherited`, `missingAmount`).
+- `flags`: a flat object of the post-match flags that fired on this row (`unitOverridden`, `pieceQuantityDropped`, `untrackedInherited`, `missingAmount`, `spoonEstimated`). `spoonEstimated` is `true` only when a tracked row's `amount` came from the model's per-spoon estimate (see "Importer converts spoon measures on tracked matches"). Rows converted by fixed volume or by catalog density are deterministic and carry `spoonEstimated: false`.
 
 The provenance payload MUST NOT be persisted anywhere; it exists only on the request-scoped response and MUST NOT appear on a saved recipe.
 
@@ -447,7 +497,7 @@ The provenance payload MUST NOT be persisted anywhere; it exists only on the req
 
 #### Scenario: Matched row carries chosen and the unit-override flag
 
-- **WHEN** the model extracts `{ name: "tomato paste", amount: 2, unit: "tbsp" }` and the catalog match has `unit: "g"`
+- **WHEN** the model extracts `{ name: "Joghurt", amount: 150, unit: "ml" }` and the catalog match has `unit: "g"`
 - **THEN** that provenance entry has a non-null `chosen` with `unit: "g"`, `flags.unitOverridden` is `true`, `flags.pieceQuantityDropped` is `false`, and `candidates[0]` matches `chosen`
 
 #### Scenario: Unmatched row carries null chosen
@@ -464,6 +514,21 @@ The provenance payload MUST NOT be persisted anywhere; it exists only on the req
 
 - **WHEN** the model extracts `{ name: "Zwiebel", amount: 150, unit: "g", pieceAmount: 1, pieceUnitLabel: "Zwiebel", gramsPerPiece: 150, sourceText: "1 mittelgroße Zwiebel, gewürfelt" }`
 - **THEN** that provenance entry's `raw.sourceText` is `"1 mittelgroße Zwiebel, gewürfelt"`, whether or not the ingredient matched
+
+#### Scenario: Normalized spoon keeps the printed line on raw
+
+- **WHEN** the model extracts `{ name: "Olivenöl", amount: 2, unit: "tbsp", sourceText: "2 EL Olivenöl" }`
+- **THEN** that provenance entry's `raw` carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, no `amount` or `unit`, and `sourceText: "2 EL Olivenöl"` exactly as the model returned it
+
+#### Scenario: Estimated spoon amount flagged
+
+- **WHEN** an import converts `{ name: "Haferflocken", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL", gramsPerSpoon: 8 }` against a tracked `g` entry without `density`
+- **THEN** that provenance entry has `flags.spoonEstimated: true` and `flags.missingAmount: false`
+
+#### Scenario: Deterministic spoon conversion not flagged
+
+- **WHEN** an import converts `{ name: "Olivenöl", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL" }` against a tracked `ml` entry
+- **THEN** that provenance entry has `flags.spoonEstimated: false`
 
 #### Scenario: Provenance is not persisted
 
@@ -570,12 +635,17 @@ When the user opens the replace flow on an imported row, the picker SHALL presen
 
 ### Requirement: Rows with uncertain matches are marked
 
-The review screen SHALL render a quiet inline marker on any imported row whose provenance indicates the match warrants a look: any of `flags.unitOverridden`, `flags.pieceQuantityDropped`, `flags.untrackedInherited`, or `flags.missingAmount` is true, or `chosen` is non-null while `candidates` held more than one option. The marker SHALL state which condition applies in German and MUST NOT block saving or require dismissal.
+The review screen SHALL render a quiet inline marker on any imported row whose provenance indicates the match warrants a look: any of `flags.unitOverridden`, `flags.pieceQuantityDropped`, `flags.untrackedInherited`, `flags.missingAmount`, or `flags.spoonEstimated` is true, or `chosen` is non-null while `candidates` held more than one option. The marker SHALL state which condition applies in German and MUST NOT block saving or require dismissal. For `flags.spoonEstimated` it SHALL name the spoon measure the estimate came from, built from `raw.rawDisplayAmount` and `raw.rawDisplayUnitLabel` (e.g. `Menge aus 2 EL geschätzt`). A missing `spoonEstimated` flag is treated as `false`.
 
 #### Scenario: Unit override marked
 
 - **WHEN** a row's provenance has `flags.unitOverridden` true
 - **THEN** that row shows a marker explaining the extracted unit was replaced by the catalog unit
+
+#### Scenario: Estimated spoon amount marked
+
+- **WHEN** a row's provenance has `flags.spoonEstimated` true and `raw` carries `rawDisplayAmount: 2` and `rawDisplayUnitLabel: "EL"`
+- **THEN** that row shows the marker `Menge aus 2 EL geschätzt`, while its raw line still shows the verbatim `sourceText`
 
 #### Scenario: Ambiguous match marked
 
@@ -765,3 +835,63 @@ The photos surfaced here are the same in-memory staged photos already held for t
 
 - **WHEN** the user reviews a draft with its source photos visible and saves the recipe
 - **THEN** the saved recipe carries no photo data and no additional backend call was made to surface the photos
+
+### Requirement: Parser moves spoon and ounce values off the canonical unit
+
+When parsing the extractor's tool output, the system SHALL move any spoon or cup measure the model reported outside the raw-display fields onto those fields before matching. Every spoon measure is then converted by the same rules, however the model shaped it. A label counts as a spoon or cup measure when its normalized form (lowercased, trimmed, trailing dots removed) is one of the known measures in "Importer converts spoon measures on tracked matches". The rules apply in this order, so a label the model wrote beats a label derived from an enum value:
+
+- **Piece fields whose `pieceUnitLabel` is a spoon or cup measure**: the ingredient is a spoon measure, not a counted piece.
+  - `pieceAmount` becomes `rawDisplayAmount` and `pieceUnitLabel` becomes `rawDisplayUnitLabel`, unless raw-display fields are already present.
+  - `gramsPerPiece` becomes `gramsPerSpoon`, unless `gramsPerSpoon` is already present.
+  - The piece fields and the piece-derived `amount`/`unit` are cleared.
+- **`unit` is `tbsp`, `tsp` or `cup`**: the value is a spoon count, not a mass or volume.
+  - `amount` and `unit` are cleared.
+  - If no raw-display fields are present, `amount` becomes `rawDisplayAmount`, and `rawDisplayUnitLabel` becomes the German label for that unit (`tbsp` → `EL`, `tsp` → `TL`, `cup` → `Tasse`).
+  - If raw-display fields are present, they are the literal reading and are kept as they are.
+- **The raw-display label is a spoon or cup measure and `unit` is `ml`**: `amount` and `unit` are cleared. The volume follows from the spoon itself, so an `ml` value next to it can only be the model's own conversion. A `g` amount next to a spoon measure is kept as a printed weight.
+- **`unit` is `oz`**: `amount` becomes `amount × 28.35` rounded to one decimal, and `unit` becomes `g`.
+- **`gramsPerSpoon`** is kept only when it is a positive finite number and the raw-display label is a spoon or cup measure. Otherwise it is dropped.
+
+These rules MUST run before piece validation and matching. They MUST NOT fail the import.
+
+The rules act on the structured fields only. They MUST NOT read `sourceText` and MUST NOT alter it. It stays the verbatim record of the printed line, so a normalized spoon can always be checked against what was actually read.
+
+#### Scenario: Tablespoon on the canonical unit moves to the raw-display fields
+
+- **WHEN** the model returns `{ name: "Olivenöl", amount: 2, unit: "tbsp" }`
+- **THEN** the parsed ingredient carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, and no `amount` or `unit`
+
+#### Scenario: Literal raw-display reading wins over a spoon unit
+
+- **WHEN** the model returns `{ name: "Olivenöl", amount: 2, unit: "tbsp", rawDisplayAmount: 2, rawDisplayUnitLabel: "Esslöffel" }`
+- **THEN** the parsed ingredient carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "Esslöffel"`, and no `amount` or `unit`
+
+#### Scenario: Spoon reported as a piece becomes a spoon measure
+
+- **WHEN** the model returns `{ name: "Erdnussmus", amount: 28, unit: "g", pieceAmount: 2, pieceUnitLabel: "EL", gramsPerPiece: 14 }`
+- **THEN** the parsed ingredient carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, `gramsPerSpoon: 14`, no `pieceQuantity`, and no `amount` or `unit`
+
+#### Scenario: Model-converted millilitres next to a spoon are dropped
+
+- **WHEN** the model returns `{ name: "Zimt", amount: 2.5, unit: "ml", rawDisplayAmount: 0.5, rawDisplayUnitLabel: "TL", gramsPerSpoon: 2.5 }`
+- **THEN** the parsed ingredient carries `rawDisplayAmount: 0.5`, `rawDisplayUnitLabel: "TL"`, `gramsPerSpoon: 2.5`, and no `amount` or `unit`
+
+#### Scenario: Printed grams next to a spoon are kept
+
+- **WHEN** the model returns `{ name: "Speisestärke", amount: 12, unit: "g", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL" }`
+- **THEN** the parsed ingredient keeps `amount: 12` and `unit: "g"` alongside the raw-display fields
+
+#### Scenario: Ounces converted to grams
+
+- **WHEN** the model returns `{ name: "Butter", amount: 2, unit: "oz" }`
+- **THEN** the parsed ingredient carries `amount: 56.7` and `unit: "g"`
+
+#### Scenario: Estimate on a non-spoon label is dropped
+
+- **WHEN** the model returns `{ name: "Pfeffer", rawDisplayAmount: 1, rawDisplayUnitLabel: "Prise", gramsPerSpoon: 0.3 }`
+- **THEN** the parsed ingredient carries the raw-display fields and no `gramsPerSpoon`
+
+#### Scenario: Normalization leaves the verbatim line untouched
+
+- **WHEN** the model returns `{ name: "Olivenöl", amount: 2, unit: "tbsp", sourceText: "2 EL Olivenöl" }`
+- **THEN** the parsed ingredient carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, no `amount` or `unit`, and `sourceText: "2 EL Olivenöl"` unchanged
