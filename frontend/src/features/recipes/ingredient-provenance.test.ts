@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { formatRawIngredient } from './ingredient-provenance';
+import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
+import type { IngredientMatchProvenance, RawIngredientProvenance } from '../../domain/recipes';
 
 describe('formatRawIngredient', () => {
   it('shows the verbatim source line over any interpreted amount', () => {
@@ -74,5 +75,68 @@ describe('formatRawIngredient', () => {
     it('shows just the name when nothing was quantified', () => {
       expect(formatRawIngredient({ name: 'Kirschtomaten' })).toBe('Kirschtomaten');
     });
+  });
+});
+
+describe('deriveUncertaintyMarker — spoon estimates', () => {
+  const entry = (
+    raw: RawIngredientProvenance,
+    flags: Partial<IngredientMatchProvenance['flags']> = {},
+  ): IngredientMatchProvenance => {
+    const chosen = { name: raw.name, source: 'CATALOG' as const, unit: 'g' as const, untracked: false };
+    return {
+      raw,
+      candidates: [chosen],
+      chosen,
+      flags: {
+        unitOverridden: false,
+        pieceQuantityDropped: false,
+        untrackedInherited: false,
+        missingAmount: false,
+        ...flags,
+      },
+    };
+  };
+
+  it('names the spoon measure an estimated amount came from', () => {
+    const e = entry(
+      { name: 'Haferflocken', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 8 },
+      { spoonEstimated: true },
+    );
+    expect(deriveUncertaintyMarker(e, 'g')).toBe('Menge aus 2 EL geschätzt');
+  });
+
+  it('renders a fractional spoon count like other counts', () => {
+    const e = entry(
+      { name: 'Zimt', rawDisplayAmount: 0.5, rawDisplayUnitLabel: 'TL', gramsPerSpoon: 2.5 },
+      { spoonEstimated: true },
+    );
+    expect(deriveUncertaintyMarker(e, 'g')).toBe('Menge aus 0.5 TL geschätzt');
+  });
+
+  it('shows no spoon marker when the flag is false or missing (older backend)', () => {
+    const raw = { name: 'Olivenöl', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' };
+    expect(deriveUncertaintyMarker(entry(raw, { spoonEstimated: false }), 'ml')).toBeNull();
+    expect(deriveUncertaintyMarker(entry(raw), 'ml')).toBeNull();
+  });
+});
+
+describe('formatRawIngredient — normalized spoon rows', () => {
+  it('rebuilds a normalized spoon row in the recipe framing when no source line exists', () => {
+    expect(
+      formatRawIngredient({ name: 'Olivenöl', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 13 }),
+    ).toBe('2 EL Olivenöl');
+  });
+
+  it('still returns the verbatim line when one exists', () => {
+    expect(
+      formatRawIngredient({
+        sourceText: '2 Esslöffel gutes Olivenöl',
+        name: 'Olivenöl',
+        rawDisplayAmount: 2,
+        rawDisplayUnitLabel: 'EL',
+        gramsPerSpoon: 13,
+      }),
+    ).toBe('2 Esslöffel gutes Olivenöl');
   });
 });

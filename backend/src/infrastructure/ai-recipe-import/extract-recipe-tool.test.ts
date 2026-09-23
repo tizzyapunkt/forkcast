@@ -82,7 +82,7 @@ describe('parseToolInput — piece quantities', () => {
     expect(draft.ingredients[0]!.amount).toBe(154);
   });
 
-  it('drops piece fields when unit is non-mass', () => {
+  it('turns spoon-labelled piece fields into a spoon measure instead of a piece', () => {
     const draft = parseToolInput({
       name: 'Pasta',
       ingredients: [
@@ -98,9 +98,12 @@ describe('parseToolInput — piece quantities', () => {
       steps: [],
     });
     const ing = draft.ingredients[0]!;
-    expect(ing.amount).toBe(2);
-    expect(ing.unit).toBe('tbsp');
     expect(ing.pieceQuantity).toBeUndefined();
+    expect(ing.amount).toBeUndefined();
+    expect(ing.unit).toBeUndefined();
+    expect(ing.rawDisplayAmount).toBe(2);
+    expect(ing.rawDisplayUnitLabel).toBe('tbsp');
+    expect(ing.gramsPerSpoon).toBe(14);
   });
 
   it('preserves piece quantity for liquid pieces (ml)', () => {
@@ -166,10 +169,27 @@ describe('parseToolInput — piece quantities', () => {
 });
 
 describe('EXTRACT_RECIPE_TOOL schema', () => {
-  it('does not offer "piece" as a canonical unit (counts go through the piece fields)', () => {
+  it('offers only grams and millilitres as canonical units (counts and spoons have their own fields)', () => {
     const unitEnum = EXTRACT_RECIPE_TOOL.input_schema.properties.ingredients.items.properties.unit.enum;
     expect(unitEnum).not.toContain('piece');
-    expect(unitEnum).toEqual(['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp']);
+    expect(unitEnum).toEqual(['g', 'ml']);
+  });
+
+  it('offers an optional per-spoon gram estimate', () => {
+    const items = EXTRACT_RECIPE_TOOL.input_schema.properties.ingredients.items;
+    expect(items.properties.gramsPerSpoon.type).toBe('number');
+    expect(items.required).not.toContain('gramsPerSpoon');
+  });
+
+  it('no longer asks the model to convert spoon measures itself', () => {
+    expect(EXTRACT_RECIPE_INSTRUCTIONS).not.toMatch(/canonical conversion/i);
+    expect(EXTRACT_RECIPE_INSTRUCTIONS).toMatch(/gramsPerSpoon/);
+  });
+
+  it('still asks for the verbatim line first and keeps the transcription rule', () => {
+    const items = EXTRACT_RECIPE_TOOL.input_schema.properties.ingredients.items;
+    expect(Object.keys(items.properties)[0]).toBe('sourceText');
+    expect(EXTRACT_RECIPE_INSTRUCTIONS).toMatch(/Transcription rule/);
   });
 
   it('asks for the verbatim ingredient line first, as an optional string', () => {
@@ -365,5 +385,170 @@ describe('parseToolInput — verbatim source text', () => {
     expect(ing.amount).toBe(150);
     expect(ing.unit).toBe('g');
     expect(ing.pieceQuantity).toEqual({ amount: 1, unitLabel: 'Zwiebel', gramsPerPiece: 150 });
+  });
+});
+
+describe('parseToolInput — spoon normalization', () => {
+  const parseOne = (ingredient: Record<string, unknown>) =>
+    parseToolInput({ name: 'R', ingredients: [ingredient], steps: [] }).ingredients[0]!;
+
+  it('moves a spoon unit off the canonical fields onto the German spoon label', () => {
+    for (const [unit, label] of [
+      ['tbsp', 'EL'],
+      ['tsp', 'TL'],
+      ['cup', 'Tasse'],
+    ] as const) {
+      const ing = parseOne({ name: 'Olivenöl', amount: 2, unit });
+      expect(ing.amount).toBeUndefined();
+      expect(ing.unit).toBeUndefined();
+      expect(ing.rawDisplayAmount).toBe(2);
+      expect(ing.rawDisplayUnitLabel).toBe(label);
+    }
+  });
+
+  it('keeps the label alone when a spoon unit comes without a count', () => {
+    const ing = parseOne({ name: 'Olivenöl', unit: 'tbsp' });
+    expect(ing.rawDisplayAmount).toBeUndefined();
+    expect(ing.rawDisplayUnitLabel).toBe('EL');
+  });
+
+  it('keeps the literal raw-display reading over a spoon unit', () => {
+    const ing = parseOne({
+      name: 'Olivenöl',
+      amount: 2,
+      unit: 'tbsp',
+      rawDisplayAmount: 2,
+      rawDisplayUnitLabel: 'Esslöffel',
+    });
+    expect(ing.amount).toBeUndefined();
+    expect(ing.unit).toBeUndefined();
+    expect(ing.rawDisplayAmount).toBe(2);
+    expect(ing.rawDisplayUnitLabel).toBe('Esslöffel');
+  });
+
+  it('turns a spoon reported as a piece into a spoon measure with the piece weight as estimate', () => {
+    const ing = parseOne({
+      name: 'Erdnussmus',
+      amount: 28,
+      unit: 'g',
+      pieceAmount: 2,
+      pieceUnitLabel: 'EL',
+      gramsPerPiece: 14,
+    });
+    expect(ing.pieceQuantity).toBeUndefined();
+    expect(ing.amount).toBeUndefined();
+    expect(ing.unit).toBeUndefined();
+    expect(ing.rawDisplayAmount).toBe(2);
+    expect(ing.rawDisplayUnitLabel).toBe('EL');
+    expect(ing.gramsPerSpoon).toBe(14);
+  });
+
+  it('prefers literal raw-display fields and an explicit estimate over spoon-labelled piece fields', () => {
+    const ing = parseOne({
+      name: 'Erdnussmus',
+      pieceAmount: 2,
+      pieceUnitLabel: 'EL',
+      gramsPerPiece: 14,
+      rawDisplayAmount: 2,
+      rawDisplayUnitLabel: 'Esslöffel',
+      gramsPerSpoon: 16,
+    });
+    expect(ing.pieceQuantity).toBeUndefined();
+    expect(ing.rawDisplayUnitLabel).toBe('Esslöffel');
+    expect(ing.gramsPerSpoon).toBe(16);
+  });
+
+  it('drops a model-made millilitre amount next to a spoon measure', () => {
+    const ing = parseOne({
+      name: 'Zimt',
+      amount: 2.5,
+      unit: 'ml',
+      rawDisplayAmount: 0.5,
+      rawDisplayUnitLabel: 'TL',
+      gramsPerSpoon: 2.5,
+    });
+    expect(ing.amount).toBeUndefined();
+    expect(ing.unit).toBeUndefined();
+    expect(ing.rawDisplayAmount).toBe(0.5);
+    expect(ing.rawDisplayUnitLabel).toBe('TL');
+    expect(ing.gramsPerSpoon).toBe(2.5);
+  });
+
+  it('keeps a printed gram amount next to a spoon measure', () => {
+    const ing = parseOne({
+      name: 'Speisestärke',
+      amount: 12,
+      unit: 'g',
+      rawDisplayAmount: 2,
+      rawDisplayUnitLabel: 'EL',
+    });
+    expect(ing.amount).toBe(12);
+    expect(ing.unit).toBe('g');
+    expect(ing.rawDisplayUnitLabel).toBe('EL');
+  });
+
+  it('keeps a millilitre amount next to a non-spoon label', () => {
+    const ing = parseOne({
+      name: 'Zitronensaft',
+      amount: 10,
+      unit: 'ml',
+      rawDisplayAmount: 1,
+      rawDisplayUnitLabel: 'Schuss',
+    });
+    expect(ing.amount).toBe(10);
+    expect(ing.unit).toBe('ml');
+  });
+
+  it('converts ounces to grams', () => {
+    const ing = parseOne({ name: 'Butter', amount: 2, unit: 'oz' });
+    expect(ing.amount).toBe(56.7);
+    expect(ing.unit).toBe('g');
+  });
+
+  it('keeps a positive per-spoon estimate next to a spoon label only', () => {
+    expect(
+      parseOne({ name: 'Haferflocken', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 8 })
+        .gramsPerSpoon,
+    ).toBe(8);
+    expect(
+      parseOne({ name: 'Pfeffer', rawDisplayAmount: 1, rawDisplayUnitLabel: 'Prise', gramsPerSpoon: 0.3 })
+        .gramsPerSpoon,
+    ).toBeUndefined();
+    expect(parseOne({ name: 'Haferflocken', amount: 40, unit: 'g', gramsPerSpoon: 8 }).gramsPerSpoon).toBeUndefined();
+    expect(
+      parseOne({ name: 'Haferflocken', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 0 })
+        .gramsPerSpoon,
+    ).toBeUndefined();
+    expect(
+      parseOne({ name: 'Haferflocken', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: '8' })
+        .gramsPerSpoon,
+    ).toBeUndefined();
+  });
+
+  it('leaves the verbatim source text untouched in every normalization case', () => {
+    const cases: Record<string, unknown>[] = [
+      { name: 'Olivenöl', amount: 2, unit: 'tbsp', sourceText: '2 EL Olivenöl' },
+      {
+        name: 'Erdnussmus',
+        amount: 28,
+        unit: 'g',
+        pieceAmount: 2,
+        pieceUnitLabel: 'EL',
+        gramsPerPiece: 14,
+        sourceText: '2 EL Erdnussmus',
+      },
+      {
+        name: 'Zimt',
+        amount: 2.5,
+        unit: 'ml',
+        rawDisplayAmount: 0.5,
+        rawDisplayUnitLabel: 'TL',
+        sourceText: '½ TL Zimt',
+      },
+      { name: 'Butter', amount: 2, unit: 'oz', sourceText: '2 oz butter, softened' },
+    ];
+    for (const input of cases) {
+      expect(parseOne(input).sourceText).toBe(input.sourceText);
+    }
   });
 });

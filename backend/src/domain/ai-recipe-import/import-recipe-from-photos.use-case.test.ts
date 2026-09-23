@@ -156,11 +156,11 @@ describe('importRecipeFromPhotos', () => {
     const extractor = makeExtractor({
       name: 'X',
       yield: 1,
-      ingredients: [{ name: 'tomato paste', amount: 2, unit: 'tbsp' }],
+      ingredients: [{ name: 'Joghurt', amount: 150, unit: 'ml' }],
       steps: [],
     });
     const search = makeSearch({
-      'tomato paste': [catalogResult({ name: 'Tomatenmark', unit: 'g' })],
+      joghurt: [catalogResult({ name: 'Joghurt', unit: 'g' })],
     });
 
     const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -168,7 +168,7 @@ describe('importRecipeFromPhotos', () => {
     const [ing] = draft.ingredients;
     if (!ing || !ing.matched) throw new Error('expected matched ingredient');
     expect(ing.unit).toBe('g');
-    expect(ing.amount).toBe(2);
+    expect(ing.amount).toBe(150);
     expect(ing.unitOverridden).toBe(true);
   });
 
@@ -525,14 +525,14 @@ describe('importRecipeFromPhotos', () => {
         yield: 1,
         ingredients: [
           { name: 'olive oil', amount: 30, unit: 'ml' },
-          { name: 'unicorn dust', amount: 1, unit: 'tsp' },
-          { name: 'tomato paste', amount: 2, unit: 'tbsp' },
+          { name: 'unicorn dust', rawDisplayAmount: 1, rawDisplayUnitLabel: 'TL' },
+          { name: 'Joghurt', amount: 150, unit: 'ml' },
         ],
         steps: [],
       });
       const search = makeSearch({
         'olive oil': [catalogResult()],
-        'tomato paste': [catalogResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' })],
+        joghurt: [catalogResult({ id: 'foods-jo', name: 'Naturjoghurt', unit: 'g' })],
       });
 
       const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
@@ -540,8 +540,8 @@ describe('importRecipeFromPhotos', () => {
       expect(draft.provenance.ingredients).toHaveLength(draft.ingredients.length);
       expect(draft.ingredients[1]!.matched).toBe(false);
       expect(draft.provenance.ingredients[1]!.chosen).toBeNull();
-      expect(draft.provenance.ingredients[2]!.chosen?.name).toBe('Tomatenmark');
-      expect(draft.provenance.ingredients[2]!.raw.name).toBe('tomato paste');
+      expect(draft.provenance.ingredients[2]!.chosen?.name).toBe('Naturjoghurt');
+      expect(draft.provenance.ingredients[2]!.raw.name).toBe('Joghurt');
     });
 
     it('carries the verbatim source line on raw for matched and unmatched rows, never onto the draft rows', async () => {
@@ -579,13 +579,13 @@ describe('importRecipeFromPhotos', () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
-        ingredients: [{ name: 'tomato paste', amount: 2, unit: 'tbsp' }],
+        ingredients: [{ name: 'Joghurt', amount: 150, unit: 'ml' }],
         steps: [],
       });
       const search = makeSearch({
-        'tomato paste': [
-          catalogResult({ id: 'foods-tm', name: 'Tomatenmark', unit: 'g' }),
-          catalogResult({ id: 'foods-tom', name: 'Tomaten', unit: 'g' }),
+        joghurt: [
+          catalogResult({ id: 'foods-jo', name: 'Naturjoghurt', unit: 'g' }),
+          catalogResult({ id: 'foods-gj', name: 'Griechischer Joghurt', unit: 'g' }),
         ],
       });
 
@@ -594,14 +594,20 @@ describe('importRecipeFromPhotos', () => {
       expect(draft.provenance).toBeDefined();
       expect(draft.provenance.ingredients).toHaveLength(1);
       const entry = draft.provenance.ingredients[0]!;
-      expect(entry.raw).toEqual({ name: 'tomato paste', amount: 2, unit: 'tbsp' });
+      expect(entry.raw).toEqual({ name: 'Joghurt', amount: 150, unit: 'ml' });
       expect(entry.candidates).toHaveLength(2);
-      expect(entry.candidates[0]).toEqual({ name: 'Tomatenmark', source: 'CATALOG', unit: 'g', untracked: false });
-      expect(entry.candidates[1]).toEqual({ name: 'Tomaten', source: 'CATALOG', unit: 'g', untracked: false });
+      expect(entry.candidates[0]).toEqual({ name: 'Naturjoghurt', source: 'CATALOG', unit: 'g', untracked: false });
+      expect(entry.candidates[1]).toEqual({
+        name: 'Griechischer Joghurt',
+        source: 'CATALOG',
+        unit: 'g',
+        untracked: false,
+      });
       expect(entry.chosen).toEqual(entry.candidates[0]);
       expect(entry.flags.unitOverridden).toBe(true);
       expect(entry.flags.pieceQuantityDropped).toBe(false);
       expect(entry.flags.untrackedInherited).toBe(false);
+      expect(entry.flags.spoonEstimated).toBe(false);
     });
 
     it('sets chosen=null, empty candidates, and all flags false for an unmatched ingredient', async () => {
@@ -958,15 +964,15 @@ describe('importRecipeFromPhotos', () => {
       const extractor = makeExtractor({
         name: 'X',
         yield: 1,
-        ingredients: [{ name: 'tomato paste', amount: 2, unit: 'tbsp', note: 'doppelt konzentriert' }],
+        ingredients: [{ name: 'Joghurt', amount: 150, unit: 'ml', note: 'gut gekühlt' }],
         steps: [],
       });
       const search = makeSearch({
-        'tomato paste': [
+        joghurt: [
           catalogResult({
-            name: 'Tomatenmark',
+            name: 'Joghurt',
             unit: 'g',
-            macrosPerUnit: { calories: 0.82, protein: 0.044, carbs: 0.179, fat: 0.005 },
+            macrosPerUnit: { calories: 0.61, protein: 0.035, carbs: 0.047, fat: 0.033 },
           }),
         ],
       });
@@ -974,7 +980,7 @@ describe('importRecipeFromPhotos', () => {
       const ing = draft.ingredients[0]!;
       if (!ing.matched) throw new Error('expected matched ingredient');
       expect(ing.unitOverridden).toBe(true);
-      expect(ing.note).toBe('doppelt konzentriert');
+      expect(ing.note).toBe('gut gekühlt');
     });
 
     it('converts a spoon measure on a tracked g-unit match using the food density', async () => {
@@ -1001,6 +1007,83 @@ describe('importRecipeFromPhotos', () => {
       expect(ing.amount).toBeCloseTo(5.5); // 2 × 5 ml × 0.55 g/ml
       expect(ing.untracked).toBeUndefined();
       expect(ing.displayQuantity).toBeUndefined();
+    });
+  });
+
+  describe('spoon measures', () => {
+    it('keeps the spoon measure and its estimate on an unmatched row, without a displayQuantity', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [{ name: 'Erdnussmus', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 16 }],
+        steps: [],
+      });
+      const draft = await importRecipeFromPhotos({ extractor, search: makeSearch({}) }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      if (ing.matched) throw new Error('expected unmatched ingredient');
+      expect(ing.rawDisplayAmount).toBe(2);
+      expect(ing.rawDisplayUnitLabel).toBe('EL');
+      expect(ing.gramsPerSpoon).toBe(16);
+      expect(ing.amount).toBeNull();
+      expect('displayQuantity' in ing).toBe(false);
+    });
+
+    it('converts a spoon of a tracked g-unit food without density from the estimate and flags it', async () => {
+      const extractor = makeExtractor({
+        name: 'Porridge',
+        yield: 1,
+        ingredients: [{ name: 'Haferflocken', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 8 }],
+        steps: [],
+      });
+      const search = makeSearch({ haferflocken: [catalogResult({ name: 'Haferflocken', unit: 'g' })] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.unit).toBe('g');
+      expect(ing.amount).toBe(16);
+      expect(draft.provenance.ingredients[0]!.flags.spoonEstimated).toBe(true);
+      expect(draft.provenance.ingredients[0]!.flags.missingAmount).toBe(false);
+    });
+
+    it('carries a boolean spoonEstimated flag on every provenance entry', async () => {
+      const extractor = makeExtractor({
+        name: 'X',
+        yield: 1,
+        ingredients: [
+          { name: 'Olivenöl', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 13 },
+          { name: 'Erdnussmus', rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 16 },
+        ],
+        steps: [],
+      });
+      const search = makeSearch({ olivenöl: [catalogResult()] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.provenance.ingredients.map((e) => e.flags.spoonEstimated)).toEqual([false, false]);
+      const oil = draft.ingredients[0]!;
+      if (!oil.matched) throw new Error('expected matched ingredient');
+      expect(oil.amount).toBe(30);
+    });
+
+    it('passes a normalized spoon row to provenance raw with its verbatim line intact', async () => {
+      const raw = {
+        name: 'Olivenöl',
+        sourceText: '2 EL Olivenöl',
+        rawDisplayAmount: 2,
+        rawDisplayUnitLabel: 'EL',
+        gramsPerSpoon: 13,
+      };
+      const extractor = makeExtractor({ name: 'X', yield: 1, ingredients: [raw], steps: [] });
+      const search = makeSearch({ olivenöl: [catalogResult()] });
+
+      const draft = await importRecipeFromPhotos({ extractor, search }, oneImage());
+
+      expect(draft.provenance.ingredients[0]!.raw).toEqual(raw);
+      expect('sourceText' in draft.ingredients[0]!).toBe(false);
+      expect('gramsPerSpoon' in draft.ingredients[0]!).toBe(false);
     });
   });
 });

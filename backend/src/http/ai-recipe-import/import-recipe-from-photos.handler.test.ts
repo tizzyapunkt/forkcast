@@ -246,6 +246,7 @@ describe('POST /import-recipe-from-photos', () => {
       pieceQuantityDropped: false,
       untrackedInherited: false,
       missingAmount: false,
+      spoonEstimated: false,
     });
   });
 

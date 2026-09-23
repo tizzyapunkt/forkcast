@@ -1,6 +1,6 @@
 import type { IngredientResultSource } from '../ingredient-search/types.ts';
 import type { MacrosPerUnit, MeasurementUnit, PieceQuantity } from '../recipes/types.ts';
-import { convertSpoonToAmount } from './convert-spoon-amount.ts';
+import { convertSpoonMeasure } from './convert-spoon-amount.ts';
 import type { MatchedDraftIngredient } from './types.ts';
 
 /**
@@ -27,6 +27,8 @@ export interface OriginalDraftFields {
   note?: string;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  /** The model's estimate of one spoon of this food in grams — used only when the food has no density. */
+  gramsPerSpoon?: number;
 }
 
 export interface BuildMatchedRowFlags {
@@ -39,6 +41,8 @@ export interface BuildMatchedRowFlags {
    * path), which would otherwise persist as a silent 0 g. Surfaced so it's visible.
    */
   missingAmount: boolean;
+  /** The row's amount rests on the model's per-spoon estimate, not on a fixed volume or catalog density. */
+  spoonEstimated: boolean;
 }
 
 export interface BuildMatchedRowResult {
@@ -63,6 +67,8 @@ export function buildMatchedRowWithFlags(
   const matchedUnitIsMass = food.unit === 'g' || food.unit === 'ml';
   const isUntracked = food.untracked === true;
   const pieceQuantityDropped = raw.pieceQuantity !== undefined && !matchedUnitIsMass;
+
+  let spoonEstimated = false;
 
   const row: MatchedDraftIngredient = {
     matched: true,
@@ -97,19 +103,32 @@ export function buildMatchedRowWithFlags(
     }
   } else if (row.amount === null && row.pieceQuantity === undefined) {
     // Tracked row with no stated canonical amount: if the recipe gave a spoon/cup measure, convert
-    // it to the catalog unit (volume for ml foods, volume × density for g foods). The raw-display
-    // fields are consumed here, not persisted — displayQuantity is reserved for untracked rows, so a
-    // tracked row never carries it whether or not the conversion succeeded. An unconvertible measure
-    // (no density, or a non-spoon label) leaves the row untouched and trips missingAmount below.
-    const converted = convertSpoonToAmount(raw.rawDisplayAmount, raw.rawDisplayUnitLabel, food.unit, food.density);
-    if (converted !== undefined) row.amount = converted;
+    // it to the catalog unit — volume for ml foods, volume × density for g foods, and only then the
+    // model's per-spoon estimate. The raw-display fields are consumed here, not persisted —
+    // displayQuantity is reserved for untracked rows, so a tracked row never carries it whether or
+    // not the conversion succeeded. An unconvertible measure (no density and no estimate, or a
+    // non-spoon label) leaves the row untouched and trips missingAmount below.
+    const converted = convertSpoonMeasure({
+      count: raw.rawDisplayAmount,
+      label: raw.rawDisplayUnitLabel,
+      unit: food.unit,
+      density: food.density,
+      gramsPerSpoon: raw.gramsPerSpoon,
+    });
+    if (converted !== undefined) {
+      row.amount = converted.amount;
+      spoonEstimated = converted.estimated;
+    }
   }
 
   // Computed after the untracked block above coerces a null amount to 0, so untracked
   // rows never trip it — only a tracked row with neither amount nor a piece estimate does.
   const missingAmount = row.amount === null && row.pieceQuantity === undefined;
 
-  return { row, flags: { unitOverridden, pieceQuantityDropped, untrackedInherited: isUntracked, missingAmount } };
+  return {
+    row,
+    flags: { unitOverridden, pieceQuantityDropped, untrackedInherited: isUntracked, missingAmount, spoonEstimated },
+  };
 }
 
 /** Convenience wrapper returning just the row (the common case). */

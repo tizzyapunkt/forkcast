@@ -119,6 +119,40 @@ const post = (a: Hono, body: unknown) =>
   });
 
 describe('POST /confirm-ingredient-resolution', () => {
+  const erdnussmus: FoodEntry = {
+    id: 'erdnussmus',
+    name: 'Erdnussmus',
+    synonyms: [],
+    unit: 'g',
+    macrosPer100: { calories: 610, protein: 25, carbs: 12, fat: 50 },
+  };
+  const confirmSpoon = async (gramsPerSpoon: unknown) => {
+    const original: Record<string, unknown> = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL' };
+    if (gramsPerSpoon !== undefined) original.gramsPerSpoon = gramsPerSpoon;
+    const res = await post(confirmApp(new FakeCatalogStore()), { kind: 'new-food', entry: erdnussmus, original });
+    return { status: res.status, body: (await res.json()) as { ingredient: { unit: string; amount: number | null } } };
+  };
+
+  it('converts the spoon measure of a confirmed row with the per-spoon estimate', async () => {
+    const { status, body } = await confirmSpoon(16);
+    expect(status).toBe(200);
+    expect(body.ingredient).toMatchObject({ unit: 'g', amount: 32 });
+  });
+
+  it('ignores an unusable per-spoon estimate instead of rejecting the confirm', async () => {
+    for (const bad of [-1, 0, '16', null]) {
+      const { status, body } = await confirmSpoon(bad);
+      expect(status).toBe(200);
+      expect(body.ingredient.amount).toBeNull();
+    }
+  });
+
+  it('confirms a spoon row without an estimate, leaving it without an amount', async () => {
+    const { status, body } = await confirmSpoon(undefined);
+    expect(status).toBe(200);
+    expect(body.ingredient.amount).toBeNull();
+  });
+
   it('appends a new food to the catalog and returns the matched ingredient', async () => {
     const catalog = new FakeCatalogStore();
 

@@ -52,6 +52,7 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
     expect(row.amount).toBeNull();
     expect(row.displayQuantity).toBeUndefined();
     expect(flags.missingAmount).toBe(true);
+    expect(flags.spoonEstimated).toBe(false);
   });
 
   it('does not convert a non-spoon raw-display label', () => {
@@ -76,5 +77,46 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
     expect(row.untracked).toBe(true);
     expect(row.amount).toBe(0);
     expect(row.displayQuantity).toEqual({ amount: 2, unitLabel: 'TL' });
+  });
+
+  it('converts a g-unit food without density from the per-spoon estimate and flags it as estimated', () => {
+    const raw: OriginalDraftFields = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 8 };
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(undefined), 'CATALOG', raw);
+
+    expect(row.amount).toBe(16);
+    expect(row.unit).toBe('g');
+    expect(row.displayQuantity).toBeUndefined();
+    expect(flags.spoonEstimated).toBe(true);
+    expect(flags.missingAmount).toBe(false);
+  });
+
+  it('does not flag deterministic spoon conversions as estimated', () => {
+    const withEstimate = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'TL', gramsPerSpoon: 4 };
+
+    const byDensity = buildMatchedRowWithFlags(trackedG(0.55), 'CATALOG', withEstimate);
+    expect(byDensity.row.amount).toBeCloseTo(5.5);
+    expect(byDensity.flags.spoonEstimated).toBe(false);
+
+    const byVolume = buildMatchedRowWithFlags(trackedMl, 'CATALOG', withEstimate);
+    expect(byVolume.row.amount).toBe(10);
+    expect(byVolume.flags.spoonEstimated).toBe(false);
+  });
+
+  it('keeps an untracked row on its displayQuantity even when an estimate is present', () => {
+    const raw: OriginalDraftFields = { rawDisplayAmount: 2, rawDisplayUnitLabel: 'TL', gramsPerSpoon: 3 };
+    const { row, flags } = buildMatchedRowWithFlags(untrackedG, 'CATALOG', raw);
+
+    expect(row.amount).toBe(0);
+    expect(row.displayQuantity).toEqual({ amount: 2, unitLabel: 'TL' });
+    expect(flags.spoonEstimated).toBe(false);
+  });
+
+  it('surfaces an implausible per-spoon estimate as a missing amount instead of a wrong one', () => {
+    const raw: OriginalDraftFields = { rawDisplayAmount: 1.5, rawDisplayUnitLabel: 'TL', gramsPerSpoon: 21 };
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(undefined), 'CATALOG', raw);
+
+    expect(row.amount).toBeNull();
+    expect(flags.missingAmount).toBe(true);
+    expect(flags.spoonEstimated).toBe(false);
   });
 });

@@ -50,6 +50,7 @@ export interface OriginalDraftFields {
   note?: string;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  gramsPerSpoon?: number;
 }
 
 export type ConfirmResolutionPayload =

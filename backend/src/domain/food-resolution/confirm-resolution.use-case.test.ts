@@ -306,3 +306,51 @@ describe('confirmResolution — synonym', () => {
     expect(catalog.findById('oliven')?.synonyms).toEqual(['grüne Oliven']);
   });
 });
+
+describe('confirmResolution — spoon measures', () => {
+  const erdnussmus: FoodEntry = {
+    id: 'erdnussmus',
+    name: 'Erdnussmus',
+    synonyms: [],
+    unit: 'g',
+    macrosPer100: { calories: 610, protein: 25, carbs: 12, fat: 50 },
+  };
+  const rapsoel: FoodEntry = {
+    id: 'rapsoel',
+    name: 'Rapsöl',
+    synonyms: [],
+    unit: 'ml',
+    macrosPer100: { calories: 828, protein: 0, carbs: 0, fat: 92 },
+  };
+
+  it('converts a spoon of a new g-unit food without density from the estimate', async () => {
+    const result = await confirmResolution(
+      { catalog: new FakeCatalogStore() },
+      {
+        kind: 'new-food',
+        entry: erdnussmus,
+        original: { rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 16 },
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.ingredient).toMatchObject({ unit: 'g', amount: 32 });
+  });
+
+  it('converts a spoon onto an ml entry by volume, ignoring the estimate', async () => {
+    const result = await confirmResolution(
+      { catalog: new FakeCatalogStore([rapsoel]) },
+      {
+        kind: 'synonym',
+        foodId: 'rapsoel',
+        synonym: 'Pflanzenöl',
+        original: { rawDisplayAmount: 1, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 13 },
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.ingredient).toMatchObject({ unit: 'ml', amount: 15 });
+  });
+});

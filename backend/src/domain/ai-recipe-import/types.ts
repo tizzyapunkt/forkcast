@@ -17,6 +17,8 @@ export interface RawIngredient {
   pieceQuantity?: PieceQuantity;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  /** The model's estimate of one spoon/cup of this food in grams; only present next to a spoon label. */
+  gramsPerSpoon?: number;
   note?: string;
 }
 
@@ -47,6 +49,10 @@ export interface UnmatchedDraftIngredient {
   amount: number | null;
   unit: MeasurementUnit | null;
   pieceQuantity?: PieceQuantity;
+  /** The recipe's spoon measure, kept so resolving the row later can still convert it. */
+  rawDisplayAmount?: number;
+  rawDisplayUnitLabel?: string;
+  gramsPerSpoon?: number;
   note?: string;
 }
 
@@ -68,6 +74,7 @@ export interface IngredientMatchProvenance {
     pieceQuantityDropped: boolean;
     untrackedInherited: boolean;
     missingAmount: boolean;
+    spoonEstimated: boolean;
   };
 }
 
