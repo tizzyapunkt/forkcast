@@ -48,9 +48,9 @@ The system SHALL reject requests where any image exceeds the per-image byte limi
 
 ### Requirement: Ingredient matching against existing catalog
 
-The system SHALL, for each ingredient name extracted from the photos, attempt to match it using a strict source cascade: first the user's catalog (`CATALOG`, including synonyms), then — only when the catalog returns zero candidates — scanned products (`SCAN`) via name search. The first tier returning at least one candidate wins; the lower tier MUST NOT be consulted. Open Food Facts MUST NOT be queried during import matching.
+The system SHALL, for each ingredient name extracted from the photos, attempt to match it using a strict source cascade: first the user's catalog (`CATALOG`, including synonyms), then — only when the catalog returns zero candidates — scanned products (`SCAN`) via name search. The first tier returning at least one *confident* candidate (see "Import auto-matches confident name matches only") wins, and the lower tier MUST NOT be consulted. A tier that returns only partial candidates does not stop the cascade. Open Food Facts MUST NOT be queried during import matching.
 
-When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`CATALOG` or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a match, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), `note` (if any), and the spoon measure — `rawDisplayAmount`, `rawDisplayUnitLabel` and `gramsPerSpoon` (each if any) — without macros, without `displayQuantity`, and without an `untracked` flag (the user sets it manually in the review UI if needed).
+When a match is found, the draft ingredient row MUST adopt the matched ingredient's `unit`, `macrosPerUnit`, and `untracked` flag, while keeping the model-extracted `amount`, and MUST carry the winning tier as its `source` (`CATALOG` or `SCAN`). When the model-extracted unit conflicts with the matched ingredient's catalog unit, the catalog unit MUST win and the row MUST be flagged `unitOverridden: true`. When no tier produces a confident candidate, the row MUST be flagged as unmatched and carry only the extracted `name`, `amount` (if any), `unit` (if any), `pieceQuantity` (if any), `note` (if any), and the spoon measure — `rawDisplayAmount`, `rawDisplayUnitLabel` and `gramsPerSpoon` (each if any) — without macros, without `displayQuantity`, and without an `untracked` flag (the user sets it manually in the review UI if needed).
 
 When the model returns piece-quantity fields for an ingredient (see "Resolve piece quantities to gram weights"), the matching pipeline MUST preserve them on the draft row, subject to:
 - If the resolved catalog `unit` is `g` or `ml`, `pieceQuantity` is preserved verbatim and the catalog `unit` is used.
@@ -89,6 +89,21 @@ When the extractor returns a `note` field on an ingredient, the matching pipelin
 
 - **WHEN** the model extracts `{ name: "Joghurt", amount: 150, unit: "ml" }` and the catalog match has `unit: "g"`
 - **THEN** the draft row uses `unit: "g"` (catalog wins), keeps `amount: 150`, and is flagged `unitOverridden: true`
+
+#### Scenario: Prefix into a longer compound is not a match
+
+- **WHEN** the model extracts `Honig`, the catalog has no Honig entry but has `Honigmelone`, and no scanned product matches
+- **THEN** the draft row is unmatched, not matched against `Honigmelone`
+
+#### Scenario: Hyphen-joined modifier is not a match
+
+- **WHEN** the model extracts `Peanut-butter-Pulver` and the only catalog hit is `Butter`
+- **THEN** the draft row is unmatched, not matched against `Butter`
+
+#### Scenario: Partial catalog hits fall through to scanned products
+
+- **WHEN** the model extracts `Reis`, the catalog's only hit is `Reisnudeln` (partial), and a scanned product named `Reis` exists
+- **THEN** the draft row is matched against the scanned product `Reis` with `source: 'SCAN'`
 
 #### Scenario: Unmatched ingredient
 
@@ -479,7 +494,7 @@ The import endpoint SHALL return a `provenance` object on every successful recip
 For each extracted ingredient, the entry MUST include:
 
 - `raw`: the parsed ingredient before any matching (name, amount, unit, piece-quantity fields, raw display fields and `gramsPerSpoon` when present, note when present, and `sourceText` when present). Its structured fields reflect the parser's validation and spoon normalization (see "Validate model-returned piece arithmetic" and "Parser moves spoon and ounce values off the canonical unit"). `sourceText` is the one field no parsing step alters, and it records the line exactly as read.
-- `candidates`: the top candidates returned by the winning cascade tier for the raw name, in rank order, capped at 5. Each candidate exposes `name`, `source`, `unit`, and `untracked`.
+- `candidates`: the top candidates returned by the winning cascade tier for the raw name, in rank order, capped at 5. For an unmatched row, these are the partial candidates of the first tier that returned any, so a rejected near-miss (e.g. `Honigmelone` for `Honig`) stays visible. Each candidate exposes `name`, `source`, `unit`, and `untracked`.
 - `chosen`: the candidate picked as the match, or `null` when no tier matched.
 - `flags`: a flat object of the post-match flags that fired on this row (`unitOverridden`, `pieceQuantityDropped`, `untrackedInherited`, `missingAmount`, `spoonEstimated`). `spoonEstimated` is `true` only when a tracked row's `amount` came from the model's per-spoon estimate (see "Importer converts spoon measures on tracked matches"). Rows converted by fixed volume or by catalog density are deterministic and carry `spoonEstimated: false`.
 
@@ -504,6 +519,11 @@ The provenance payload MUST NOT be persisted anywhere; it exists only on the req
 
 - **WHEN** the model extracts an ingredient name that no cascade tier matches
 - **THEN** that provenance entry has `chosen: null`, an empty `candidates` array, and all `flags` false
+
+#### Scenario: Rejected partial candidates stay on an unmatched row
+
+- **WHEN** the model extracts `Honig` and the only catalog hit is the partial `Honigmelone`
+- **THEN** that provenance entry has `chosen: null` and `candidates[0].name` is `Honigmelone`
 
 #### Scenario: Candidate cap
 
@@ -796,9 +816,9 @@ When the user replaces an ingredient via the picker on the review screen, the no
 
 ### Requirement: Match attempt falls back to a normalized name across the cascade
 
-When the full source cascade (FOODS → USER → SCAN) returns zero candidates for `raw.name`, the system SHALL compute a normalized form of `raw.name` by stripping a single trailing `, …` clause and a single trailing `(…)` parenthetical, then collapsing whitespace. If the normalized form differs from the raw form, the system SHALL retry the full cascade once with the normalized name. Leading adjectives MUST NOT be stripped during normalization.
+When the full source cascade (FOODS → USER → SCAN) returns no confident candidate for `raw.name`, the system SHALL compute a normalized form of `raw.name` by stripping a single trailing `, …` clause and a single trailing `(…)` parenthetical, then collapsing whitespace. If the normalized form differs from the raw form, the system SHALL retry the full cascade once with the normalized name. Leading adjectives MUST NOT be stripped during normalization.
 
-When the retry returns at least one candidate, the row SHALL be matched as if the winning tier had returned that candidate for the raw name — all existing matching rules (unit override, piece-drop, untracked inheritance, etc.) apply unchanged. When the retry also returns zero candidates, the row is flagged unmatched.
+When the retry returns at least one confident candidate, the row SHALL be matched as if the winning tier had returned that candidate for the raw name — all existing matching rules (unit override, piece-drop, untracked inheritance, etc.) apply unchanged. When the retry also returns no confident candidate, the row is flagged unmatched.
 
 #### Scenario: Comma-suffix normalization rescues a match
 
@@ -810,9 +830,14 @@ When the retry returns at least one candidate, the row SHALL be matched as if th
 - **WHEN** the extractor returns `{ name: "unicorn dust", amount: 1, unit: "tsp" }` and the cascade returns zero candidates
 - **THEN** the cascade is not retried (normalization yields `"unicorn dust"` unchanged) and the row is flagged unmatched
 
+#### Scenario: Retry when the raw name only has partial hits
+
+- **WHEN** the extractor returns `{ name: "Hafer, zart", amount: 40, unit: "g" }`, every tier returns only partial candidates for that raw name, and the catalog has an entry `Hafer`
+- **THEN** the cascade is retried with `"Hafer"` and the draft row is matched against `Hafer`
+
 #### Scenario: No retry when raw name already matches
 
-- **WHEN** the extractor returns `{ name: "Ingwer", amount: 5, unit: "g" }` and the FOODS tier returns at least one candidate
+- **WHEN** the extractor returns `{ name: "Ingwer", amount: 5, unit: "g" }` and the FOODS tier returns at least one confident candidate
 - **THEN** the cascade runs exactly once and the row is matched
 
 ### Requirement: Review screen surfaces the source photos for comparison
@@ -895,3 +920,57 @@ The rules act on the structured fields only. They MUST NOT read `sourceText` and
 
 - **WHEN** the model returns `{ name: "Olivenöl", amount: 2, unit: "tbsp", sourceText: "2 EL Olivenöl" }`
 - **THEN** the parsed ingredient carries `rawDisplayAmount: 2`, `rawDisplayUnitLabel: "EL"`, no `amount` or `unit`, and `sourceText: "2 EL Olivenöl"` unchanged
+
+### Requirement: Import auto-matches confident name matches only
+
+The name search SHALL report, for every result, whether it matched the query *confidently*. It SHALL report this without changing its ranking or its result set. Names and synonyms are compared case- and diacritic-folded. Word boundaries are whitespace, `,`, `(`, `)`, `/` and `-`.
+
+A hit is confident when the query and a catalog name or synonym relate in one of these ways:
+
+- **Exact:** they are equal.
+- **Whole word, not a compound modifier:** one appears in the other as a boundary-delimited word, and the character right after it is not a hyphen. German compounds put the food last, so a word followed by a hyphen ("Peanut-**butter**-Pulver", "Honig-Senf-Sauce") only modifies the food; one preceded by a hyphen ("Bio-**Tomaten**") is the food.
+- **Inflected word:** the query starts a word of the name, and the rest of that word is only an inflection ending (`n`, `e`, `en`, `s`, `es`, `er`). Examples: Kichererbse → Kichererbse**n**, Ei → Ei**er**.
+
+Every other hit is partial. That covers a prefix into a longer word (Honig → **Honig**melone, Reis → **Reis**nudeln), the tail of a compound (Butter → Erdnuss**butter**), and any mid-word substring.
+
+AI recipe import SHALL auto-match only confident candidates. It takes the first confident candidate in rank order. The interactive ingredient search and the resolve flow's candidate search SHALL keep returning partial hits as suggestions.
+
+#### Scenario: Prefix into a longer word is partial
+
+- **WHEN** the query `Honig` is scored against a catalog entry `Honigmelone`
+- **THEN** the hit is partial
+
+#### Scenario: Inflection ending is confident
+
+- **WHEN** the query `Kichererbse` is scored against `Kichererbsen`, or the query `Ei` against `Eier`
+- **THEN** the hit is confident
+
+#### Scenario: Word followed by a hyphen is partial
+
+- **WHEN** the query `Peanut-butter-Pulver` is scored against a catalog entry `Butter`
+- **THEN** the hit is partial
+
+#### Scenario: Word after a hyphen is confident
+
+- **WHEN** the query `Bio-Tomaten` is scored against a catalog entry `Tomaten`
+- **THEN** the hit is confident
+
+#### Scenario: Whole word inside a longer query is confident
+
+- **WHEN** the query `Kichererbsen (aus der Dose, abgetropft)` is scored against a catalog entry `Kichererbsen`
+- **THEN** the hit is confident
+
+#### Scenario: Synonym exact match is confident
+
+- **WHEN** the query `Erdnussmus` is scored against a catalog entry `Erdnussbutter` with the synonym `Erdnussmus`
+- **THEN** the hit is confident
+
+#### Scenario: A confident candidate below a partial one is chosen
+
+- **WHEN** the catalog returns `Kichererbsenmehl` (partial) and `Kichererbsen` (confident) for the query `Kichererbse`, in either rank order
+- **THEN** the import matches `Kichererbsen`
+
+#### Scenario: Interactive search still suggests partial hits
+
+- **WHEN** the user searches the catalog for `Honig` and only `Honigmelone` contains it
+- **THEN** `Honigmelone` is returned as a search result
