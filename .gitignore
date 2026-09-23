@@ -10,3 +10,6 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# local recipe photos for import smoke tests / benchmark (copyrighted, keep out of the public repo)
+rezepte/

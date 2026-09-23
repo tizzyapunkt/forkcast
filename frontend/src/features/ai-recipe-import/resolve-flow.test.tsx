@@ -114,4 +114,67 @@ describe('resolve flow on the review screen', () => {
     expect(await screen.findByRole('button', { name: /^katalog$/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^verwerfen$/i })).toBeInTheDocument();
   });
+
+  it('forwards the spoon measure of an unmatched row when confirming, so the backend can convert it', async () => {
+    let original: Record<string, unknown> | undefined;
+    server.use(
+      http.post('/api/propose-ingredient-resolutions', () =>
+        HttpResponse.json({
+          proposals: [
+            {
+              verdict: 'new-food',
+              confidence: 'high',
+              entry: {
+                id: 'erdnussmus',
+                name: 'Erdnussmus',
+                synonyms: [],
+                unit: 'g',
+                macrosPer100: { calories: 610, protein: 25, carbs: 12, fat: 50 },
+              },
+            },
+          ],
+        }),
+      ),
+      http.post('/api/confirm-ingredient-resolution', async ({ request }) => {
+        original = ((await request.json()) as { original: Record<string, unknown> }).original;
+        return HttpResponse.json({
+          ingredient: {
+            matched: true,
+            name: 'Erdnussmus',
+            unit: 'g',
+            macrosPerUnit: { calories: 6.1, protein: 0.25, carbs: 0.12, fat: 0.5 },
+            amount: 32,
+            unitOverridden: false,
+            source: 'CATALOG',
+          },
+        });
+      }),
+    );
+    const draft: RecipeDraft = {
+      name: 'Bowl',
+      yield: 1,
+      steps: [],
+      ingredients: [
+        {
+          matched: false,
+          name: 'Erdnussmus',
+          amount: null,
+          unit: null,
+          rawDisplayAmount: 2,
+          rawDisplayUnitLabel: 'EL',
+          gramsPerSpoon: 16,
+        },
+      ],
+    };
+
+    renderWithProviders(
+      <ReviewImportScreen draft={draft} onSaved={vi.fn<() => void>()} onCancel={vi.fn<() => void>()} />,
+    );
+
+    await userEvent.click(await screen.findByLabelText(/erdnussmus.*zuordnen/i));
+    await userEvent.click(await screen.findByRole('button', { name: /bestätigen & einfügen/i }));
+
+    await waitFor(() => expect(original).toBeDefined());
+    expect(original).toMatchObject({ rawDisplayAmount: 2, rawDisplayUnitLabel: 'EL', gramsPerSpoon: 16 });
+  });
 });

@@ -598,6 +598,7 @@ export const de = {
       pieceQuantityDropped: 'Stückangabe verworfen',
       untrackedInherited: 'zählt nicht in den Nährwerten',
       missingAmount: 'Menge fehlt',
+      spoonEstimated: (measure: string) => (measure ? `Menge aus ${measure} geschätzt` : 'Menge geschätzt'),
       alternatives: (n: number) => `${n} Alternativen`,
       separator: ' · ',
     },

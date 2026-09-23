@@ -41,6 +41,7 @@ export interface ResolveItem {
   pieceQuantity?: PieceQuantity;
   rawDisplayAmount?: number;
   rawDisplayUnitLabel?: string;
+  gramsPerSpoon?: number;
   /** What the photo said for this line, pre-formatted — only an import has one. Display-only. */
   rawLine?: string;
 }
@@ -76,6 +77,7 @@ function originalFields(item: ResolveItem): OriginalDraftFields {
   if (item.note !== undefined) fields.note = item.note;
   if (item.rawDisplayAmount !== undefined) fields.rawDisplayAmount = item.rawDisplayAmount;
   if (item.rawDisplayUnitLabel !== undefined) fields.rawDisplayUnitLabel = item.rawDisplayUnitLabel;
+  if (item.gramsPerSpoon !== undefined) fields.gramsPerSpoon = item.gramsPerSpoon;
   return fields;
 }
 

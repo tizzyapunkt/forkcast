@@ -83,6 +83,9 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
       unit: raw.unit ?? null,
     };
     if (raw.pieceQuantity) unmatched.pieceQuantity = raw.pieceQuantity;
+    if (raw.rawDisplayAmount !== undefined) unmatched.rawDisplayAmount = raw.rawDisplayAmount;
+    if (raw.rawDisplayUnitLabel !== undefined) unmatched.rawDisplayUnitLabel = raw.rawDisplayUnitLabel;
+    if (raw.gramsPerSpoon !== undefined) unmatched.gramsPerSpoon = raw.gramsPerSpoon;
     if (raw.note !== undefined) unmatched.note = raw.note;
     return {
       ingredient: unmatched,
@@ -95,6 +98,7 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
           pieceQuantityDropped: false,
           untrackedInherited: false,
           missingAmount: false,
+          spoonEstimated: false,
         },
       },
     };

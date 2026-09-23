@@ -31,6 +31,14 @@ export function formatRawIngredient(raw: RawIngredientProvenance): string {
   return parts.join(' ');
 }
 
+/** The recipe's spoon measure ("2 EL", "0.5 TL") an estimated amount was derived from. */
+function formatSpoonMeasure(raw: RawIngredientProvenance): string {
+  const parts: string[] = [];
+  if (raw.rawDisplayAmount !== undefined) parts.push(formatPieceCount(raw.rawDisplayAmount));
+  if (raw.rawDisplayUnitLabel !== undefined) parts.push(raw.rawDisplayUnitLabel);
+  return parts.join(' ');
+}
+
 /**
  * Why this row's match deserves a look — derived at render time from the flags the matcher
  * raised plus the candidate count. A confident single-candidate match with no flags returns
@@ -47,6 +55,7 @@ export function deriveUncertaintyMarker(entry: IngredientMatchProvenance, matche
   if (entry.flags.pieceQuantityDropped) reasons.push(p.pieceQuantityDropped);
   if (entry.flags.untrackedInherited) reasons.push(p.untrackedInherited);
   if (entry.flags.missingAmount) reasons.push(p.missingAmount);
+  if (entry.flags.spoonEstimated === true) reasons.push(p.spoonEstimated(formatSpoonMeasure(entry.raw)));
   if (entry.chosen !== null && entry.candidates.length > 1) reasons.push(p.alternatives(entry.candidates.length));
 
   return reasons.length > 0 ? reasons.join(p.separator) : null;

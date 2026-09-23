@@ -192,6 +192,10 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
       unit: u.unit,
       ...(u.note !== undefined ? { note: u.note } : {}),
       ...(u.pieceQuantity ? { pieceQuantity: u.pieceQuantity } : {}),
+      // The spoon measure travels with the confirm so the backend converts it like an auto-match.
+      ...(u.rawDisplayAmount !== undefined ? { rawDisplayAmount: u.rawDisplayAmount } : {}),
+      ...(u.rawDisplayUnitLabel !== undefined ? { rawDisplayUnitLabel: u.rawDisplayUnitLabel } : {}),
+      ...(u.gramsPerSpoon !== undefined ? { gramsPerSpoon: u.gramsPerSpoon } : {}),
       ...(entry.rawLine !== undefined ? { rawLine: entry.rawLine } : {}),
     };
   }, [unmatched, openKey]);

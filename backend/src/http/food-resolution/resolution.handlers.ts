@@ -84,6 +84,10 @@ function parseOriginal(raw: unknown): OriginalDraftFields {
   if (typeof o.note === 'string') fields.note = o.note;
   if (typeof o.rawDisplayAmount === 'number') fields.rawDisplayAmount = o.rawDisplayAmount;
   if (typeof o.rawDisplayUnitLabel === 'string') fields.rawDisplayUnitLabel = o.rawDisplayUnitLabel;
+  // An unusable estimate is dropped, not rejected: the row still resolves, just without a spoon estimate.
+  if (typeof o.gramsPerSpoon === 'number' && Number.isFinite(o.gramsPerSpoon) && o.gramsPerSpoon > 0) {
+    fields.gramsPerSpoon = o.gramsPerSpoon;
+  }
   return fields;
 }
 
