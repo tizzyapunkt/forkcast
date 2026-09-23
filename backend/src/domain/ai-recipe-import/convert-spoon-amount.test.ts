@@ -102,4 +102,21 @@ describe('convertSpoonMeasure', () => {
   it('does not convert into a non-mass unit', () => {
     expect(convertSpoonMeasure({ count: 1, label: 'EL', unit: 'piece', gramsPerSpoon: 8 })).toBeUndefined();
   });
+
+  it('ignores an estimate denser than anything a kitchen spoon holds (the model mixed up spoon sizes)', () => {
+    // 21 g for one TL (5 ml) is 4.2 g/ml — the weight of an EL of honey, not a TL.
+    expect(convertSpoonMeasure({ count: 1.5, label: 'TL', unit: 'g', gramsPerSpoon: 21 })).toBeUndefined();
+    // 30 g for one EL (15 ml) of coconut milk is 2 g/ml.
+    expect(convertSpoonMeasure({ count: 3, label: 'EL', unit: 'g', gramsPerSpoon: 30 })).toBeUndefined();
+  });
+
+  it('accepts dense but real foods up to 1.5 g/ml', () => {
+    // 1 EL honey ≈ 21 g (1.4 g/ml).
+    expect(convertSpoonMeasure({ count: 1, label: 'EL', unit: 'g', gramsPerSpoon: 21 })).toEqual({
+      amount: 21,
+      estimated: true,
+    });
+    // exactly at the bound: 7.5 g for one TL
+    expect(convertSpoonMeasure({ count: 1, label: 'TL', unit: 'g', gramsPerSpoon: 7.5 })?.amount).toBe(7.5);
+  });
 });

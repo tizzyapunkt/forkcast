@@ -58,6 +58,7 @@ This reverses the archived change's decision "conversion is deterministic, not m
 - **`gramsPerSpoon` mirrors `gramsPerPiece`.** It is optional, only valid next to a spoon label, and the parser discards it otherwise.
 - **The conversion order puts every deterministic source first:** fixed volume for `ml`, then density, then the estimate. A density added later automatically beats the estimate for that food.
 - **Estimates are marked** (Decision 6), in the same spirit as the piece-weight display.
+- **Physically impossible estimates are discarded.** An estimate above 1.5 g per ml of the spoon's volume is ignored, and the row shows "Menge fehlt". Nothing in a kitchen spoon is denser than honey (about 1.4 g/ml). The smoke test showed Haiku giving an EL weight for a TL (`1½ TL Honig` at 21 g/TL, twice) and 30 g per EL of coconut milk. A missing amount the user fills in beats a confident number that is 3× too high. The bound lives in `convertSpoonMeasure`, so import and confirm share it. It can't catch an estimate that is wrong but plausible (e.g. an EL value for a light powder under a TL label); the marker covers those.
 
 Alternatives considered:
 

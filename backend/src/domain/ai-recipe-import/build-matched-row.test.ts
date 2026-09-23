@@ -110,4 +110,13 @@ describe('buildMatchedRowWithFlags — spoon conversion on tracked matches', () 
     expect(row.displayQuantity).toEqual({ amount: 2, unitLabel: 'TL' });
     expect(flags.spoonEstimated).toBe(false);
   });
+
+  it('surfaces an implausible per-spoon estimate as a missing amount instead of a wrong one', () => {
+    const raw: OriginalDraftFields = { rawDisplayAmount: 1.5, rawDisplayUnitLabel: 'TL', gramsPerSpoon: 21 };
+    const { row, flags } = buildMatchedRowWithFlags(trackedG(undefined), 'CATALOG', raw);
+
+    expect(row.amount).toBeNull();
+    expect(flags.missingAmount).toBe(true);
+    expect(flags.spoonEstimated).toBe(false);
+  });
 });

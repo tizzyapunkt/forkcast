@@ -104,6 +104,15 @@
   - Open, outside this change: Haiku sometimes gives the EL weight for a TL (`1½ TL Honig` at 21 g/TL, twice) and inflates liquids (Kokosmilch 20–30 g/EL). It also misread `¼ TL Zimt` as `½`. Catalog matching picked wrong foods (Honig → Honigmelone, Peanut-butter-Pulver → Butter).
 - [x] 5.4 Run `openspec validate reliable-spoon-amounts --strict` and verify it passes.
 
-## 6. Rollout (manual, after deploy)
+## 6. Follow-up from the smoke test: spoon-weight plausibility guard
 
-- [ ] 6.1 Run the saved-recipe audit from design → Migration Plan against the live `forkcast_data` volume. Review each hit and correct real spoon mistakes by hand in the recipe editor. Done when the list has been reviewed.
+- [x] 6.1 In `convert-spoon-amount.test.ts` and `build-matched-row.test.ts`, add failing tests:
+  - `1½ TL` with `gramsPerSpoon: 21` and `3 EL` with `30` are ignored, and the row falls back to `missingAmount` without `spoonEstimated`
+  - honey at 21 g per EL and exactly 7.5 g per TL are still accepted
+
+  Verify they fail.
+- [x] 6.2 Discard estimates above `MAX_SPOON_DENSITY_G_PER_ML` (1.5) × the spoon's volume in `convertSpoonMeasure`, and update the spec deltas and design. Verify `make check` and `openspec validate reliable-spoon-amounts --strict` pass.
+
+## 7. Rollout (manual, after deploy)
+
+- [ ] 7.1 Run the saved-recipe audit from design → Migration Plan against the live `forkcast_data` volume. Review each hit and correct real spoon mistakes by hand in the recipe editor. Done when the list has been reviewed.

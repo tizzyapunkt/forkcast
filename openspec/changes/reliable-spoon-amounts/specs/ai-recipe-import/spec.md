@@ -242,8 +242,8 @@ then the system SHALL set the canonical `amount` in the matched food's `unit` fr
 
 1. The matched `unit` is `ml`: `amount` = the volume.
 2. The matched `unit` is `g` and the matched food carries a `density`: `amount` = volume × density.
-3. The matched `unit` is `g`, the food has no `density`, and the extractor returned a `gramsPerSpoon`: `amount` = count × `gramsPerSpoon`. The row is flagged `spoonEstimated` (see "Estimated spoon amounts are flagged and marked").
-4. Otherwise no conversion is performed. The row is left with no `amount` and is surfaced via the existing `missingAmount` flag. The importer MUST NOT guess beyond the model's own estimate.
+3. The matched `unit` is `g`, the food has no `density`, and the extractor returned a plausible `gramsPerSpoon`: `amount` = count × `gramsPerSpoon`. The row is flagged `spoonEstimated` (see "Match provenance is returned on every import response"). An estimate is plausible when it is at most 1.5 g per ml of that spoon's volume (7.5 g for a TL, 22.5 g for an EL, 360 g for a Tasse). Nothing a kitchen spoon holds is denser than honey (about 1.4 g/ml), so a heavier estimate means the model mixed up spoon sizes, and it is ignored.
+4. Otherwise (including an implausible estimate) no conversion is performed. The row is left with no `amount` and is surfaced via the existing `missingAmount` flag. The importer MUST NOT guess beyond the model's own estimate.
 
 Converted amounts are rounded to one decimal. A converted tracked row MUST NOT carry a `displayQuantity` (that field is reserved for untracked rows). The raw-display fields and `gramsPerSpoon` are consumed by the conversion and not persisted on the row.
 
@@ -268,6 +268,11 @@ Every spoon measure reaches this conversion. Spoon values the model reported on 
 
 - **WHEN** the extractor returns `{ name: "Haferflocken", rawDisplayAmount: 2, rawDisplayUnitLabel: "EL", gramsPerSpoon: 8 }` and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
 - **THEN** the draft row carries `unit: "g"`, `amount: 16`, no `displayQuantity`, is flagged `spoonEstimated`, and is not flagged `missingAmount`
+
+#### Scenario: Implausible per-spoon estimate is ignored
+
+- **WHEN** the extractor returns `{ name: "Honig", rawDisplayAmount: 1.5, rawDisplayUnitLabel: "TL", gramsPerSpoon: 21 }` (21 g for one 5 ml TL is 4.2 g/ml) and the catalog match is a tracked FOODS entry with `unit: "g"` and no `density`
+- **THEN** the draft row carries no `amount`, is flagged `missingAmount`, and is not flagged `spoonEstimated`
 
 #### Scenario: Spoon of a g-unit food without density is not guessed
 

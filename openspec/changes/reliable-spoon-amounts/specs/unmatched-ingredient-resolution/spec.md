@@ -10,7 +10,7 @@ The system SHALL expose `POST /confirm-ingredient-resolution` accepting a (possi
    - catalog unit wins with `unitOverridden`
    - piece preservation/drop by unit
    - untracked inheritance, including `displayQuantity` population
-   - spoon conversion on tracked entries: fixed volume for an `ml` entry, volume × density for a `g` entry with a `density`, count × `gramsPerSpoon` for a `g` entry without one
+   - spoon conversion on tracked entries: fixed volume for an `ml` entry, volume × density for a `g` entry with a `density`, count × `gramsPerSpoon` for a `g` entry without one, when that estimate is plausible (at most 1.5 g per ml of the spoon's volume)
    - note preserved verbatim from the submitted original fields
 
 A `new-food` confirm whose entry's folded canonical name or derived id collides with an existing catalog entry SHALL return `409` with a stable error code and persist nothing. A `synonym` confirm whose `foodId` is absent from the catalog SHALL return `404` and persist nothing. The endpoint SHALL require a valid session cookie (`401` otherwise). Confirm MUST NOT require a prior propose call (edited or manual payloads are valid).

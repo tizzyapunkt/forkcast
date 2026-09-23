@@ -35,6 +35,13 @@ function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
+/**
+ * Densest thing a kitchen spoon realistically holds, in g/ml — honey and syrups sit around 1.4.
+ * A per-spoon estimate above this means the model mixed up spoon sizes (e.g. an EL weight for a TL),
+ * so it is discarded rather than trusted.
+ */
+export const MAX_SPOON_DENSITY_G_PER_ML = 1.5;
+
 function isPositiveFinite(n: number | undefined): n is number {
   return typeof n === 'number' && Number.isFinite(n) && n > 0;
 }
@@ -63,10 +70,11 @@ export interface SpoonConversion {
  *
  * 1. ml-unit food: the spoon already is a volume (no density needed).
  * 2. g-unit food with a catalog density: volume × density.
- * 3. g-unit food without density: count × the model's `gramsPerSpoon`, marked as estimated.
+ * 3. g-unit food without density: count × the model's `gramsPerSpoon`, marked as estimated — only when the
+ *    estimate is physically plausible (at most MAX_SPOON_DENSITY_G_PER_ML for that spoon's volume).
  *
  * Returns undefined when the label is not a spoon measure, the count is non-positive, or a g-unit food
- * has neither a density nor a usable estimate — the caller surfaces that as a missing amount.
+ * has neither a density nor a plausible estimate — the caller surfaces that as a missing amount.
  */
 export function convertSpoonMeasure(measure: SpoonMeasure): SpoonConversion | undefined {
   const { label, unit, density, gramsPerSpoon } = measure;
@@ -81,6 +89,8 @@ export function convertSpoonMeasure(measure: SpoonMeasure): SpoonConversion | un
   if (unit === 'ml') return { amount: round1(volumeMl), estimated: false };
   if (unit !== 'g') return undefined;
   if (isPositiveFinite(density)) return { amount: round1(volumeMl * density), estimated: false };
-  if (isPositiveFinite(gramsPerSpoon)) return { amount: round1(count * gramsPerSpoon), estimated: true };
+  if (isPositiveFinite(gramsPerSpoon) && gramsPerSpoon <= perSpoon * MAX_SPOON_DENSITY_G_PER_ML) {
+    return { amount: round1(count * gramsPerSpoon), estimated: true };
+  }
   return undefined;
 }
