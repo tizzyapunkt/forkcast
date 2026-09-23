@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { scoreFoodMatch } from './score-food-match.ts';
+import { matchFoodEntry, scoreFoodMatch } from './score-food-match.ts';
 import { fold } from './fold.ts';
 import { indexFoodEntry } from '../foods/index-food-entry.ts';
 import type { FoodEntry } from '../foods/types.ts';
@@ -117,5 +117,62 @@ describe('scoreFoodMatch', () => {
       const e = indexFoodEntry(entry('Frischkäse'));
       expect(scoreFoodMatch(e, fold('150 g Frischkäse leicht'))).toBe(80);
     });
+  });
+});
+
+describe('matchFoodEntry — confidence for auto-matching', () => {
+  const confident = (name: string, query: string, synonyms: string[] = []) =>
+    matchFoodEntry(indexFoodEntry(entry(name, synonyms)), fold(query)).confident;
+
+  it('treats a prefix into a longer compound as partial (the query only modifies the food)', () => {
+    expect(confident('Honigmelone', 'Honig')).toBe(false);
+    expect(confident('Reisnudeln', 'Reis')).toBe(false);
+    expect(confident('Tomatenmark', 'Tomaten')).toBe(false);
+  });
+
+  it('treats the tail of a compound and mid-word substrings as partial', () => {
+    expect(confident('Erdnussbutter', 'Butter')).toBe(false);
+    expect(confident('Naturreis (Reisbasis)', 'Reis')).toBe(false);
+  });
+
+  it('accepts a word that differs only by an inflection ending', () => {
+    expect(confident('Kichererbsen', 'Kichererbse')).toBe(true);
+    expect(confident('Eier', 'Ei')).toBe(true);
+    expect(confident('Kichererbsen (Dose)', 'Kichererbse')).toBe(true);
+    expect(confident('Rote Zwiebeln', 'Zwiebel')).toBe(true);
+  });
+
+  it('treats a word followed by a hyphen as a compound modifier, in either direction', () => {
+    expect(confident('Butter', 'Peanut-butter-Pulver')).toBe(false);
+    expect(confident('Honig-Senf-Sauce', 'Honig')).toBe(false);
+  });
+
+  it('accepts a word after a hyphen as the compound head', () => {
+    expect(confident('Tomaten', 'Bio-Tomaten')).toBe(true);
+  });
+
+  it('accepts exact and whole-word matches on names and synonyms', () => {
+    expect(confident('Hähnchenbrust', 'Hähnchenbrust')).toBe(true);
+    expect(confident('Hähnchenbrust, gegart', 'Hähnchenbrust')).toBe(true);
+    expect(confident('Kichererbsen', 'Kichererbsen (aus der Dose, abgetropft)')).toBe(true);
+    expect(confident('Erdnussbutter', 'Erdnussmus', ['Erdnussmus', 'peanut butter'])).toBe(true);
+  });
+
+  it('reports no match as not confident with score 0', () => {
+    expect(matchFoodEntry(indexFoodEntry(entry('Möhre')), fold('zzz'))).toEqual({ score: 0, confident: false });
+  });
+
+  it('keeps the ranking score identical to scoreFoodMatch', () => {
+    for (const [name, query] of [
+      ['Honigmelone', 'Honig'],
+      ['Butter', 'Peanut-butter-Pulver'],
+      ['Kichererbsen', 'Kichererbse'],
+      ['Hähnchenbrust', 'Hähnchenbrust'],
+    ] as const) {
+      const e = indexFoodEntry(entry(name));
+      expect(matchFoodEntry(e, fold(query)).score).toBe(scoreFoodMatch(e, fold(query)));
+    }
+    expect(matchFoodEntry(indexFoodEntry(entry('Honigmelone')), fold('Honig')).score).toBe(60);
+    expect(matchFoodEntry(indexFoodEntry(entry('Butter')), fold('Peanut-butter-Pulver')).score).toBe(80);
   });
 });
