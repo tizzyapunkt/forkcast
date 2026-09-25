@@ -41,6 +41,24 @@ describe('addToRecipeBatch', () => {
     expect(await repo.findById(added.id)).toEqual(added);
   });
 
+  it('takes the batch cooked portions so the extra scales with the meal', async () => {
+    const repo = new FakeLogEntryRepository([
+      { ...batchEntry('hack', '2026-09-29', 'Hackfleisch'), cookedPortions: 3 },
+    ]);
+
+    const added = await addToRecipeBatch(repo, { recipeBatchId: 'batch-1', date: '2026-09-29', ingredient: spinat });
+
+    expect(added.cookedPortions).toBe(3);
+  });
+
+  it('leaves cooked portions unset when the batch has none', async () => {
+    const repo = new FakeLogEntryRepository([batchEntry('hack', '2026-09-29', 'Hackfleisch')]);
+
+    const added = await addToRecipeBatch(repo, { recipeBatchId: 'batch-1', date: '2026-09-29', ingredient: spinat });
+
+    expect(added).not.toHaveProperty('cookedPortions');
+  });
+
   it('leaves the existing batch entries unchanged', async () => {
     const existing = batchEntry('hack', '2026-09-29', 'Hackfleisch');
     const repo = new FakeLogEntryRepository([existing]);

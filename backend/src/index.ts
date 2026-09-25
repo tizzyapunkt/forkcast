@@ -14,6 +14,7 @@ import { migrateUserFoodsOverlay } from './infrastructure/food-catalog/migrate-u
 import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler.ts';
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
+import { makeGetGroceryListHandler } from './http/shopping/get-grocery-list.handler.ts';
 import { makeCopyLogDayHandler } from './http/meal-log/copy-log-day.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
@@ -26,6 +27,7 @@ import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
 import { makeRemoveRecipeLogHandler } from './http/meal-log/remove-recipe-log.handler.ts';
 import { makeReplaceBatchIngredientHandler } from './http/meal-log/replace-batch-ingredient.handler.ts';
 import { makeAddToRecipeBatchHandler } from './http/meal-log/add-to-recipe-batch.handler.ts';
+import { makeSetCookedPortionsHandler } from './http/meal-log/set-cooked-portions.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
 import {
   makeGetBodyProfileHandler,
@@ -162,6 +164,10 @@ app.get('/debug/logs', makeGetDebugLogsHandler(diagnosticsLog));
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));
 app.get('/week-log/:startDate', makeGetWeekLogHandler(logEntryRepo));
+app.get(
+  '/grocery-list/:startDate',
+  makeGetGroceryListHandler({ logEntries: logEntryRepo, recipes: recipeRepo, catalog: catalogStore }),
+);
 app.post('/copy-log-day', makeCopyLogDayHandler(logEntryRepo));
 app.patch('/log-entry/:id', makeEditLogEntryHandler(logEntryRepo));
 app.delete('/log-entry/:id', makeRemoveLogEntryHandler(logEntryRepo));
@@ -191,6 +197,7 @@ app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
 app.post('/remove-recipe-log', makeRemoveRecipeLogHandler(logEntryRepo));
 app.post('/replace-batch-ingredient', makeReplaceBatchIngredientHandler(logEntryRepo));
 app.post('/add-to-recipe-batch', makeAddToRecipeBatchHandler(logEntryRepo));
+app.post('/set-cooked-portions', makeSetCookedPortionsHandler(logEntryRepo));
 
 app.post('/confirm-ingredient-resolution', makeConfirmResolutionHandler({ catalog: catalogStore }));
 

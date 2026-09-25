@@ -217,3 +217,83 @@ describe('EntryList — replace and add inside a recipe batch', () => {
     );
   });
 });
+
+describe('EntryList — cooked portions on a recipe batch', () => {
+  beforeEach(() => {
+    server.use(http.get('/api/recipes', () => HttpResponse.json([bolognese])));
+  });
+
+  it('shows only the logged portions while cooked equals logged', async () => {
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(within(group).getByText('1 Port.')).toBeInTheDocument();
+    expect(within(group).queryByText(/gekocht/)).not.toBeInTheDocument();
+  });
+
+  it('shows the cooked portions when they differ from the logged ones', async () => {
+    renderWithProviders(
+      <EntryList entries={[fullEntry('a', 'Rindertatar', { ...batchOverrides, cookedPortions: 2 })]} />,
+    );
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(within(group).getByText('1 Port.')).toBeInTheDocument();
+    expect(within(group).getByText('für 2 gekocht')).toBeInTheDocument();
+  });
+
+  it('raises the cooked portions from the banner and saves them for the batch and its date', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/set-cooked-portions', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json([]);
+      }),
+    );
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Gekochte Portionen für „Bolognese“ ändern' }));
+    const sheet = await screen.findByRole('dialog');
+    expect(within(sheet).getByLabelText('Gekochte Portionen')).toHaveTextContent('1');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Eine Portion mehr' }));
+    expect(within(sheet).getByLabelText('Gekochte Portionen')).toHaveTextContent('2');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Übernehmen' }));
+
+    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1', date: '2026-06-11', cookedPortions: 2 }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('does not go below the logged portions', async () => {
+    renderWithProviders(
+      <EntryList
+        entries={[fullEntry('a', 'Rindertatar', { ...batchOverrides, recipePortions: 2, cookedPortions: 3 })]}
+      />,
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Gekochte Portionen für „Bolognese“ ändern' }));
+    const sheet = await screen.findByRole('dialog');
+    const less = within(sheet).getByRole('button', { name: 'Eine Portion weniger' });
+    await userEvent.click(less);
+
+    expect(within(sheet).getByLabelText('Gekochte Portionen')).toHaveTextContent('2');
+    expect(less).toBeDisabled();
+  });
+
+  it('closing without saving sends nothing', async () => {
+    let calls = 0;
+    server.use(
+      http.post('/api/set-cooked-portions', () => {
+        calls++;
+        return HttpResponse.json([]);
+      }),
+    );
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Gekochte Portionen für „Bolognese“ ändern' }));
+    const sheet = await screen.findByRole('dialog');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Eine Portion mehr' }));
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Abbrechen' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(calls).toBe(0);
+  });
+});

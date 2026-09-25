@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Plus } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Plus, ShoppingCart } from 'lucide-react';
 import { useWeekLog } from '../../queries/use-week-log';
 import { useNutritionGoal } from '../../queries/use-nutrition-goal';
 import { useCopyLogDay } from '../../queries/use-copy-log-day';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
+import { GroceryListSheet } from '../grocery-list/grocery-list-sheet';
 import { EntryList } from '../daily-log/entry-list';
 import { AppHeader } from '../../components/app/app-header';
 import { HeaderMacroCell } from '../../components/app/header-macro-cell';
@@ -97,6 +98,7 @@ export function PlannerScreen() {
     return i >= 0 && i < 7 ? i : 0;
   });
   const [target, setTarget] = useState<{ date: string; slot: MealSlot } | null>(null);
+  const [groceryListOpen, setGroceryListOpen] = useState(false);
   const [copyConfirm, setCopyConfirm] = useState<{ fromDate: string; toDate: string; dayLabel: string } | null>(null);
 
   const { data: week, isLoading, error } = useWeekLog(weekStart);
@@ -119,11 +121,23 @@ export function PlannerScreen() {
         bottom={
           week ? (
             <div className="mt-1.5 space-y-2">
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
-                <span className="text-sm font-semibold text-white">
-                  {de.planner.avgPerDay(r(week.averages.calories))}
-                </span>
-                <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
+                  <span className="text-sm font-semibold text-white">
+                    {de.planner.avgPerDay(r(week.averages.calories))}
+                  </span>
+                  <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
+                </div>
+                <Button
+                  variant="onDark"
+                  size="sm"
+                  onClick={() => setGroceryListOpen(true)}
+                  aria-label={de.planner.groceryListAria(weekRangeLabel(weekStart, weekEnd))}
+                  className="shrink-0"
+                >
+                  <ShoppingCart size={14} aria-hidden="true" />
+                  {de.planner.groceryList}
+                </Button>
               </div>
               {goal ? (
                 <div>
@@ -198,6 +212,15 @@ export function PlannerScreen() {
               />
             ))}
           </ul>
+        )}
+
+        {/* Mounted only while open, so ticks reset every time the list is reopened. */}
+        {groceryListOpen && (
+          <GroceryListSheet
+            startDate={weekStart}
+            rangeLabel={weekRangeLabel(weekStart, weekEnd)}
+            onClose={() => setGroceryListOpen(false)}
+          />
         )}
 
         {copyConfirm && (

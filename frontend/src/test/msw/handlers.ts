@@ -127,6 +127,15 @@ export const handlers = [
     return HttpResponse.json({ removed: 1 });
   }),
 
+  http.get('/api/grocery-list/:startDate', ({ params }) => {
+    return HttpResponse.json({ startDate: params['startDate'], items: [], skippedQuickEntries: 0 });
+  }),
+
+  http.post('/api/set-cooked-portions', async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json([{ recipeBatchId: body['recipeBatchId'], cookedPortions: body['cookedPortions'] }]);
+  }),
+
   http.post('/api/replace-batch-ingredient', async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({

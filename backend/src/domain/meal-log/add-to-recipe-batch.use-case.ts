@@ -32,6 +32,7 @@ export async function addToRecipeBatch(repo: LogEntryRepository, command: AddToR
     recipeId: member.recipeId,
     recipeBatchId: member.recipeBatchId,
     recipePortions: member.recipePortions,
+    ...(member.cookedPortions !== undefined ? { cookedPortions: member.cookedPortions } : {}),
     ingredient: { type, name, unit, macrosPerUnit, amount },
   };
 
