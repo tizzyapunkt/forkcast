@@ -131,6 +131,10 @@ export const handlers = [
     return HttpResponse.json({ startDate: params['startDate'], items: [], skippedQuickEntries: 0 });
   }),
 
+  http.post('/api/bring-import-token', () => {
+    return HttpResponse.json({ token: 'test-import-token' });
+  }),
+
   http.post('/api/set-cooked-portions', async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json([{ recipeBatchId: body['recipeBatchId'], cookedPortions: body['cookedPortions'] }]);

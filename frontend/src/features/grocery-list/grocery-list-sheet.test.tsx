@@ -35,7 +35,10 @@ function serve(list: GroceryList) {
   return () => requested;
 }
 
-function renderSheet(writeClipboard = vi.fn<(text: string) => Promise<void>>().mockResolvedValue()) {
+function renderSheet(
+  writeClipboard = vi.fn<(text: string) => Promise<void>>().mockResolvedValue(),
+  openUrl = vi.fn<(url: string) => void>(),
+) {
   const onClose = vi.fn<() => void>();
   renderWithProviders(
     <GroceryListSheet
@@ -43,10 +46,11 @@ function renderSheet(writeClipboard = vi.fn<(text: string) => Promise<void>>().m
       rangeLabel="28. September – 4. Oktober"
       onClose={onClose}
       writeClipboard={writeClipboard}
+      openUrl={openUrl}
     />,
     { queryClient: createTestQueryClient() },
   );
-  return { writeClipboard, onClose };
+  return { writeClipboard, openUrl, onClose };
 }
 
 describe('GroceryListSheet', () => {
@@ -148,5 +152,71 @@ describe('GroceryListSheet', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Kopieren' }));
 
     await waitFor(() => expect(writeClipboard).toHaveBeenCalledWith('Pfeffer'));
+  });
+
+  describe('An Bring! senden', () => {
+    it('mints a token for the week without the unticked items and opens the Bring! import deeplink', async () => {
+      serve(week);
+      let minted: unknown;
+      server.use(
+        http.post('/api/bring-import-token', async ({ request }) => {
+          minted = await request.json();
+          return HttpResponse.json({ token: 'tok-123' });
+        }),
+      );
+      const { openUrl } = renderSheet();
+
+      await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl einkaufen' }));
+      await userEvent.click(screen.getByRole('button', { name: 'An Bring! senden' }));
+
+      await waitFor(() => expect(openUrl).toHaveBeenCalledTimes(1));
+      expect(minted).toEqual({ startDate: '2026-09-28', excluded: ['olivenöl|ml'] });
+      const deeplink = new URL(openUrl.mock.calls[0]![0]);
+      expect(deeplink.origin + deeplink.pathname).toBe('https://api.getbring.com/rest/bringrecipes/deeplink');
+      expect(deeplink.searchParams.get('url')).toBe(`${window.location.origin}/api/bring-import/tok-123`);
+      expect(deeplink.searchParams.get('source')).toBe('web');
+      expect(deeplink.searchParams.get('baseQuantity')).toBe('1');
+      expect(deeplink.searchParams.get('requestedQuantity')).toBe('1');
+    });
+
+    it('shows a pending state while the link is being created', async () => {
+      serve(week);
+      let release!: () => void;
+      server.use(
+        http.post('/api/bring-import-token', async () => {
+          await new Promise<void>((resolve) => (release = resolve));
+          return HttpResponse.json({ token: 'tok' });
+        }),
+      );
+      const { openUrl } = renderSheet();
+
+      await screen.findByText('Salz');
+      await userEvent.click(screen.getByRole('button', { name: 'An Bring! senden' }));
+
+      expect(await screen.findByRole('button', { name: 'Öffne Bring!…' })).toBeDisabled();
+      release();
+      await waitFor(() => expect(openUrl).toHaveBeenCalled());
+    });
+
+    it('shows an error and opens nothing when the link cannot be created', async () => {
+      serve(week);
+      server.use(http.post('/api/bring-import-token', () => HttpResponse.json({ error: 'boom' }, { status: 500 })));
+      const { openUrl } = renderSheet();
+
+      await screen.findByText('Salz');
+      await userEvent.click(screen.getByRole('button', { name: 'An Bring! senden' }));
+
+      expect(await screen.findByText('Bring!-Link konnte nicht erstellt werden')).toBeInTheDocument();
+      expect(openUrl).not.toHaveBeenCalled();
+    });
+
+    it('is disabled when nothing is checked', async () => {
+      serve({ ...week, items: [week.items[0]!] });
+      renderSheet();
+
+      await userEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust einkaufen' }));
+
+      expect(screen.getByRole('button', { name: 'An Bring! senden' })).toBeDisabled();
+    });
   });
 });
