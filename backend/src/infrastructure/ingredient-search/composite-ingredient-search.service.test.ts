@@ -203,7 +203,29 @@ describe('CompositeIngredientSearchService', () => {
 
     const results = await svc.searchByName('skyr', new Set(['SCAN']));
     expect(results).toHaveLength(1);
-    expect(results[0]).toMatchObject({ id: '111', source: 'SCAN', name: 'Skyr Natur' });
+    expect(results[0]).toMatchObject({ id: '111', source: 'SCAN', name: 'Skyr Natur', matchConfidence: 'confident' });
+  });
+
+  it('marks a scanned product that only contains the query as a compound modifier as partial', async () => {
+    const products: ScannedProduct[] = [
+      {
+        barcode: '333',
+        name: 'Honigmelone Stücke',
+        unit: 'g',
+        macrosPer100: { calories: 36, protein: 0.5, carbs: 8, fat: 0.1 },
+        capturedAt: '2026-05-24T12:00:00.000Z',
+      },
+    ];
+    const scanned: ScannedProductStore = {
+      findByBarcode: vi.fn<(b: string) => Promise<ScannedProduct | null>>().mockResolvedValue(null),
+      upsert: vi.fn<(p: ScannedProduct) => Promise<void>>(),
+      list: vi.fn<() => Promise<ScannedProduct[]>>().mockResolvedValue(products),
+    };
+    const svc = new CompositeIngredientSearchService(makeMockService([]), makeMockService([]), scanned);
+
+    const results = await svc.searchByName('Honig', new Set(['SCAN']));
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({ name: 'Honigmelone Stücke', matchConfidence: 'partial' });
   });
 
   it('does not name-search scanned products when SCAN is absent', async () => {

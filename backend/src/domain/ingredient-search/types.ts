@@ -20,4 +20,11 @@ export interface IngredientSearchResult {
   servingSize?: string;
   /** Gram weight of one serving from the source product. */
   servingQuantity?: number;
+  /**
+   * How the name matched the query. `partial` hits (Honig → Honigmelone) are fine as search
+   * suggestions but must never be auto-accepted by the import. Absent on OFF results.
+   */
+  matchConfidence?: MatchConfidence;
 }
+
+export type MatchConfidence = 'confident' | 'partial';
