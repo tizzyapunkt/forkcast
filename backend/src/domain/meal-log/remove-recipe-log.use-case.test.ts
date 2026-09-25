@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { removeRecipeLog } from './remove-recipe-log.use-case.ts';
-import type { LogEntryRepository } from './log-entry.repository.ts';
+import { FakeLogEntryRepository } from './log-entry-repository.fake.ts';
 import type { LogEntry } from './types.ts';
 
-function entry(id: string, batchId?: string): LogEntry {
+function entry(id: string, batchId?: string, date = '2026-06-11'): LogEntry {
   return {
     id,
-    date: '2026-06-11',
+    date,
     slot: 'lunch',
     loggedAt: '2026-06-11T12:00:00.000Z',
     ...(batchId !== undefined ? { recipeId: 'rec-1', recipeBatchId: batchId, recipePortions: 1 } : {}),
@@ -20,50 +20,56 @@ function entry(id: string, batchId?: string): LogEntry {
   };
 }
 
-function makeRepo(all: LogEntry[]): { repo: LogEntryRepository; removedBatches: string[][] } {
-  const removedBatches: string[][] = [];
-  const repo: LogEntryRepository = {
-    save: vi.fn<(e: LogEntry) => Promise<void>>(),
-    saveMany: vi.fn<(e: LogEntry[]) => Promise<void>>(),
-    findAll: vi.fn<() => Promise<LogEntry[]>>().mockResolvedValue(all),
-    findByDate: vi.fn<(d: string) => Promise<LogEntry[]>>(),
-    findById: vi.fn<(id: string) => Promise<LogEntry | null>>(),
-    update: vi.fn<(e: LogEntry) => Promise<void>>(),
-    remove: vi.fn<(id: string) => Promise<void>>(),
-    removeMany: vi.fn<(ids: string[]) => Promise<void>>().mockImplementation(async (ids) => {
-      removedBatches.push(ids);
-    }),
-  };
-  return { repo, removedBatches };
-}
+const ids = (repo: FakeLogEntryRepository) => repo.all().map((e) => e.id);
 
 describe('removeRecipeLog', () => {
-  it('removes every entry of the batch in a single removeMany call and nothing else', async () => {
-    const { repo, removedBatches } = makeRepo([
+  it('removes every entry of the batch on that date and nothing else', async () => {
+    const repo = new FakeLogEntryRepository([
       entry('a', 'batch-1'),
       entry('b', 'batch-1'),
       entry('c', 'batch-2'),
       entry('d'),
     ]);
 
-    await removeRecipeLog(repo, 'batch-1');
+    const removed = await removeRecipeLog(repo, { recipeBatchId: 'batch-1', date: '2026-06-11' });
 
-    expect(removedBatches).toHaveLength(1);
-    expect(removedBatches[0]).toEqual(['a', 'b']);
-    expect(repo.remove).not.toHaveBeenCalled();
+    expect(removed).toBe(2);
+    expect(ids(repo)).toEqual(['c', 'd']);
   });
 
-  it('rejects an unknown batch id and removes nothing', async () => {
-    const { repo, removedBatches } = makeRepo([entry('a', 'batch-1')]);
+  it('leaves the same batch id on another date untouched', async () => {
+    const repo = new FakeLogEntryRepository([
+      entry('mon-1', 'batch-1', '2026-06-08'),
+      entry('mon-2', 'batch-1', '2026-06-08'),
+      entry('tue-1', 'batch-1', '2026-06-09'),
+      entry('tue-2', 'batch-1', '2026-06-09'),
+    ]);
 
-    await expect(removeRecipeLog(repo, 'missing')).rejects.toThrow(/not found/i);
-    expect(removedBatches).toEqual([]);
+    await removeRecipeLog(repo, { recipeBatchId: 'batch-1', date: '2026-06-09' });
+
+    expect(ids(repo)).toEqual(['mon-1', 'mon-2']);
+  });
+
+  it('rejects a batch with no entries on that date and removes nothing', async () => {
+    const repo = new FakeLogEntryRepository([entry('a', 'batch-1', '2026-06-08')]);
+
+    await expect(removeRecipeLog(repo, { recipeBatchId: 'batch-1', date: '2026-06-09' })).rejects.toThrow(/not found/i);
+    expect(ids(repo)).toEqual(['a']);
   });
 
   it('rejects a blank batch id', async () => {
-    const { repo, removedBatches } = makeRepo([entry('a', 'batch-1')]);
+    const repo = new FakeLogEntryRepository([entry('a', 'batch-1')]);
 
-    await expect(removeRecipeLog(repo, '')).rejects.toThrow(/batch/i);
-    expect(removedBatches).toEqual([]);
+    await expect(removeRecipeLog(repo, { recipeBatchId: '', date: '2026-06-11' })).rejects.toThrow(/batch/i);
+    expect(ids(repo)).toEqual(['a']);
+  });
+
+  it.each([undefined, '', '11.06.2026'])('rejects date %s', async (date) => {
+    const repo = new FakeLogEntryRepository([entry('a', 'batch-1')]);
+
+    await expect(removeRecipeLog(repo, { recipeBatchId: 'batch-1', date: date as unknown as string })).rejects.toThrow(
+      /date/i,
+    );
+    expect(ids(repo)).toEqual(['a']);
   });
 });

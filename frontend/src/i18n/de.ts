@@ -101,11 +101,13 @@ export const de = {
     editAria: 'Eintrag bearbeiten',
     removeAria: 'Eintrag entfernen',
     amountFor: (name: string) => `Menge für ${name}`,
+    replaceAria: (name: string) => `Zutat „${name}“ ersetzen`,
   },
 
   entryList: {
     portions: (n: number) => `${n} Port.`,
     removeGroupAria: (name: string) => `Rezept „${name}“ entfernen`,
+    addToGroupAria: (name: string) => `Zutat zu „${name}“ hinzufügen`,
     fallbackRecipeName: 'Rezept',
   },
 
@@ -322,6 +324,8 @@ export const de = {
   logIngredient: {
     dialogAria: 'Lebensmittel erfassen',
     addToSlot: (slotLabel: string) => `Zu ${slotLabel} hinzufügen`,
+    replaceInRecipe: (recipe: string) => `Zutat ersetzen — ${recipe}`,
+    addToRecipe: (recipe: string) => `Zutat hinzufügen — ${recipe}`,
     cancel: 'Abbrechen',
     back: 'Zurück',
     search: 'Suche',

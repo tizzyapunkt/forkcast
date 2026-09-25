@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { ArrowLeftRight, X } from 'lucide-react';
 import type { FullIngredientEntry, LogEntry, QuickIngredientEntry } from '../../domain/meal-log';
 import { useRecipes } from '../../queries/use-recipes';
 import { EditEntryDrawer } from '../edit-remove/edit-entry-drawer';
@@ -12,9 +12,11 @@ interface EntryRowProps {
   entry: LogEntry;
   /** Suppresses the per-row "aus {Rezept}" hint — used inside a recipe group, whose banner already names the recipe. */
   hideRecipeHint?: boolean;
+  /** Shows a replace affordance — passed only for rows inside a recipe batch. */
+  onReplace?: () => void;
 }
 
-export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
+export function EntryRow({ entry, hideRecipeHint, onReplace }: EntryRowProps) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [liveAmount, setLiveAmount] = useState<number | null>(null);
@@ -41,7 +43,7 @@ export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between py-2 text-sm">
+      <div className="flex items-center justify-between gap-2 py-2 text-sm">
         <div className="flex flex-col gap-0.5">
           <span className="font-medium">{label}</span>
           {recipeName && (
@@ -56,12 +58,15 @@ export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
             />
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="shrink-0 text-muted-foreground">
-            {calories}
-            {de.dailyLog.kcalSuffix}
+        <div className="flex min-w-0 items-center gap-2">
+          {/* kcal and macros wrap onto two right-aligned lines when the row runs out of room. */}
+          <span className="flex min-w-0 flex-wrap items-baseline justify-end gap-x-1.5 text-right text-muted-foreground">
+            <span className="whitespace-nowrap">
+              {calories}
+              {de.dailyLog.kcalSuffix}
+            </span>
             {macros && (
-              <span className="ml-1.5 text-xs">
+              <span className="whitespace-nowrap text-xs">
                 {de.dailyLog.macroInline(macros.protein, macros.carbs, macros.fat)}
               </span>
             )}
@@ -74,6 +79,17 @@ export function EntryRow({ entry, hideRecipeHint }: EntryRowProps) {
             >
               {de.entryRow.edit}
             </button>
+          )}
+          {onReplace && (
+            <Button
+              variant="ghost"
+              size="iconSm"
+              onClick={onReplace}
+              aria-label={de.entryRow.replaceAria(label)}
+              className="-my-1 text-muted-foreground"
+            >
+              <ArrowLeftRight aria-hidden="true" className="h-4 w-4" />
+            </Button>
           )}
           <Button
             variant="quietDestructive"

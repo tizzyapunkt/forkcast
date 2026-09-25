@@ -91,7 +91,7 @@ describe('EntryList — recipe batch grouping', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Rezept „Bolognese“ entfernen' }));
 
-    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1' }));
+    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1', date: '2026-06-11' }));
   });
 
   it('renders two logs of the same recipe as two distinct groups', async () => {
@@ -132,5 +132,88 @@ describe('EntryList — recipe batch grouping', () => {
 
     expect(await screen.findByText('Apfel')).toBeInTheDocument();
     expect(screen.queryByTestId('recipe-hint')).not.toBeInTheDocument();
+  });
+});
+
+describe('EntryList — replace and add inside a recipe batch', () => {
+  beforeEach(() => {
+    server.use(
+      http.get('/api/recipes', () => HttpResponse.json([bolognese])),
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'tofu',
+            source: 'CATALOG',
+            name: 'Tofu',
+            unit: 'g',
+            macrosPerUnit: { calories: 1.2, protein: 0.12, carbs: 0.02, fat: 0.07 },
+          },
+        ]),
+      ),
+    );
+  });
+
+  it('offers replace on rows inside a batch only, and add on the banner', async () => {
+    renderWithProviders(
+      <EntryList
+        entries={[
+          fullEntry('a', 'Rindertatar', batchOverrides),
+          fullEntry('b', 'Apfel'),
+          fullEntry('c', 'Sojasauce', { recipeId: 'rec-1' }), // legacy, no batch
+        ]}
+      />,
+    );
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(within(group).getByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' })).toBeInTheDocument();
+    expect(await within(group).findByRole('button', { name: 'Zutat zu „Bolognese“ hinzufügen' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Zutat „Apfel“ ersetzen' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Zutat „Sojasauce“ ersetzen' })).not.toBeInTheDocument();
+  });
+
+  it('replaces a batch row through the batch-targeted sheet', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/replace-batch-ingredient', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json({});
+      }),
+    );
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' }));
+    expect(await screen.findByRole('heading', { name: 'Zutat ersetzen — Bolognese' })).toBeInTheDocument();
+    await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'tofu');
+    await userEvent.click(await screen.findByRole('button', { name: /^tofu/i }));
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() => expect(posted).toMatchObject({ entryId: 'a', ingredient: { name: 'Tofu', amount: 100 } }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('adds an ingredient to the batch from the banner', async () => {
+    let posted: unknown;
+    server.use(
+      http.post('/api/add-to-recipe-batch', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Zutat zu „Bolognese“ hinzufügen' }));
+    expect(await screen.findByRole('heading', { name: 'Zutat hinzufügen — Bolognese' })).toBeInTheDocument();
+    await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'tofu');
+    await userEvent.click(await screen.findByRole('button', { name: /^tofu/i }));
+    await userEvent.type(within(screen.getByRole('dialog')).getByLabelText(/menge/i), '150');
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() =>
+      expect(posted).toMatchObject({
+        recipeBatchId: 'batch-1',
+        date: '2026-06-11',
+        ingredient: { name: 'Tofu', amount: 150 },
+      }),
+    );
   });
 });

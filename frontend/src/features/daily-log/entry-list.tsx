@@ -1,8 +1,10 @@
-import { BookOpen, X } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Plus, X } from 'lucide-react';
 import type { LogEntry } from '../../domain/meal-log';
 import { useRecipes } from '../../queries/use-recipes';
 import { useRemoveRecipeLog } from '../../queries/use-remove-recipe-log';
 import { EntryRow } from './entry-row';
+import { LogIngredientDrawer, type BatchTarget } from '../log-ingredient/log-ingredient-drawer';
 import { Button } from '../../components/ui/button';
 import { de } from '../../i18n/de';
 
@@ -63,6 +65,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
   const first = entries[0];
   const { data: recipes } = useRecipes();
   const removeMutation = useRemoveRecipeLog();
+  const [target, setTarget] = useState<BatchTarget | null>(null);
   if (!first) return null;
 
   // Name resolves live via recipeId; a deleted recipe degrades to a generic label, the group stays.
@@ -80,6 +83,15 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           </span>
         )}
         <Button
+          variant="ghost"
+          size="iconSm"
+          onClick={() => setTarget({ kind: 'add', recipeBatchId: batchId, recipeName: label })}
+          aria-label={de.entryList.addToGroupAria(label)}
+          className="-my-1 text-primary"
+        >
+          <Plus size={14} aria-hidden="true" />
+        </Button>
+        <Button
           variant="quietDestructive"
           size="iconSm"
           onClick={() => removeMutation.mutate({ recipeBatchId: batchId, date: first.date })}
@@ -92,9 +104,26 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
       </div>
       <div className="divide-y">
         {entries.map((entry) => (
-          <EntryRow key={entry.id} entry={entry} hideRecipeHint />
+          <EntryRow
+            key={entry.id}
+            entry={entry}
+            hideRecipeHint
+            onReplace={
+              entry.ingredient.type === 'full'
+                ? () => setTarget({ kind: 'replace', entry, recipeName: label })
+                : undefined
+            }
+          />
         ))}
       </div>
+
+      <LogIngredientDrawer
+        open={target !== null}
+        slot={first.slot}
+        date={first.date}
+        target={target ?? undefined}
+        onClose={() => setTarget(null)}
+      />
     </div>
   );
 }

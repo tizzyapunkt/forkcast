@@ -241,4 +241,62 @@ describe('FullEntryConfirm', () => {
     );
     expect(screen.getByLabelText(/menge/i)).toHaveValue('');
   });
+
+  describe('with an onSubmitIngredient override', () => {
+    it('hands the full ingredient to the override instead of logging it, then calls onSuccess', async () => {
+      let logged = false;
+      server.use(
+        http.post('/api/log-ingredient', () => {
+          logged = true;
+          return HttpResponse.json({}, { status: 201 });
+        }),
+      );
+      const onSubmitIngredient = vi.fn<(i: unknown) => Promise<void>>().mockResolvedValue();
+      const onSuccess = vi.fn<() => void>();
+      renderWithProviders(
+        <FullEntryConfirm
+          result={chicken}
+          date="2026-04-21"
+          slot="lunch"
+          onSuccess={onSuccess}
+          onSubmitIngredient={onSubmitIngredient}
+        />,
+        { queryClient: createTestQueryClient() },
+      );
+
+      await userEvent.type(screen.getByLabelText(/menge/i), '200');
+      await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+      await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+      expect(onSubmitIngredient).toHaveBeenCalledWith({
+        type: 'full',
+        name: 'Chicken breast',
+        unit: 'g',
+        macrosPerUnit: chicken.macrosPerUnit,
+        amount: 200,
+      });
+      expect(logged).toBe(false);
+    });
+
+    it('shows the override error and does not call onSuccess when it fails', async () => {
+      const onSubmitIngredient = vi.fn<(i: unknown) => Promise<void>>().mockRejectedValue(new Error('Kaputt'));
+      const onSuccess = vi.fn<() => void>();
+      renderWithProviders(
+        <FullEntryConfirm
+          result={chicken}
+          date="2026-04-21"
+          slot="lunch"
+          onSuccess={onSuccess}
+          onSubmitIngredient={onSubmitIngredient}
+        />,
+        { queryClient: createTestQueryClient() },
+      );
+
+      await userEvent.type(screen.getByLabelText(/menge/i), '200');
+      await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+      expect(await screen.findByText(/kaputt/i)).toBeInTheDocument();
+      expect(onSuccess).not.toHaveBeenCalled();
+    });
+  });
 });
