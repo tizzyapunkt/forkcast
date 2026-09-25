@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, ShoppingBasket } from 'lucide-react';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { Button } from '../../components/ui/button';
 import { useGroceryList } from '../../queries/use-grocery-list';
+import { mintBringImportToken } from '../../api/bring-import-token';
 import { groceryItemKey, type GroceryItem } from '../../domain/grocery-list';
 import { de } from '../../i18n/de';
 
@@ -14,10 +15,32 @@ interface GroceryListSheetProps {
   onClose: () => void;
   /** Injected in tests; the browser clipboard otherwise. */
   writeClipboard?: (text: string) => Promise<void>;
+  /** Injected in tests; a same-tab navigation otherwise (a popup after an await would be blocked). */
+  openUrl?: (url: string) => void;
 }
 
 function defaultWriteClipboard(text: string): Promise<void> {
   return navigator.clipboard.writeText(text);
+}
+
+function defaultOpenUrl(url: string): void {
+  window.location.assign(url);
+}
+
+const BRING_DEEPLINK = 'https://api.getbring.com/rest/bringrecipes/deeplink';
+
+/**
+ * Bring!'s servers fetch the import page from the origin the app is opened on (the public tunnel
+ * domain). forkcast has already scaled every amount, so both quantities are 1.
+ */
+function bringDeeplink(token: string): string {
+  const params = new URLSearchParams({
+    url: `${window.location.origin}/api/bring-import/${token}`,
+    source: 'web',
+    baseQuantity: '1',
+    requestedQuantity: '1',
+  });
+  return `${BRING_DEEPLINK}?${params.toString()}`;
 }
 
 function quantity(item: GroceryItem): string | null {
@@ -51,10 +74,12 @@ export function GroceryListSheet({
   rangeLabel,
   onClose,
   writeClipboard = defaultWriteClipboard,
+  openUrl = defaultOpenUrl,
 }: GroceryListSheetProps) {
   const { data: list, isLoading, error } = useGroceryList(startDate);
   const [unticked, setUnticked] = useState<Set<string>>(() => new Set());
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [bringState, setBringState] = useState<'idle' | 'pending' | 'failed'>('idle');
 
   const items = list?.items ?? [];
   const checked = items.filter((item) => !unticked.has(groceryItemKey(item)));
@@ -78,6 +103,17 @@ export function GroceryListSheet({
       setCopyState('copied');
     } catch {
       setCopyState('failed');
+    }
+  }
+
+  async function sendToBring() {
+    setBringState('pending');
+    try {
+      const { token } = await mintBringImportToken({ startDate, excluded: [...unticked] });
+      openUrl(bringDeeplink(token));
+      setBringState('idle');
+    } catch {
+      setBringState('failed');
     }
   }
 
@@ -155,10 +191,25 @@ export function GroceryListSheet({
             {de.groceryList.copyFailed}
           </p>
         )}
-        <Button onClick={copy} disabled={checked.length === 0} className="w-full">
-          <Copy size={16} aria-hidden="true" />
-          {de.groceryList.copy}
-        </Button>
+        {bringState === 'failed' && (
+          <p role="alert" className="text-xs text-destructive">
+            {de.groceryList.bringFailed}
+          </p>
+        )}
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={copy} disabled={checked.length === 0} className="shrink-0">
+            <Copy size={16} aria-hidden="true" />
+            {de.groceryList.copy}
+          </Button>
+          <Button
+            onClick={sendToBring}
+            disabled={checked.length === 0 || bringState === 'pending'}
+            className="min-w-0 flex-1"
+          >
+            <ShoppingBasket size={16} aria-hidden="true" />
+            {bringState === 'pending' ? de.groceryList.sendingToBring : de.groceryList.sendToBring}
+          </Button>
+        </div>
       </div>
     </BottomSheet>
   );

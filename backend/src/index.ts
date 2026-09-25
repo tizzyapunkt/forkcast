@@ -15,6 +15,7 @@ import { makeLogIngredientHandler } from './http/meal-log/log-ingredient.handler
 import { makeGetDailyLogHandler } from './http/meal-log/get-daily-log.handler.ts';
 import { makeGetWeekLogHandler } from './http/meal-log/get-week-log.handler.ts';
 import { makeGetGroceryListHandler } from './http/shopping/get-grocery-list.handler.ts';
+import { makeBringImportPageHandler, makeMintBringImportTokenHandler } from './http/shopping/bring-import.handlers.ts';
 import { makeCopyLogDayHandler } from './http/meal-log/copy-log-day.handler.ts';
 import { makeEditLogEntryHandler, makeRemoveLogEntryHandler } from './http/meal-log/edit-remove-log-entry.handler.ts';
 import { makeListRecentlyUsedIngredientsHandler } from './http/meal-log/list-recently-used-ingredients.handler.ts';
@@ -157,6 +158,10 @@ app.post('/auth/login', makeLoginHandler(config.auth.password, config.auth.jwtSe
 app.post('/auth/logout', makeLogoutHandler());
 app.get('/auth/me', makeMeHandler(config.auth.jwtSecret));
 
+// Public: Bring!'s servers fetch the import page without a session; its path token is the authorisation.
+const grocerySources = { logEntries: logEntryRepo, recipes: recipeRepo, catalog: catalogStore };
+app.get('/bring-import/:token', makeBringImportPageHandler(grocerySources, config.auth.jwtSecret));
+
 app.use('*', makeAuthMiddleware(config.auth.jwtSecret));
 
 app.get('/debug/logs', makeGetDebugLogsHandler(diagnosticsLog));
@@ -164,10 +169,8 @@ app.get('/debug/logs', makeGetDebugLogsHandler(diagnosticsLog));
 app.post('/log-ingredient', makeLogIngredientHandler(logEntryRepo));
 app.get('/daily-log/:date', makeGetDailyLogHandler(logEntryRepo));
 app.get('/week-log/:startDate', makeGetWeekLogHandler(logEntryRepo));
-app.get(
-  '/grocery-list/:startDate',
-  makeGetGroceryListHandler({ logEntries: logEntryRepo, recipes: recipeRepo, catalog: catalogStore }),
-);
+app.get('/grocery-list/:startDate', makeGetGroceryListHandler(grocerySources));
+app.post('/bring-import-token', makeMintBringImportTokenHandler(config.auth.jwtSecret));
 app.post('/copy-log-day', makeCopyLogDayHandler(logEntryRepo));
 app.patch('/log-entry/:id', makeEditLogEntryHandler(logEntryRepo));
 app.delete('/log-entry/:id', makeRemoveLogEntryHandler(logEntryRepo));

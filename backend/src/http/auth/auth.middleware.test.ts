@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 import { signSession } from '../../domain/auth/auth.service.ts';
 import { makeAuthMiddleware } from './auth.middleware.ts';
+import { mintImportToken } from '../../domain/shopping/import-token.ts';
 
 const SECRET = 'test-jwt-secret-long-enough-for-hs256';
 
@@ -32,6 +33,14 @@ describe('makeAuthMiddleware', () => {
     const tampered = token.slice(0, -5) + 'XXXXX';
     const res = await makeApp().request('/protected', {
       headers: { Cookie: `session=${tampered}` },
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when a Bring! import token is sent as the session cookie', async () => {
+    const importToken = await mintImportToken({ startDate: '2026-09-28', excluded: [] }, SECRET);
+    const res = await makeApp().request('/protected', {
+      headers: { Cookie: `session=${importToken}` },
     });
     expect(res.status).toBe(401);
   });
