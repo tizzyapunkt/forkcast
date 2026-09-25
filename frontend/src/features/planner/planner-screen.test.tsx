@@ -239,6 +239,67 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Rezept „Bolognese“ entfernen' }));
 
-    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1' }));
+    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1', date: '2026-06-10' }));
+  });
+  it('replaces a batch ingredient from the planner and shows it inside the group with updated totals', async () => {
+    let posted: Record<string, unknown> | undefined;
+    let replaced = false;
+    const before = weekWithEntries();
+    const tofuEntry = fullEntry('batch-a', 'Tofu', 100, {
+      recipeId: 'rec-1',
+      recipeBatchId: 'batch-1',
+      recipePortions: 1,
+    });
+    const after = before.map((day) =>
+      day.date !== '2026-06-10'
+        ? day
+        : {
+            ...day,
+            slots: day.slots.map((slot) => ({
+              ...slot,
+              entries: slot.entries.map((e) => (e.id === 'batch-a' ? tofuEntry : e)),
+            })),
+            totals: { calories: 512, protein: 40, carbs: 0, fat: 8, macrosPartial: false },
+          },
+    );
+    server.use(
+      http.get('/api/week-log/:startDate', () =>
+        HttpResponse.json(makeWeekLog('2026-06-08', replaced ? after : before)),
+      ),
+      http.get('/api/nutrition-goal', () => HttpResponse.json(makeGoal({ calories: 2000 }))),
+      http.get('/api/recipes', () => HttpResponse.json([bolognese])),
+      http.get('/api/search-ingredients', () =>
+        HttpResponse.json([
+          {
+            id: 'tofu',
+            source: 'CATALOG',
+            name: 'Tofu',
+            unit: 'g',
+            macrosPerUnit: { calories: 1.2, protein: 0.12, carbs: 0.02, fat: 0.07 },
+          },
+        ]),
+      ),
+      http.post('/api/replace-batch-ingredient', async ({ request }) => {
+        posted = (await request.json()) as Record<string, unknown>;
+        replaced = true;
+        return HttpResponse.json(tofuEntry);
+      }),
+    );
+    renderWithProviders(<PlannerScreen />);
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(await within(group).findByRole('button', { name: 'Zutat zu „Bolognese“ hinzufügen' })).toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' }));
+    await userEvent.type(await screen.findByPlaceholderText(/zutaten suchen/i), 'tofu');
+    await userEvent.click(await screen.findByRole('button', { name: /^tofu/i }));
+    await userEvent.click(screen.getByRole('button', { name: /erfassen/i }));
+
+    await waitFor(() =>
+      expect(posted).toMatchObject({ entryId: 'batch-a', ingredient: { name: 'Tofu', amount: 100 } }),
+    );
+    const refreshed = await screen.findByTestId('recipe-batch-batch-1');
+    expect(await within(refreshed).findByText('Tofu')).toBeInTheDocument();
+    expect(within(refreshed).queryByText('Rindertatar')).not.toBeInTheDocument();
+    expect(await screen.findAllByText(/512/)).not.toHaveLength(0);
   });
 });

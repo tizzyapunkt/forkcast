@@ -1,11 +1,11 @@
 import { ApiError } from './client';
 
-/** Removes every log entry of one recipe-log batch atomically. Returns the removed count. */
-export async function removeRecipeLog(recipeBatchId: string): Promise<{ removed: number }> {
+/** Removes every log entry of one recipe-log batch on `date` atomically. Returns the removed count. */
+export async function removeRecipeLog(recipeBatchId: string, date: string): Promise<{ removed: number }> {
   const res = await fetch('/api/remove-recipe-log', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ recipeBatchId }),
+    body: JSON.stringify({ recipeBatchId, date }),
   });
   if (!res.ok) {
     let message = res.statusText;

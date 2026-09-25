@@ -127,6 +127,37 @@ export const handlers = [
     return HttpResponse.json({ removed: 1 });
   }),
 
+  http.post('/api/replace-batch-ingredient', async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({
+      id: body['entryId'],
+      date: '2026-04-28',
+      slot: 'dinner',
+      recipeId: 'r1',
+      recipeBatchId: 'batch-1',
+      recipePortions: 1,
+      ingredient: body['ingredient'],
+      loggedAt: new Date().toISOString(),
+    });
+  }),
+
+  http.post('/api/add-to-recipe-batch', async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json(
+      {
+        id: crypto.randomUUID(),
+        date: body['date'],
+        slot: 'dinner',
+        recipeId: 'r1',
+        recipeBatchId: body['recipeBatchId'],
+        recipePortions: 1,
+        ingredient: body['ingredient'],
+        loggedAt: new Date().toISOString(),
+      },
+      { status: 201 },
+    );
+  }),
+
   http.get('/api/body-profile', () => {
     return new HttpResponse(null, { status: 404 });
   }),

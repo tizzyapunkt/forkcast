@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
-import type { MealSlot } from '../../domain/meal-log';
+import type { FullIngredientEntry, MealSlot } from '../../domain/meal-log';
 import { useLogIngredient } from '../../queries/use-log-ingredient';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { Button } from '../../components/ui/button';
@@ -29,10 +30,27 @@ interface FullEntryConfirmProps {
   /** When provided, renders a footer back button. In the add-food sheet the back affordance lives in the header instead. */
   onBack?: () => void;
   defaultAmount?: number;
+  /**
+   * When provided, the confirmed ingredient goes here instead of being logged as a new ad-hoc entry —
+   * used to replace or add an ingredient inside a logged recipe batch.
+   */
+  onSubmitIngredient?: (ingredient: FullIngredientEntry) => Promise<unknown>;
 }
 
-export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaultAmount }: FullEntryConfirmProps) {
-  const { mutate, isPending, error } = useLogIngredient();
+export function FullEntryConfirm({
+  result,
+  date,
+  slot,
+  onSuccess,
+  onBack,
+  defaultAmount,
+  onSubmitIngredient,
+}: FullEntryConfirmProps) {
+  const logMutation = useLogIngredient();
+  const [overridePending, setOverridePending] = useState(false);
+  const [overrideError, setOverrideError] = useState<Error | null>(null);
+  const isPending = onSubmitIngredient ? overridePending : logMutation.isPending;
+  const error = onSubmitIngredient ? overrideError : logMutation.error;
   const m = result.macrosPerUnit;
 
   const effectiveDefault = defaultAmount ?? result.servingQuantity;
@@ -53,20 +71,23 @@ export function FullEntryConfirm({ result, date, slot, onSuccess, onBack, defaul
   const amount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 
   function onSubmit({ amount: a }: FormValues) {
-    mutate(
-      {
-        date,
-        slot,
-        ingredient: {
-          type: 'full',
-          name: result.name,
-          unit: result.unit,
-          macrosPerUnit: m,
-          amount: a,
-        },
-      },
-      { onSuccess },
-    );
+    const ingredient: FullIngredientEntry = {
+      type: 'full',
+      name: result.name,
+      unit: result.unit,
+      macrosPerUnit: m,
+      amount: a,
+    };
+    if (onSubmitIngredient) {
+      setOverridePending(true);
+      setOverrideError(null);
+      onSubmitIngredient(ingredient)
+        .then(() => onSuccess())
+        .catch((err: unknown) => setOverrideError(err instanceof Error ? err : new Error(String(err))))
+        .finally(() => setOverridePending(false));
+      return;
+    }
+    logMutation.mutate({ date, slot, ingredient }, { onSuccess });
   }
 
   return (

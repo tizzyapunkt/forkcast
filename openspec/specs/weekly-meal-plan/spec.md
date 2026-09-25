@@ -1,8 +1,10 @@
 # weekly-meal-plan Specification
 
 ## Purpose
-TBD - created by archiving change add-weekly-meal-plan. Update Purpose after archive.
+Plan a week of meals ahead in a Monday-based planner that is a weekly view over the same meal log the diary uses: see each day's and the week's calories and macros against the goal, add and remove meals on any day, and copy a day's plan to the next day.
+
 ## Requirements
+
 ### Requirement: Week-log read model
 The system SHALL expose a query that returns a week of the meal log: given a `startDate` (ISO date), it
 returns the **seven consecutive days** beginning at `startDate`, each shaped as the existing per-day
@@ -170,8 +172,11 @@ The day's and week's rollups MUST reflect the persisted change.
 ### Requirement: Copy a planned day to the next day
 The planner SHALL let the user **copy a day's planned meals onto the following day**. The action MUST be
 confirmed before it runs. On confirm, the system clones every `LogEntry` of the source day onto the next
-day — each clone receives a fresh `id` and `loggedAt` and the next day's `date`, with its `slot` and
-`ingredient` preserved. The copy is **additive**: it adds to whatever the target day already contains and
+day — each clone receives a fresh `id` and `loggedAt` and the next day's `date`, with its `slot`,
+`ingredient`, `recipeId` and `recipePortions` preserved. Each **recipe batch** of the source day MUST be
+copied as a **new, independent batch**: all clones of one source batch share one fresh `recipeBatchId`
+that differs from the source's and from every other copied batch's. Entries without a `recipeBatchId`
+stay without one. The copy is **additive**: it adds to whatever the target day already contains and
 does not clear it first; the confirm dialog states this. The clone MUST be atomic (all entries copied or
 none).
 
@@ -183,6 +188,23 @@ The system SHALL expose this as a command `copyLogDay(fromDate, toDate)` over HT
 - **WHEN** the user invokes "Tag kopieren" on Monday and confirms
 - **THEN** Tuesday gains three new entries (fresh ids, `date` = Tuesday) mirroring Monday's slots and
   ingredients, and Monday is unchanged
+
+#### Scenario: Copied recipe batch is independent of its source
+- **GIVEN** Monday's dinner holds a 3-entry Chili batch
+- **WHEN** Monday is copied onto Tuesday
+- **THEN** Tuesday's three Chili clones share one `recipeBatchId` that differs from Monday's, keep
+  `recipeId` and `recipePortions`, and render as one Chili group
+
+#### Scenario: Two batches stay two batches
+- **GIVEN** Monday holds two batches (lunch and dinner) and one ad-hoc entry
+- **WHEN** Monday is copied onto Tuesday
+- **THEN** Tuesday gains two batches with two distinct fresh batch ids, and the ad-hoc clone carries no
+  `recipeBatchId`
+
+#### Scenario: Removing a copied batch leaves the source
+- **GIVEN** Monday was copied onto Tuesday, including a Chili batch
+- **WHEN** the user removes the Chili batch on Tuesday
+- **THEN** Monday's Chili batch is unchanged
 
 #### Scenario: Copy is additive
 - **GIVEN** Tuesday already has one entry
@@ -200,4 +222,3 @@ The system SHALL expose this as a command `copyLogDay(fromDate, toDate)` over HT
 #### Scenario: HTTP endpoint
 - **WHEN** a client sends `POST /copy-log-day` with `{ fromDate, toDate }`
 - **THEN** the response indicates success and the cloned entries are persisted on `toDate`
-

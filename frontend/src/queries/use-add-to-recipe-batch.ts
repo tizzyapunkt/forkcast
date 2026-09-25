@@ -1,18 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { removeRecipeLog } from '../api/remove-recipe-log';
+import { addToRecipeBatch, type AddToRecipeBatchInput } from '../api/batch-ingredients';
 import { queryKeys } from './keys';
 
-interface RemoveRecipeLogInput {
-  recipeBatchId: string;
-  date: string;
-}
-
-export function useRemoveRecipeLog() {
+export function useAddToRecipeBatch() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ recipeBatchId, date }: RemoveRecipeLogInput) => removeRecipeLog(recipeBatchId, date),
-    onSuccess: (_data, variables: RemoveRecipeLogInput) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.dailyLog(variables.date) });
+    mutationFn: (input: AddToRecipeBatchInput) => addToRecipeBatch(input),
+    onSuccess: (_data, { date }: AddToRecipeBatchInput) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.dailyLog(date) });
       queryClient.invalidateQueries({ queryKey: queryKeys.weekLogAll() });
       queryClient.invalidateQueries({ queryKey: queryKeys.recentlyUsedIngredients() });
       queryClient.invalidateQueries({ queryKey: queryKeys.favoriteIngredients() });

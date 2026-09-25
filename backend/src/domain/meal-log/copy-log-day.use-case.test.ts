@@ -80,4 +80,51 @@ describe('copyLogDay', () => {
     await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
     expect(remove).not.toHaveBeenCalled();
   });
+
+  describe('recipe batches', () => {
+    function batch(id: string, batchId: string, slot: LogEntry['slot']): LogEntry {
+      return entry(id, '2026-06-08', { slot, recipeId: `rec-${batchId}`, recipeBatchId: batchId, recipePortions: 2 });
+    }
+
+    it('gives all clones of one source batch one shared fresh batch id', async () => {
+      const { repo } = repoWith([batch('a', 'b-1', 'dinner'), batch('b', 'b-1', 'dinner')]);
+
+      const clones = await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
+
+      const ids = new Set(clones.map((c) => c.recipeBatchId));
+      expect(ids.size).toBe(1);
+      expect(clones[0]!.recipeBatchId).toBeDefined();
+      expect(clones[0]!.recipeBatchId).not.toBe('b-1');
+    });
+
+    it('keeps two source batches apart with two distinct fresh ids', async () => {
+      const { repo } = repoWith([batch('a', 'b-1', 'lunch'), batch('b', 'b-2', 'dinner'), batch('c', 'b-2', 'dinner')]);
+
+      const clones = await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
+
+      const [lunch, dinner1, dinner2] = clones;
+      expect(dinner1!.recipeBatchId).toBe(dinner2!.recipeBatchId);
+      expect(lunch!.recipeBatchId).not.toBe(dinner1!.recipeBatchId);
+      expect(['b-1', 'b-2']).not.toContain(lunch!.recipeBatchId);
+      expect(['b-1', 'b-2']).not.toContain(dinner1!.recipeBatchId);
+    });
+
+    it('preserves recipeId and recipePortions on batch clones', async () => {
+      const { repo } = repoWith([batch('a', 'b-1', 'dinner')]);
+
+      const [clone] = await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
+
+      expect(clone!.recipeId).toBe('rec-b-1');
+      expect(clone!.recipePortions).toBe(2);
+    });
+
+    it('leaves ad-hoc clones without a batch id', async () => {
+      const { repo } = repoWith([entry('a', '2026-06-08'), batch('b', 'b-1', 'dinner')]);
+
+      const [adhoc] = await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
+
+      expect(adhoc!.recipeBatchId).toBeUndefined();
+      expect(adhoc).not.toHaveProperty('recipeBatchId');
+    });
+  });
 });
