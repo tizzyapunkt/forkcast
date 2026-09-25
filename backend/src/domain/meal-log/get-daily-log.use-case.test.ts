@@ -126,4 +126,18 @@ describe('getDailyLog', () => {
     expect(result.totals.calories).toBeCloseTo(400);
     expect(result.totals.protein).toBeCloseTo(40);
   });
+
+  it('ignores cooked portions — totals follow the logged amounts', async () => {
+    const macros = { calories: 2, protein: 0.2, carbs: 0.1, fat: 0.05 };
+    const eaten = makeFullEntry('dinner', macros, 250);
+    const batch = { recipeId: 'chili', recipeBatchId: 'batch-1', recipePortions: 1 };
+    const logged = { ...eaten, ...batch };
+    const cookedForTwo = { ...eaten, ...batch, cookedPortions: 2 };
+
+    const plain = await getDailyLog(makeRepo([logged]), '2026-04-19');
+    const cooked = await getDailyLog(makeRepo([cookedForTwo]), '2026-04-19');
+
+    expect(cooked.totals).toEqual(plain.totals);
+    expect(cooked.totals.calories).toBe(500);
+  });
 });

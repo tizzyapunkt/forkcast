@@ -71,6 +71,25 @@ export const de = {
     ],
     weekdays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
     weekdaysLong: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
+    groceryList: 'Einkaufsliste',
+    groceryListAria: (range: string) => `Einkaufsliste für ${range}`,
+  },
+
+  groceryList: {
+    title: (range: string) => `Einkaufsliste · ${range}`,
+    dialogAria: 'Einkaufsliste',
+    close: 'Schließen',
+    untrackedHeading: 'Gewürze & Kleinkram',
+    skippedQuick: (n: number) =>
+      n === 1 ? '1 Schnelleintrag nicht enthalten' : `${n} Schnelleinträge nicht enthalten`,
+    empty: 'Für diese Woche ist noch nichts geplant.',
+    copy: 'Kopieren',
+    copied: 'In die Zwischenablage kopiert',
+    copyFailed: 'Kopieren fehlgeschlagen',
+    loadFailed: 'Einkaufsliste konnte nicht geladen werden',
+    itemAria: (name: string) => `${name} einkaufen`,
+    pieceHint: (count: number) => `≈ ${count} Stück`,
+    units: { g: 'g', ml: 'ml', oz: 'oz', cup: 'Tasse', tbsp: 'EL', tsp: 'TL', piece: 'Stück' } as const,
   },
 
   dateNav: {
@@ -108,6 +127,16 @@ export const de = {
     portions: (n: number) => `${n} Port.`,
     removeGroupAria: (name: string) => `Rezept „${name}“ entfernen`,
     addToGroupAria: (name: string) => `Zutat zu „${name}“ hinzufügen`,
+    cookedFor: (n: number) => `für ${n} gekocht`,
+    cookedPortionsAria: (name: string) => `Gekochte Portionen für „${name}“ ändern`,
+    cookedTitle: (name: string) => `Wie viele Portionen kochst du? — ${name}`,
+    cookedHint: (logged: number) =>
+      `Für die Einkaufsliste. Die Nährwerte bleiben bei ${logged} ${logged === 1 ? 'Portion' : 'Portionen'}.`,
+    cookedDecrease: 'Eine Portion weniger',
+    cookedIncrease: 'Eine Portion mehr',
+    cookedValueAria: 'Gekochte Portionen',
+    cookedSave: 'Übernehmen',
+    cookedCancel: 'Abbrechen',
     fallbackRecipeName: 'Rezept',
   },
 

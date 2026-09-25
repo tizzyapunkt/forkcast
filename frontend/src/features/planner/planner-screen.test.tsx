@@ -302,4 +302,86 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
     expect(within(refreshed).queryByText('Rindertatar')).not.toBeInTheDocument();
     expect(await screen.findAllByText(/512/)).not.toHaveLength(0);
   });
+  it('offers the cooked-portions control on a planner batch and shows the cooked value', async () => {
+    let posted: Record<string, unknown> | undefined;
+    const days = weekWithEntries().map((day) => ({
+      ...day,
+      slots: day.slots.map((slot) => ({
+        ...slot,
+        entries: slot.entries.map((e) => (e.recipeBatchId ? { ...e, cookedPortions: 2 } : e)),
+      })),
+    }));
+    useWeekWithRecipes(days);
+    server.use(
+      http.post('/api/set-cooked-portions', async ({ request }) => {
+        posted = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json([]);
+      }),
+    );
+    renderWithProviders(<PlannerScreen />);
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(within(group).getByText('für 2 gekocht')).toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('button', { name: /gekochte portionen für/i }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Eine Portion mehr' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Übernehmen' }));
+
+    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1', date: '2026-06-10', cookedPortions: 3 }));
+  });
+});
+
+describe('PlannerScreen — Einkaufsliste', () => {
+  function serveGroceryLists() {
+    const requested: string[] = [];
+    server.use(
+      http.get('/api/grocery-list/:startDate', ({ params }) => {
+        requested.push(params['startDate'] as string);
+        return HttpResponse.json({
+          startDate: params['startDate'],
+          items: [{ name: 'Reis', unit: 'g', amount: 300, untracked: false, dates: [params['startDate']] }],
+          skippedQuickEntries: 0,
+        });
+      }),
+    );
+    return requested;
+  }
+
+  it('opens the grocery list for the week shown', async () => {
+    useWeek(weekWithWednesday());
+    const requested = serveGroceryLists();
+    renderWithProviders(<PlannerScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: /einkaufsliste für/i }));
+
+    const sheet = await screen.findByRole('dialog', { name: 'Einkaufsliste' });
+    expect(await within(sheet).findByText('Reis')).toBeInTheDocument();
+    expect(within(sheet).getByRole('heading', { name: /8\.–14\. Juni/ })).toBeInTheDocument();
+    expect(requested).toEqual(['2026-06-08']);
+  });
+
+  it('follows week navigation', async () => {
+    useWeek(weekWithWednesday());
+    const requested = serveGroceryLists();
+    renderWithProviders(<PlannerScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Nächste Woche' }));
+    await userEvent.click(await screen.findByRole('button', { name: /einkaufsliste für/i }));
+
+    await screen.findByRole('dialog', { name: 'Einkaufsliste' });
+    await waitFor(() => expect(requested).toEqual(['2026-06-15']));
+  });
+
+  it('starts fresh with every item checked when reopened', async () => {
+    useWeek(weekWithWednesday());
+    serveGroceryLists();
+    renderWithProviders(<PlannerScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: /einkaufsliste für/i }));
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Reis einkaufen' }));
+    expect(screen.getByRole('checkbox', { name: 'Reis einkaufen' })).not.toBeChecked();
+    await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));
+    await userEvent.click(screen.getByRole('button', { name: /einkaufsliste für/i }));
+
+    expect(await screen.findByRole('checkbox', { name: 'Reis einkaufen' })).toBeChecked();
+  });
 });

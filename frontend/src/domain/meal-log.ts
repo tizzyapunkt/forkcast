@@ -39,6 +39,8 @@ export interface LogEntry {
   recipeBatchId?: string;
   /** Portion count chosen at log time; a record of what was logged, never recomputed on edits. */
   recipePortions?: number;
+  /** Portions cooked for this batch (≥ recipePortions); absent = same as recipePortions. Grocery list only. */
+  cookedPortions?: number;
 }
 
 export interface DayTotals {
