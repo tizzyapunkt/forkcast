@@ -252,6 +252,18 @@ describe('addRecipe', () => {
     expect(repo.save).toHaveBeenCalledWith(recipe);
   });
 
+  it('trims the ingredient name on persistence', async () => {
+    const repo = makeRepo();
+    const recipe = await addRecipe(repo, {
+      name: 'Bowl',
+      yield: 1,
+      ingredients: [{ ...validIngredient, name: '  Skyr  ' }],
+      steps: [],
+    });
+    expect(recipe.ingredients[0]?.name).toBe('Skyr');
+    expect(repo.save).toHaveBeenCalledWith(recipe);
+  });
+
   it('omits note from the persisted ingredient when the payload does not carry one', async () => {
     const repo = makeRepo();
     const recipe = await addRecipe(repo, {

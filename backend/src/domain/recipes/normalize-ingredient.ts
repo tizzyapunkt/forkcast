@@ -1,8 +1,8 @@
 import type { RecipeIngredient } from './types.ts';
 
 export function normalizeIngredient(ingredient: RecipeIngredient): RecipeIngredient {
-  if (ingredient.note === undefined) return ingredient;
-  const trimmed = ingredient.note.trim();
-  if (trimmed === ingredient.note) return ingredient;
-  return { ...ingredient, note: trimmed };
+  const name = ingredient.name.trim();
+  const note = ingredient.note?.trim();
+  if (name === ingredient.name && note === ingredient.note) return ingredient;
+  return { ...ingredient, name, ...(note !== undefined ? { note } : {}) };
 }

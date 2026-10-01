@@ -241,6 +241,30 @@ describe('updateRecipe', () => {
     expect(saved).toEqual([updated]);
   });
 
+  it('saves a renamed ingredient row with its nutrition and amount unchanged', async () => {
+    const offRow = {
+      name: 'Skyr Natur 0,2% Fett - Arla - 450 g',
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 0.63, protein: 0.11, carbs: 0.04, fat: 0.002 },
+      amount: 150,
+    };
+    const { repo, saved } = makeRepo({ ...base, ingredients: [offRow] });
+    const updated = await updateRecipe(repo, {
+      id: 'rec-1',
+      ingredients: [{ ...offRow, name: ' Skyr ' }],
+    });
+    expect(updated.ingredients).toEqual([{ ...offRow, name: 'Skyr' }]);
+    expect(saved).toEqual([updated]);
+  });
+
+  it('rejects a whitespace-only ingredient name on update', async () => {
+    const { repo, saved } = makeRepo(base);
+    await expect(
+      updateRecipe(repo, { id: 'rec-1', ingredients: [{ ...base.ingredients[0]!, name: '   ' }] }),
+    ).rejects.toThrow(/name/i);
+    expect(saved).toEqual([]);
+  });
+
   it('trims note on update', async () => {
     const { repo } = makeRepo(base);
     const updated = await updateRecipe(repo, {

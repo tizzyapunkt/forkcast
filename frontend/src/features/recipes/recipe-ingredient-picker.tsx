@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -140,9 +140,9 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
           <AmountStep
             result={step.result}
             onBack={() => setStep({ kind: 'pick' })}
-            onSubmit={(amount) => {
+            onSubmit={(amount, name) => {
               const ingredient: RecipeIngredient = {
-                name: step.result.name,
+                name,
                 unit: step.result.unit,
                 macrosPerUnit: step.result.macrosPerUnit,
                 amount,
@@ -249,15 +249,26 @@ function AmountStep({
 }: {
   result: IngredientSearchResult;
   onBack: () => void;
-  onSubmit: (amount: number) => void;
+  onSubmit: (amount: number, name: string) => void;
 }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<AmountForm>({ resolver: zodResolver(amountSchema) });
+  // Shop names ("Skyr Natur 0,2% Fett - Arla - 450 g") only come from OFF and scans; catalog names are curated.
+  const nameEditable = result.source === 'OFF' || result.source === 'SCAN';
+  const [name, setName] = useState(result.name);
 
-  const submit = handleSubmit((v) => onSubmit(v.amount));
+  const submit = handleSubmit((v) => onSubmit(v.amount, name.trim() || result.name));
+
+  function submitOnEnter(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      void submit();
+    }
+  }
 
   // Use a div, not a nested <form>. The picker is rendered inside RecipeForm's <form>,
   // and HTML disallows form nesting — in real browsers this caused the picker's submit
@@ -285,19 +296,28 @@ function AmountStep({
           {...register('amount', {
             setValueAs: (v) => parseDecimal(typeof v === 'string' ? v : String(v ?? '')) ?? NaN,
           })}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              e.stopPropagation();
-              void submit();
-            }
-          }}
+          onKeyDown={submitOnEnter}
           className="h-12 w-full py-0 sm:h-10"
           autoFocus
           placeholder={de.recipeIngredientPicker.amountPlaceholder}
         />
         {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
       </div>
+      {nameEditable && (
+        <div className="space-y-1">
+          <label htmlFor="ingredient-name" className="text-sm font-medium">
+            {de.recipeIngredientPicker.nameLabel}
+          </label>
+          <Input
+            id="ingredient-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={submitOnEnter}
+            className="h-12 w-full py-0 sm:h-10"
+          />
+        </div>
+      )}
       <div className="flex gap-2">
         <Button variant="outline" onClick={onBack} className="h-11 flex-1 py-0 sm:h-10">
           {de.recipeIngredientPicker.back}
