@@ -610,6 +610,8 @@ export const de = {
     freeUnitPlaceholder: 'Einheit — z. B. TL, Prise, nach Geschmack',
     freeCaption: 'Zählt nicht in die Nährwerte — nur als Hinweis im Rezept.',
     replaceAria: (name: string) => `Zutat „${name}“ ersetzen`,
+    renameAria: (name: string) => `Namen von „${name}“ ändern`,
+    nameInputAria: (name: string) => `Name für ${name}`,
     addDisplayQuantity: '+ Menge ergänzen',
     addDisplayQuantityAria: (name: string) => `Menge für ${name} ergänzen`,
     editDisplayQuantityAria: (name: string) => `Menge für ${name} bearbeiten`,
@@ -853,6 +855,7 @@ export const de = {
       return `${Math.round(cals * mul)} kcal / ${label} · ${formatMacroTriplet(p * mul, cb * mul, f * mul)}`;
     },
     amountLabel: (unit: string) => `Menge pro Rezept (${unit})`,
+    nameLabel: 'Name im Rezept',
     amountPlaceholder: 'z. B. 100',
     back: 'Zurück',
     add: 'Hinzufügen',

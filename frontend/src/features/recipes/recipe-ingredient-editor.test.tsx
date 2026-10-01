@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
-import type { RecipeIngredient } from '../../domain/recipes';
+import type { IngredientMatchProvenance, RecipeIngredient } from '../../domain/recipes';
 
 function Harness({ initial, estimateIndices }: { initial: RecipeIngredient[]; estimateIndices?: Set<number> }) {
   const [ingredients, setIngredients] = useState(initial);
@@ -612,5 +612,137 @@ describe('RecipeIngredientEditor — provenance is opt-in', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.queryByTestId('picker-candidates')).not.toBeInTheDocument();
+  });
+});
+
+describe('RecipeIngredientEditor — rename ingredient', () => {
+  const oats: RecipeIngredient = {
+    name: 'Bio Haferflocken Zartblatt',
+    unit: 'g',
+    macrosPerUnit: { calories: 3.7, protein: 0.13, carbs: 0.59, fat: 0.07 },
+    amount: 60,
+    note: 'über Nacht eingeweicht',
+  };
+
+  const untrackedWithDisplay: RecipeIngredient = {
+    name: 'Meersalz fein jodiert',
+    unit: 'g',
+    macrosPerUnit: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    amount: 0,
+    untracked: true,
+    displayQuantity: { amount: 1, unitLabel: 'Prise' },
+  };
+
+  async function rename(user: ReturnType<typeof userEvent.setup>, currentName: string, nextName: string) {
+    await user.click(screen.getByRole('button', { name: `Namen von „${currentName}“ ändern` }));
+    const input = screen.getByRole('textbox', { name: `Name für ${currentName}` });
+    await user.clear(input);
+    if (nextName.length > 0) await user.type(input, nextName);
+    return input;
+  }
+
+  it('opens an inline name field pre-filled with the current name', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[oats]} />);
+    await user.click(screen.getByRole('button', { name: 'Namen von „Bio Haferflocken Zartblatt“ ändern' }));
+    const input = screen.getByRole('textbox', { name: 'Name für Bio Haferflocken Zartblatt' });
+    expect(input).toHaveValue('Bio Haferflocken Zartblatt');
+    expect(input).toHaveFocus();
+  });
+
+  it('Enter commits the trimmed name and keeps every other field', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[oats]} />);
+    await rename(user, oats.name, '  Haferflocken  {Enter}');
+    expect(readState()).toEqual([{ ...oats, name: 'Haferflocken' }]);
+    expect(screen.queryByRole('textbox', { name: /^Name für/ })).not.toBeInTheDocument();
+    expect(screen.getByTestId('replace-row-0')).toHaveTextContent('Haferflocken');
+  });
+
+  it('blur commits the name', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[oats]} />);
+    await rename(user, oats.name, 'Haferflocken');
+    await user.tab();
+    expect(readState()[0]?.name).toBe('Haferflocken');
+  });
+
+  it('Escape cancels and keeps the previous name', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[oats]} />);
+    await rename(user, oats.name, 'Haferflocken{Escape}');
+    expect(readState()[0]?.name).toBe(oats.name);
+    expect(screen.queryByRole('textbox', { name: /^Name für/ })).not.toBeInTheDocument();
+  });
+
+  it('an empty name restores the previous name', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[oats]} />);
+    const input = await rename(user, oats.name, '');
+    await user.type(input, '   {Enter}');
+    expect(readState()[0]?.name).toBe(oats.name);
+  });
+
+  it('keeps pieceQuantity and the untracked display quantity on rename', async () => {
+    const user = userEvent.setup();
+    render(<Capture initial={[pieceTracked, untrackedWithDisplay]} />);
+    await rename(user, 'Zwiebel', 'Rote Zwiebel{Enter}');
+    await rename(user, untrackedWithDisplay.name, 'Salz{Enter}');
+    expect(readState()).toEqual([
+      { ...pieceTracked, name: 'Rote Zwiebel' },
+      { ...untrackedWithDisplay, name: 'Salz' },
+    ]);
+  });
+
+  it('Enter does not submit an enclosing form', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn<() => void>();
+    render(
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+      >
+        <Capture initial={[oats]} />
+      </form>,
+    );
+    await rename(user, oats.name, 'Haferflocken{Enter}');
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(readState()[0]?.name).toBe('Haferflocken');
+  });
+
+  it('tapping the name itself still opens the picker in replace mode', async () => {
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([])));
+    const user = userEvent.setup();
+    renderWithProviders(<Capture initial={[oats]} />);
+    await user.click(screen.getByTestId('replace-row-0'));
+    expect(screen.getByRole('heading', { name: /zutat ersetzen/i })).toBeInTheDocument();
+  });
+
+  it('an opened, still-empty note editor survives a rename', async () => {
+    const user = userEvent.setup();
+    const { note: _, ...withoutNote } = oats;
+    render(<Capture initial={[withoutNote]} />);
+    await user.click(screen.getByRole('button', { name: `Notiz für ${oats.name} hinzufügen` }));
+    await rename(user, oats.name, 'Haferflocken{Enter}');
+    expect(screen.getByTestId('ingredient-note-0')).toBeInTheDocument();
+  });
+
+  it('renaming leaves the import raw-read line unchanged', async () => {
+    const user = userEvent.setup();
+    const provenance: IngredientMatchProvenance = {
+      raw: { name: 'Haferflocken', amount: 60, unit: 'g', sourceText: '60 g Haferflocken' },
+      candidates: [],
+      chosen: null,
+      flags: { unitOverridden: false, pieceQuantityDropped: false, untrackedInherited: false, missingAmount: false },
+    };
+    function WithProvenance() {
+      const [ingredients, setIngredients] = useState<RecipeIngredient[]>([oats]);
+      return <RecipeIngredientEditor ingredients={ingredients} onChange={setIngredients} provenance={[provenance]} />;
+    }
+    render(<WithProvenance />);
+    await rename(user, oats.name, 'Hafer{Enter}');
+    expect(screen.getByTestId('row-raw-0')).toHaveTextContent('60 g Haferflocken');
   });
 });

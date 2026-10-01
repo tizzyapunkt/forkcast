@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { IngredientMatchProvenance, RecipeIngredient } from '../../domain/recipes';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { RecipeIngredientPicker } from './recipe-ingredient-picker';
@@ -42,6 +42,9 @@ export function RecipeIngredientEditor({
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   // Rows whose note editor the user opened this session; rows with a stored note are always open.
   const [openNotes, setOpenNotes] = useState<ReadonlySet<number>>(new Set());
+  const [renamingIndex, setRenamingIndex] = useState<number | null>(null);
+  // Enter/Escape settle the rename before the field unmounts; a trailing blur must not re-commit.
+  const renameSettled = useRef(false);
 
   const isPickerOpen = pickerOpen || replacingIndex !== null;
   const pickerMode: 'add' | 'replace' = replacingIndex !== null ? 'replace' : 'add';
@@ -157,6 +160,21 @@ export function RecipeIngredientEditor({
     });
   }
 
+  function startRename(index: number) {
+    renameSettled.current = false;
+    setRenamingIndex(index);
+  }
+
+  function finishRename(index: number, raw: string | null) {
+    if (renameSettled.current) return;
+    renameSettled.current = true;
+    setRenamingIndex(null);
+    const trimmed = raw?.trim() ?? '';
+    // Cancel (null) or an empty name keeps the row as it was.
+    if (trimmed.length === 0) return;
+    update(index, (ing) => (ing.name === trimmed ? ing : { ...ing, name: trimmed }));
+  }
+
   function handleEditNote(index: number, raw: string) {
     update(index, (ing) => {
       const next: RecipeIngredient = { ...ing };
@@ -205,18 +223,52 @@ export function RecipeIngredientEditor({
                 className={`space-y-2 py-2 text-sm ${untracked ? 'text-muted-foreground' : ''}`}
               >
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setReplacingIndex(idx)}
-                    aria-label={de.recipeIngredientEditor.replaceAria(ing.name)}
-                    data-testid={`replace-row-${idx}`}
-                    className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
-                  >
-                    <span className="min-w-0 truncate">{ing.name}</span>
-                    <span aria-hidden className="shrink-0 text-xs text-muted-foreground/50">
-                      ↻
-                    </span>
-                  </button>
+                  {renamingIndex === idx ? (
+                    <input
+                      aria-label={de.recipeIngredientEditor.nameInputAria(ing.name)}
+                      type="text"
+                      defaultValue={ing.name}
+                      autoFocus
+                      onFocus={(e) => e.currentTarget.select()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          // The editor sits inside the recipe <form>; Enter must not submit it.
+                          e.preventDefault();
+                          finishRename(idx, e.currentTarget.value);
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          finishRename(idx, null);
+                        }
+                      }}
+                      onBlur={(e) => finishRename(idx, e.currentTarget.value)}
+                      className="-ml-1 h-10 min-w-0 flex-1 rounded-md bg-muted/40 px-1 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
+                    />
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setReplacingIndex(idx)}
+                        aria-label={de.recipeIngredientEditor.replaceAria(ing.name)}
+                        data-testid={`replace-row-${idx}`}
+                        className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
+                      >
+                        <span className="min-w-0 truncate">{ing.name}</span>
+                        <span aria-hidden className="shrink-0 text-xs text-muted-foreground/50">
+                          ↻
+                        </span>
+                      </button>
+                      <Button
+                        variant="quiet"
+                        size="iconSm"
+                        onClick={() => startRename(idx)}
+                        aria-label={de.recipeIngredientEditor.renameAria(ing.name)}
+                        className="text-muted-foreground/60"
+                      >
+                        <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
                   {!(ing.note !== undefined || openNotes.has(idx)) && (
                     <button
                       type="button"

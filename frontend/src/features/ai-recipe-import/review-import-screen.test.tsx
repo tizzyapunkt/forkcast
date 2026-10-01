@@ -524,6 +524,29 @@ describe('ReviewImportScreen', () => {
       expect(screen.queryByTestId('row-raw-1')).not.toBeInTheDocument();
     });
 
+    it('renames a row in place, keeping its raw line, and saves the new name', async () => {
+      let captured: { ingredients: Array<{ name: string; unit: string; amount: number }> } | null = null;
+      server.use(
+        http.post('/api/add-recipe', async ({ request }) => {
+          captured = (await request.json()) as typeof captured;
+          return HttpResponse.json({ id: 'new-1', ...captured, createdAt: '', updatedAt: '' }, { status: 201 });
+        }),
+      );
+      const onSaved = vi.fn<() => void>();
+      renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={onSaved} onCancel={() => {}} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Namen von „Tomatenmark“ ändern' }));
+      const input = screen.getByRole('textbox', { name: 'Name für Tomatenmark' });
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Tomatenmark dreifach{Enter}');
+
+      expect(screen.getByTestId('row-raw-1')).toHaveTextContent('2 tbsp Kirschtomaten');
+
+      await userEvent.click(screen.getByRole('button', { name: /^anlegen$/i }));
+      await waitFor(() => expect(onSaved).toHaveBeenCalled());
+      expect(captured!.ingredients[1]).toMatchObject({ name: 'Tomatenmark dreifach', unit: 'g', amount: 50 });
+    });
+
     it('keeps the raw line unchanged when the row amount is edited', async () => {
       const { fireEvent } = await import('@testing-library/react');
       renderWithProviders(<ReviewImportScreen draft={gappedDraft} onSaved={() => {}} onCancel={() => {}} />);

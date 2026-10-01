@@ -372,3 +372,122 @@ describe('RecipeIngredientPicker — Favoriten tab', () => {
     });
   });
 });
+
+describe('RecipeIngredientPicker — naming an OFF or scanned product', () => {
+  const skyrOff: IngredientSearchResult = {
+    id: '4002971243307',
+    source: 'OFF',
+    name: 'Skyr Natur 0,2% Fett - Arla - 450 g',
+    unit: 'g',
+    macrosPerUnit: { calories: 0.63, protein: 0.11, carbs: 0.04, fat: 0.002 },
+  };
+
+  function serve(result: IngredientSearchResult) {
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([result])));
+  }
+
+  async function pickAndOpenAmountStep(user: ReturnType<typeof userEvent.setup>, label: RegExp) {
+    await user.type(screen.getByRole('searchbox'), 'skyr');
+    await user.click(await screen.findByRole('button', { name: label }));
+    return screen.findByLabelText(/menge pro rezept/i);
+  }
+
+  it('shows a name field pre-filled with the OFF product name and stores the shortened name', async () => {
+    serve(skyrOff);
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+
+    const amountInput = await pickAndOpenAmountStep(user, /^skyr natur/i);
+    const nameInput = screen.getByLabelText('Name im Rezept');
+    expect(nameInput).toHaveValue(skyrOff.name);
+
+    await user.clear(nameInput);
+    await user.type(nameInput, '  Skyr  ');
+    await user.type(amountInput, '150');
+    await user.click(screen.getByRole('button', { name: /^hinzufügen$/i }));
+
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+    expect(onPicked.mock.calls[0]?.[0]).toEqual({
+      name: 'Skyr',
+      unit: 'g',
+      macrosPerUnit: skyrOff.macrosPerUnit,
+      amount: 150,
+    });
+  });
+
+  it('keeps the product name when the name field is left untouched', async () => {
+    serve(skyrOff);
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+
+    const amountInput = await pickAndOpenAmountStep(user, /^skyr natur/i);
+    await user.type(amountInput, '150{Enter}');
+
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+    expect(onPicked.mock.calls[0]?.[0]?.name).toBe(skyrOff.name);
+  });
+
+  it('falls back to the product name when the name field is cleared', async () => {
+    serve(skyrOff);
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+
+    const amountInput = await pickAndOpenAmountStep(user, /^skyr natur/i);
+    await user.clear(screen.getByLabelText('Name im Rezept'));
+    await user.type(amountInput, '150');
+    await user.click(screen.getByRole('button', { name: /^hinzufügen$/i }));
+
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+    expect(onPicked.mock.calls[0]?.[0]?.name).toBe(skyrOff.name);
+  });
+
+  it('Enter in the name field submits the amount step', async () => {
+    serve(skyrOff);
+    const onPicked = vi.fn<(ing: RecipeIngredient) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={onPicked} />);
+
+    const amountInput = await pickAndOpenAmountStep(user, /^skyr natur/i);
+    await user.type(amountInput, '150');
+    const nameInput = screen.getByLabelText('Name im Rezept');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Skyr{Enter}');
+
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+    expect(onPicked.mock.calls[0]?.[0]).toMatchObject({ name: 'Skyr', amount: 150 });
+  });
+
+  it('offers the name field for a scanned product', async () => {
+    serve({ ...skyrOff, source: 'SCAN' });
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+
+    await pickAndOpenAmountStep(user, /^skyr natur/i);
+    expect(screen.getByLabelText('Name im Rezept')).toHaveValue(skyrOff.name);
+  });
+
+  it('shows no name field for a catalog result', async () => {
+    serve({ ...skyrOff, source: 'CATALOG', id: 'skyr', name: 'Skyr' });
+    const user = userEvent.setup();
+    renderWithProviders(<PickerHarness onPicked={vi.fn<(ing: RecipeIngredient) => void>()} />);
+
+    await pickAndOpenAmountStep(user, /^skyr/i);
+    expect(screen.queryByLabelText('Name im Rezept')).not.toBeInTheDocument();
+  });
+
+  it('replace mode still skips the amount step for an OFF result', async () => {
+    serve(skyrOff);
+    const onPickResult = vi.fn<(result: IngredientSearchResult) => void>();
+    const user = userEvent.setup();
+    renderWithProviders(<ReplaceHarness onPickResult={onPickResult} />);
+
+    await user.type(screen.getByRole('searchbox'), 'skyr');
+    await user.click(await screen.findByRole('button', { name: /^skyr natur/i }));
+
+    expect(onPickResult).toHaveBeenCalledWith(skyrOff);
+    expect(screen.queryByLabelText('Name im Rezept')).not.toBeInTheDocument();
+  });
+});

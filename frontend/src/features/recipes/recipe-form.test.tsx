@@ -175,3 +175,34 @@ describe('RecipeForm — ingredient note on submit', () => {
     expect(onSubmit.mock.calls[0]![0].ingredients[0]).not.toHaveProperty('note');
   });
 });
+
+describe('RecipeForm — renamed ingredient on submit', () => {
+  it('submits the renamed row with its nutrition and amount unchanged', async () => {
+    const user = userEvent.setup();
+    const skyr: RecipeIngredient = {
+      name: 'Skyr Natur 0,2% Fett - Arla - 450 g',
+      unit: 'g',
+      macrosPerUnit: { calories: 0.63, protein: 0.11, carbs: 0.04, fat: 0.002 },
+      amount: 150,
+    };
+    const recipe: Recipe = {
+      id: 'rec-1',
+      name: 'Skyr Bowl',
+      yield: 1,
+      ingredients: [skyr, flour],
+      steps: [],
+      createdAt: '',
+      updatedAt: '',
+    };
+    const { onSubmit } = setup(recipe);
+    await user.click(screen.getByRole('button', { name: `Namen von „${skyr.name}“ ändern` }));
+    const input = screen.getByRole('textbox', { name: `Name für ${skyr.name}` });
+    await user.clear(input);
+    await user.type(input, 'Skyr{Enter}');
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: /speichern/i }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0]![0].ingredients).toEqual([{ ...skyr, name: 'Skyr' }, flour]);
+  });
+});
