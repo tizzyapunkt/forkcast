@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["design_handoff_*/**", "**/dist/**"],
+  "ignorePatterns": [
+    "design_handoff_*/**",
+    "**/dist/**",
+    ".claude/skills/**",
+    ".cursor/skills/**",
+    ".agents/skills/**"
+  ],
   "plugins": ["typescript", "unicorn", "vitest", "oxc"],
   "categories": {
     "correctness": "error"
