@@ -363,7 +363,7 @@ describe('SearchPanel', () => {
       renderWithProviders(<SearchPanel onSelect={() => {}} />);
       await userEvent.click(screen.getByRole('button', { name: /barcode scannen/i }));
       expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
     });
 
     it('cancelling the scanner returns to the text search input', async () => {
