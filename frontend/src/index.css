@@ -34,7 +34,7 @@
 
   /* Hard guard against horizontal page scroll on mobile.
    *
-   * The forkcast UI is mobile-first (see CLAUDE.md): every screen must fit a
+   * The forkcast UI is mobile-first (see AGENTS.md): every screen must fit a
    * narrow viewport (e.g. iPhone 15 Pro at 393 CSS px) without horizontal
    * scrolling. The most common offenders are inputs (intrinsic `size`
    * attribute creates a min-content width), long unbroken words in
