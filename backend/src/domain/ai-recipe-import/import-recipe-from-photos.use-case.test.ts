@@ -1086,4 +1086,81 @@ describe('importRecipeFromPhotos', () => {
       expect('gramsPerSpoon' in draft.ingredients[0]!).toBe(false);
     });
   });
+
+  describe('confident matches only', () => {
+    const partial = (name: string, overrides: Partial<IngredientSearchResult> = {}) =>
+      catalogResult({ id: `c-${name}`, name, unit: 'g', matchConfidence: 'partial', ...overrides });
+    const confident = (name: string, overrides: Partial<IngredientSearchResult> = {}) =>
+      catalogResult({ id: `c-${name}`, name, unit: 'g', matchConfidence: 'confident', ...overrides });
+    const oneIngredient = (name: string) =>
+      makeExtractor({ name: 'X', yield: 1, ingredients: [{ name, amount: 10, unit: 'g' }], steps: [] });
+
+    it('leaves Honig unmatched instead of taking the partial Honigmelone, keeping it as a candidate', async () => {
+      const search = makeSearch({ honig: [partial('Honigmelone')] });
+
+      const draft = await importRecipeFromPhotos({ extractor: oneIngredient('Honig'), search }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      expect(ing.matched).toBe(false);
+      expect(ing.name).toBe('Honig');
+      const entry = draft.provenance.ingredients[0]!;
+      expect(entry.chosen).toBeNull();
+      expect(entry.candidates[0]?.name).toBe('Honigmelone');
+      expect(Object.values(entry.flags).every((f) => f === false)).toBe(true);
+    });
+
+    it('leaves a hyphen-joined modifier hit unmatched', async () => {
+      const search = makeSearch({ 'peanut-butter-pulver': [partial('Butter')] });
+
+      const draft = await importRecipeFromPhotos(
+        { extractor: oneIngredient('Peanut-butter-Pulver'), search },
+        oneImage(),
+      );
+
+      expect(draft.ingredients[0]!.matched).toBe(false);
+    });
+
+    it('falls through partial catalog hits to a confident scanned product', async () => {
+      const search = makeCascadeSearch({
+        CATALOG: { reis: [partial('Reisnudeln')] },
+        SCAN: { reis: [confident('Reis', { id: 'scan-reis', source: 'SCAN' })] },
+      });
+
+      const draft = await importRecipeFromPhotos({ extractor: oneIngredient('Reis'), search }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.name).toBe('Reis');
+      expect(ing.source).toBe('SCAN');
+    });
+
+    it('chooses a confident candidate ranked below a partial one', async () => {
+      const search = makeSearch({ kichererbse: [partial('Kichererbsenmehl'), confident('Kichererbsen')] });
+
+      const draft = await importRecipeFromPhotos({ extractor: oneIngredient('Kichererbse'), search }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.name).toBe('Kichererbsen');
+      expect(draft.provenance.ingredients[0]!.chosen?.name).toBe('Kichererbsen');
+    });
+
+    it('retries with the normalized name when the raw name only has partial hits', async () => {
+      const search = makeSearch({ 'hafer, zart': [partial('Haferflockenriegel')], hafer: [confident('Hafer')] });
+
+      const draft = await importRecipeFromPhotos({ extractor: oneIngredient('Hafer, zart'), search }, oneImage());
+
+      const ing = draft.ingredients[0]!;
+      if (!ing.matched) throw new Error('expected matched ingredient');
+      expect(ing.name).toBe('Hafer');
+    });
+
+    it('treats a result without a confidence as confident (search doubles, older sources)', async () => {
+      const search = makeSearch({ honig: [catalogResult({ name: 'Honig', unit: 'g' })] });
+
+      const draft = await importRecipeFromPhotos({ extractor: oneIngredient('Honig'), search }, oneImage());
+
+      expect(draft.ingredients[0]!.matched).toBe(true);
+    });
+  });
 });

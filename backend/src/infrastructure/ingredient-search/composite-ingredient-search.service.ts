@@ -6,7 +6,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search/type
 import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
 import { mapScannedProduct } from '../../domain/barcode-product-capture/map-scanned-product.ts';
 import { fold } from '../../domain/ingredient-search/fold.ts';
-import { scoreFoodMatch } from '../../domain/ingredient-search/score-food-match.ts';
+import { matchFoodEntry, type FoodMatch } from '../../domain/ingredient-search/score-food-match.ts';
 
 const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['CATALOG']);
 const SCAN_RESULT_CAP = 20;
@@ -76,16 +76,19 @@ export class CompositeIngredientSearchService implements IngredientSearchService
     if (trimmed.length < 2) return [];
     const q = fold(trimmed);
     const products = await this.scanned.list();
-    const scored: { product: ScannedProduct; score: number }[] = [];
+    const scored: ({ product: ScannedProduct } & FoodMatch)[] = [];
     for (const product of products) {
-      const score = scoreFoodMatch({ nameFolded: fold(product.name), synonymsFolded: [] }, q);
-      if (score > 0) scored.push({ product, score });
+      const match = matchFoodEntry({ nameFolded: fold(product.name), synonymsFolded: [] }, q);
+      if (match.score > 0) scored.push({ product, ...match });
     }
     scored.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       if (a.product.name.length !== b.product.name.length) return a.product.name.length - b.product.name.length;
       return a.product.name.localeCompare(b.product.name);
     });
-    return scored.slice(0, SCAN_RESULT_CAP).map((s) => mapScannedProduct(s.product));
+    return scored.slice(0, SCAN_RESULT_CAP).map((s) => ({
+      ...mapScannedProduct(s.product),
+      matchConfidence: s.confident ? 'confident' : 'partial',
+    }));
   }
 }

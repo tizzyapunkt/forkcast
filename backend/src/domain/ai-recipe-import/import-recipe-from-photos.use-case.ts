@@ -56,24 +56,48 @@ export async function importRecipeFromPhotos(
   };
 }
 
-/** Run the strict import cascade for a single name; returns the first tier's non-empty results. */
-async function cascadeSearch(search: IngredientSearchService, name: string): Promise<IngredientSearchResult[]> {
+interface CascadeOutcome {
+  /** The first confident candidate, if any tier had one. */
+  chosen?: IngredientSearchResult;
+  /** The tier results behind `chosen`, or — with no confident hit — the first tier's partial hits. */
+  results: IngredientSearchResult[];
+}
+
+/**
+ * The import picks a food without asking, so it only takes hits the search calls confident. A partial
+ * hit (Honig → Honigmelone) is a fine search suggestion but names a different food. A result without
+ * a confidence (a source that doesn't grade its hits) is taken as confident.
+ */
+function isConfident(result: IngredientSearchResult): boolean {
+  return result.matchConfidence !== 'partial';
+}
+
+/**
+ * Run the strict import cascade for a single name. The first tier with a confident candidate wins;
+ * a tier with only partial hits does not stop the cascade, but its hits are kept for provenance.
+ */
+async function cascadeSearch(search: IngredientSearchService, name: string): Promise<CascadeOutcome> {
+  let firstHits: IngredientSearchResult[] = [];
   for (const source of IMPORT_CASCADE) {
     const results = await search.searchByName(name, new Set([source]));
-    if (results.length > 0) return results;
+    const chosen = results.find(isConfident);
+    if (chosen) return { chosen, results };
+    if (firstHits.length === 0) firstHits = results;
   }
-  return [];
+  return { results: firstHits };
 }
 
 async function matchIngredient(raw: RawIngredient, search: IngredientSearchService): Promise<MatchOutput> {
-  let results = await cascadeSearch(search, raw.name);
-  if (results.length === 0) {
+  let outcome = await cascadeSearch(search, raw.name);
+  if (!outcome.chosen) {
     const normalized = normalizeIngredientName(raw.name);
     if (normalized !== raw.name) {
-      results = await cascadeSearch(search, normalized);
+      const retry = await cascadeSearch(search, normalized);
+      // Keep the raw name's near-misses for provenance unless the retry found something better.
+      if (retry.chosen || outcome.results.length === 0) outcome = retry;
     }
   }
-  const top = results[0];
+  const top = outcome.chosen;
 
   if (!top) {
     const unmatched: DraftIngredient = {
@@ -91,7 +115,8 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
       ingredient: unmatched,
       provenance: {
         raw,
-        candidates: [],
+        // Rejected near-misses (Honigmelone for Honig) stay visible for debugging.
+        candidates: outcome.results.slice(0, PROVENANCE_CANDIDATE_CAP).map(toCandidateProvenance),
         chosen: null,
         flags: {
           unitOverridden: false,
@@ -116,13 +141,13 @@ async function matchIngredient(raw: RawIngredient, search: IngredientSearchServi
     raw,
   );
 
-  const candidates = results.slice(0, PROVENANCE_CANDIDATE_CAP).map(toCandidateProvenance);
+  const candidates = outcome.results.slice(0, PROVENANCE_CANDIDATE_CAP).map(toCandidateProvenance);
   return {
     ingredient: matched,
     provenance: {
       raw,
       candidates,
-      chosen: candidates[0] ?? null,
+      chosen: toCandidateProvenance(top),
       flags,
     },
   };
