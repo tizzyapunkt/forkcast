@@ -7,7 +7,7 @@ Object.defineProperty(window, 'scrollTo', {
 });
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
   translateAbortSignals();
 });
 afterEach(() => server.resetHandlers());
