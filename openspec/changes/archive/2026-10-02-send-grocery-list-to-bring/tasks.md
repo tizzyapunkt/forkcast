@@ -1,8 +1,8 @@
 ## 1. Spike: Bring! parsing (before any code)
 
-- [ ] 1.1 Serve a static microdata page (per design.md) with ~10 representative lines ("380 g Zwiebel", "800 g Hähnchenbrust", "6 Stück Ei", "5 g Salz", "1200 ml Milch", "3 Zwiebeln") over the tunnel, open the deeplink on the phone, and record how each line lands in Bring! (item, icon, spec)
-- [ ] 1.2 Record from the tunnel logs when Bring! fetches the page (on deeplink resolve, on app open, or both) to confirm the 1 h token lifetime is enough
-- [ ] 1.3 If lines parse badly or pieces work better, update the line format in `specs/bring-import/spec.md` and `design.md` before continuing; note the outcome in design.md
+- [x] 1.1 Serve a static microdata page (per design.md) with ~10 representative lines ("380 g Zwiebel", "800 g Hähnchenbrust", "6 Stück Ei", "5 g Salz", "1200 ml Milch", "3 Zwiebeln") over the tunnel, open the deeplink on the phone, and record how each line lands in Bring! (item, icon, spec)
+- [x] 1.2 Record from the tunnel logs when Bring! fetches the page (on deeplink resolve, on app open, or both) to confirm the 1 h token lifetime is enough
+- [x] 1.3 If lines parse badly or pieces work better, update the line format in `specs/bring-import/spec.md` and `design.md` before continuing; note the outcome in design.md
 
 ## 2. Import token (domain)
 
@@ -24,4 +24,4 @@
 ## 5. Verification
 
 - [x] 5.1 Run backend and frontend test, lint, typecheck and format per the forkcast-dev skill; all green
-- [ ] 5.2 End-to-end on the phone through the tunnel: plan next week, open Einkaufsliste, untick one item, send to Bring!, confirm the import screen lists the rest with sensible items and quantities, untick one more in Bring!, add, and check the Bring! list
+- [x] 5.2 End-to-end on the phone through the tunnel: plan next week, open Einkaufsliste, untick one item, send to Bring!, confirm the import screen lists the rest with sensible items and quantities, untick one more in Bring!, add, and check the Bring! list
