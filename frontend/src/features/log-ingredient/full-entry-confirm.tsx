@@ -14,7 +14,7 @@ import { de, formatMacroTriplet } from '../../i18n/de';
 
 const schema = z.object({
   amount: z.coerce
-    .number({ invalid_type_error: de.fullEntry.validation.amountNumber })
+    .number<number>({ error: de.fullEntry.validation.amountNumber })
     .positive(de.fullEntry.validation.amountPositive),
 });
 

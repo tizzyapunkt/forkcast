@@ -22,32 +22,32 @@ import { SegmentedControl } from '../../components/ui/segmented-control';
 
 const schema = z.object({
   weightKg: z.coerce
-    .number({ invalid_type_error: de.bodyProfile.validation.weightNumber })
+    .number<number>({ error: de.bodyProfile.validation.weightNumber })
     .positive(de.bodyProfile.validation.weightPositive)
     .max(300, de.bodyProfile.validation.weightMax),
   heightCm: z.coerce
-    .number({ invalid_type_error: de.bodyProfile.validation.heightNumber })
+    .number<number>({ error: de.bodyProfile.validation.heightNumber })
     .positive(de.bodyProfile.validation.heightPositive)
     .max(250, de.bodyProfile.validation.heightMax),
   ageYears: z.coerce
-    .number({ invalid_type_error: de.bodyProfile.validation.ageNumber })
+    .number<number>({ error: de.bodyProfile.validation.ageNumber })
     .int(de.bodyProfile.validation.ageInteger)
     .min(1, de.bodyProfile.validation.ageRange)
     .max(120, de.bodyProfile.validation.ageRange),
   sex: z.enum(['male', 'female'] as const),
-  activityFactor: z.coerce.number(),
+  activityFactor: z.coerce.number<number>(),
   goalPhase: z.enum(['recomposition', 'fat-loss', 'gain'] as const),
   proteinPerKg: z.coerce
-    .number()
+    .number<number>()
     .positive(de.bodyProfile.validation.proteinPositive)
     .max(5, de.bodyProfile.validation.proteinMax),
   fatPercent: z.coerce
-    .number()
+    .number<number>()
     .int(de.bodyProfile.validation.fatPercentInteger)
     .min(10, de.bodyProfile.validation.fatPercentRange)
     .max(60, de.bodyProfile.validation.fatPercentRange),
   adjustmentPercent: z.coerce
-    .number()
+    .number<number>()
     .int(de.bodyProfile.validation.adjustmentInteger)
     .min(-40, de.bodyProfile.validation.adjustmentRange)
     .max(40, de.bodyProfile.validation.adjustmentRange),

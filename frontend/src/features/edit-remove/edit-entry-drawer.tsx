@@ -12,12 +12,12 @@ import { de } from '../../i18n/de';
 
 // An empty / cleared macro field (DecimalInput emits null) means "not provided".
 const optionalMacro = z.preprocess(
-  (v) => (v === '' || v === null || v === undefined ? undefined : v),
-  z.coerce.number().nonnegative().optional(),
+  (v: number | null | undefined) => (v === null || v === undefined ? undefined : v),
+  z.coerce.number<number>().nonnegative().optional(),
 );
 
 const quickSchema = z.object({
-  calories: z.coerce.number().positive(de.editEntry.validation.caloriesPositive),
+  calories: z.coerce.number<number>().positive(de.editEntry.validation.caloriesPositive),
   protein: optionalMacro,
   carbs: optionalMacro,
   fat: optionalMacro,
@@ -36,7 +36,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<z.infer<typeof quickSchema>>({
+  } = useForm<z.input<typeof quickSchema>, unknown, z.output<typeof quickSchema>>({
     resolver: zodResolver(quickSchema),
     defaultValues: {
       calories: ing.calories,
