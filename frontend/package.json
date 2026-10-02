@@ -46,7 +46,6 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/ui": "catalog:",
     "jsdom": "^30.1.1",
     "msw": "^3.0.1",
     "tailwindcss": "^4.3.3",
