@@ -18,7 +18,7 @@ updates:
           - minor
           - patch
       # Majors are grouped per stack so a breaking change lands with its peers
-      # (react + react-dom + @types/*, vite + its plugins, vitest + @vitest/ui).
+      # (react + react-dom + @types/*, vite-plus + the Vite plugins).
       react-major:
         patterns:
           - react
@@ -29,18 +29,17 @@ updates:
           - major
       vite-major:
         patterns:
-          - vite
+          - vite-plus
           - "@vitejs/*"
           - vite-plugin-pwa
         update-types:
           - major
-      vitest-major:
-        patterns:
-          - vitest
-          - "@vitest/*"
-        update-types:
-          - major
     ignore:
+      # Vite+ bundles Vite and Vitest; the pnpm catalog pins both to the versions
+      # vite-plus ships. They move only with a vite-plus bump, never on their own.
+      - dependency-name: vite
+      - dependency-name: vitest
+      - dependency-name: "@vitest/*"
       # Node 24 LTS is what the Dockerfiles run — don't drag types ahead of it.
       - dependency-name: "@types/node"
         update-types:
