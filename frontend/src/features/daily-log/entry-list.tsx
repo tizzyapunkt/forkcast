@@ -86,7 +86,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
             type="button"
             onClick={() => setEditingCooked(true)}
             aria-label={de.entryList.cookedPortionsAria(label)}
-            className="-my-1 flex shrink-0 items-center gap-1 rounded px-1 py-1 text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
+            className="-my-1 flex shrink-0 items-center gap-1 rounded-sm px-1 py-1 text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
           >
             <span>{de.entryList.portions(first.recipePortions)}</span>
             {cooked !== first.recipePortions && (

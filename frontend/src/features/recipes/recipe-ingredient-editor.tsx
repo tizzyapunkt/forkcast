@@ -242,7 +242,7 @@ export function RecipeIngredientEditor({
                         }
                       }}
                       onBlur={(e) => finishRename(idx, e.currentTarget.value)}
-                      className="-ml-1 h-10 min-w-0 flex-1 rounded-md bg-muted/40 px-1 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
+                      className="-ml-1 h-10 min-w-0 flex-1 rounded-md bg-muted/40 px-1 font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
                     />
                   ) : (
                     <>
@@ -251,7 +251,7 @@ export function RecipeIngredientEditor({
                         onClick={() => setReplacingIndex(idx)}
                         aria-label={de.recipeIngredientEditor.replaceAria(ing.name)}
                         data-testid={`replace-row-${idx}`}
-                        className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
+                        className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
                       >
                         <span className="min-w-0 truncate">{ing.name}</span>
                         <span aria-hidden className="shrink-0 text-xs text-muted-foreground/50">
@@ -291,7 +291,7 @@ export function RecipeIngredientEditor({
                 </div>
 
                 {rowProvenance && (
-                  <div className="-mt-1 space-y-0.5 pl-1">
+                  <div className="space-y-0.5 pl-1">
                     <RawReadLine
                       testId={`row-raw-${idx}`}
                       text={formatRawIngredient(rowProvenance.raw)}
@@ -425,7 +425,7 @@ export function RecipeIngredientEditor({
                         const trimmed = e.target.value.trim();
                         if (trimmed !== e.target.value) handleEditNote(idx, trimmed);
                       }}
-                      className="min-w-0 flex-1 bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
+                      className="min-w-0 flex-1 bg-transparent text-xs italic text-muted-foreground placeholder:not-italic placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-0"
                     />
                     <Button
                       variant="quietDestructive"

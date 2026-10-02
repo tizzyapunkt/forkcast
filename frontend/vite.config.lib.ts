@@ -1,9 +1,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
-import tailwindLibConfig from './tailwind.config.lib';
+import tailwindcss from '@tailwindcss/vite';
 
 /**
  * Packages `components/ui/` as a standalone component library — the artefact
@@ -15,16 +13,11 @@ import tailwindLibConfig from './tailwind.config.lib';
  * `pnpm build:ui`; output lands in `dist-ui/`.
  */
 export default defineConfig({
-  plugins: [react()],
+  // Tailwind's scan scope for the library is set by the `@source` lines in
+  // `components/ui/styles.css` — only the primitives and their /design-sync previews.
+  plugins: [react(), tailwindcss()],
   // The app's `public/` (icons, manifest assets) has no place in a component bundle.
   publicDir: false,
-  css: {
-    // The app's postcss.config.js would scan every screen; the library only wants
-    // the utilities its own primitives reference.
-    postcss: {
-      plugins: [tailwindcss(tailwindLibConfig), autoprefixer()],
-    },
-  },
   build: {
     outDir: 'dist-ui',
     emptyOutDir: true,

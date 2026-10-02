@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+import tailwindcss from '@tailwindcss/vite';
 
 // HTTPS (self-signed) is on by default for PWA/install testing. Set FORKCAST_NO_HTTPS=1
 // to serve over plain http:// — smoother for browser smoke testing (no cert warning to
@@ -12,6 +13,7 @@ export default defineConfig({
   plugins: [
     ...(disableHttps ? [] : [basicSsl()]),
     react(),
+    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {

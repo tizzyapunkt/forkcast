@@ -21,7 +21,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ title, subtitle, onBack, backAria, children, bottom }: AppHeaderProps) {
   return (
-    <header className="bg-header sticky top-0 z-30 border-b border-black/10 px-4 py-3 text-white shadow-sm">
+    <header className="bg-header sticky top-0 z-30 border-b border-black/10 px-4 py-3 text-white shadow-xs">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-start gap-1">
           {onBack && (

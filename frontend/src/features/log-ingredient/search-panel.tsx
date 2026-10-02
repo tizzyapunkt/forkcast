@@ -169,7 +169,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={de.searchPanel.placeholder}
-          className="flex-1 appearance-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+          className="flex-1 appearance-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
         />
         <Button
           variant="outline"

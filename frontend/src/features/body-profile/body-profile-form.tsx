@@ -249,7 +249,7 @@ export function BodyProfileForm() {
             )}
           />
           {weightTrend?.movingAverage7d !== null && weightTrend?.movingAverage7d !== undefined && (
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {de.weightLog.averageHint(weightTrend.movingAverage7d.toFixed(1))}{' '}
               <button
                 type="button"
@@ -352,7 +352,6 @@ export function BodyProfileForm() {
           value={adjustmentDirection}
           onChange={onDirectionChange}
           options={DIRECTION_OPTIONS}
-          className="mb-2"
         />
         <Input
           id="bp-adjustment-magnitude"
@@ -366,7 +365,7 @@ export function BodyProfileForm() {
           disabled={adjustmentDirection === 'maintenance'}
           className="w-full disabled:opacity-50"
         />
-        <p className="mt-1 text-xs text-muted-foreground">{de.bodyProfile.adjustmentHint}</p>
+        <p className="text-xs text-muted-foreground">{de.bodyProfile.adjustmentHint}</p>
       </Field>
 
       <section

@@ -2,7 +2,7 @@ import { createContext, useContext, useId, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/cn';
 
-const fieldLabel = cva('font-medium', {
+const fieldLabel = cva('block font-medium', {
   variants: {
     size: {
       md: 'text-sm',

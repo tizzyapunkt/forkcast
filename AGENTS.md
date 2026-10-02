@@ -31,7 +31,7 @@ Hono + `@hono/node-server`, TypeScript, ESM, Vitest, oxlint + oxfmt, `node --wat
 
 ## Frontend
 
-Vite + React 18 + TS, Tailwind v3, shadcn/ui (Radix + CVA), React Query v5 (all server state), React Hook Form + Zod, Vitest + RTL + MSW, vite-plugin-pwa, vaul, lucide-react, oxlint + oxfmt. UI state is local `useState`/`useReducer` — no global store. Feature folders use domain language (`features/daily-log/`).
+Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css`), shadcn/ui (Radix + CVA), React Query v5 (all server state), React Hook Form + Zod, Vitest + RTL + MSW, vite-plugin-pwa, vaul, lucide-react, oxlint + oxfmt. UI state is local `useState`/`useReducer` — no global store. Feature folders use domain language (`features/daily-log/`).
 
 **Design system:** `components/ui/` holds domain-free primitives (`Button`, `Input`, `DecimalInput`, `Card`, `Field`, `SegmentedControl`) built with CVA over tokens in `components/ui/tokens.css` — the single place for colours, radii, focus rings.
 

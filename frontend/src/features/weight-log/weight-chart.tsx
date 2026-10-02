@@ -134,7 +134,7 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
   const row = payload[0]?.payload;
   if (!row) return null;
   return (
-    <div className="rounded-md border border-input bg-popover px-2 py-1 text-xs shadow-sm">
+    <div className="rounded-md border border-input bg-popover px-2 py-1 text-xs shadow-xs">
       <p className="font-medium tabular-nums">{shortDate(row.date)}</p>
       {row.weightKg !== null && <p className="tabular-nums">{row.weightKg.toFixed(1)} kg</p>}
       {row.ma !== null && <p className="tabular-nums text-muted-foreground">⌀ {row.ma.toFixed(1)} kg</p>}
