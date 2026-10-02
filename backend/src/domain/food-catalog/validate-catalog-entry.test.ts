@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { validateCatalogEntry, findCatalogCollision } from './validate-catalog-entry.ts';
 import type { FoodEntry } from '../foods/types.ts';
 

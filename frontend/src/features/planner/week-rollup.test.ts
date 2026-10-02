@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { DailyLog, LogEntry, MealSlot, SlotSummary } from '../../domain/meal-log';
 import { dayHasEntries, dayTone, plannedDaysCount } from './week-rollup';
 

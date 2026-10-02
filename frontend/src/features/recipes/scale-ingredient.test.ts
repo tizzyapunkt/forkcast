@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
 

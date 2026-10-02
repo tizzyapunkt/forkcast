@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { server } from '../../test/msw/server';
 import { renderWithProviders } from '../../test/harness';
 import { WeightLogCard } from './weight-log-card';

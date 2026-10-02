@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
 import type { IngredientMatchProvenance, RawIngredientProvenance } from '../../domain/recipes';
 

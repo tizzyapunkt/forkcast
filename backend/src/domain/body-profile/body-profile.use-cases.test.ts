@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { getBodyProfile } from './get-body-profile.use-case.ts';
 import { saveBodyProfile } from './save-body-profile.use-case.ts';
 import { applyBodyProfileAsGoals, NoBodyProfileSavedError } from './apply-body-profile-as-goals.use-case.ts';

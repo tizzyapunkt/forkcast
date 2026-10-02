@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { proposeResolutions, type ProposeResolutionsDeps } from './propose-resolutions.use-case.ts';
 import type {
   FoodResolutionProposer,

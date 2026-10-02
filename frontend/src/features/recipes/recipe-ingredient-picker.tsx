@@ -40,7 +40,7 @@ type Step = { kind: 'pick' } | { kind: 'amount'; result: IngredientSearchResult 
 
 const amountSchema = z.object({
   amount: z.coerce
-    .number({ invalid_type_error: de.recipeIngredientPicker.validation.amountNumber })
+    .number<number>({ error: de.recipeIngredientPicker.validation.amountNumber })
     .positive(de.recipeIngredientPicker.validation.amountPositive),
 });
 type AmountForm = z.infer<typeof amountSchema>;

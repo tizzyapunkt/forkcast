@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { mapOffProduct } from './map-off-product.ts';
 
 const baseProduct = {

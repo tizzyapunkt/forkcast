@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { mapFoodEntry } from './map-food-entry.ts';
 import type { FoodEntry } from './types.ts';
 

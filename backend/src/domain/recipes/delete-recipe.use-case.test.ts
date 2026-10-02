@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { deleteRecipe } from './delete-recipe.use-case.ts';
 import type { RecipeRepository } from './recipe.repository.ts';
 import type { Recipe } from './types.ts';

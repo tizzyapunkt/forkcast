@@ -1,13 +1,15 @@
 /* Stylesheet for the packaged design system (`pnpm build:ui`).
  *
- * Tailwind is scoped to `components/ui/**` by `tailwind.config.lib.ts`, so the emitted
- * CSS carries the tokens, a normalising base layer, and exactly the utility classes the
- * primitives use — nothing from the app's screens. The app itself does NOT import this
+ * Tailwind is scoped to `components/ui/**` plus the /design-sync preview compositions
+ * (`.design-sync/previews/**`) by the `@source` lines below, so the emitted CSS carries
+ * the tokens, a normalising base layer, and exactly the utility classes the primitives
+ * and their previews use — nothing from the app's screens. Previews must stay in scope:
+ * layout utilities used only there would otherwise silently compile to nothing. The app itself does NOT import this
  * file; it gets the same tokens via `src/index.css`.
  */
 
+@import 'tailwindcss' source(none);
 @import './tokens.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source './';
+@source '../../../../.design-sync/previews';

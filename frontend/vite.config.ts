@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+import tailwindcss from '@tailwindcss/vite';
 
 // HTTPS (self-signed) is on by default for PWA/install testing. Set FORKCAST_NO_HTTPS=1
 // to serve over plain http:// — smoother for browser smoke testing (no cert warning to
@@ -9,9 +10,10 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 const disableHttps = process.env.FORKCAST_NO_HTTPS === '1' || process.env.FORKCAST_NO_HTTPS === 'true';
 
 export default defineConfig({
-  plugins: [
+  plugins: lazyPlugins(() => [
     ...(disableHttps ? [] : [basicSsl()]),
     react(),
+    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
@@ -35,7 +37,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
       },
     }),
-  ],
+  ]),
   server: {
     host: true,
     proxy: {

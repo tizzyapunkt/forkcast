@@ -1,8 +1,8 @@
+@import 'tailwindcss' source(none);
 @import './components/ui/tokens.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source '../index.html';
+@source './';
 
 @layer components {
   /* Indigo header gradient (design token --header-grad). */
@@ -24,9 +24,6 @@
 }
 
 @layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));

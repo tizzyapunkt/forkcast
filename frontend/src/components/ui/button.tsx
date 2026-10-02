@@ -31,7 +31,7 @@ const button = cva(
          */
         accent: 'bg-accent/10 text-primary hover:bg-accent/20',
         /** Controls sitting on user photography — a scrim, never a shadow (The Scrim-Over-Photo Rule). */
-        scrim: 'bg-black/60 text-white backdrop-blur-sm hover:bg-black/75 disabled:hover:bg-black/60',
+        scrim: 'bg-black/60 text-white backdrop-blur-xs hover:bg-black/75 disabled:hover:bg-black/60',
       },
       size: {
         /** Comfortable default; clears the 44px tap target with the app's line height. */

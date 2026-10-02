@@ -13,16 +13,16 @@ import { de } from '../../i18n/de';
 
 const schema = z.object({
   calories: z.coerce
-    .number({ invalid_type_error: de.nutritionGoal.validation.caloriesNumber })
+    .number<number>({ error: de.nutritionGoal.validation.caloriesNumber })
     .positive(de.nutritionGoal.validation.caloriesPositive),
   protein: z.coerce
-    .number({ invalid_type_error: de.nutritionGoal.validation.proteinNumber })
+    .number<number>({ error: de.nutritionGoal.validation.proteinNumber })
     .nonnegative(de.nutritionGoal.validation.proteinNonneg),
   carbs: z.coerce
-    .number({ invalid_type_error: de.nutritionGoal.validation.carbsNumber })
+    .number<number>({ error: de.nutritionGoal.validation.carbsNumber })
     .nonnegative(de.nutritionGoal.validation.carbsNonneg),
   fat: z.coerce
-    .number({ invalid_type_error: de.nutritionGoal.validation.fatNumber })
+    .number<number>({ error: de.nutritionGoal.validation.fatNumber })
     .nonnegative(de.nutritionGoal.validation.fatNonneg),
 });
 

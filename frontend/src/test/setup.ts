@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { server } from './msw/server';
 
 Object.defineProperty(window, 'scrollTo', {
@@ -7,7 +7,7 @@ Object.defineProperty(window, 'scrollTo', {
 });
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
   translateAbortSignals();
 });
 afterEach(() => server.resetHandlers());

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { CompositeIngredientSearchService } from './composite-ingredient-search.service.ts';
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';

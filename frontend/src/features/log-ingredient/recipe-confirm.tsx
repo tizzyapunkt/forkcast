@@ -14,7 +14,7 @@ import { de, formatMacroTriplet } from '../../i18n/de';
 
 const schema = z.object({
   portions: z.coerce
-    .number({ invalid_type_error: de.recipeConfirm.validation.portionsNumber })
+    .number<number>({ error: de.recipeConfirm.validation.portionsNumber })
     .positive(de.recipeConfirm.validation.portionsPositive),
 });
 

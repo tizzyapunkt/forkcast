@@ -3,7 +3,7 @@
 # gate plus recipes that aren't expressible as npm scripts (smoke, kill-port).
 
 # Source dirs the format gate covers — deliberately NOT the repo root, so it
-# never churns the many markdown/openspec files that oxfmt would otherwise rewrite.
+# never churns the many markdown/openspec files that `vp fmt` would otherwise rewrite.
 FMT_DIRS := backend/src frontend/src
 
 .DEFAULT_GOAL := help
@@ -36,14 +36,14 @@ test-frontend: ## Run frontend tests only
 typecheck: ## Typecheck both workspaces
 	pnpm -r typecheck
 
-lint: ## Lint (oxlint; design_handoff_* + dist excluded via .oxlintrc.json)
+lint: ## Lint (vp lint / Oxlint; config + ignores in the root vite.config.ts)
 	pnpm lint
 
-fmt: ## Format source dirs in place (oxfmt)
-	pnpm exec oxfmt $(FMT_DIRS)
+fmt: ## Format source dirs in place (vp fmt / Oxfmt)
+	pnpm exec vp fmt $(FMT_DIRS)
 
-fmt-check: ## Verify source dirs are formatted (oxfmt --check)
-	pnpm exec oxfmt --check $(FMT_DIRS)
+fmt-check: ## Verify source dirs are formatted (vp fmt --check)
+	pnpm exec vp fmt --check $(FMT_DIRS)
 
 smoke: ## Boot the backend and run the auth/resolution round-trip (no API key needed)
 	@bash scripts/smoke-backend.sh

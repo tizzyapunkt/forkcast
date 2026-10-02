@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { AnthropicRecipeDraftExtractor, type AnthropicLikeClient } from './anthropic-recipe-draft-extractor.ts';
 import { EXTRACT_RECIPE_TOOL_NAME } from './extract-recipe-tool.ts';
 import { RecipeDraftExtractionError } from '../../domain/ai-recipe-import/recipe-draft-extractor.ts';

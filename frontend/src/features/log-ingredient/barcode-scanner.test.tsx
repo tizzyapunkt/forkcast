@@ -24,7 +24,9 @@ function makeMockReader() {
   });
 
   const reader = { decodeFromConstraints };
-  vi.mocked(BrowserMultiFormatReader).mockImplementation(() => reader as never);
+  vi.mocked(BrowserMultiFormatReader).mockImplementation(function () {
+    return reader as never;
+  });
 
   function fireDetect(barcode: string) {
     act(() => capturedCallback?.({ getText: () => barcode }, null, { stop }));
@@ -79,7 +81,9 @@ describe('BarcodeScanner', () => {
         .fn<(...args: unknown[]) => Promise<unknown>>()
         .mockRejectedValue(new Error('NotAllowedError')),
     };
-    vi.mocked(BrowserMultiFormatReader).mockImplementation(() => reader as never);
+    vi.mocked(BrowserMultiFormatReader).mockImplementation(function () {
+      return reader as never;
+    });
     renderWithProviders(<BarcodeScanner onDetect={() => {}} onCancel={() => {}} />);
     expect(await screen.findByRole('alert')).toHaveTextContent(/kamerazugriff/i);
   });

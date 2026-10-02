@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { loadAppConfig } from './app-config.ts';
 import { InMemoryEnvSource } from './in-memory-env-source.ts';
 

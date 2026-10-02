@@ -8,15 +8,12 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "oxlint",
-    "format": "oxfmt",
-    "prepare": "husky"
+    "lint": "vp lint",
+    "format": "vp fmt",
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "husky": "9.1.7",
-    "lint-staged": "17.3.0",
-    "oxfmt": "0.43.0",
-    "oxlint": "1.58.0"
+    "vite-plus": "catalog:"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@12.8.1"
 }

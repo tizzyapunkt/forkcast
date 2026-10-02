@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { renderBringImportPage, ingredientLine, weekRange } from './bring-import-page.ts';
 import type { GroceryItem } from '../../domain/shopping/types.ts';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { logWeight } from './log-weight.use-case.ts';
 import { listWeightEntries } from './list-weight-entries.use-case.ts';
 import { removeWeight } from './remove-weight.use-case.ts';

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { OpenFoodFactsService } from './open-food-facts.service.ts';
 import type { DiagnosticsEntry } from '../../domain/diagnostics/diagnostics-log.ts';
 

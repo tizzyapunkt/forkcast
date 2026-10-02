@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { makeGetWeekLogHandler } from './get-week-log.handler.ts';
 import { makeCopyLogDayHandler } from './copy-log-day.handler.ts';

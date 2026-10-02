@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { extractProductFromPhotos } from './extract-product-from-photos.use-case.ts';
 import type { ProductDraftExtractor } from './product-draft-extractor.ts';
 import type { ExtractedProduct, ProductImage } from './types.ts';

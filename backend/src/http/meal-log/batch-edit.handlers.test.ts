@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { makeReplaceBatchIngredientHandler } from './replace-batch-ingredient.handler.ts';
 import { makeAddToRecipeBatchHandler } from './add-to-recipe-batch.handler.ts';

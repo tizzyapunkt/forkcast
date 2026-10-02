@@ -8,23 +8,23 @@
   "scripts": {
     "dev": "node --experimental-transform-types --watch src/index.ts",
     "start": "node --experimental-transform-types src/index.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "format": "oxfmt --config ../.oxfmtrc.json src",
-    "lint": "oxlint --config ../.oxlintrc.json src",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "format": "vp fmt src",
+    "lint": "vp lint src",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.95.1",
-    "@hono/node-server": "^1.19.14",
-    "@openfoodfacts/openfoodfacts-nodejs": "2.0.0-alpha.30",
-    "dotenv": "^17.4.2",
-    "hono": "^4.12.14",
-    "jose": "^6.2.3"
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@hono/node-server": "^2.1.3",
+    "@openfoodfacts/openfoodfacts-nodejs": "2.0.0-alpha.35",
+    "dotenv": "^18.0.5",
+    "hono": "^4.13.12",
+    "jose": "^6.2.12"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.8.0",
-    "vitest": "^3.0.0"
+    "@types/node": "^24.19.1",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:"
   }
 }

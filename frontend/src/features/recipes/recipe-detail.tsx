@@ -149,7 +149,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                   readOnly
                   value={servings ?? recipe.yield}
                   aria-label={de.recipes.servingsLabel}
-                  className="w-8 bg-transparent text-center text-sm focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="w-8 bg-transparent text-center text-sm focus:outline-hidden [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 <button
                   type="button"

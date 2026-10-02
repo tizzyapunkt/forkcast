@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { makeGetGroceryListHandler } from './get-grocery-list.handler.ts';
 import { FakeLogEntryRepository } from '../../domain/meal-log/log-entry-repository.fake.ts';

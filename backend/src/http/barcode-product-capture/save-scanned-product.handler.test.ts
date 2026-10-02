@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { makeSaveScannedProductHandler } from './save-scanned-product.handler.ts';
 import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';

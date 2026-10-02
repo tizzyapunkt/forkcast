@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { listRecentlyUsedIngredients } from './list-recently-used-ingredients.use-case.ts';
 import type { LogEntryRepository } from './log-entry.repository.ts';
 import type { LogEntry, MacrosPerUnit, MeasurementUnit } from './types.ts';

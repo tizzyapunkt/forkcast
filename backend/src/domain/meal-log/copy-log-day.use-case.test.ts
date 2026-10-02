@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { copyLogDay } from './copy-log-day.use-case.ts';
 import type { LogEntryRepository } from './log-entry.repository.ts';
 import type { LogEntry } from './types.ts';

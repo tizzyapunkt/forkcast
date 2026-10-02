@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { replaceBatchIngredient } from './replace-batch-ingredient.use-case.ts';
 import { FakeLogEntryRepository } from './log-entry-repository.fake.ts';
 import { listRecentlyUsedIngredients } from './list-recently-used-ingredients.use-case.ts';

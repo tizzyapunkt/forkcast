@@ -2,7 +2,24 @@ packages:
   - backend
   - frontend
 
-onlyBuiltDependencies:
-  - esbuild
-  - husky
-  - msw
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  vitest: 5.0.1
+  vite-plus: 1.0.0
+minimumReleaseAgeExclude:
+  - '@types/node@24.19.1 || 26.6.4'
+  - '@tanstack/query-core@5.104.1'
+  - '@tanstack/react-query@5.104.1'
+  - lucide-react@1.50.0
+overrides:
+  vite@*: 'catalog:'
+  vitest@*: 'catalog:'
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'
+    # @vitest/mocker only uses msw for Vitest browser mode, which this repo doesn't use.
+    '@vitest/mocker>msw': '3'

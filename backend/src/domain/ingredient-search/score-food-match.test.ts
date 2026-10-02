@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { scoreFoodMatch } from './score-food-match.ts';
 import { fold } from './fold.ts';
 import { indexFoodEntry } from '../foods/index-food-entry.ts';
