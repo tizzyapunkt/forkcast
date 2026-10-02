@@ -43,7 +43,7 @@ Vite + React 18 + TS, Tailwind v3, shadcn/ui (Radix + CVA), React Query v5 (all 
 
 ## Environment & caveats
 
-- Node 22+ (backend uses `--experimental-transform-types`); pnpm 10.33.0 via corepack (`corepack enable && corepack prepare pnpm@10.33.0 --activate`).
+- Node 24 LTS (backend uses `--experimental-transform-types`); pnpm 10.33.0 via corepack (`corepack enable && corepack prepare pnpm@10.33.0 --activate`).
 - Backend needs `AUTH_PASSWORD` and `AUTH_JWT_SECRET` — copy `backend/.env.example` to `backend/.env`, or it exits on startup.
 - Frontend serves HTTPS with a self-signed cert (`@vitejs/plugin-basic-ssl`) and proxies `/api` → `localhost:3000`, **stripping** `/api`. Hit the backend directly without it: `curl http://localhost:3000/nutrition-goal`.
 - Runtime data files in `backend/data/` are not committed, except `catalog.json` (food catalog, tracked as the seed for a fresh data dir).

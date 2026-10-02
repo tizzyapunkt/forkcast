@@ -41,7 +41,7 @@ updates:
         update-types:
           - major
     ignore:
-      # Node 22 LTS is what the Dockerfiles run — don't drag types ahead of it.
+      # Node 24 LTS is what the Dockerfiles run — don't drag types ahead of it.
       - dependency-name: "@types/node"
         update-types:
           - version-update:semver-major
