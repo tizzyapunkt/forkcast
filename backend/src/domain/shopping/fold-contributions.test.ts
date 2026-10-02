@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { foldContributions } from './fold-contributions.ts';
 import type { Contribution } from './types.ts';
 

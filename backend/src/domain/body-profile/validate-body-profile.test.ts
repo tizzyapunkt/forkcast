@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { validateBodyProfile, BodyProfileValidationError } from './validate-body-profile.ts';
 import type { BodyProfile } from './types.ts';
 

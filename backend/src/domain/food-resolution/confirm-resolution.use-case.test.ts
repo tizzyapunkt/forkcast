@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { confirmResolution } from './confirm-resolution.use-case.ts';
 import { FakeCatalogStore } from '../food-catalog/catalog-store.fake.ts';
 import type { FoodEntry } from '../foods/types.ts';

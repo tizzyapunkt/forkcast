@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Buffer } from 'node:buffer';
 import { decodeImagePayloads, type ImageDecodeLimits } from './decode-image-payloads.ts';
 

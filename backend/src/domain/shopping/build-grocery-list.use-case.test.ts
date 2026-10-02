@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { buildGroceryList } from './build-grocery-list.use-case.ts';
 import { FakeLogEntryRepository } from '../meal-log/log-entry-repository.fake.ts';
 import { FakeCatalogStore } from '../food-catalog/catalog-store.fake.ts';

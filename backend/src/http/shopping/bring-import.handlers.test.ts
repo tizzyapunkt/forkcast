@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { makeBringImportPageHandler, makeMintBringImportTokenHandler } from './bring-import.handlers.ts';
 import { mintImportToken } from '../../domain/shopping/import-token.ts';

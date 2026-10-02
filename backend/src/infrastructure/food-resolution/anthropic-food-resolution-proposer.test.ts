@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { AnthropicFoodResolutionProposer, type AnthropicLikeClient } from './anthropic-food-resolution-proposer.ts';
 import { FoodResolutionError, type ResolutionRequest } from '../../domain/food-resolution/types.ts';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { computeMacros } from './compute-macros.ts';
 import { computeRee } from './ree.ts';
 import type { BodyProfile } from './types.ts';

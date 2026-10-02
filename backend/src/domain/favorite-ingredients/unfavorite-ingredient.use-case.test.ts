@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { unfavoriteIngredient } from './unfavorite-ingredient.use-case.ts';
 import { FakeFavoriteIngredientRepository } from './favorite-ingredient.repository.fake.ts';
 import type { FavoriteIngredient } from './types.ts';

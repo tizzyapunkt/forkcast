@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { validateWeightEntry, WeightEntryValidationError } from './validate-weight-entry.ts';
 
 const TODAY = '2026-05-15';

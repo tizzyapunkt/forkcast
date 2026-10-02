@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { rankFuzzyCandidates, tokenize } from './fuzzy-candidates.ts';
 import { indexFoodEntry } from './index-food-entry.ts';
 import type { FoodEntry } from './types.ts';

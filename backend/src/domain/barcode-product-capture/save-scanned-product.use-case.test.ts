@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { saveScannedProduct, SaveScannedProductValidationError } from './save-scanned-product.use-case.ts';
 import type { ScannedProduct, ScannedProductStore } from './types.ts';
 

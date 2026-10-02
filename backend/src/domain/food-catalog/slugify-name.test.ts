@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { slugifyName } from './slugify-name.ts';
 
 describe('slugifyName', () => {

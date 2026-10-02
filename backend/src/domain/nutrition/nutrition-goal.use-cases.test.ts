@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { setNutritionGoal } from './set-nutrition-goal.use-case.ts';
 import { getNutritionGoal } from './get-nutrition-goal.use-case.ts';
 import type { NutritionGoalRepository } from './nutrition-goal.repository.ts';

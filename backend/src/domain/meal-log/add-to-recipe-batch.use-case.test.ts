@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { addToRecipeBatch } from './add-to-recipe-batch.use-case.ts';
 import { FakeLogEntryRepository } from './log-entry-repository.fake.ts';
 import type { FullIngredientEntry, LogEntry } from './types.ts';

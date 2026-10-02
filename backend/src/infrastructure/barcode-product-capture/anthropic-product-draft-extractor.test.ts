@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import type { Message, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages';
 import { AnthropicProductDraftExtractor } from './anthropic-product-draft-extractor.ts';
 import { EXTRACT_PRODUCT_TOOL_NAME } from './extract-product-tool.ts';

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
@@ -10,7 +10,7 @@ import tailwindcss from '@tailwindcss/vite';
 const disableHttps = process.env.FORKCAST_NO_HTTPS === '1' || process.env.FORKCAST_NO_HTTPS === 'true';
 
 export default defineConfig({
-  plugins: [
+  plugins: lazyPlugins(() => [
     ...(disableHttps ? [] : [basicSsl()]),
     react(),
     tailwindcss(),
@@ -37,7 +37,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
       },
     }),
-  ],
+  ]),
   server: {
     host: true,
     proxy: {

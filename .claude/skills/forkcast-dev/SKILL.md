@@ -23,15 +23,15 @@ make test                 # pnpm -r test (backend + frontend)
 make test-backend         # pnpm --filter @forkcast/backend test
 make test-frontend
 make typecheck            # pnpm -r typecheck
-make lint                 # oxlint (config at .oxlintrc.json)
-make fmt                  # oxfmt write, scoped to backend/src backend/scripts frontend/src
-make fmt-check            # oxfmt --check, same scope
+make lint                 # vp lint (config in root vite.config.ts)
+make fmt                  # vp fmt write, scoped to backend/src frontend/src
+make fmt-check            # vp fmt --check, same scope
 ```
 
 Run a single test file during TDD (from the workspace dir, e.g. `backend/`):
 
 ```bash
-pnpm vitest run src/path/to/file.test.ts
+pnpm exec vp test run src/path/to/file.test.ts
 ```
 
 ## Smoke test (backend, no API key needed)
@@ -86,9 +86,10 @@ testing (now via `make dev-http`, no manual `vite.config.ts` edit needed).
 
 ## Gotchas (don't re-diagnose these)
 
-- **`oxfmt` at the repo root touches markdown/openspec too** (hundreds of files). Only ever format the source dirs — use `make fmt`, never bare `oxfmt`.
+- **`vp fmt` at the repo root touches markdown/openspec too** (hundreds of files). Only ever format the source dirs — use `make fmt`, never bare `vp fmt`.
 - **`openspec` CLI must run from the repo root**, not from `backend/` (e.g. `openspec validate <change>`, `openspec status --change <name>`).
 - **macOS has no `timeout`** — poll with a bash loop instead (see `scripts/smoke-backend.sh`).
+- **Test imports come from `vite-plus/test`**, not `vitest` (lint rule `prefer-vite-plus-imports`).
 - **`vitest` mock fns need a type param** (`vi.fn<() => void>()`) and `.rejects.toThrow()` needs a message — the lint config enforces both.
 - The `design_handoff_*` dirs are HTML/React prototypes (reference only, never shipped) and are excluded from lint.
 

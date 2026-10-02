@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { validateIngredientShape } from './validate-ingredient-shape.ts';
 import type { RecipeIngredient } from './types.ts';
 

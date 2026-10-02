@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import {
   AnthropicCatalogEntryDrafter,
   DRAFT_FOOD_ENTRY_TOOL_NAME,

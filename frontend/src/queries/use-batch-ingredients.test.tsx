@@ -5,7 +5,7 @@ import { server } from '../test/msw/server';
 import { renderWithProviders, createTestQueryClient } from '../test/harness';
 import { useReplaceBatchIngredient } from './use-replace-batch-ingredient';
 import { useAddToRecipeBatch } from './use-add-to-recipe-batch';
-import type { MockInstance } from 'vitest';
+import type { MockInstance } from 'vite-plus/test';
 import type { QueryClient } from '@tanstack/react-query';
 import type { FullIngredientEntry } from '../domain/meal-log';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { buildMatchedRowWithFlags, type MatchSourceFood, type OriginalDraftFields } from './build-matched-row.ts';
 
 const macros = { calories: 3.81, protein: 0.006, carbs: 0.91, fat: 0.001 };

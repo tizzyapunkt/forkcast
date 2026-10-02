@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { importRecipeFromPhotos } from './import-recipe-from-photos.use-case.ts';
 import type { RecipeDraftExtractor } from './recipe-draft-extractor.ts';
 import type { ExtractedDraft, RecipeImage } from './types.ts';

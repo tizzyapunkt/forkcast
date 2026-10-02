@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import { editLogEntry } from './edit-log-entry.use-case.ts';
 import { removeLogEntry } from './remove-log-entry.use-case.ts';
 import type { LogEntryRepository } from './log-entry.repository.ts';

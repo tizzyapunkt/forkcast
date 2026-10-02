@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vite-plus/test';
 import type { ReactNode } from 'react';
 import { WeightChart } from './weight-chart';
 import { ASOF, DENSE_60_DAYS, EMPTY_LOG, THREE_IN_WINDOW } from '../../domain/weight-log-trend.fixtures';

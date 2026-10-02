@@ -23,7 +23,7 @@ pnpm add -Dw <pkg>                        # root dev dependency
 
 ## Backend
 
-Hono + `@hono/node-server`, TypeScript, ESM, Vitest, oxlint + oxfmt, `node --watch` (no bundler). Persistence is JSON files in `backend/data/` — no DB, no Docker until needed.
+Hono + `@hono/node-server`, TypeScript, ESM, Vite+ (`vp test` / `vp lint` / `vp fmt`), `node --watch` (no bundler). Persistence is JSON files in `backend/data/` — no DB, no Docker until needed.
 
 - **Hexagonal:** domain core has no framework/HTTP/persistence imports; ports are interfaces, adapters implement them.
 - **CQRS** for clarity: commands express intent (`PlanMeal`, `AddRecipe`); queries are shaped for the UI and may cross boundaries; no shared read/write models; no event sourcing.
@@ -31,7 +31,7 @@ Hono + `@hono/node-server`, TypeScript, ESM, Vitest, oxlint + oxfmt, `node --wat
 
 ## Frontend
 
-Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css`), shadcn/ui (Radix + CVA), React Query v5 (all server state), React Hook Form + Zod, Vitest + RTL + MSW, vite-plugin-pwa, vaul, lucide-react, oxlint + oxfmt. UI state is local `useState`/`useReducer` — no global store. Feature folders use domain language (`features/daily-log/`).
+Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css`), shadcn/ui (Radix + CVA), React Query v5 (all server state), React Hook Form + Zod, Vite+ (`vp`: dev/build/test/lint/fmt), RTL + MSW, vite-plugin-pwa, vaul, lucide-react. UI state is local `useState`/`useReducer` — no global store. Feature folders use domain language (`features/daily-log/`).
 
 **Design system:** `components/ui/` holds domain-free primitives (`Button`, `Input`, `DecimalInput`, `Card`, `Field`, `SegmentedControl`) built with CVA over tokens in `components/ui/tokens.css` — the single place for colours, radii, focus rings.
 
@@ -48,4 +48,5 @@ Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css
 - Frontend serves HTTPS with a self-signed cert (`@vitejs/plugin-basic-ssl`) and proxies `/api` → `localhost:3000`, **stripping** `/api`. Hit the backend directly without it: `curl http://localhost:3000/nutrition-goal`.
 - Runtime data files in `backend/data/` are not committed, except `catalog.json` (food catalog, tracked as the seed for a fresh data dir).
 - `node --watch` doesn't pick up new dependencies — restart after `pnpm install`.
-- Pre-commit runs `pnpm lint-staged` via husky.
+- Tooling is Vite+ (`vite-plus`): lint/fmt/staged config lives in the root `vite.config.ts`; tests import from `vite-plus/test` (lint enforces it).
+- Pre-commit runs `vp staged` (`.vite-hooks/pre-commit`); `pnpm install` installs the hook via `vp config`.

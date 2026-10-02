@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { droppedQualifier } from './dropped-qualifier';
 
 describe('droppedQualifier', () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { scaleIngredients } from './scale-recipe-ingredients';
 import type { RecipeIngredient } from './recipes';
 
