@@ -6,7 +6,7 @@ alwaysApply: true
 
 # No horizontal overflow on mobile
 
-forkcast is mobile-first (see `CLAUDE.md`). Every screen must fit narrow viewports
+forkcast is mobile-first (see `AGENTS.md`). Every screen must fit narrow viewports
 (iPhone 15 Pro = 393 CSS px, iPhone SE = 320 CSS px) **without introducing
 horizontal page scroll**. Users have repeatedly hit this in drawers, the login
 screen, the daily log, and recipe editors. This rule encodes the patterns that

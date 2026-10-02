@@ -8,7 +8,7 @@ metadata:
 
 # forkcast dev loop
 
-Architecture/domain rules live in `CLAUDE.md` (read it). This skill is the **operational** layer: how to run, test, and verify. Prefer the `make` targets — they encode the right scoping and are kept green.
+Architecture/domain rules live in `AGENTS.md` (read it). This skill is the **operational** layer: how to run, test, and verify. Prefer the `make` targets — they encode the right scoping and are kept green.
 
 ## The verify gate
 
