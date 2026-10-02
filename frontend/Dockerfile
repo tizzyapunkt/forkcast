@@ -7,7 +7,9 @@ WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY frontend/package.json ./frontend/
 
-RUN pnpm install --filter @forkcast/frontend --frozen-lockfile
+# --ignore-scripts: the root `prepare` (`vp config`) installs git hooks and fails without
+# git; no dependency needs an install script.
+RUN pnpm install --filter @forkcast/frontend --frozen-lockfile --ignore-scripts
 
 COPY frontend/ ./frontend/
 
