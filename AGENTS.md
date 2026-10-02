@@ -43,7 +43,7 @@ Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css
 
 ## Environment & caveats
 
-- Node 24 LTS (backend uses `--experimental-transform-types`); pnpm 10.33.0 via corepack (`corepack enable && corepack prepare pnpm@10.33.0 --activate`).
+- Node 24 LTS (backend uses `--experimental-transform-types`); pnpm 12 via corepack (`corepack enable`; the version comes from `packageManager`). pnpm enforces a 1-day `minimumReleaseAge` — a package published in the last 24h won't resolve until it ages (or is listed in `minimumReleaseAgeExclude`).
 - Backend needs `AUTH_PASSWORD` and `AUTH_JWT_SECRET` — copy `backend/.env.example` to `backend/.env`, or it exits on startup.
 - Frontend serves HTTPS with a self-signed cert (`@vitejs/plugin-basic-ssl`) and proxies `/api` → `localhost:3000`, **stripping** `/api`. Hit the backend directly without it: `curl http://localhost:3000/nutrition-goal`.
 - Runtime data files in `backend/data/` are not committed, except `catalog.json` (food catalog, tracked as the seed for a fresh data dir).
