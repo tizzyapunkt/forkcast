@@ -4,7 +4,8 @@
   "private": true,
   "license": "ISC",
   "scripts": {
-    "dev": "pnpm --parallel -r dev",
+    "dev": "pnpm --parallel --filter @forkcast/backend --filter @forkcast/frontend dev",
+    "dev:website": "pnpm --filter @forkcast/website dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",

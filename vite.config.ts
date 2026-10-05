@@ -6,6 +6,7 @@ export default defineConfig({
   staged: {
     'backend/src/**/*.ts': 'vp check --fix',
     'frontend/src/**/*.{ts,tsx}': 'vp check --fix',
+    'website/**/*.{js,ts}': 'vp check --fix',
   },
   fmt: {
     trailingComma: 'all',
