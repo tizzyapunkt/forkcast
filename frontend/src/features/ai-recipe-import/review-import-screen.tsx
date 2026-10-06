@@ -15,13 +15,13 @@ import type {
   UnmatchedDraftIngredient,
 } from '../../domain/recipes';
 import type { ResolutionProposal } from '../../domain/food-resolution';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Button } from '../../components/ui/button';
 import { pairInitialRowProvenance, syncRowProvenance, type RowProvenance } from './row-provenance';
 import { formatRawIngredient } from '../recipes/ingredient-provenance';
 import { RawReadLine } from '../recipes/raw-read-line';
 
-const r = de.aiRecipeImport.resolve;
+const r = t.aiRecipeImport.resolve;
 
 interface Props {
   draft: RecipeDraft;
@@ -203,8 +203,8 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
   const unmatchedPanel =
     unmatched.length > 0 ? (
       <div className="rounded-md border border-warning/50 bg-warning/5 p-3 text-sm">
-        <p className="font-medium">{de.aiRecipeImport.unmatchedHeading(unmatched.length)}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{de.aiRecipeImport.unmatchedHint}</p>
+        <p className="font-medium">{t.aiRecipeImport.unmatchedHeading(unmatched.length)}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t.aiRecipeImport.unmatchedHint}</p>
         <ul className="mt-2 space-y-1">
           {unmatched.map(({ key, item: u, rawLine }) => {
             const proposal = proposalsByKey.get(key) ?? null;
@@ -240,7 +240,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
                     variant={hasProposal ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setOpenKey(key)}
-                    aria-label={de.aiRecipeImport.resolveUnmatchedAria(u.name)}
+                    aria-label={t.aiRecipeImport.resolveUnmatchedAria(u.name)}
                     className="min-h-9 shrink-0"
                   >
                     {proposalState === 'error' ? r.retry : hasProposal ? r.assignCta : r.noProposal}
@@ -250,7 +250,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
                   variant="quietDestructive"
                   size="iconSm"
                   onClick={() => discardUnmatched(key)}
-                  aria-label={de.aiRecipeImport.discardUnmatchedAria(u.name)}
+                  aria-label={t.aiRecipeImport.discardUnmatchedAria(u.name)}
                   className="-my-1"
                 >
                   <X aria-hidden="true" className="h-4 w-4" />
@@ -272,7 +272,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
 
   return (
     <>
-      <AppHeader title={de.aiRecipeImport.reviewTitle} onBack={onCancel} backAria={de.aiRecipeImport.back} />
+      <AppHeader title={t.aiRecipeImport.reviewTitle} onBack={onCancel} backAria={t.aiRecipeImport.back} />
       <RecipeForm
         initial={initialRecipe}
         ingredients={ingredients}
@@ -280,7 +280,7 @@ export function ReviewImportScreen({ draft, onSaved, onCancel, photos = [] }: Pr
         provenance={rowProvenance}
         estimateIndices={estimateIndices}
         onEstimateAcknowledged={clearEstimate}
-        submitLabel={de.recipes.create}
+        submitLabel={t.recipes.create}
         isSubmitting={addMutation.isPending}
         error={addMutation.error}
         onCancel={onCancel}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { WeightEntry } from '../../domain/weight-log';
 import { useLogWeight } from '../../queries/use-log-weight';
 import { useRemoveWeight } from '../../queries/use-remove-weight';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -15,11 +15,11 @@ export function WeightHistoryList({ entries }: WeightHistoryListProps) {
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
-    <section aria-label={de.weightLog.historyTitle} className="space-y-2">
-      <h3 className="text-sm font-semibold">{de.weightLog.historyTitle}</h3>
+    <section aria-label={t.weightLog.historyTitle} className="space-y-2">
+      <h3 className="text-sm font-semibold">{t.weightLog.historyTitle}</h3>
       {sorted.length === 0 ? (
         <p className="rounded-md border border-dashed border-input p-4 text-center text-sm text-muted-foreground">
-          {de.weightLog.historyEmpty}
+          {t.weightLog.historyEmpty}
         </p>
       ) : (
         <ul className="divide-y rounded-md border border-input">
@@ -56,7 +56,7 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
       <li className="flex items-center gap-2 p-2">
         <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
         <Input
-          aria-label={de.weightLog.historyEditAria(entry.date)}
+          aria-label={t.weightLog.historyEditAria(entry.date)}
           type="text"
           inputMode="decimal"
           value={draft}
@@ -66,10 +66,10 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
           className="flex-1"
         />
         <Button size="sm" onClick={commitEdit} disabled={logMutation.isPending} className="px-2">
-          {de.weightLog.historySave}
+          {t.weightLog.historySave}
         </Button>
         <Button variant="outline" size="sm" onClick={() => setMode('view')} className="px-2">
-          {de.weightLog.historyCancel}
+          {t.weightLog.historyCancel}
         </Button>
       </li>
     );
@@ -79,7 +79,7 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
     return (
       <li className="flex items-center gap-2 p-2">
         <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
-        <span className="flex-1 text-sm">{de.weightLog.historyDeleteConfirm}</span>
+        <span className="flex-1 text-sm">{t.weightLog.historyDeleteConfirm}</span>
         <Button
           variant="destructive"
           size="sm"
@@ -87,10 +87,10 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
           disabled={removeMutation.isPending}
           className="px-2"
         >
-          {de.weightLog.historyConfirmDelete}
+          {t.weightLog.historyConfirmDelete}
         </Button>
         <Button variant="outline" size="sm" onClick={() => setMode('view')} className="px-2">
-          {de.weightLog.historyCancel}
+          {t.weightLog.historyCancel}
         </Button>
       </li>
     );
@@ -103,23 +103,23 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
       <Button
         variant="outline"
         size="sm"
-        aria-label={de.weightLog.historyEditAria(entry.date)}
+        aria-label={t.weightLog.historyEditAria(entry.date)}
         onClick={() => {
           setDraft(entry.weightKg.toString());
           setMode('edit');
         }}
         className="px-2"
       >
-        {de.weightLog.cardEdit}
+        {t.weightLog.cardEdit}
       </Button>
       <Button
         variant="destructiveOutline"
         size="sm"
-        aria-label={de.weightLog.historyDeleteAria(entry.date)}
+        aria-label={t.weightLog.historyDeleteAria(entry.date)}
         onClick={() => setMode('confirm-delete')}
         className="border-destructive/50 px-2"
       >
-        {de.weightLog.historyConfirmDelete}
+        {t.weightLog.historyConfirmDelete}
       </Button>
     </li>
   );

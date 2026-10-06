@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface FavoriteStarProps {
   /** The ingredient's name — it goes into the accessible label, not the visible row. */
@@ -28,7 +28,7 @@ export function FavoriteStar({ name, favorited, onToggle }: FavoriteStarProps) {
       variant="quiet"
       size="iconSm"
       aria-pressed={favorited}
-      aria-label={favorited ? de.favoriteStar.remove(name) : de.favoriteStar.add(name)}
+      aria-label={favorited ? t.favoriteStar.remove(name) : t.favoriteStar.add(name)}
       onClick={handleClick}
       className={favorited ? 'text-primary' : 'text-muted-foreground'}
     >

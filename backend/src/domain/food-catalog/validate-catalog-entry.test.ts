@@ -118,6 +118,32 @@ describe('findCatalogCollision', () => {
     expect(findCatalogCollision(catalog, entry({ id: 'moehre-neu', name: 'mohre' }))).toContain('Möhre');
   });
 
+  it("reports a collision when the English name matches another entry's canonical name", () => {
+    expect(findCatalogCollision(catalog, entry({ id: 'meersalz', name: 'Meersalz', nameEn: 'salz' }))).toContain(
+      'Salz',
+    );
+  });
+
+  it("reports a collision when the canonical name matches another entry's English name", () => {
+    const withEnglish = [entry({ nameEn: 'Carrot' })];
+    expect(findCatalogCollision(withEnglish, entry({ id: 'carrot', name: 'Carrot', nameEn: undefined }))).toContain(
+      'Carrot',
+    );
+  });
+
+  it('reports a collision when two English names match, ignoring case', () => {
+    const withEnglish = [entry({ nameEn: 'Carrot' })];
+    expect(
+      findCatalogCollision(withEnglish, entry({ id: 'karotte', name: 'Karotte', synonyms: [], nameEn: 'CARROT' })),
+    ).toContain('Carrot');
+  });
+
+  it('lets an entry carry its own canonical name as English name', () => {
+    expect(
+      findCatalogCollision(catalog, entry({ id: 'quark', name: 'Quark', synonyms: [], nameEn: 'Quark' })),
+    ).toBeNull();
+  });
+
   it('ignores the entry being replaced when an id is excluded', () => {
     expect(findCatalogCollision(catalog, entry({ name: 'Möhre gelb' }), 'moehre')).toBeNull();
   });

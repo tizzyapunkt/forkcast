@@ -10,7 +10,7 @@ import { useWeightTrend } from '../../queries/use-weight-trend';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { Banner } from '../../components/ui/banner';
 import { Select } from '../../components/ui/select';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { ACTIVITY_FACTORS, PAL, type BodyProfile, type GoalPhase, type Sex } from '../../domain/body-profile';
 import { PHASE_PRESETS } from './phase-presets';
 import { computePreview } from './compute-preview';
@@ -22,35 +22,35 @@ import { SegmentedControl } from '../../components/ui/segmented-control';
 
 const schema = z.object({
   weightKg: z.coerce
-    .number<number>({ error: de.bodyProfile.validation.weightNumber })
-    .positive(de.bodyProfile.validation.weightPositive)
-    .max(300, de.bodyProfile.validation.weightMax),
+    .number<number>({ error: t.bodyProfile.validation.weightNumber })
+    .positive(t.bodyProfile.validation.weightPositive)
+    .max(300, t.bodyProfile.validation.weightMax),
   heightCm: z.coerce
-    .number<number>({ error: de.bodyProfile.validation.heightNumber })
-    .positive(de.bodyProfile.validation.heightPositive)
-    .max(250, de.bodyProfile.validation.heightMax),
+    .number<number>({ error: t.bodyProfile.validation.heightNumber })
+    .positive(t.bodyProfile.validation.heightPositive)
+    .max(250, t.bodyProfile.validation.heightMax),
   ageYears: z.coerce
-    .number<number>({ error: de.bodyProfile.validation.ageNumber })
-    .int(de.bodyProfile.validation.ageInteger)
-    .min(1, de.bodyProfile.validation.ageRange)
-    .max(120, de.bodyProfile.validation.ageRange),
+    .number<number>({ error: t.bodyProfile.validation.ageNumber })
+    .int(t.bodyProfile.validation.ageInteger)
+    .min(1, t.bodyProfile.validation.ageRange)
+    .max(120, t.bodyProfile.validation.ageRange),
   sex: z.enum(['male', 'female'] as const),
   activityFactor: z.coerce.number<number>(),
   goalPhase: z.enum(['recomposition', 'fat-loss', 'gain'] as const),
   proteinPerKg: z.coerce
     .number<number>()
-    .positive(de.bodyProfile.validation.proteinPositive)
-    .max(5, de.bodyProfile.validation.proteinMax),
+    .positive(t.bodyProfile.validation.proteinPositive)
+    .max(5, t.bodyProfile.validation.proteinMax),
   fatPercent: z.coerce
     .number<number>()
-    .int(de.bodyProfile.validation.fatPercentInteger)
-    .min(10, de.bodyProfile.validation.fatPercentRange)
-    .max(60, de.bodyProfile.validation.fatPercentRange),
+    .int(t.bodyProfile.validation.fatPercentInteger)
+    .min(10, t.bodyProfile.validation.fatPercentRange)
+    .max(60, t.bodyProfile.validation.fatPercentRange),
   adjustmentPercent: z.coerce
     .number<number>()
-    .int(de.bodyProfile.validation.adjustmentInteger)
-    .min(-40, de.bodyProfile.validation.adjustmentRange)
-    .max(40, de.bodyProfile.validation.adjustmentRange),
+    .int(t.bodyProfile.validation.adjustmentInteger)
+    .min(-40, t.bodyProfile.validation.adjustmentRange)
+    .max(40, t.bodyProfile.validation.adjustmentRange),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -68,30 +68,30 @@ const DEFAULTS: FormValues = {
 };
 
 const ACTIVITY_LABELS: Record<number, string> = {
-  [PAL.sedentary]: de.bodyProfile.activityOptions.sedentary,
-  [PAL.light]: de.bodyProfile.activityOptions.light,
-  [PAL.moderate]: de.bodyProfile.activityOptions.moderate,
-  [PAL.veryActive]: de.bodyProfile.activityOptions.veryActive,
-  [PAL.extreme]: de.bodyProfile.activityOptions.extreme,
+  [PAL.sedentary]: t.bodyProfile.activityOptions.sedentary,
+  [PAL.light]: t.bodyProfile.activityOptions.light,
+  [PAL.moderate]: t.bodyProfile.activityOptions.moderate,
+  [PAL.veryActive]: t.bodyProfile.activityOptions.veryActive,
+  [PAL.extreme]: t.bodyProfile.activityOptions.extreme,
 };
 
 const PHASE_OPTIONS: { value: GoalPhase; label: string }[] = [
-  { value: 'recomposition', label: de.bodyProfile.phaseOptions.recomposition },
-  { value: 'fat-loss', label: de.bodyProfile.phaseOptions['fat-loss'] },
-  { value: 'gain', label: de.bodyProfile.phaseOptions.gain },
+  { value: 'recomposition', label: t.bodyProfile.phaseOptions.recomposition },
+  { value: 'fat-loss', label: t.bodyProfile.phaseOptions['fat-loss'] },
+  { value: 'gain', label: t.bodyProfile.phaseOptions.gain },
 ];
 
 type AdjustmentDirection = 'deficit' | 'maintenance' | 'surplus';
 
 const SEX_OPTIONS: { value: Sex; label: string }[] = [
-  { value: 'male', label: de.bodyProfile.sexMale },
-  { value: 'female', label: de.bodyProfile.sexFemale },
+  { value: 'male', label: t.bodyProfile.sexMale },
+  { value: 'female', label: t.bodyProfile.sexFemale },
 ];
 
 const DIRECTION_OPTIONS: { value: AdjustmentDirection; label: string }[] = [
-  { value: 'deficit', label: de.bodyProfile.adjustmentDirection.deficit },
-  { value: 'maintenance', label: de.bodyProfile.adjustmentDirection.maintenance },
-  { value: 'surplus', label: de.bodyProfile.adjustmentDirection.surplus },
+  { value: 'deficit', label: t.bodyProfile.adjustmentDirection.deficit },
+  { value: 'maintenance', label: t.bodyProfile.adjustmentDirection.maintenance },
+  { value: 'surplus', label: t.bodyProfile.adjustmentDirection.surplus },
 ];
 
 function directionOf(adjustmentPercent: number): AdjustmentDirection {
@@ -208,7 +208,7 @@ export function BodyProfileForm() {
         existing.computed.carbsGrams !== activeGoal.carbs
       : false;
 
-  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{de.bodyProfile.loading}</div>;
+  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{t.bodyProfile.loading}</div>;
 
   const error = saveMutation.error ?? applyMutation.error;
   const isPending = saveMutation.isPending || applyMutation.isPending;
@@ -216,24 +216,24 @@ export function BodyProfileForm() {
   return (
     <form className="space-y-4 p-4" onSubmit={(e) => e.preventDefault()}>
       <h2 className="text-base font-semibold" role="heading">
-        {de.settings.calculatorTitle}
+        {t.settings.calculatorTitle}
       </h2>
 
       {error && <ErrorBanner error={error} />}
-      {savedFlash === 'profile' && <Banner tone="success">{de.bodyProfile.saved}</Banner>}
-      {savedFlash === 'goals' && <Banner tone="success">{de.bodyProfile.appliedAsGoals}</Banner>}
+      {savedFlash === 'profile' && <Banner tone="success">{t.bodyProfile.saved}</Banner>}
+      {savedFlash === 'goals' && <Banner tone="success">{t.bodyProfile.appliedAsGoals}</Banner>}
 
       {divergence && existing && activeGoal && (
         <Banner
           tone="warning"
-          hint={de.bodyProfile.divergenceBody(existing.computed.targetCalories, activeGoal.calories)}
+          hint={t.bodyProfile.divergenceBody(existing.computed.targetCalories, activeGoal.calories)}
         >
-          {de.bodyProfile.divergenceTitle}
+          {t.bodyProfile.divergenceTitle}
         </Banner>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <Field htmlFor="bp-weight" label={de.bodyProfile.weight} error={errors.weightKg?.message}>
+        <Field htmlFor="bp-weight" label={t.bodyProfile.weight} error={errors.weightKg?.message}>
           <Controller
             name="weightKg"
             control={control}
@@ -250,21 +250,21 @@ export function BodyProfileForm() {
           />
           {weightTrend?.movingAverage7d !== null && weightTrend?.movingAverage7d !== undefined && (
             <p className="text-xs text-muted-foreground">
-              {de.weightLog.averageHint(weightTrend.movingAverage7d.toFixed(1))}{' '}
+              {t.weightLog.averageHint(weightTrend.movingAverage7d.toFixed(1))}{' '}
               <button
                 type="button"
-                aria-label={de.weightLog.useTrailingAvgAria}
+                aria-label={t.weightLog.useTrailingAvgAria}
                 onClick={() =>
                   setValue('weightKg', Number(weightTrend.movingAverage7d!.toFixed(1)), { shouldValidate: true })
                 }
                 className="text-primary underline-offset-2 hover:underline"
               >
-                {de.weightLog.useTrailingAvg}
+                {t.weightLog.useTrailingAvg}
               </button>
             </p>
           )}
         </Field>
-        <Field htmlFor="bp-height" label={de.bodyProfile.height} error={errors.heightCm?.message}>
+        <Field htmlFor="bp-height" label={t.bodyProfile.height} error={errors.heightCm?.message}>
           <Input
             id="bp-height"
             type="number"
@@ -274,16 +274,16 @@ export function BodyProfileForm() {
             className="w-full"
           />
         </Field>
-        <Field htmlFor="bp-age" label={de.bodyProfile.age} error={errors.ageYears?.message}>
+        <Field htmlFor="bp-age" label={t.bodyProfile.age} error={errors.ageYears?.message}>
           <Input id="bp-age" type="number" inputMode="numeric" step="1" {...register('ageYears')} className="w-full" />
         </Field>
-        <Field htmlFor="bp-sex" label={de.bodyProfile.sex} error={errors.sex?.message}>
+        <Field htmlFor="bp-sex" label={t.bodyProfile.sex} error={errors.sex?.message}>
           <Controller
             name="sex"
             control={control}
             render={({ field }) => (
               <SegmentedControl
-                label={de.bodyProfile.sex}
+                label={t.bodyProfile.sex}
                 value={field.value}
                 onChange={field.onChange}
                 options={SEX_OPTIONS}
@@ -293,7 +293,7 @@ export function BodyProfileForm() {
         </Field>
       </div>
 
-      <Field htmlFor="bp-activity" label={de.bodyProfile.activity} error={errors.activityFactor?.message}>
+      <Field htmlFor="bp-activity" label={t.bodyProfile.activity} error={errors.activityFactor?.message}>
         <Select id="bp-activity" {...register('activityFactor')}>
           {ACTIVITY_FACTORS.map((factor) => (
             <option key={factor} value={factor}>
@@ -303,7 +303,7 @@ export function BodyProfileForm() {
         </Select>
       </Field>
 
-      <Field htmlFor="bp-phase" label={de.bodyProfile.phase} error={errors.goalPhase?.message}>
+      <Field htmlFor="bp-phase" label={t.bodyProfile.phase} error={errors.goalPhase?.message}>
         <Select id="bp-phase" value={values.goalPhase} onChange={(e) => onPhaseChange(e.target.value as GoalPhase)}>
           {PHASE_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -314,7 +314,7 @@ export function BodyProfileForm() {
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field htmlFor="bp-protein" label={de.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
+        <Field htmlFor="bp-protein" label={t.bodyProfile.proteinPerKg} error={errors.proteinPerKg?.message}>
           <Controller
             name="proteinPerKg"
             control={control}
@@ -330,7 +330,7 @@ export function BodyProfileForm() {
             )}
           />
         </Field>
-        <Field htmlFor="bp-fat" label={de.bodyProfile.fatPercent} error={errors.fatPercent?.message}>
+        <Field htmlFor="bp-fat" label={t.bodyProfile.fatPercent} error={errors.fatPercent?.message}>
           <Input
             id="bp-fat"
             type="number"
@@ -344,11 +344,11 @@ export function BodyProfileForm() {
 
       <Field
         htmlFor="bp-adjustment-magnitude"
-        label={de.bodyProfile.adjustment}
+        label={t.bodyProfile.adjustment}
         error={errors.adjustmentPercent?.message}
       >
         <SegmentedControl
-          label={de.bodyProfile.adjustmentDirectionLabel}
+          label={t.bodyProfile.adjustmentDirectionLabel}
           value={adjustmentDirection}
           onChange={onDirectionChange}
           options={DIRECTION_OPTIONS}
@@ -365,31 +365,31 @@ export function BodyProfileForm() {
           disabled={adjustmentDirection === 'maintenance'}
           className="w-full disabled:opacity-50"
         />
-        <p className="text-xs text-muted-foreground">{de.bodyProfile.adjustmentHint}</p>
+        <p className="text-xs text-muted-foreground">{t.bodyProfile.adjustmentHint}</p>
       </Field>
 
       <section
-        aria-label={de.bodyProfile.previewTitle}
+        aria-label={t.bodyProfile.previewTitle}
         className="rounded-md border border-input bg-muted/30 p-3 text-sm"
       >
-        <h3 className="mb-2 font-medium">{de.bodyProfile.previewTitle}</h3>
+        <h3 className="mb-2 font-medium">{t.bodyProfile.previewTitle}</h3>
         <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
-          <dt>{de.bodyProfile.ree}</dt>
+          <dt>{t.bodyProfile.ree}</dt>
           <dd className="text-right tabular-nums">{Math.round(preview.ree)} kcal</dd>
-          <dt>{de.bodyProfile.tdee}</dt>
+          <dt>{t.bodyProfile.tdee}</dt>
           <dd className="text-right tabular-nums">{Math.round(preview.tdee)} kcal</dd>
-          <dt>{de.bodyProfile.targetCalories}</dt>
+          <dt>{t.bodyProfile.targetCalories}</dt>
           <dd className="text-right tabular-nums">{preview.targetCalories} kcal</dd>
-          <dt>{de.bodyProfile.proteinGrams}</dt>
+          <dt>{t.bodyProfile.proteinGrams}</dt>
           <dd className="text-right tabular-nums">{preview.proteinGrams} g</dd>
-          <dt>{de.bodyProfile.fatGrams}</dt>
+          <dt>{t.bodyProfile.fatGrams}</dt>
           <dd className="text-right tabular-nums">{preview.fatGrams} g</dd>
-          <dt>{de.bodyProfile.carbsGrams}</dt>
+          <dt>{t.bodyProfile.carbsGrams}</dt>
           <dd className="text-right tabular-nums">{preview.carbsGrams} g</dd>
           {preview.proteinFatExceedsTarget && (
             <>
-              <dt className="col-span-2 mt-2 font-medium text-warning-ink">{de.bodyProfile.warningTitle}</dt>
-              <dd className="col-span-2 text-warning-ink">{de.bodyProfile.warningBody}</dd>
+              <dt className="col-span-2 mt-2 font-medium text-warning-ink">{t.bodyProfile.warningTitle}</dt>
+              <dd className="col-span-2 text-warning-ink">{t.bodyProfile.warningBody}</dd>
             </>
           )}
         </dl>
@@ -402,10 +402,10 @@ export function BodyProfileForm() {
           disabled={isPending}
           className="flex-1 border-primary text-primary"
         >
-          {saveMutation.isPending ? de.bodyProfile.saving : de.bodyProfile.saveProfile}
+          {saveMutation.isPending ? t.bodyProfile.saving : t.bodyProfile.saveProfile}
         </Button>
         <Button onClick={handleSubmit(onSaveAsGoals)} disabled={isPending} className="flex-1">
-          {applyMutation.isPending ? de.bodyProfile.applying : de.bodyProfile.saveAsGoals}
+          {applyMutation.isPending ? t.bodyProfile.applying : t.bodyProfile.saveAsGoals}
         </Button>
       </div>
     </form>

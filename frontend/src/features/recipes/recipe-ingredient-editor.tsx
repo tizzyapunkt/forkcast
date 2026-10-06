@@ -6,7 +6,7 @@ import { isMassUnit, type MeasurementMode, modeOf, seedMode } from './measuremen
 import { deriveUncertaintyMarker, formatRawIngredient } from './ingredient-provenance';
 import { RawReadLine } from './raw-read-line';
 import { Pencil, X } from 'lucide-react';
-import { de, formatMacroTriplet } from '../../i18n/de';
+import { t } from '../../i18n';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -191,21 +191,21 @@ export function RecipeIngredientEditor({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">
-          {de.recipeIngredientEditor.title}
+          {t.recipeIngredientEditor.title}
           {ingredients.length > 0 && <span className="text-muted-foreground"> · {ingredients.length}</span>}
         </h3>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setPickerOpen(true)}
-          aria-label={de.recipeIngredientEditor.addAria}
+          aria-label={t.recipeIngredientEditor.addAria}
         >
-          {de.recipeIngredientEditor.add}
+          {t.recipeIngredientEditor.add}
         </Button>
       </div>
 
       {ingredients.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{de.recipeIngredientEditor.empty}</p>
+        <p className="text-sm text-muted-foreground">{t.recipeIngredientEditor.empty}</p>
       ) : (
         <ul className="divide-y">
           {ingredients.map((ing, idx) => {
@@ -225,7 +225,7 @@ export function RecipeIngredientEditor({
                 <div className="flex items-center gap-2">
                   {renamingIndex === idx ? (
                     <input
-                      aria-label={de.recipeIngredientEditor.nameInputAria(ing.name)}
+                      aria-label={t.recipeIngredientEditor.nameInputAria(ing.name)}
                       type="text"
                       defaultValue={ing.name}
                       autoFocus
@@ -249,7 +249,7 @@ export function RecipeIngredientEditor({
                       <button
                         type="button"
                         onClick={() => setReplacingIndex(idx)}
-                        aria-label={de.recipeIngredientEditor.replaceAria(ing.name)}
+                        aria-label={t.recipeIngredientEditor.replaceAria(ing.name)}
                         data-testid={`replace-row-${idx}`}
                         className="-ml-1 inline-flex h-10 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 text-left font-medium hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:h-9"
                       >
@@ -262,7 +262,7 @@ export function RecipeIngredientEditor({
                         variant="quiet"
                         size="iconSm"
                         onClick={() => startRename(idx)}
-                        aria-label={de.recipeIngredientEditor.renameAria(ing.name)}
+                        aria-label={t.recipeIngredientEditor.renameAria(ing.name)}
                         className="text-muted-foreground/60"
                       >
                         <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
@@ -273,17 +273,17 @@ export function RecipeIngredientEditor({
                     <button
                       type="button"
                       onClick={() => setOpenNotes((cur) => new Set(cur).add(idx))}
-                      aria-label={de.recipeIngredientEditor.addNoteAria(ing.name)}
+                      aria-label={t.recipeIngredientEditor.addNoteAria(ing.name)}
                       className="shrink-0 text-xs text-muted-foreground/70 hover:text-foreground"
                     >
-                      {de.recipeIngredientEditor.addNote}
+                      {t.recipeIngredientEditor.addNote}
                     </button>
                   )}
                   <Button
                     variant="quietDestructive"
                     size="icon"
                     onClick={() => handleRemove(idx)}
-                    aria-label={de.recipeIngredientEditor.remove(ing.name)}
+                    aria-label={t.recipeIngredientEditor.remove(ing.name)}
                     className="-mr-1 sm:h-9 sm:w-9"
                   >
                     <X aria-hidden="true" className="h-4 w-4" />
@@ -300,7 +300,7 @@ export function RecipeIngredientEditor({
                     {marker && (
                       <p
                         data-testid={`row-uncertain-${idx}`}
-                        aria-label={de.recipeIngredientEditor.provenance.markerAria(ing.name)}
+                        aria-label={t.recipeIngredientEditor.provenance.markerAria(ing.name)}
                         className="text-xs text-warning-ink"
                       >
                         {marker}
@@ -319,7 +319,7 @@ export function RecipeIngredientEditor({
                 {mode === 'weight' && (
                   <div className="flex items-center gap-2 pl-1">
                     <DecimalInput
-                      aria-label={de.recipeIngredientEditor.amountFor(ing.name)}
+                      aria-label={t.recipeIngredientEditor.amountFor(ing.name)}
                       value={ing.amount}
                       onValueChange={(v) => v !== null && handleEditMassAmount(idx, v)}
                       numeric
@@ -333,7 +333,7 @@ export function RecipeIngredientEditor({
                 {mode === 'piece' && ing.pieceQuantity && (
                   <div className="flex flex-wrap items-center gap-2 pl-1 text-xs text-muted-foreground">
                     <DecimalInput
-                      aria-label={de.recipeIngredientEditor.pieceCountFor(ing.name)}
+                      aria-label={t.recipeIngredientEditor.pieceCountFor(ing.name)}
                       value={ing.pieceQuantity.amount}
                       onValueChange={(v) => v !== null && handleEditPieceCount(idx, v)}
                       numeric
@@ -341,18 +341,18 @@ export function RecipeIngredientEditor({
                       className="w-16"
                     />
                     <Input
-                      aria-label={de.recipeIngredientEditor.pieceLabelFor(ing.name)}
+                      aria-label={t.recipeIngredientEditor.pieceLabelFor(ing.name)}
                       type="text"
                       value={ing.pieceQuantity.unitLabel}
-                      placeholder={de.recipeIngredientEditor.pieceLabelPlaceholder}
+                      placeholder={t.recipeIngredientEditor.pieceLabelPlaceholder}
                       onChange={(e) => handleEditUnitLabel(idx, e.target.value)}
                       size="sm"
                       className="flex-1"
                     />
                     <span aria-hidden>×</span>
-                    <span className="whitespace-nowrap">{de.recipeIngredientEditor.perPiecePrefix}</span>
+                    <span className="whitespace-nowrap">{t.recipeIngredientEditor.perPiecePrefix}</span>
                     <DecimalInput
-                      aria-label={de.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
+                      aria-label={t.recipeIngredientEditor.gramsPerPieceFor(ing.name)}
                       value={ing.pieceQuantity.gramsPerPiece}
                       onValueChange={(v) => v !== null && handleEditGramsPerPiece(idx, v)}
                       numeric
@@ -365,7 +365,7 @@ export function RecipeIngredientEditor({
                         data-testid={`piece-estimate-${idx}`}
                         className="rounded-sm bg-warning/15 px-1.5 py-0.5 text-[11px] font-medium text-warning-ink"
                       >
-                        {de.recipeIngredientEditor.estimateBadge}
+                        {t.recipeIngredientEditor.estimateBadge}
                       </span>
                     )}
                   </div>
@@ -375,33 +375,33 @@ export function RecipeIngredientEditor({
                   <div className="space-y-1 pl-1">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
                       <DecimalInput
-                        aria-label={de.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
+                        aria-label={t.recipeIngredientEditor.displayQuantityAmountAria(ing.name)}
                         value={ing.displayQuantity ? ing.displayQuantity.amount : ing.amount}
-                        placeholder={de.recipeIngredientEditor.freeAmountPlaceholder}
+                        placeholder={t.recipeIngredientEditor.freeAmountPlaceholder}
                         onValueChange={(v) => handleEditFreeAmount(idx, v)}
                         numeric
                         size="sm"
                         className="w-20"
                       />
                       <Input
-                        aria-label={de.recipeIngredientEditor.displayQuantityUnitAria(ing.name)}
+                        aria-label={t.recipeIngredientEditor.displayQuantityUnitAria(ing.name)}
                         type="text"
                         maxLength={DISPLAY_QUANTITY_UNIT_LABEL_MAX}
                         value={ing.displayQuantity?.unitLabel ?? ''}
-                        placeholder={de.recipeIngredientEditor.freeUnitPlaceholder}
+                        placeholder={t.recipeIngredientEditor.freeUnitPlaceholder}
                         onChange={(e) => handleEditFreeUnit(idx, e.target.value)}
                         size="sm"
                         className="flex-1"
                       />
                     </div>
-                    <p className="text-[11px] text-muted-foreground/80">{de.recipeIngredientEditor.freeCaption}</p>
+                    <p className="text-[11px] text-muted-foreground/80">{t.recipeIngredientEditor.freeCaption}</p>
                   </div>
                 )}
 
                 {mode !== 'free' && (
                   <div data-testid={`row-macros-${idx}`} className="pl-1 text-xs text-muted-foreground">
                     {Math.round(ing.macrosPerUnit.calories * ing.amount)} kcal ·{' '}
-                    {formatMacroTriplet(
+                    {t.formatMacroTriplet(
                       ing.macrosPerUnit.protein * ing.amount,
                       ing.macrosPerUnit.carbs * ing.amount,
                       ing.macrosPerUnit.fat * ing.amount,
@@ -413,12 +413,12 @@ export function RecipeIngredientEditor({
                   <div className="flex items-center gap-1.5 pl-1">
                     <Pencil size={12} aria-hidden="true" className="shrink-0 text-muted-foreground/50" />
                     <input
-                      aria-label={de.recipeIngredientEditor.noteAriaFor(ing.name)}
+                      aria-label={t.recipeIngredientEditor.noteAriaFor(ing.name)}
                       data-testid={`ingredient-note-${idx}`}
                       type="text"
                       maxLength={NOTE_MAX_LENGTH}
                       value={ing.note ?? ''}
-                      placeholder={de.recipeIngredientEditor.notePlaceholder}
+                      placeholder={t.recipeIngredientEditor.notePlaceholder}
                       onFocus={() => setOpenNotes((cur) => (cur.has(idx) ? cur : new Set(cur).add(idx)))}
                       onChange={(e) => handleEditNote(idx, e.target.value)}
                       onBlur={(e) => {
@@ -438,7 +438,7 @@ export function RecipeIngredientEditor({
                           return next;
                         });
                       }}
-                      aria-label={de.recipeIngredientEditor.removeNoteAria(ing.name)}
+                      aria-label={t.recipeIngredientEditor.removeNoteAria(ing.name)}
                       className="text-muted-foreground/60"
                     >
                       <X aria-hidden="true" className="h-3.5 w-3.5" />
@@ -474,15 +474,15 @@ interface ModeSegmentsProps {
 
 function ModeSegments({ name, mode, massAllowed, onSelect }: ModeSegmentsProps) {
   const segments: { key: MeasurementMode; label: string; disabled?: boolean }[] = [
-    { key: 'weight', label: de.recipeIngredientEditor.modeWeight },
-    { key: 'piece', label: de.recipeIngredientEditor.modePiece, disabled: !massAllowed },
-    { key: 'free', label: de.recipeIngredientEditor.modeFree },
+    { key: 'weight', label: t.recipeIngredientEditor.modeWeight },
+    { key: 'piece', label: t.recipeIngredientEditor.modePiece, disabled: !massAllowed },
+    { key: 'free', label: t.recipeIngredientEditor.modeFree },
   ];
 
   return (
     <div
       role="group"
-      aria-label={de.recipeIngredientEditor.modeGroupAria(name)}
+      aria-label={t.recipeIngredientEditor.modeGroupAria(name)}
       className="flex gap-1 rounded-md bg-muted p-[3px]"
     >
       {segments.map((seg) => {

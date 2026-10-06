@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from './use-auth';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 
@@ -15,18 +15,18 @@ export function LoginPage() {
     try {
       await login(password);
     } catch {
-      setError(de.auth.invalidPassword);
+      setError(t.auth.invalidPassword);
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
-        <h1 className="text-center text-2xl font-bold">{de.appTitle}</h1>
+        <h1 className="text-center text-2xl font-bold">{t.appTitle}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <label htmlFor="password" className="block text-sm font-medium">
-              {de.auth.passwordLabel}
+              {t.auth.passwordLabel}
             </label>
             <Input
               id="password"
@@ -44,7 +44,7 @@ export function LoginPage() {
             </p>
           )}
           <Button type="submit" disabled={isLoginPending} className="w-full">
-            {isLoginPending ? de.auth.loggingIn : de.auth.login}
+            {isLoginPending ? t.auth.loggingIn : t.auth.login}
           </Button>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FullIngredientEntry, LogEntry } from '../../domain/meal-log';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { parseDecimal } from '../../lib/decimal';
 
@@ -60,7 +60,7 @@ export function InlineAmountInput({ entry, onLiveAmount }: InlineAmountInputProp
         inputMode="decimal"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        aria-label={de.recipeIngredientEditor.amountFor(name)}
+        aria-label={t.recipeIngredientEditor.amountFor(name)}
         className="w-16 rounded-md border border-transparent bg-transparent px-1 py-0.5 text-right text-base text-muted-foreground hover:border-border focus:border-ring focus:text-foreground focus:outline-hidden sm:text-sm"
       />
       <span className="text-muted-foreground">{unit}</span>

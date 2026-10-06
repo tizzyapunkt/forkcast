@@ -13,6 +13,9 @@ export function validateFoodEntry(entry: FoodEntry): ValidationResult {
   if (typeof entry.name !== 'string' || entry.name.trim().length === 0) {
     return { ok: false, reason: `entry ${entry.id}: name missing or empty` };
   }
+  if (entry.nameEn !== undefined && (typeof entry.nameEn !== 'string' || entry.nameEn.trim().length === 0)) {
+    return { ok: false, reason: `entry ${entry.id}: nameEn must be a non-empty string when present` };
+  }
   if (!Array.isArray(entry.synonyms)) {
     return { ok: false, reason: `entry ${entry.id}: synonyms must be an array` };
   }

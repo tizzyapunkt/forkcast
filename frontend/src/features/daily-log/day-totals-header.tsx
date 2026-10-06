@@ -2,7 +2,7 @@ import type { DayTotals } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
 import { kcalStatus } from '../../domain/nutrition-progress';
 import { HeaderMacroCell, type MacroKey } from '../../components/app/header-macro-cell';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface DayTotalsHeaderProps {
   totals: DayTotals;
@@ -10,9 +10,9 @@ interface DayTotalsHeaderProps {
 }
 
 function formatBadge(badge: NonNullable<ReturnType<typeof kcalStatus>['badge']>): string {
-  if (badge.kind === 'reached') return de.dayTotals.reached;
-  if (badge.kind === 'open') return de.dayTotals.kcalOpen(badge.diff);
-  return de.dayTotals.kcalOver(badge.diff);
+  if (badge.kind === 'reached') return t.dayTotals.reached;
+  if (badge.kind === 'open') return t.dayTotals.kcalOpen(badge.diff);
+  return t.dayTotals.kcalOver(badge.diff);
 }
 
 function MacroCell({
@@ -66,9 +66,9 @@ export function DayTotalsHeader({ totals, goal }: DayTotalsHeaderProps) {
       )}
 
       <div className="flex gap-4">
-        <MacroCell macroKey="p" label={de.dayTotals.protein} actual={totals.protein} goal={goal?.protein} />
-        <MacroCell macroKey="c" label={de.dayTotals.carbs} actual={totals.carbs} goal={goal?.carbs} />
-        <MacroCell macroKey="f" label={de.dayTotals.fat} actual={totals.fat} goal={goal?.fat} />
+        <MacroCell macroKey="p" label={t.dayTotals.protein} actual={totals.protein} goal={goal?.protein} />
+        <MacroCell macroKey="c" label={t.dayTotals.carbs} actual={totals.carbs} goal={goal?.carbs} />
+        <MacroCell macroKey="f" label={t.dayTotals.fat} actual={totals.fat} goal={goal?.fat} />
       </div>
     </div>
   );

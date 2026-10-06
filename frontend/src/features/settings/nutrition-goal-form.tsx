@@ -9,30 +9,30 @@ import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { Banner } from '../../components/ui/banner';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 const schema = z.object({
   calories: z.coerce
-    .number<number>({ error: de.nutritionGoal.validation.caloriesNumber })
-    .positive(de.nutritionGoal.validation.caloriesPositive),
+    .number<number>({ error: t.nutritionGoal.validation.caloriesNumber })
+    .positive(t.nutritionGoal.validation.caloriesPositive),
   protein: z.coerce
-    .number<number>({ error: de.nutritionGoal.validation.proteinNumber })
-    .nonnegative(de.nutritionGoal.validation.proteinNonneg),
+    .number<number>({ error: t.nutritionGoal.validation.proteinNumber })
+    .nonnegative(t.nutritionGoal.validation.proteinNonneg),
   carbs: z.coerce
-    .number<number>({ error: de.nutritionGoal.validation.carbsNumber })
-    .nonnegative(de.nutritionGoal.validation.carbsNonneg),
+    .number<number>({ error: t.nutritionGoal.validation.carbsNumber })
+    .nonnegative(t.nutritionGoal.validation.carbsNonneg),
   fat: z.coerce
-    .number<number>({ error: de.nutritionGoal.validation.fatNumber })
-    .nonnegative(de.nutritionGoal.validation.fatNonneg),
+    .number<number>({ error: t.nutritionGoal.validation.fatNumber })
+    .nonnegative(t.nutritionGoal.validation.fatNonneg),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 const FIELDS = [
-  { key: 'calories' as const, label: de.nutritionGoal.calories },
-  { key: 'protein' as const, label: de.nutritionGoal.protein },
-  { key: 'carbs' as const, label: de.nutritionGoal.carbs },
-  { key: 'fat' as const, label: de.nutritionGoal.fat },
+  { key: 'calories' as const, label: t.nutritionGoal.calories },
+  { key: 'protein' as const, label: t.nutritionGoal.protein },
+  { key: 'carbs' as const, label: t.nutritionGoal.carbs },
+  { key: 'fat' as const, label: t.nutritionGoal.fat },
 ];
 
 export function NutritionGoalForm() {
@@ -60,14 +60,14 @@ export function NutritionGoalForm() {
     });
   }
 
-  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{de.nutritionGoal.loading}</div>;
+  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">{t.nutritionGoal.loading}</div>;
 
   const [kcalField, ...macroFields] = FIELDS;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-lg border bg-card p-4">
       {error && <ErrorBanner error={error} />}
-      {saved && <Banner tone="success">{de.nutritionGoal.saved}</Banner>}
+      {saved && <Banner tone="success">{t.nutritionGoal.saved}</Banner>}
 
       <Field label={kcalField.label} htmlFor={`goal-${kcalField.key}`} error={errors[kcalField.key]?.message}>
         <Controller
@@ -110,7 +110,7 @@ export function NutritionGoalForm() {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? de.nutritionGoal.saving : de.nutritionGoal.save}
+        {isPending ? t.nutritionGoal.saving : t.nutritionGoal.save}
       </Button>
     </form>
   );

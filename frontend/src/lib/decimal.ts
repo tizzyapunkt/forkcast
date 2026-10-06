@@ -1,3 +1,5 @@
+import { intlLocale } from '../i18n/format';
+
 // Locale-tolerant decimal handling for free-text number inputs. The browser's native
 // `type="number"` only accepts a dot separator, so a German user typing "0,25" gets a
 // "Gültigen Wert eingeben" rejection. We parse both separators and render values back in
@@ -21,7 +23,7 @@ export function parseDecimal(raw: string): number | null {
  * Format a number for display in an editable field using the given locale's decimal
  * separator, without thousands grouping or trailing fraction zeros.
  */
-export function formatDecimal(value: number, locale: string = navigator.language): string {
+export function formatDecimal(value: number, locale: string = intlLocale): string {
   return new Intl.NumberFormat(locale, {
     useGrouping: false,
     maximumFractionDigits: 3,

@@ -98,7 +98,8 @@ function pieceSizeLookup(catalog: CatalogStore): PieceSizeLookup {
   for (const food of catalog.indexed()) {
     if (food.unit !== 'g' || !food.pieces || food.pieces.length === 0) continue;
     const piece = food.pieces.find((p) => p.label === 'mittel') ?? food.pieces[0]!;
-    for (const key of [food.nameFolded, ...food.synonymsFolded]) {
+    const names = food.nameEnFolded !== undefined ? [food.nameFolded, food.nameEnFolded] : [food.nameFolded];
+    for (const key of [...names, ...food.synonymsFolded]) {
       if (!byName.has(key)) byName.set(key, piece);
     }
   }

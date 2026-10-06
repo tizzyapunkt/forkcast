@@ -1,7 +1,7 @@
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import type { CatalogStore } from '../../domain/food-catalog/types.ts';
-import type { FoodEntry } from '../../domain/foods/types.ts';
+import type { CatalogLocale, FoodEntry } from '../../domain/foods/types.ts';
 import { rankIndexedFoods } from '../../domain/foods/rank-food-entries.ts';
 import { rankFuzzyCandidates } from '../../domain/foods/fuzzy-candidates.ts';
 
@@ -14,8 +14,12 @@ import { rankFuzzyCandidates } from '../../domain/foods/fuzzy-candidates.ts';
 export class CatalogSearchService implements IngredientSearchService {
   constructor(private readonly store: CatalogStore) {}
 
-  async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
-    return rankIndexedFoods(this.store.indexed(), query, 'CATALOG');
+  async searchByName(
+    query: string,
+    _sources?: Set<string>,
+    locale: CatalogLocale = 'de',
+  ): Promise<IngredientSearchResult[]> {
+    return rankIndexedFoods(this.store.indexed(), query, 'CATALOG', locale);
   }
 
   async searchByBarcode(_barcode: string): Promise<IngredientSearchResult | null> {

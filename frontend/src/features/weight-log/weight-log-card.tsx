@@ -3,7 +3,7 @@ import { Scale } from 'lucide-react';
 import { useWeightLog } from '../../queries/use-weight-log';
 import { useWeightTrend } from '../../queries/use-weight-trend';
 import { useLogWeight } from '../../queries/use-log-weight';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { today } from '../../domain/date';
 import { parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
@@ -40,35 +40,35 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
   }
 
   return (
-    <Card aria-label={de.weightLog.cardTitle} padding="sm">
+    <Card aria-label={t.weightLog.cardTitle} padding="sm">
       <div className="flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 text-base font-semibold">
           <Scale size={16} aria-hidden="true" className="shrink-0 text-primary" />
-          {de.weightLog.cardTitle}
+          {t.weightLog.cardTitle}
         </h3>
         <button
           type="button"
           onClick={onOpenTracker}
           className="text-xs text-primary underline-offset-2 hover:underline"
         >
-          {de.weightLog.cardOpenTracker}
+          {t.weightLog.cardOpenTracker}
         </button>
       </div>
 
       {inEditMode ? (
         <div className="mt-2 flex items-center gap-2">
           <Input
-            aria-label={de.weightLog.cardPromptEmpty}
+            aria-label={t.weightLog.cardPromptEmpty}
             type="text"
             inputMode="decimal"
-            placeholder={todaysEntry ? todaysEntry.weightKg.toString() : de.weightLog.cardInputPlaceholder}
+            placeholder={todaysEntry ? todaysEntry.weightKg.toString() : t.weightLog.cardInputPlaceholder}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             className="flex-1"
           />
-          <span className="text-sm text-muted-foreground">{de.weightLog.cardKgSuffix}</span>
+          <span className="text-sm text-muted-foreground">{t.weightLog.cardKgSuffix}</span>
           <Button onClick={submit} disabled={logMutation.isPending || draft.trim() === ''} className="px-3">
-            {logMutation.isPending ? de.weightLog.cardSubmitting : de.weightLog.cardSubmit}
+            {logMutation.isPending ? t.weightLog.cardSubmitting : t.weightLog.cardSubmit}
           </Button>
           {todaysEntry && editing && (
             <Button
@@ -80,7 +80,7 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
               }}
               className="px-2 py-2"
             >
-              {de.weightLog.historyCancel}
+              {t.weightLog.historyCancel}
             </Button>
           )}
         </div>
@@ -88,16 +88,16 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
         <div className="mt-2 flex items-center justify-between gap-2">
           <div>
             <p className="text-lg font-semibold tabular-nums">
-              {todaysEntry!.weightKg.toFixed(1)} {de.weightLog.cardKgSuffix}
+              {todaysEntry!.weightKg.toFixed(1)} {t.weightLog.cardKgSuffix}
             </p>
             <p className="text-xs text-muted-foreground">
               {trend?.movingAverage7d !== null && trend?.movingAverage7d !== undefined
-                ? de.weightLog.averageHint(trend.movingAverage7d.toFixed(1))
-                : de.weightLog.statsHintInsufficient}
+                ? t.weightLog.averageHint(trend.movingAverage7d.toFixed(1))
+                : t.weightLog.statsHintInsufficient}
               {trend?.weeklyRatePercent !== null && trend?.weeklyRatePercent !== undefined && (
                 <>
                   {' · '}
-                  {de.weightLog.deltaPerWeekShort(
+                  {t.weightLog.deltaPerWeekShort(
                     `${trend.weeklyRatePercent > 0 ? '+' : ''}${trend.weeklyRatePercent.toFixed(2)}`,
                   )}
                 </>
@@ -106,14 +106,14 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
           </div>
           <button
             type="button"
-            aria-label={de.weightLog.cardEditAria}
+            aria-label={t.weightLog.cardEditAria}
             onClick={() => {
               setDraft(todaysEntry!.weightKg.toString());
               setEditing(true);
             }}
             className="rounded-md border px-3 py-2 text-xs"
           >
-            {de.weightLog.cardEdit}
+            {t.weightLog.cardEdit}
           </button>
         </div>
       )}

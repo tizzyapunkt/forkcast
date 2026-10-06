@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 // An empty / cleared macro field (DecimalInput emits null) means "not provided".
 const optionalMacro = z.preprocess(
@@ -17,10 +17,10 @@ const optionalMacro = z.preprocess(
 );
 
 const schema = z.object({
-  label: z.string().min(1, de.quickEntry.validation.labelRequired),
+  label: z.string().min(1, t.quickEntry.validation.labelRequired),
   calories: z.coerce
-    .number<number>({ error: de.quickEntry.validation.caloriesRequired })
-    .positive(de.quickEntry.validation.caloriesRequired),
+    .number<number>({ error: t.quickEntry.validation.caloriesRequired })
+    .positive(t.quickEntry.validation.caloriesRequired),
   protein: optionalMacro,
   carbs: optionalMacro,
   fat: optionalMacro,
@@ -72,11 +72,11 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
       {error && <ErrorBanner error={error} />}
 
-      <Field label={de.quickEntry.label} htmlFor="label" error={errors.label?.message}>
-        <Input id="label" {...register('label')} className="w-full" placeholder={de.quickEntry.labelPlaceholder} />
+      <Field label={t.quickEntry.label} htmlFor="label" error={errors.label?.message}>
+        <Input id="label" {...register('label')} className="w-full" placeholder={t.quickEntry.labelPlaceholder} />
       </Field>
 
-      <Field label={de.quickEntry.calories} htmlFor="calories" error={errors.calories?.message}>
+      <Field label={t.quickEntry.calories} htmlFor="calories" error={errors.calories?.message}>
         <Controller
           name="calories"
           control={control}
@@ -96,7 +96,7 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
 
       <div className="grid grid-cols-3 gap-2">
         {(['protein', 'carbs', 'fat'] as const).map((macro) => (
-          <Field key={macro} label={de.editEntry.macroLabel(de.macros[macro])} htmlFor={macro} size="sm">
+          <Field key={macro} label={t.editEntry.macroLabel(t.macros[macro])} htmlFor={macro} size="sm">
             <Controller
               name={macro}
               control={control}
@@ -118,7 +118,7 @@ export function QuickEntryForm({ date, slot, onSuccess, initialValues, mode = 'c
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? de.quickEntry.saving : mode === 'edit' ? de.quickEntry.saveChanges : de.quickEntry.addEntry}
+        {isPending ? t.quickEntry.saving : mode === 'edit' ? t.quickEntry.saveChanges : t.quickEntry.addEntry}
       </Button>
     </form>
   );

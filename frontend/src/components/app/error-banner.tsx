@@ -1,5 +1,5 @@
 import { Banner } from '../ui/banner';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface ErrorBannerProps {
   error: unknown;
@@ -11,6 +11,6 @@ interface ErrorBannerProps {
  * cause and the recovery — should build their own `Banner` instead of routing through here.
  */
 export function ErrorBanner({ error }: ErrorBannerProps) {
-  const message = error instanceof Error ? error.message : de.errors.generic;
+  const message = error instanceof Error ? error.message : t.errors.generic;
   return <Banner tone="error">{message}</Banner>;
 }

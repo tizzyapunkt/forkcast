@@ -55,6 +55,34 @@ describe('AnthropicFoodResolutionProposer', () => {
     expect(out[2]).toEqual({ verdict: 'skip', reason: 'garbled' });
   });
 
+  it('requests an English name on new-food entries and carries it through', async () => {
+    const client = clientReturning([
+      {
+        index: 0,
+        verdict: 'new-food',
+        confidence: 'high',
+        entry: {
+          id: 'kirschtomaten',
+          name: 'Kirschtomaten',
+          nameEn: 'Cherry tomatoes',
+          synonyms: [],
+          unit: 'g',
+          macrosPer100: { calories: 20, protein: 0.9, carbs: 3.9, fat: 0.2 },
+        },
+      },
+    ]);
+    const proposer = new AnthropicFoodResolutionProposer({ client, model: 'm', logger: SILENT });
+
+    const [out] = await proposer.propose([req('Kirschtomaten')]);
+
+    expect(out).toMatchObject({ verdict: 'new-food', entry: { nameEn: 'Cherry tomatoes' } });
+    const params = vi.mocked(client.messages.create).mock.calls[0]![0];
+    const tool = params.tools![0]! as {
+      input_schema: { properties: { proposals: { items: { properties: { entry: { required: string[] } } } } } };
+    };
+    expect(tool.input_schema.properties.proposals.items.properties.entry.required).toContain('nameEn');
+  });
+
   it('realigns out-of-order proposals by their index', async () => {
     const client = clientReturning([
       { index: 1, verdict: 'skip', confidence: 'low', reason: 'b' },

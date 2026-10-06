@@ -31,7 +31,7 @@ export const DRAFT_FOOD_ENTRY_TOOL: Anthropic.Tool = {
   } as Anthropic.Tool['input_schema'],
 };
 
-export const DRAFT_FOOD_ENTRY_SYSTEM_PROMPT = `You are a nutrition data assistant for a personal meal-planning app. The user gives you one food name they are adding to their catalog by hand. Return exactly one entry for it via the ${DRAFT_FOOD_ENTRY_TOOL_NAME} tool.\n\n${FOOD_ENTRY_GUIDANCE}\n\nDraft the food the user actually named — do not substitute a more common relative — and keep the name in the language they used.`;
+export const DRAFT_FOOD_ENTRY_SYSTEM_PROMPT = `You are a nutrition data assistant for a personal meal-planning app. The user gives you one food name they are adding to their catalog by hand. Return exactly one entry for it via the ${DRAFT_FOOD_ENTRY_TOOL_NAME} tool.\n\n${FOOD_ENTRY_GUIDANCE}\n\nDraft the food the user actually named — do not substitute a more common relative. They may name it in German or English: either way, name is the canonical German name and nameEn the English one.`;
 
 /**
  * Anthropic adapter for the catalog manager's fill action. Uses the shared

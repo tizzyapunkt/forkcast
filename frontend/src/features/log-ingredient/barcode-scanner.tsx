@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import type { IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, NotFoundException } from '@zxing/library';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Banner } from '../../components/ui/banner';
 import { Button } from '../../components/ui/button';
 
@@ -63,8 +63,8 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
       {error ? (
         <Banner tone="error">
           {error.toLowerCase().includes('notallowed') || error.toLowerCase().includes('permission')
-            ? de.barcodeScanner.cameraDenied
-            : de.barcodeScanner.cameraUnavailable}
+            ? t.barcodeScanner.cameraDenied
+            : t.barcodeScanner.cameraUnavailable}
         </Banner>
       ) : (
         <div className="relative overflow-hidden rounded-lg bg-black aspect-[4/3]">
@@ -73,7 +73,7 @@ export function BarcodeScanner({ onDetect, onCancel }: BarcodeScannerProps) {
         </div>
       )}
       <Button variant="outline" onClick={onCancel} className="w-full px-3">
-        {de.barcodeScanner.cancel}
+        {t.barcodeScanner.cancel}
       </Button>
     </div>
   );

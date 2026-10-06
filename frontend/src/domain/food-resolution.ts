@@ -7,6 +7,8 @@ export type ResolutionConfidence = 'high' | 'medium' | 'low';
 export interface FoodEntryDraft {
   id: string;
   name: string;
+  /** The AI-proposed English name, carried through to the catalog on confirm. */
+  nameEn?: string;
   synonyms: string[];
   unit: 'g' | 'ml';
   macrosPer100: MacrosPerUnit;

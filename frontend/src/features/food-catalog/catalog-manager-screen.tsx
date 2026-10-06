@@ -13,11 +13,11 @@ import {
   useUpdateCatalogEntry,
 } from '../../queries/use-catalog';
 import { ApiError } from '../../api/client';
-import { de } from '../../i18n/de';
+import { locale, t } from '../../i18n';
 import { fold } from '../../lib/fold';
-import type { CatalogEntry, CatalogEntryDraft } from '../../domain/food-catalog';
+import { catalogDisplayName, type CatalogEntry, type CatalogEntryDraft } from '../../domain/food-catalog';
 
-const t = de.catalog;
+const copy = t.catalog;
 
 type EditorState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; entry: CatalogEntry };
 
@@ -35,15 +35,23 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
   const updateMutation = useUpdateCatalogEntry();
   const removeMutation = useRemoveCatalogEntry();
 
-  const entries = useMemo(() => [...(catalog.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)), [catalog.data]);
+  const entries = useMemo(
+    () =>
+      [...(catalog.data ?? [])]
+        .map((entry) => ({ entry, displayName: catalogDisplayName(entry, locale) }))
+        .sort((a, b) => a.displayName.localeCompare(b.displayName)),
+    [catalog.data],
+  );
 
   const visible = useMemo(() => {
     const q = fold(filter.trim());
     if (q.length === 0) return entries;
-    return entries.filter((e) => fold(e.name).includes(q) || e.synonyms.some((synonym) => fold(synonym).includes(q)));
+    return entries.filter(({ entry: e }) =>
+      [e.name, e.nameEn ?? '', ...e.synonyms].some((name) => fold(name).includes(q)),
+    );
   }, [entries, filter]);
 
-  const header = <AppHeader title={t.managerTitle} onBack={onBack} backAria={t.backAria} />;
+  const header = <AppHeader title={copy.managerTitle} onBack={onBack} backAria={copy.backAria} />;
 
   if (catalog.isLoading) {
     return (
@@ -104,34 +112,36 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
           type="search"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          aria-label={t.filterLabel}
-          placeholder={t.filterPlaceholder}
+          aria-label={copy.filterLabel}
+          placeholder={copy.filterPlaceholder}
           className="h-11 w-full appearance-none py-0"
         />
 
         <Button onClick={() => setEditor({ mode: 'create' })} className="h-11 w-full py-0 font-semibold">
-          {t.addEntry}
+          {copy.addEntry}
         </Button>
 
-        <p className="text-xs text-muted-foreground">{t.countLabel(entries.length)}</p>
+        <p className="text-xs text-muted-foreground">{copy.countLabel(entries.length)}</p>
 
-        {entries.length === 0 && <p className="text-sm text-muted-foreground">{t.empty}</p>}
+        {entries.length === 0 && <p className="text-sm text-muted-foreground">{copy.empty}</p>}
         {entries.length > 0 && visible.length === 0 && (
-          <p className="text-sm text-muted-foreground">{t.noMatches(filter.trim())}</p>
+          <p className="text-sm text-muted-foreground">{copy.noMatches(filter.trim())}</p>
         )}
 
         <ul className="w-full divide-y">
-          {visible.map((entry) => (
+          {visible.map(({ entry, displayName }) => (
             <li key={entry.id}>
               <button
                 type="button"
                 onClick={() => setEditor({ mode: 'edit', entry })}
-                aria-label={t.entryAria(entry.name)}
+                aria-label={copy.entryAria(displayName)}
                 className="flex w-full items-center justify-between gap-2 py-2.5 text-left text-sm hover:bg-muted/50"
               >
-                <span className="min-w-0 flex-1 truncate font-medium">{entry.name}</span>
+                <span className="min-w-0 flex-1 truncate font-medium">{displayName}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {entry.untracked === true ? t.untrackedBadge : t.kcalPer100(entry.macrosPer100.calories, entry.unit)}
+                  {entry.untracked === true
+                    ? copy.untrackedBadge
+                    : copy.kcalPer100(entry.macrosPer100.calories, entry.unit)}
                 </span>
               </button>
             </li>
@@ -142,13 +152,13 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
       <BottomSheet
         open={editor.mode !== 'closed'}
         onClose={closeEditor}
-        ariaLabel={editor.mode === 'edit' ? t.editorTitleEdit : t.editorTitleNew}
+        ariaLabel={editor.mode === 'edit' ? copy.editorTitleEdit : copy.editorTitleNew}
       >
         {editor.mode !== 'closed' && (
           <>
             <div className="shrink-0 px-4 pt-3 pb-1">
               <h2 className="truncate text-sm font-semibold">
-                {editor.mode === 'edit' ? t.editorTitleEdit : t.editorTitleNew}
+                {editor.mode === 'edit' ? copy.editorTitleEdit : copy.editorTitleNew}
               </h2>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">
@@ -165,7 +175,7 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        const existing = entries.find((e) => e.id === duplicateId);
+                        const existing = catalog.data?.find((e) => e.id === duplicateId);
                         if (existing) {
                           addMutation.reset();
                           setEditor({ mode: 'edit', entry: existing });
@@ -173,7 +183,7 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
                       }}
                       className="self-start p-0"
                     >
-                      {t.duplicateOpen}
+                      {copy.duplicateOpen}
                     </Button>
                   ) : undefined
                 }
@@ -186,16 +196,18 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
       <BottomSheet
         open={pendingDelete !== null}
         onClose={() => setPendingDelete(null)}
-        ariaLabel={t.deleteConfirmTitle}
+        ariaLabel={copy.deleteConfirmTitle}
       >
         {pendingDelete && (
           <div className="flex flex-col gap-3 p-4">
-            <h2 className="text-sm font-semibold">{t.deleteConfirmTitle}</h2>
-            <p className="text-sm text-muted-foreground">{t.deleteConfirmBody(pendingDelete.name)}</p>
-            {removeMutation.isError && <p className="text-sm text-destructive">{t.deleteError}</p>}
+            <h2 className="text-sm font-semibold">{copy.deleteConfirmTitle}</h2>
+            <p className="text-sm text-muted-foreground">
+              {copy.deleteConfirmBody(catalogDisplayName(pendingDelete, locale))}
+            </p>
+            {removeMutation.isError && <p className="text-sm text-destructive">{copy.deleteError}</p>}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setPendingDelete(null)} className="h-12 flex-1 py-0">
-                {t.deleteCancel}
+                {copy.deleteCancel}
               </Button>
               <Button
                 variant="destructive"
@@ -203,7 +215,7 @@ export function CatalogManagerScreen({ onBack }: CatalogManagerScreenProps) {
                 disabled={removeMutation.isPending}
                 className="h-12 flex-[1.5] py-0 font-semibold"
               >
-                {t.deleteConfirm}
+                {copy.deleteConfirm}
               </Button>
             </div>
           </div>

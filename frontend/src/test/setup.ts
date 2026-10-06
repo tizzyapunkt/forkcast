@@ -1,3 +1,4 @@
+import './pin-locale';
 import '@testing-library/jest-dom/vitest';
 import { server } from './msw/server';
 

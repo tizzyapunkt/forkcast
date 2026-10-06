@@ -10,12 +10,12 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
-import { de, formatMacroTriplet } from '../../i18n/de';
+import { t } from '../../i18n';
 
 const schema = z.object({
   portions: z.coerce
-    .number<number>({ error: de.recipeConfirm.validation.portionsNumber })
-    .positive(de.recipeConfirm.validation.portionsPositive),
+    .number<number>({ error: t.recipeConfirm.validation.portionsNumber })
+    .positive(t.recipeConfirm.validation.portionsPositive),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -75,18 +75,18 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
       <div className="rounded-md bg-muted/50 p-3 space-y-1.5">
         <p className="font-medium">{recipe.name}</p>
         <p className="text-xs text-muted-foreground">
-          {de.recipeConfirm.summaryLine(recipe.yield, recipe.ingredients.length)}
+          {t.recipeConfirm.summaryLine(recipe.yield, recipe.ingredients.length)}
         </p>
       </div>
 
-      <Field label={de.recipeConfirm.portionsLabel} htmlFor="portions" error={errors.portions?.message}>
+      <Field label={t.recipeConfirm.portionsLabel} htmlFor="portions" error={errors.portions?.message}>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={() => setValue('portions', Math.max(1, (portions ?? 1) - 1), { shouldValidate: true })}
             disabled={(portions ?? 1) <= 1}
-            aria-label={de.recipeConfirm.portionsDecrement}
+            aria-label={t.recipeConfirm.portionsDecrement}
           >
             <Minus size={16} aria-hidden="true" />
           </Button>
@@ -109,7 +109,7 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
             variant="outline"
             size="icon"
             onClick={() => setValue('portions', (portions ?? 0) + 1, { shouldValidate: true })}
-            aria-label={de.recipeConfirm.portionsIncrement}
+            aria-label={t.recipeConfirm.portionsIncrement}
           >
             <Plus size={16} aria-hidden="true" />
           </Button>
@@ -125,20 +125,20 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
             {Math.round(totals.calories)} <span className="text-sm font-semibold">kcal</span>
           </span>
           <span className="text-sm font-semibold text-muted-foreground">
-            {formatMacroTriplet(totals.protein, totals.carbs, totals.fat)}
+            {t.formatMacroTriplet(totals.protein, totals.carbs, totals.fat)}
           </span>
         </div>
       )}
 
       {totals && portions !== null && (
         <div className="rounded-md border p-3 text-xs">
-          <p className="mb-1 font-medium">{de.recipeConfirm.willLogHeading(tracked.length)}</p>
+          <p className="mb-1 font-medium">{t.recipeConfirm.willLogHeading(tracked.length)}</p>
           <ul className="space-y-0.5 text-muted-foreground">
             {scaleIngredients(tracked, factor).map((ing, i) => (
               <li key={i}>
                 {ing.name} —{' '}
                 {ing.pieceQuantity
-                  ? de.recipeIngredientEditor.pieceSummary(
+                  ? t.recipeIngredientEditor.pieceSummary(
                       ing.pieceQuantity.amount,
                       ing.pieceQuantity.unitLabel,
                       ing.amount,
@@ -148,19 +148,19 @@ export function RecipeConfirm({ recipe, date, slot, onSuccess, onBack }: Props) 
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-muted-foreground">{de.recipeConfirm.adjustHint}</p>
+          <p className="mt-2 text-muted-foreground">{t.recipeConfirm.adjustHint}</p>
         </div>
       )}
 
       <div className="flex gap-2">
         {onBack && (
           <Button variant="outline" onClick={onBack} className="flex-1">
-            {de.recipeConfirm.back}
+            {t.recipeConfirm.back}
           </Button>
         )}
         <Button type="submit" disabled={isPending} className="flex-1">
           <Check size={17} aria-hidden="true" />
-          {isPending ? de.recipeConfirm.logging : de.recipeConfirm.log}
+          {isPending ? t.recipeConfirm.logging : t.recipeConfirm.log}
         </Button>
       </div>
     </form>

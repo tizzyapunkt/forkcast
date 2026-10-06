@@ -3,6 +3,7 @@ import type {
   IngredientSearchService,
   IngredientSource,
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
+import type { CatalogLocale } from '../../domain/foods/types.ts';
 
 const SOURCE_MAP: Record<string, IngredientSource> = { catalog: 'CATALOG', off: 'OFF', scan: 'SCAN' };
 const VALID_SOURCES = new Set<string>(Object.keys(SOURCE_MAP));
@@ -22,13 +23,18 @@ function parseSources(param: string | undefined): Set<IngredientSource> {
   return parsed.length > 0 ? new Set(parsed) : new Set(['CATALOG']);
 }
 
+/** `de` or `en`; anything else, or nothing, is German, the catalog's canonical language. */
+function parseLocale(param: string | undefined): CatalogLocale {
+  return param === 'en' ? 'en' : 'de';
+}
+
 export function makeSearchIngredientsByNameHandler(service: IngredientSearchService) {
   return async (c: Context) => {
     const q = c.req.query('q') ?? '';
     if (!q.trim()) return c.json({ error: 'Missing query parameter: q' }, 400);
     const sources = parseSources(c.req.query('sources'));
     try {
-      const results = await service.searchByName(q, sources);
+      const results = await service.searchByName(q, sources, parseLocale(c.req.query('locale')));
       return c.json(results);
     } catch (err) {
       console.error('search-ingredients failed:', err);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import { PhotoStaging, type StagedPhoto } from '../ai-recipe-import/photo-staging';
 import { ProductCaptureNotConfiguredError, type ProductDraft } from '../../api/extract-product-from-photos';
@@ -54,7 +54,7 @@ export function CaptureProductFlow({ barcode, onCancel, onCaptured, maxImages, m
 
   const extractError =
     extractMutation.error instanceof ProductCaptureNotConfiguredError
-      ? new Error(de.productCapture.notConfigured)
+      ? new Error(t.productCapture.notConfigured)
       : extractMutation.error;
 
   function handleExtract() {
@@ -69,15 +69,15 @@ export function CaptureProductFlow({ barcode, onCancel, onCaptured, maxImages, m
           type="button"
           onClick={onCancel}
           className="-ml-2 flex items-center gap-1 rounded-md py-2 pr-2 pl-1 text-sm text-muted-foreground hover:text-foreground"
-          aria-label={de.productCapture.back}
+          aria-label={t.productCapture.back}
         >
           <ChevronLeft aria-hidden="true" className="h-4 w-4" />
-          {de.productCapture.back}
+          {t.productCapture.back}
         </button>
         <span className="w-12" />
       </div>
 
-      <p className="text-sm text-muted-foreground">{de.productCapture.intro}</p>
+      <p className="text-sm text-muted-foreground">{t.productCapture.intro}</p>
 
       <PhotoStaging
         photos={photos}
@@ -90,7 +90,7 @@ export function CaptureProductFlow({ barcode, onCancel, onCaptured, maxImages, m
       {extractError && <ErrorBanner error={extractError} />}
 
       <Button onClick={handleExtract} disabled={photos.length === 0 || extractMutation.isPending} className="w-full">
-        {extractMutation.isPending ? de.productCapture.extracting : de.productCapture.extract}
+        {extractMutation.isPending ? t.productCapture.extracting : t.productCapture.extract}
       </Button>
     </div>
   );

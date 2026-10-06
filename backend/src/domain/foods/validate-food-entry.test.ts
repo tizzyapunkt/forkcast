@@ -16,6 +16,23 @@ describe('validateFoodEntry', () => {
     expect(result.ok).toBe(true);
   });
 
+  it('accepts an entry with an English name', () => {
+    expect(validateFoodEntry({ ...valid, nameEn: 'Carrot' }).ok).toBe(true);
+  });
+
+  it('accepts an entry without an English name', () => {
+    expect(validateFoodEntry({ ...valid, nameEn: undefined }).ok).toBe(true);
+  });
+
+  it('rejects an empty or whitespace-only English name', () => {
+    expect(validateFoodEntry({ ...valid, nameEn: '' }).ok).toBe(false);
+    expect(validateFoodEntry({ ...valid, nameEn: '   ' }).ok).toBe(false);
+  });
+
+  it('rejects a non-string English name', () => {
+    expect(validateFoodEntry({ ...valid, nameEn: 42 as unknown as string }).ok).toBe(false);
+  });
+
   it('accepts an entry without pieces', () => {
     const result = validateFoodEntry({ ...valid, pieces: undefined });
     expect(result.ok).toBe(true);

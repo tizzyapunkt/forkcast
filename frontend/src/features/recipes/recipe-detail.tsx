@@ -7,7 +7,7 @@ import { RecipeForm } from './recipe-form';
 import { RecipeTotalsStrip } from './recipe-totals-strip';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
 import { Button } from '../../components/ui/button';
@@ -21,7 +21,7 @@ function formatIngredientQuantity(ing: RecipeIngredient, untracked: boolean): st
     }
     // Untracked with no label: a stated weight if there is one, otherwise "nach Geschmack"
     // (never "0 g").
-    return ing.amount > 0 ? `${formatMassAmount(ing.amount)} ${ing.unit}` : de.recipeIngredientEditor.toTaste;
+    return ing.amount > 0 ? `${formatMassAmount(ing.amount)} ${ing.unit}` : t.recipeIngredientEditor.toTaste;
   }
   if (ing.pieceQuantity) {
     return `${formatPieceCount(ing.pieceQuantity.amount)} ${ing.pieceQuantity.unitLabel} (≈ ${formatMassAmount(ing.amount)} ${ing.unit})`;
@@ -51,15 +51,15 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
   if (isLoading) {
     return (
       <>
-        <AppHeader onBack={onBack} backAria={de.recipes.backAria} />
-        <p className="p-4 text-sm text-muted-foreground">{de.recipes.loading}</p>
+        <AppHeader onBack={onBack} backAria={t.recipes.backAria} />
+        <p className="p-4 text-sm text-muted-foreground">{t.recipes.loading}</p>
       </>
     );
   }
   if (error) {
     return (
       <>
-        <AppHeader onBack={onBack} backAria={de.recipes.backAria} />
+        <AppHeader onBack={onBack} backAria={t.recipes.backAria} />
         <ErrorBanner error={error} />
       </>
     );
@@ -70,8 +70,8 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
     return (
       <RecipeForm
         initial={recipe}
-        title={de.recipeForm.titleEdit}
-        submitLabel={de.recipes.save}
+        title={t.recipeForm.titleEdit}
+        submitLabel={t.recipes.save}
         isSubmitting={updateMutation.isPending}
         error={updateMutation.error}
         onCancel={() => setEditing(false)}
@@ -91,9 +91,9 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
     <>
       <AppHeader
         title={recipe.name}
-        subtitle={de.recipes.yields(recipe.yield)}
+        subtitle={t.recipes.yields(recipe.yield)}
         onBack={onBack}
-        backAria={de.recipes.backAria}
+        backAria={t.recipes.backAria}
       />
       <div className="space-y-4 p-4">
         <div className="flex items-center justify-end gap-2">
@@ -101,17 +101,17 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
             variant="outline"
             onClick={() => setEditing(true)}
             className="gap-1.5 py-1.5 px-3 text-primary"
-            aria-label={de.recipes.editAria}
+            aria-label={t.recipes.editAria}
           >
             <Pencil size={14} aria-hidden="true" />
-            {de.recipes.edit}
+            {t.recipes.edit}
           </Button>
           <Button
             variant="quietDestructive"
             size="iconSm"
             onClick={() => setConfirmDelete(true)}
             className="text-destructive"
-            aria-label={de.recipes.deleteAria}
+            aria-label={t.recipes.deleteAria}
           >
             <Trash2 size={17} aria-hidden="true" />
           </Button>
@@ -121,24 +121,24 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
 
         <section>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-medium">{de.recipes.ingredients}</h2>
+            <h2 className="text-sm font-medium">{t.recipes.ingredients}</h2>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{de.recipes.servingsLabel}</span>
+              <span className="text-xs text-muted-foreground">{t.recipes.servingsLabel}</span>
               {(servings ?? recipe.yield) !== recipe.yield && (
                 <button
                   type="button"
                   onClick={() => setServings(recipe.yield)}
-                  aria-label={de.recipes.servingsResetAria(recipe.yield)}
+                  aria-label={t.recipes.servingsResetAria(recipe.yield)}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  {de.recipes.servingsReset}
+                  {t.recipes.servingsReset}
                 </button>
               )}
               <div className="flex items-center gap-1 rounded-md border px-1 py-0.5">
                 <button
                   type="button"
                   onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) - 1))}
-                  aria-label={de.recipes.servingsDecrement}
+                  aria-label={t.recipes.servingsDecrement}
                   className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
                   disabled={(servings ?? recipe.yield) <= 1}
                 >
@@ -148,13 +148,13 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                   type="number"
                   readOnly
                   value={servings ?? recipe.yield}
-                  aria-label={de.recipes.servingsLabel}
+                  aria-label={t.recipes.servingsLabel}
                   className="w-8 bg-transparent text-center text-sm focus:outline-hidden [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 <button
                   type="button"
                   onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) + 1))}
-                  aria-label={de.recipes.servingsIncrement}
+                  aria-label={t.recipes.servingsIncrement}
                   className="px-2 py-0.5 text-sm leading-none"
                 >
                   +
@@ -182,7 +182,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                           className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium"
                         >
                           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-foreground/60" />
-                          {de.recipeIngredientEditor.untrackedBadge}
+                          {t.recipeIngredientEditor.untrackedBadge}
                         </span>
                       )}
                     </span>
@@ -200,9 +200,9 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
         </section>
 
         <section>
-          <h2 className="mb-2 text-sm font-medium">{de.recipes.steps}</h2>
+          <h2 className="mb-2 text-sm font-medium">{t.recipes.steps}</h2>
           {recipe.steps.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{de.recipes.noSteps}</p>
+            <p className="text-sm text-muted-foreground">{t.recipes.noSteps}</p>
           ) : (
             <ol className="list-decimal space-y-2 pl-5 text-sm">
               {recipe.steps.map((s, idx) => (
@@ -214,11 +214,11 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
 
         {confirmDelete && (
           <div className="rounded-md border border-destructive bg-destructive/5 p-3">
-            <p className="mb-2 text-sm">{de.recipes.deleteConfirm(recipe.name)}</p>
+            <p className="mb-2 text-sm">{t.recipes.deleteConfirm(recipe.name)}</p>
             {deleteMutation.error && <ErrorBanner error={deleteMutation.error} />}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setConfirmDelete(false)} className="flex-1 px-3">
-                {de.recipeForm.cancel}
+                {t.recipeForm.cancel}
               </Button>
               <Button
                 variant="destructive"
@@ -230,7 +230,7 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                 disabled={deleteMutation.isPending}
                 className="flex-1 px-3"
               >
-                {deleteMutation.isPending ? de.recipes.deleting : de.recipes.deleteBtn}
+                {deleteMutation.isPending ? t.recipes.deleting : t.recipes.deleteBtn}
               </Button>
             </div>
           </div>

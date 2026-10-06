@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vite-plus/test';
-import { de, formatMacroTriplet } from './de';
+import { de } from './de';
 
-describe('formatMacroTriplet', () => {
+describe('de.formatMacroTriplet', () => {
   it('renders middot-separated values with P/KH/F labels and no g suffix', () => {
-    expect(formatMacroTriplet(52, 0, 30)).toBe('52 P · 0 KH · 30 F');
+    expect(de.formatMacroTriplet(52, 0, 30)).toBe('52 P · 0 KH · 30 F');
   });
 
   it('rounds each value to the nearest integer', () => {
-    expect(formatMacroTriplet(31.4, 59.6, 7.2)).toBe('31 P · 60 KH · 7 F');
+    expect(de.formatMacroTriplet(31.4, 59.6, 7.2)).toBe('31 P · 60 KH · 7 F');
   });
 
   it('renders zeros for an empty triplet', () => {
-    expect(formatMacroTriplet(0, 0, 0)).toBe('0 P · 0 KH · 0 F');
+    expect(de.formatMacroTriplet(0, 0, 0)).toBe('0 P · 0 KH · 0 F');
   });
 });
 

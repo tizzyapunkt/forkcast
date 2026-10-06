@@ -22,18 +22,29 @@ export function validateCatalogEntry(entry: FoodEntry): ValidationResult {
   return validateFoodEntry(entry);
 }
 
+/** The folded names an entry is known by: its canonical name and, when present, its English name. */
+function foldedNames(entry: FoodEntry): Set<string> {
+  const names = new Set([fold(entry.name)]);
+  if (entry.nameEn !== undefined) names.add(fold(entry.nameEn));
+  return names;
+}
+
 /**
- * Report why `entry` cannot join `catalog` — an id or folded canonical name already
- * taken — or `null` when it is free. `excludeId` skips the entry being updated so a
- * rename never collides with itself.
+ * Report why `entry` cannot join `catalog` — an id already taken, or a folded canonical or
+ * English name equal to another entry's canonical or English name — or `null` when it is
+ * free. `excludeId` skips the entry being updated so a rename never collides with itself.
  */
 export function findCatalogCollision(catalog: FoodEntry[], entry: FoodEntry, excludeId?: string): string | null {
-  const foldedName = fold(entry.name);
+  const names = foldedNames(entry);
   for (const existing of catalog) {
     if (excludeId !== undefined && existing.id === excludeId) continue;
     if (existing.id === entry.id) return `an entry with id "${entry.id}" already exists`;
-    if (fold(existing.name) === foldedName) {
-      return `an entry named "${existing.name}" already exists`;
+    for (const taken of foldedNames(existing)) {
+      if (names.has(taken)) {
+        const label =
+          existing.nameEn !== undefined && fold(existing.nameEn) === taken ? existing.nameEn : existing.name;
+        return `an entry named "${label}" already exists`;
+      }
     }
   }
   return null;

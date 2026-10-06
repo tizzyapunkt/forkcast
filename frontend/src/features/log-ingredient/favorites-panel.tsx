@@ -3,7 +3,7 @@ import Fuse from 'fuse.js';
 import { Star } from 'lucide-react';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { FavoriteIngredient } from '../../domain/favorite-ingredients';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Input } from '../../components/ui/input';
 import { Banner } from '../../components/ui/banner';
 import { FavoriteStar } from './favorite-star';
@@ -61,35 +61,35 @@ export function FavoritesPanel({ onSelect, showLastAmount = false }: FavoritesPa
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={de.favoritesPanel.placeholder}
+        placeholder={t.favoritesPanel.placeholder}
         className="w-full appearance-none"
       />
 
       {favoriteError && (
         <Banner tone="error" density="sm">
-          {de.favoriteStar.failed}
+          {t.favoriteStar.failed}
         </Banner>
       )}
 
-      {isLoading && <p className="text-sm text-muted-foreground">{de.favoritesPanel.loading}</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t.favoritesPanel.loading}</p>}
 
       {!isLoading && favorites.length === 0 && (
         <p className="flex gap-2 text-sm text-pretty text-muted-foreground">
           {/* The star as it appears on a row, so the instruction is recognisable —
               tapping it elsewhere is the only way into this list. */}
           <Star aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-primary" fill="currentColor" />
-          <span>{de.favoritesPanel.empty}</span>
+          <span>{t.favoritesPanel.empty}</span>
         </p>
       )}
 
       {!isLoading && favorites.length > 0 && filtered.length === 0 && (
-        <p className="text-sm text-muted-foreground">{de.favoritesPanel.noMatches(trimmed)}</p>
+        <p className="text-sm text-muted-foreground">{t.favoritesPanel.noMatches(trimmed)}</p>
       )}
 
       {filtered.length > 0 && (
         <ul className="w-full min-w-0 divide-y">
           {filtered.map((favorite) => {
-            const kcal = de.favoritesPanel.kcalPer(favorite.macrosPerUnit.calories, favorite.unit);
+            const kcal = t.favoritesPanel.kcalPer(favorite.macrosPerUnit.calories, favorite.unit);
             return (
               <li key={`${favorite.name.toLowerCase()}|${favorite.unit}`} className="flex min-w-0 items-center gap-1">
                 <button
@@ -116,12 +116,12 @@ export function FavoritesPanel({ onSelect, showLastAmount = false }: FavoritesPa
                           {' · '}
                           {/* One step quieter than muted: the absence of a last
                               amount is context, not the row's headline. */}
-                          <span className="text-muted-foreground/70">{de.favoritesPanel.neverLogged}</span>
+                          <span className="text-muted-foreground/70">{t.favoritesPanel.neverLogged}</span>
                         </>
                       ) : (
                         <>
                           <span className="font-medium text-foreground">
-                            {de.favoritesPanel.lastAmount(favorite.lastAmount, favorite.unit)}
+                            {t.favoritesPanel.lastAmount(favorite.lastAmount, favorite.unit)}
                           </span>
                           {' · '}
                           {kcal}

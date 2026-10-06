@@ -6,6 +6,9 @@ import type {
 } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import { makeSearchIngredientsByNameHandler } from './search-ingredients.handler.ts';
+import { FakeCatalogStore } from '../../domain/food-catalog/catalog-store.fake.ts';
+import { CatalogSearchService } from '../../infrastructure/food-catalog/catalog-search.service.ts';
+import type { FoodEntry } from '../../domain/foods/types.ts';
 
 function makeResult(id: string): IngredientSearchResult {
   return {
@@ -97,5 +100,42 @@ describe('makeSearchIngredientsByNameHandler — sources param', () => {
     expect(res.status).toBe(502);
     const body = (await res.json()) as { error: string };
     expect(body.error).toBeTruthy();
+  });
+});
+
+describe('makeSearchIngredientsByNameHandler — locale param', () => {
+  const food = (id: string, name: string, nameEn?: string): FoodEntry => ({
+    id,
+    name,
+    ...(nameEn !== undefined ? { nameEn } : {}),
+    synonyms: [],
+    unit: 'g',
+    macrosPer100: { calories: 52, protein: 0.3, carbs: 14, fat: 0.2 },
+  });
+  const app = () =>
+    makeApp(
+      new CatalogSearchService(new FakeCatalogStore([food('apfel', 'Apfel', 'Apple'), food('apfelmus', 'Apfelmus')])),
+    );
+  const names = async (path: string) =>
+    ((await (await app().request(path)).json()) as IngredientSearchResult[]).map((r) => r.name);
+
+  it('returns English names with locale=en, falling back to the canonical name', async () => {
+    expect(await names('/search-ingredients?q=apfel&locale=en')).toEqual(['Apple', 'Apfelmus']);
+  });
+
+  it('matches the English name in the English locale', async () => {
+    expect(await names('/search-ingredients?q=apple&locale=en')).toEqual(['Apple']);
+  });
+
+  it('returns canonical German names without a locale', async () => {
+    expect(await names('/search-ingredients?q=apfel')).toEqual(['Apfel', 'Apfelmus']);
+  });
+
+  it('treats an unknown locale as German', async () => {
+    expect(await names('/search-ingredients?q=apfel&locale=fr')).toEqual(['Apfel', 'Apfelmus']);
+  });
+
+  it('matches the English name in the German locale and returns the German name', async () => {
+    expect(await names('/search-ingredients?q=apple&locale=de')).toEqual(['Apfel']);
   });
 });

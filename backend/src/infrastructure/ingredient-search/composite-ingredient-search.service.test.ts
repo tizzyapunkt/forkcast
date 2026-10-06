@@ -3,6 +3,8 @@ import { CompositeIngredientSearchService } from './composite-ingredient-search.
 import type { IngredientSearchService } from '../../domain/ingredient-search/ingredient-search.service.ts';
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
+import { CatalogSearchService } from '../food-catalog/catalog-search.service.ts';
+import { FakeCatalogStore } from '../../domain/food-catalog/catalog-store.fake.ts';
 
 function makeResult(id: string, source: 'CATALOG' | 'OFF'): IngredientSearchResult {
   return {
@@ -43,6 +45,27 @@ describe('CompositeIngredientSearchService', () => {
     expect(results).toHaveLength(1);
     expect(results[0].source).toBe('CATALOG');
     expect(off.searchByName).not.toHaveBeenCalled();
+  });
+
+  it('names catalog results in the requested locale', async () => {
+    const svc = new CompositeIngredientSearchService(
+      makeMockService([offResult]),
+      new CatalogSearchService(
+        new FakeCatalogStore([
+          {
+            id: 'apfel',
+            name: 'Apfel',
+            nameEn: 'Apple',
+            synonyms: [],
+            unit: 'g',
+            macrosPer100: { calories: 52, protein: 0, carbs: 14, fat: 0 },
+          },
+        ]),
+      ),
+    );
+
+    expect((await svc.searchByName('apfel', new Set(['CATALOG']), 'en')).map((r) => r.name)).toEqual(['Apple']);
+    expect((await svc.searchByName('apfel')).map((r) => r.name)).toEqual(['Apfel']);
   });
 
   it('merges results: catalog hits come before OFF hits when both sources requested', async () => {

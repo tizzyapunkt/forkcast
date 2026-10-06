@@ -4,8 +4,9 @@ import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { Input } from '../../components/ui/input';
 import { SegmentedControl } from '../../components/ui/segmented-control';
-import { de } from '../../i18n/de';
+import { locale, t } from '../../i18n';
 import {
+  catalogDisplayName,
   toEditableEntry,
   type CatalogEntry,
   type CatalogEntryDraft,
@@ -13,8 +14,9 @@ import {
 } from '../../domain/food-catalog';
 import type { MacrosPerUnit } from '../../domain/meal-log';
 import { useDraftCatalogEntry } from '../../queries/use-catalog';
+import { fold } from '../../lib/fold';
 
-const t = de.catalog;
+const copy = t.catalog;
 
 const ZERO_MACROS: MacrosPerUnit = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -74,7 +76,7 @@ export function CatalogEntryEditor({
   function runFill() {
     const name = draft.name.trim();
     if (name.length === 0) {
-      setLocalError(t.aiFillNeedsName);
+      setLocalError(copy.aiFillNeedsName);
       return;
     }
     setLocalError(null);
@@ -83,9 +85,13 @@ export function CatalogEntryEditor({
         const filled = toEditableEntry(entry);
         // The user's typed name wins over the model's canonical form only when they
         // already committed to one; everything else is a suggestion they can edit.
+        // A name typed in English is the English name: the canonical one stays German.
+        const typedEnglish = (typed: string) =>
+          filled.nameEn !== undefined && fold(typed.trim()) === fold(filled.nameEn);
         setDraft((d) => ({
           ...d,
-          name: d.name.trim().length > 0 ? d.name : filled.name,
+          name: d.name.trim().length > 0 && !typedEnglish(d.name) ? d.name : filled.name,
+          nameEn: d.nameEn?.trim() ? d.nameEn : filled.nameEn,
           unit: filled.unit,
           synonyms: filled.synonyms,
           macrosPer100: filled.macrosPer100,
@@ -101,7 +107,14 @@ export function CatalogEntryEditor({
 
   function submit() {
     setLocalError(null);
-    onSave({ ...draft, name: draft.name.trim(), synonyms: parseSynonyms(synonymsText) });
+    const { nameEn, ...rest } = draft;
+    const english = nameEn?.trim() ?? '';
+    onSave({
+      ...rest,
+      name: draft.name.trim(),
+      ...(english.length > 0 ? { nameEn: english } : {}),
+      synonyms: parseSynonyms(synonymsText),
+    });
   }
 
   const setPiece = (index: number, patch: Partial<CatalogPieceWeight>) =>
@@ -110,17 +123,27 @@ export function CatalogEntryEditor({
       pieces: (d.pieces ?? []).map((p, i) => (i === index ? { ...p, ...patch } : p)),
     }));
 
-  const shownError = localError ?? (fill.isError ? t.aiFillError : null) ?? error;
+  const shownError = localError ?? (fill.isError ? copy.aiFillError : null) ?? error;
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <Field label={t.nameLabel}>
+      <Field label={copy.nameLabel}>
         <Input
           value={draft.name}
           onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-          aria-label={t.nameLabel}
-          placeholder={t.namePlaceholder}
+          aria-label={copy.nameLabel}
+          placeholder={copy.namePlaceholder}
           className="h-11 w-full py-0 font-medium"
+        />
+      </Field>
+
+      <Field label={copy.nameEnLabel} hint={copy.nameEnHint}>
+        <Input
+          value={draft.nameEn ?? ''}
+          onChange={(e) => setDraft((d) => ({ ...d, nameEn: e.target.value }))}
+          aria-label={copy.nameEnLabel}
+          placeholder={copy.nameEnPlaceholder}
+          className="h-11 w-full py-0"
         />
       </Field>
 
@@ -131,25 +154,25 @@ export function CatalogEntryEditor({
           disabled={fill.isPending}
           className="self-start border-dashed border-primary/60 py-1.5 px-3 text-primary"
         >
-          {fill.isPending ? t.aiFilling : t.aiFill}
+          {fill.isPending ? copy.aiFilling : copy.aiFill}
         </Button>
-        <span className="text-[11px] text-muted-foreground">{t.aiFillHint}</span>
+        <span className="text-[11px] text-muted-foreground">{copy.aiFillHint}</span>
       </div>
 
-      <Field label={t.synonymsLabel} hint={t.synonymsHint}>
+      <Field label={copy.synonymsLabel} hint={copy.synonymsHint}>
         <Input
           value={synonymsText}
           onChange={(e) => setSynonymsText(e.target.value)}
-          aria-label={t.synonymsLabel}
+          aria-label={copy.synonymsLabel}
           className="h-11 w-full py-0"
         />
       </Field>
 
       <div className="flex items-end justify-between gap-3">
         <div>
-          <span className="mb-1 block text-sm font-medium">{t.unitLabel}</span>
+          <span className="mb-1 block text-sm font-medium">{copy.unitLabel}</span>
           <SegmentedControl
-            label={t.unitLabel}
+            label={copy.unitLabel}
             value={draft.unit}
             onChange={(unit) => setDraft((d) => ({ ...d, unit }))}
             options={UNIT_OPTIONS}
@@ -160,64 +183,65 @@ export function CatalogEntryEditor({
             type="checkbox"
             checked={untracked}
             onChange={(e) => setDraft((d) => ({ ...d, untracked: e.target.checked || undefined }))}
-            aria-label={t.untrackedToggle}
+            aria-label={copy.untrackedToggle}
             className="h-4 w-4 rounded-sm"
           />
-          {t.untrackedToggle}
+          {copy.untrackedToggle}
         </label>
       </div>
 
       <div>
         <span className="mb-1.5 block text-sm font-medium">
-          {t.macrosLabel} <span className="text-xs font-normal text-muted-foreground">· {t.macrosPer(draft.unit)}</span>
+          {copy.macrosLabel}{' '}
+          <span className="text-xs font-normal text-muted-foreground">· {copy.macrosPer(draft.unit)}</span>
         </span>
         <div className="grid grid-cols-4 gap-2">
           <MacroField
-            label={t.kcalLabel}
+            label={copy.kcalLabel}
             value={draft.macrosPer100.calories}
             estimate={estimated}
             onChange={(v) => setMacro('calories', v)}
           />
           <MacroField
-            label={t.proteinLabel}
+            label={copy.proteinLabel}
             value={draft.macrosPer100.protein}
             estimate={estimated}
             onChange={(v) => setMacro('protein', v)}
           />
           <MacroField
-            label={t.carbsLabel}
+            label={copy.carbsLabel}
             value={draft.macrosPer100.carbs}
             estimate={estimated}
             onChange={(v) => setMacro('carbs', v)}
           />
           <MacroField
-            label={t.fatLabel}
+            label={copy.fatLabel}
             value={draft.macrosPer100.fat}
             estimate={estimated}
             onChange={(v) => setMacro('fat', v)}
           />
         </div>
-        {estimated && <p className="mt-2 text-[11px] text-muted-foreground">{t.aiEstimateHint}</p>}
-        {untracked && <p className="mt-2 text-[11px] text-muted-foreground">{t.untrackedHint}</p>}
+        {estimated && <p className="mt-2 text-[11px] text-muted-foreground">{copy.aiEstimateHint}</p>}
+        {untracked && <p className="mt-2 text-[11px] text-muted-foreground">{copy.untrackedHint}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">{t.piecesLabel}</span>
-        <span className="-mt-1 text-[11px] text-muted-foreground">{t.piecesHint}</span>
+        <span className="text-sm font-medium">{copy.piecesLabel}</span>
+        <span className="-mt-1 text-[11px] text-muted-foreground">{copy.piecesHint}</span>
         {(draft.pieces ?? []).map((piece, index) => (
           <div key={index} className="flex items-center gap-2">
             <Input
               value={piece.label}
               onChange={(e) => setPiece(index, { label: e.target.value })}
-              aria-label={t.pieceLabelAria(index + 1)}
-              placeholder={t.pieceLabelPlaceholder}
+              aria-label={copy.pieceLabelAria(index + 1)}
+              placeholder={copy.pieceLabelPlaceholder}
               size="sm"
               className="h-10 flex-1"
             />
             <DecimalInput
               value={piece.grams}
               onValueChange={(v: number | null) => setPiece(index, { grams: v ?? 0 })}
-              aria-label={t.pieceGramsAria(index + 1)}
+              aria-label={copy.pieceGramsAria(index + 1)}
               numeric
               size="sm"
               className="h-10 w-24"
@@ -230,7 +254,7 @@ export function CatalogEntryEditor({
                   return { ...d, pieces: next.length > 0 ? next : undefined };
                 })
               }
-              aria-label={t.removePiece(piece.label)}
+              aria-label={copy.removePiece(piece.label)}
               className="shrink-0 px-2 py-1.5 text-muted-foreground"
             >
               ×
@@ -242,7 +266,7 @@ export function CatalogEntryEditor({
           onClick={() => setDraft((d) => ({ ...d, pieces: [...(d.pieces ?? []), { label: '', grams: 0 }] }))}
           className="self-start p-0"
         >
-          {t.addPiece}
+          {copy.addPiece}
         </Button>
       </div>
 
@@ -251,10 +275,10 @@ export function CatalogEntryEditor({
 
       <div className="flex gap-2">
         <Button variant="outline" onClick={onCancel} className="h-12 flex-1 py-0">
-          {t.cancel}
+          {copy.cancel}
         </Button>
         <Button onClick={submit} disabled={pending} className="h-12 flex-[1.5] py-0 font-semibold">
-          {pending ? t.saving : t.save}
+          {pending ? copy.saving : copy.save}
         </Button>
       </div>
 
@@ -262,10 +286,10 @@ export function CatalogEntryEditor({
         <Button
           variant="ghost"
           onClick={onDelete}
-          aria-label={t.deleteAria(entry.name)}
+          aria-label={copy.deleteAria(catalogDisplayName(entry, locale))}
           className="self-start p-0 text-destructive hover:text-destructive/80"
         >
-          {t.delete}
+          {copy.delete}
         </Button>
       )}
     </div>

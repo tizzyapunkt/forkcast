@@ -7,7 +7,7 @@ import { EntryRow } from './entry-row';
 import { LogIngredientDrawer, type BatchTarget } from '../log-ingredient/log-ingredient-drawer';
 import { CookedPortionsSheet } from './cooked-portions-sheet';
 import { Button } from '../../components/ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface EntryListProps {
   entries: LogEntry[];
@@ -72,7 +72,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
 
   // Name resolves live via recipeId; a deleted recipe degrades to a generic label, the group stays.
   const recipeName = first.recipeId ? recipes?.find((r) => r.id === first.recipeId)?.name : undefined;
-  const label = recipeName ?? de.entryList.fallbackRecipeName;
+  const label = recipeName ?? t.entryList.fallbackRecipeName;
   // Cooked portions only matter for the grocery list; unset means "cooked what was logged".
   const cooked = first.cookedPortions ?? first.recipePortions ?? 1;
 
@@ -85,14 +85,14 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           <button
             type="button"
             onClick={() => setEditingCooked(true)}
-            aria-label={de.entryList.cookedPortionsAria(label)}
+            aria-label={t.entryList.cookedPortionsAria(label)}
             className="-my-1 flex shrink-0 items-center gap-1 rounded-sm px-1 py-1 text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
           >
-            <span>{de.entryList.portions(first.recipePortions)}</span>
+            <span>{t.entryList.portions(first.recipePortions)}</span>
             {cooked !== first.recipePortions && (
               <>
                 <span aria-hidden="true">·</span>
-                <span className="font-medium text-primary">{de.entryList.cookedFor(cooked)}</span>
+                <span className="font-medium text-primary">{t.entryList.cookedFor(cooked)}</span>
               </>
             )}
           </button>
@@ -101,7 +101,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           variant="ghost"
           size="iconSm"
           onClick={() => setTarget({ kind: 'add', recipeBatchId: batchId, recipeName: label })}
-          aria-label={de.entryList.addToGroupAria(label)}
+          aria-label={t.entryList.addToGroupAria(label)}
           className="-my-1 text-primary"
         >
           <Plus size={14} aria-hidden="true" />
@@ -111,7 +111,7 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           size="iconSm"
           onClick={() => removeMutation.mutate({ recipeBatchId: batchId, date: first.date })}
           disabled={removeMutation.isPending}
-          aria-label={de.entryList.removeGroupAria(label)}
+          aria-label={t.entryList.removeGroupAria(label)}
           className="-my-1"
         >
           <X size={14} aria-hidden="true" />

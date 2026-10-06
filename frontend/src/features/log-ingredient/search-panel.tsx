@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { ChevronRight, Plus } from 'lucide-react';
 import { useSearchIngredients, useSearchBarcode } from '../../queries/use-search-ingredients';
 import type { IngredientSearchResult, IngredientSearchSource } from '../../domain/ingredient-search';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 // Lazy: @zxing/browser + @zxing/library only download once the user actually taps
 // "scan", instead of shipping in every SearchPanel bundle (log drawer, recipe picker).
@@ -112,7 +112,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
 
   if (scanState.mode === 'scanning') {
     return (
-      <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">{de.searchPanel.scannerLoading}</p>}>
+      <Suspense fallback={<p className="p-4 text-sm text-muted-foreground">{t.searchPanel.scannerLoading}</p>}>
         <BarcodeScanner onDetect={handleBarcodeDetected} onCancel={() => setScanState({ mode: 'text' })} />
       </Suspense>
     );
@@ -121,7 +121,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
   if (scanState.mode === 'barcode-loading') {
     return (
       <div className="flex flex-col gap-3 p-4">
-        <p className="text-sm text-muted-foreground">{de.searchPanel.lookingUp}</p>
+        <p className="text-sm text-muted-foreground">{t.searchPanel.lookingUp}</p>
       </div>
     );
   }
@@ -140,20 +140,20 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
     const notFoundBarcode = scanState.barcode;
     return (
       <div className="flex flex-col gap-3 p-4">
-        <p className="text-sm text-destructive">{de.searchPanel.notFound}</p>
+        <p className="text-sm text-destructive">{t.searchPanel.notFound}</p>
         {captureConfigured !== false ? (
           <Button
             onClick={() => setScanState({ mode: 'capturing-product', barcode: notFoundBarcode })}
-            aria-label={de.productCapture.ctaAria}
+            aria-label={t.productCapture.ctaAria}
             className="w-full px-3"
           >
-            {de.productCapture.cta}
+            {t.productCapture.cta}
           </Button>
         ) : (
-          <p className="text-xs text-muted-foreground">{de.productCapture.notConfigured}</p>
+          <p className="text-xs text-muted-foreground">{t.productCapture.notConfigured}</p>
         )}
         <Button variant="outline" onClick={() => setScanState({ mode: 'scanning' })} className="w-full px-3">
-          {de.searchPanel.tryAgain}
+          {t.searchPanel.tryAgain}
         </Button>
       </div>
     );
@@ -168,12 +168,12 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={de.searchPanel.placeholder}
+          placeholder={t.searchPanel.placeholder}
           className="flex-1 appearance-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
         />
         <Button
           variant="outline"
-          aria-label={de.searchPanel.scanBarcode}
+          aria-label={t.searchPanel.scanBarcode}
           onClick={() => setScanState({ mode: 'scanning' })}
           className="shrink-0 px-3"
         >
@@ -186,31 +186,31 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           type="checkbox"
           checked={offEnabled}
           onChange={(e) => setOffEnabled(e.target.checked)}
-          aria-label={de.searchPanel.offToggle}
+          aria-label={t.searchPanel.offToggle}
           className="h-3.5 w-3.5 rounded-sm"
         />
-        {de.searchPanel.offToggle}
+        {t.searchPanel.offToggle}
       </label>
 
       {favoriteError && (
         <Banner tone="error" density="sm">
-          {de.favoriteStar.failed}
+          {t.favoriteStar.failed}
         </Banner>
       )}
 
-      {isLoading && <p className="text-sm text-muted-foreground">{de.searchPanel.searching}</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t.searchPanel.searching}</p>}
 
-      {hasQuery && !isLoading && isError && <p className="text-sm text-destructive">{de.searchPanel.searchFailed}</p>}
+      {hasQuery && !isLoading && isError && <p className="text-sm text-destructive">{t.searchPanel.searchFailed}</p>}
 
       {hasQuery && !isLoading && !isError && results?.length === 0 && (
-        <p className="text-sm text-muted-foreground">{de.searchPanel.noResults(debouncedQuery)}</p>
+        <p className="text-sm text-muted-foreground">{t.searchPanel.noResults(debouncedQuery)}</p>
       )}
 
       {onCreate && hasQuery && (
         <button
           type="button"
           onClick={() => onCreate(debouncedQuery.trim())}
-          aria-label={de.aiRecipeImport.resolve.createTriggerAria(debouncedQuery.trim())}
+          aria-label={t.aiRecipeImport.resolve.createTriggerAria(debouncedQuery.trim())}
           className="flex w-full items-center gap-3 rounded-md border border-dashed border-primary/60 bg-accent/40 px-3 py-3 text-left"
         >
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background text-primary">
@@ -218,9 +218,9 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-primary">
-              {de.aiRecipeImport.resolve.createTrigger(debouncedQuery.trim())}
+              {t.aiRecipeImport.resolve.createTrigger(debouncedQuery.trim())}
             </span>
-            <span className="block text-xs text-muted-foreground">{de.aiRecipeImport.resolve.createTriggerHint}</span>
+            <span className="block text-xs text-muted-foreground">{t.aiRecipeImport.resolve.createTriggerHint}</span>
           </span>
           <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
         </button>
@@ -254,7 +254,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
                       <span className="rounded-sm px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
                         {result.source}
                       </span>
-                      {de.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
+                      {t.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
                     </span>
                   </button>
                   {favoritable && (
@@ -265,7 +265,7 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
                     />
                   )}
                 </div>
-                {gated && <p className="px-0 pb-2 text-[11px] text-muted-foreground">{de.searchPanel.untrackedHint}</p>}
+                {gated && <p className="px-0 pb-2 text-[11px] text-muted-foreground">{t.searchPanel.untrackedHint}</p>}
               </li>
             );
           })}

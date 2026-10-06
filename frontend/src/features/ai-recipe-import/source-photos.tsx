@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { StagedPhoto } from './photo-staging';
 
 interface Props {
   photos: StagedPhoto[];
 }
 
-const c = de.aiRecipeImport.sourcePhotos;
+const c = t.aiRecipeImport.sourcePhotos;
 
 /**
  * Surfaces the imported recipe's source photos on the review screen so the user

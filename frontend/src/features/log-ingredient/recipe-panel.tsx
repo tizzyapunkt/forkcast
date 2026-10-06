@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { useRecipes } from '../../queries/use-recipes';
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import type { Recipe } from '../../domain/recipes';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Input } from '../../components/ui/input';
 
 interface Props {
@@ -35,18 +35,18 @@ export function RecipePanel({ onSelect }: Props) {
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={de.recipePanel.placeholder}
+        placeholder={t.recipePanel.placeholder}
         className="w-full appearance-none"
       />
 
-      {isLoading && <p className="text-sm text-muted-foreground">{de.recipePanel.loading}</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t.recipePanel.loading}</p>}
 
       {!isLoading && (recipes?.length ?? 0) === 0 && (
-        <p className="text-sm text-muted-foreground">{de.recipePanel.empty}</p>
+        <p className="text-sm text-muted-foreground">{t.recipePanel.empty}</p>
       )}
 
       {!isLoading && (recipes?.length ?? 0) > 0 && filtered.length === 0 && (
-        <p className="text-sm text-muted-foreground">{de.recipePanel.noMatches(trimmed)}</p>
+        <p className="text-sm text-muted-foreground">{t.recipePanel.noMatches(trimmed)}</p>
       )}
 
       {filtered.length > 0 && (
@@ -60,11 +60,11 @@ export function RecipePanel({ onSelect }: Props) {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{recipe.name}</span>
                   <span className="block text-xs text-muted-foreground tabular-nums">
-                    {de.recipePanel.meta(recipe.ingredients.length, recipe.yield)}
+                    {t.recipePanel.meta(recipe.ingredients.length, recipe.yield)}
                   </span>
                 </span>
                 <span className="shrink-0 text-xs font-semibold text-muted-foreground tabular-nums">
-                  {de.recipePanel.kcalPerPortion(
+                  {t.recipePanel.kcalPerPortion(
                     Math.round(computeRecipeTotals(recipe.ingredients, recipe.yield).perServing.calories),
                   )}
                 </span>

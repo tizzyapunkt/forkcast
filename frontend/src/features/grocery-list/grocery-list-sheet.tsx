@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { useGroceryList } from '../../queries/use-grocery-list';
 import { mintBringImportToken } from '../../api/bring-import-token';
 import { groceryItemKey, type GroceryItem } from '../../domain/grocery-list';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface GroceryListSheetProps {
   startDate: string;
@@ -45,22 +45,22 @@ function bringDeeplink(token: string): string {
 
 function quantity(item: GroceryItem): string | null {
   if (item.amount <= 0) return null;
-  const amount = `${item.amount} ${de.groceryList.units[item.unit]}`;
-  return item.pieceHint ? `${amount} · ${de.groceryList.pieceHint(item.pieceHint.count)}` : amount;
+  const amount = `${item.amount} ${t.groceryList.units[item.unit]}`;
+  return item.pieceHint ? `${amount} · ${t.groceryList.pieceHint(item.pieceHint.count)}` : amount;
 }
 
 /** One clipboard line: "Zwiebel — 380 g (≈ 3 Stück)", or just the name when there is no amount. */
 function clipboardLine(item: GroceryItem): string {
   if (item.amount <= 0) return item.name;
-  const line = `${item.name} — ${item.amount} ${de.groceryList.units[item.unit]}`;
-  return item.pieceHint ? `${line} (${de.groceryList.pieceHint(item.pieceHint.count)})` : line;
+  const line = `${item.name} — ${item.amount} ${t.groceryList.units[item.unit]}`;
+  return item.pieceHint ? `${line} (${t.groceryList.pieceHint(item.pieceHint.count)})` : line;
 }
 
 function weekdays(dates: string[]): string {
   return dates
     .map((iso) => {
       const jsDay = new Date(iso + 'T00:00:00').getDay(); // 0 = Sunday
-      return de.planner.weekdays[jsDay === 0 ? 6 : jsDay - 1];
+      return t.planner.weekdays[jsDay === 0 ? 6 : jsDay - 1];
     })
     .join(', ');
 }
@@ -127,7 +127,7 @@ export function GroceryListSheet({
             type="checkbox"
             checked={!unticked.has(key)}
             onChange={() => toggle(item)}
-            aria-label={de.groceryList.itemAria(item.name)}
+            aria-label={t.groceryList.itemAria(item.name)}
             className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
           />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -144,10 +144,10 @@ export function GroceryListSheet({
     );
   }
 
-  const title = de.groceryList.title(rangeLabel);
+  const title = t.groceryList.title(rangeLabel);
 
   return (
-    <BottomSheet open onClose={onClose} ariaLabel={de.groceryList.dialogAria}>
+    <BottomSheet open onClose={onClose} ariaLabel={t.groceryList.dialogAria}>
       <div className="flex shrink-0 items-center justify-between gap-2 px-4 pt-3 pb-2">
         <h2 className="min-w-0 truncate text-sm font-semibold">{title}</h2>
         <button
@@ -155,7 +155,7 @@ export function GroceryListSheet({
           onClick={onClose}
           className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
         >
-          {de.groceryList.close}
+          {t.groceryList.close}
         </button>
       </div>
 
@@ -163,19 +163,19 @@ export function GroceryListSheet({
         {error && <ErrorBanner error={error} />}
         {isLoading && <ListSkeleton />}
         {list && items.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted-foreground">{de.groceryList.empty}</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t.groceryList.empty}</p>
         )}
         {tracked.length > 0 && <ul className="divide-y">{tracked.map(renderItem)}</ul>}
         {untracked.length > 0 && (
           <section className="pt-4">
             <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-              {de.groceryList.untrackedHeading}
+              {t.groceryList.untrackedHeading}
             </h3>
             <ul className="divide-y">{untracked.map(renderItem)}</ul>
           </section>
         )}
         {list && list.skippedQuickEntries > 0 && (
-          <p className="py-3 text-xs text-muted-foreground">{de.groceryList.skippedQuick(list.skippedQuickEntries)}</p>
+          <p className="py-3 text-xs text-muted-foreground">{t.groceryList.skippedQuick(list.skippedQuickEntries)}</p>
         )}
       </div>
 
@@ -183,23 +183,23 @@ export function GroceryListSheet({
         {copyState === 'copied' && (
           <p role="status" className="flex items-center gap-1.5 text-xs text-success-ink">
             <Check size={14} aria-hidden="true" />
-            {de.groceryList.copied}
+            {t.groceryList.copied}
           </p>
         )}
         {copyState === 'failed' && (
           <p role="alert" className="text-xs text-destructive">
-            {de.groceryList.copyFailed}
+            {t.groceryList.copyFailed}
           </p>
         )}
         {bringState === 'failed' && (
           <p role="alert" className="text-xs text-destructive">
-            {de.groceryList.bringFailed}
+            {t.groceryList.bringFailed}
           </p>
         )}
         <div className="flex gap-2">
           <Button variant="outline" onClick={copy} disabled={checked.length === 0} className="shrink-0">
             <Copy size={16} aria-hidden="true" />
-            {de.groceryList.copy}
+            {t.groceryList.copy}
           </Button>
           <Button
             onClick={sendToBring}
@@ -207,7 +207,7 @@ export function GroceryListSheet({
             className="min-w-0 flex-1"
           >
             <ShoppingBasket size={16} aria-hidden="true" />
-            {bringState === 'pending' ? de.groceryList.sendingToBring : de.groceryList.sendToBring}
+            {bringState === 'pending' ? t.groceryList.sendingToBring : t.groceryList.sendToBring}
           </Button>
         </div>
       </div>

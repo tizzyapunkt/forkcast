@@ -3,7 +3,7 @@ import type { CatalogStore, CatalogWriteResult } from '../../domain/food-catalog
 import { CatalogDraftError, type CatalogEntryDrafter } from '../../domain/food-catalog/catalog-entry-drafter.ts';
 import { slugifyName } from '../../domain/food-catalog/slugify-name.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
-import { fold } from '../../domain/ingredient-search/fold.ts';
+import { findCatalogCollision } from '../../domain/food-catalog/validate-catalog-entry.ts';
 
 /** Stable error code the manager keys on to offer "open the existing entry instead". */
 const ENTRY_EXISTS = 'catalog-entry-exists';
@@ -20,8 +20,7 @@ function parseEntry(raw: unknown): FoodEntry | null {
 
 /** The entry a rejected write collided with, so the client can offer to open it. */
 function findColliding(store: CatalogStore, entry: FoodEntry): FoodEntry | null {
-  const folded = fold(entry.name);
-  return store.list().find((e) => e.id === entry.id || fold(e.name) === folded) ?? null;
+  return store.list().find((e) => findCatalogCollision([e], entry) !== null) ?? null;
 }
 
 function respondToWrite(c: Context, store: CatalogStore, entry: FoodEntry, result: CatalogWriteResult) {
