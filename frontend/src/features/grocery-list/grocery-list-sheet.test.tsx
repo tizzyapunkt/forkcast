@@ -95,19 +95,19 @@ describe('GroceryListSheet', () => {
     expect(await screen.findByText('2 Schnelleinträge nicht enthalten')).toBeInTheDocument();
   });
 
-  it('starts with every item checked', async () => {
+  it('starts with nothing ticked off, so everything is on the list', async () => {
     serve(week);
     renderSheet();
 
     await screen.findByText('Salz');
-    expect(screen.getAllByRole('checkbox').every((c) => (c as HTMLInputElement).checked)).toBe(true);
+    expect(screen.getAllByRole('checkbox').every((c) => !(c as HTMLInputElement).checked)).toBe(true);
   });
 
-  it('copies only the checked items, one per line, and confirms', async () => {
+  it('copies only the items not ticked off as already at home, one per line, and confirms', async () => {
     serve(week);
     const { writeClipboard } = renderSheet();
 
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl einkaufen' }));
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl schon da' }));
     await userEvent.click(screen.getByRole('button', { name: 'Kopieren' }));
 
     await waitFor(() =>
@@ -127,11 +127,11 @@ describe('GroceryListSheet', () => {
     expect(screen.queryByText('In die Zwischenablage kopiert')).not.toBeInTheDocument();
   });
 
-  it('disables Kopieren when nothing is checked', async () => {
+  it('disables Kopieren when everything is ticked off', async () => {
     serve({ ...week, items: [week.items[0]!] });
     renderSheet();
 
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust einkaufen' }));
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust schon da' }));
 
     expect(screen.getByRole('button', { name: 'Kopieren' })).toBeDisabled();
   });
@@ -155,7 +155,7 @@ describe('GroceryListSheet', () => {
   });
 
   describe('An Bring! senden', () => {
-    it('mints a token for the week without the unticked items and opens the Bring! import deeplink', async () => {
+    it('mints a token for the week without the ticked-off items and opens the Bring! import deeplink', async () => {
       serve(week);
       let minted: unknown;
       server.use(
@@ -166,7 +166,7 @@ describe('GroceryListSheet', () => {
       );
       const { openUrl } = renderSheet();
 
-      await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl einkaufen' }));
+      await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl schon da' }));
       await userEvent.click(screen.getByRole('button', { name: 'An Bring! senden' }));
 
       await waitFor(() => expect(openUrl).toHaveBeenCalledTimes(1));
@@ -210,11 +210,11 @@ describe('GroceryListSheet', () => {
       expect(openUrl).not.toHaveBeenCalled();
     });
 
-    it('is disabled when nothing is checked', async () => {
+    it('is disabled when everything is ticked off', async () => {
       serve({ ...week, items: [week.items[0]!] });
       renderSheet();
 
-      await userEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust einkaufen' }));
+      await userEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust schon da' }));
 
       expect(screen.getByRole('button', { name: 'An Bring! senden' })).toBeDisabled();
     });

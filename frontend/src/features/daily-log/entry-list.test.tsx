@@ -35,6 +35,47 @@ function fullEntry(id: string, name: string, overrides: Partial<LogEntry> = {}):
 
 const batchOverrides = { recipeId: 'rec-1', recipeBatchId: 'batch-1', recipePortions: 1 };
 
+/** Recipe groups start collapsed; tests about member rows open the group first. */
+async function expandGroup(name = 'Bolognese') {
+  await userEvent.click(await screen.findByRole('button', { name: `Zutaten von „${name}“` }));
+}
+
+describe('EntryList — collapsing a recipe batch', () => {
+  beforeEach(() => {
+    server.use(http.get('/api/recipes', () => HttpResponse.json([bolognese])));
+  });
+
+  it('starts collapsed with the ingredient count and the batch totals', async () => {
+    renderWithProviders(
+      <EntryList
+        entries={[fullEntry('a', 'Rindertatar', batchOverrides), fullEntry('b', 'Sojasauce', batchOverrides)]}
+      />,
+    );
+
+    const group = await screen.findByTestId('recipe-batch-batch-1');
+    expect(await within(group).findByRole('button', { name: 'Zutaten von „Bolognese“' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(within(group).getByText('2 Zutaten')).toBeInTheDocument();
+    expect(within(group).getByText('400 kcal')).toBeInTheDocument();
+    expect(within(group).queryByText('Rindertatar')).not.toBeInTheDocument();
+  });
+
+  it('expands to the member rows and collapses again', async () => {
+    renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
+
+    await expandGroup();
+    const group = screen.getByTestId('recipe-batch-batch-1');
+    expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
+    expect(within(group).queryByText('1 Zutat')).not.toBeInTheDocument();
+
+    await expandGroup();
+    expect(within(group).queryByText('Rindertatar')).not.toBeInTheDocument();
+    expect(within(group).getByText('1 Zutat')).toBeInTheDocument();
+  });
+});
+
 describe('EntryList — recipe batch grouping', () => {
   it('groups batch entries into one card with banner (recipe name + portions) and keeps ad-hoc entries outside', async () => {
     server.use(http.get('/api/recipes', () => HttpResponse.json([bolognese])));
@@ -49,6 +90,7 @@ describe('EntryList — recipe batch grouping', () => {
     const group = await screen.findByTestId('recipe-batch-batch-1');
     expect(await within(group).findByText('Bolognese')).toBeInTheDocument();
     expect(within(group).getByText('1 Port.')).toBeInTheDocument();
+    await expandGroup();
     expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
     expect(within(group).getByText('Sojasauce')).toBeInTheDocument();
     // The ad-hoc entry renders outside the group card.
@@ -61,6 +103,7 @@ describe('EntryList — recipe batch grouping', () => {
     renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
 
     await screen.findByText('Bolognese'); // banner is there…
+    await expandGroup();
     expect(screen.queryByTestId('recipe-hint')).not.toBeInTheDocument(); // …the per-row hint is not
   });
 
@@ -69,6 +112,7 @@ describe('EntryList — recipe batch grouping', () => {
     renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
+    await expandGroup();
     // Inline amount input (editable) and the per-entry remove affordance are present.
     expect(within(group).getByRole('textbox')).toHaveValue('100');
     expect(within(group).getByRole('button', { name: /eintrag entfernen/i })).toBeInTheDocument();
@@ -114,6 +158,7 @@ describe('EntryList — recipe batch grouping', () => {
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
     await waitFor(() => expect(within(group).getByText('Rezept')).toBeInTheDocument());
+    await expandGroup('Rezept');
     // The rows survive and stay editable.
     expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
     expect(within(group).getByRole('textbox')).toBeInTheDocument();
@@ -165,6 +210,7 @@ describe('EntryList — replace and add inside a recipe batch', () => {
     );
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
+    await expandGroup();
     expect(within(group).getByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' })).toBeInTheDocument();
     expect(await within(group).findByRole('button', { name: 'Zutat zu „Bolognese“ hinzufügen' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Zutat „Apfel“ ersetzen' })).not.toBeInTheDocument();
@@ -181,6 +227,7 @@ describe('EntryList — replace and add inside a recipe batch', () => {
     );
     renderWithProviders(<EntryList entries={[fullEntry('a', 'Rindertatar', batchOverrides)]} />);
 
+    await expandGroup();
     await userEvent.click(await screen.findByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' }));
     expect(await screen.findByRole('heading', { name: 'Zutat ersetzen — Bolognese' })).toBeInTheDocument();
     await userEvent.type(screen.getByPlaceholderText(/zutaten suchen/i), 'tofu');

@@ -10,8 +10,10 @@
     />
     <meta name="theme-color" content="#4d4899" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" hreflang="en" href="/" vite-ignore />
-    <link rel="alternate" hreflang="de" href="/de/" vite-ignore />
+    <link rel="canonical" href="https://check-forkcast.tizzy.dev/de/" vite-ignore />
+    <link rel="alternate" hreflang="en" href="https://check-forkcast.tizzy.dev/" vite-ignore />
+    <link rel="alternate" hreflang="de" href="https://check-forkcast.tizzy.dev/de/" vite-ignore />
+    <link rel="alternate" hreflang="x-default" href="https://check-forkcast.tizzy.dev/" vite-ignore />
     <link rel="stylesheet" href="/src/styles.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -74,21 +76,13 @@
                   </label>
                 </div>
               </fieldset>
-              <div class="email-row">
-                <label for="email">E-Mail (optional)</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  inputmode="email"
-                  placeholder="E-Mail (optional)"
-                />
+              <div class="submit-row">
                 <button class="button" type="submit">Ich bin dabei</button>
               </div>
               <p class="form-note">
-                Die E-Mail ist freiwillig. Wenn du sie dalässt, sage ich Bescheid, sobald es etwas zum Ausprobieren
-                gibt. Eine gehostete Version gibt es noch nicht.
+                Deine Wahl zählt auch ohne E-Mail. Zum Bestätigen öffnet sich Tally; nur wenn du willst, hinterlässt du
+                dort eine E-Mail für eine einzige Nachricht, sobald es etwas zum Ausprobieren gibt. Sie wird danach
+                gelöscht. Eine gehostete Version gibt es noch nicht.
               </p>
               <p class="form-status" role="status" aria-live="polite"></p>
             </form>
@@ -420,11 +414,11 @@
                 </li>
                 <li>
                   <b>Interessen-Check</b>
-                  <span>Deine Auswahl und die freiwillige E-Mail gehen an ein Tally-Formular.</span>
+                  <span>Deine Auswahl geht an ein Tally-Formular, wo du sie bestätigst. Ohne E-Mail.</span>
                 </li>
                 <li>
                   <b>Deine E-Mail</b>
-                  <span>Nur dafür, dir Bescheid zu geben, wenn es etwas zum Ausprobieren gibt.</span>
+                  <span>Nur, wenn du sie selbst im Tally-Formular angibst. Einmal genutzt, um dir Bescheid zu geben, wenn es etwas zum Ausprobieren gibt, danach gelöscht.</span>
                 </li>
               </ul>
             </div>
@@ -481,7 +475,7 @@
               </summary>
               <p>
                 Noch nicht. Ob es eine geben wird, hängt von den Antworten auf die Frage oben auf dieser Seite ab. Wenn du
-                deine E-Mail dagelassen hast, erfährst du es zuerst.
+                deine E-Mail im Tally-Formular dagelassen hast, erfährst du es zuerst.
               </p>
             </details>
             <details>

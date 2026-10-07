@@ -1,4 +1,4 @@
-import { formatDecimal, parseDecimal } from './decimal';
+import { formatDecimal, formatFixed, formatSigned, parseDecimal } from './decimal';
 
 describe('parseDecimal', () => {
   it('parses a plain integer string', () => {
@@ -57,5 +57,23 @@ describe('formatDecimal', () => {
 
   it('drops trailing fraction zeros', () => {
     expect(formatDecimal(2, 'de-DE')).toBe('2');
+  });
+});
+
+describe('formatFixed', () => {
+  it('keeps the given fraction digits with the locale separator', () => {
+    expect(formatFixed(80.8, 1, 'de-DE')).toBe('80,8');
+    expect(formatFixed(80, 1, 'en-GB')).toBe('80.0');
+  });
+});
+
+describe('formatSigned', () => {
+  it('prefixes a sign on non-zero values', () => {
+    expect(formatSigned(-0.76, 2, 'de-DE')).toBe('-0,76');
+    expect(formatSigned(0.5, 2, 'en-GB')).toBe('+0.50');
+  });
+
+  it('leaves zero unsigned', () => {
+    expect(formatSigned(0, 2, 'de-DE')).toBe('0,00');
   });
 });

@@ -21,7 +21,9 @@ interface AppHeaderProps {
 
 export function AppHeader({ title, subtitle, onBack, backAria, children, bottom }: AppHeaderProps) {
   return (
-    <header className="bg-header sticky top-0 z-30 border-b border-black/10 px-4 py-3 text-white shadow-xs">
+    // The app is a centred column on wide screens (see App); the header breaks out of it to the
+    // viewport edges while its padding keeps the content lined up with the column.
+    <header className="bg-header sticky top-0 z-30 mx-[calc(50%-50vw)] border-b border-black/10 px-[calc(50vw-50%+1rem)] py-3 text-white shadow-xs">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-start gap-1">
           {onBack && (

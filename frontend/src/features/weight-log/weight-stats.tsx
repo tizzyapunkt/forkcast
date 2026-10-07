@@ -1,6 +1,7 @@
 import type { TrendSnapshot } from '../../domain/weight-log';
 import { t } from '../../i18n';
 import { Card } from '../../components/ui/card';
+import { formatFixed, formatSigned } from '../../lib/decimal';
 
 interface WeightStatsProps {
   trend: TrendSnapshot;
@@ -9,13 +10,12 @@ interface WeightStatsProps {
 const DASH = '—';
 
 function formatKg(value: number | null): string {
-  return value === null ? DASH : `${value.toFixed(1)} kg`;
+  return value === null ? DASH : `${formatFixed(value, 1)} kg`;
 }
 
 function formatPct(value: number | null): string {
   if (value === null) return DASH;
-  const sign = value > 0 ? '+' : '';
-  return `${sign}${value.toFixed(2)} %`;
+  return `${formatSigned(value, 2)} %`;
 }
 
 export function WeightStats({ trend }: WeightStatsProps) {

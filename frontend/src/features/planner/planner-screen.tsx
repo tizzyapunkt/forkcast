@@ -13,6 +13,7 @@ import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { addDays, mondayOf, today } from '../../domain/date';
 import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-rollup';
 import { t } from '../../i18n';
+import { formatShortDate, formatWeekRange } from '../../i18n/format';
 import type { DailyLog, MealSlot } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
 import { Button } from '../../components/ui/button';
@@ -27,20 +28,6 @@ function r(n: number): number {
 function weekdayIndexOf(iso: string): number {
   const jsDay = new Date(iso + 'T00:00:00').getDay(); // 0=Sun..6=Sat
   return jsDay === 0 ? 6 : jsDay - 1; // 0=Mo..6=So
-}
-
-function dateLabel(iso: string): string {
-  const d = new Date(iso + 'T00:00:00');
-  return `${d.getDate()}. ${t.planner.months[d.getMonth()]}`;
-}
-
-function weekRangeLabel(startIso: string, endIso: string): string {
-  const a = new Date(startIso + 'T00:00:00');
-  const b = new Date(endIso + 'T00:00:00');
-  const am = t.planner.months[a.getMonth()];
-  const bm = t.planner.months[b.getMonth()];
-  if (a.getMonth() === b.getMonth()) return `${a.getDate()}.–${b.getDate()}. ${bm}`;
-  return `${a.getDate()}. ${am} – ${b.getDate()}. ${bm}`;
 }
 
 function indexInWeek(iso: string, weekStart: string): number {
@@ -90,6 +77,18 @@ function toneClass(tone: DayTone): string {
   }
 }
 
+// The day's kcal bar follows the same tone as its kcal line, so an over-goal day stops looking on track.
+function barClass(tone: DayTone): string {
+  switch (tone) {
+    case 'onTarget':
+      return 'bg-success';
+    case 'over':
+      return 'bg-warning';
+    default:
+      return 'bg-primary';
+  }
+}
+
 export function PlannerScreen() {
   const todayStr = today();
   const [weekStart, setWeekStart] = useState<string>(() => mondayOf(todayStr));
@@ -132,7 +131,7 @@ export function PlannerScreen() {
                   variant="onDark"
                   size="sm"
                   onClick={() => setGroceryListOpen(true)}
-                  aria-label={t.planner.groceryListAria(weekRangeLabel(weekStart, weekEnd))}
+                  aria-label={t.planner.groceryListAria(formatWeekRange(weekStart, weekEnd))}
                   className="shrink-0"
                 >
                   <ShoppingCart size={14} aria-hidden="true" />
@@ -180,7 +179,7 @@ export function PlannerScreen() {
             <ChevronLeft size={20} aria-hidden="true" />
           </Button>
           <span className="min-w-[7rem] text-center text-sm font-medium tabular-nums">
-            {weekRangeLabel(weekStart, weekEnd)}
+            {formatWeekRange(weekStart, weekEnd)}
           </span>
           <Button variant="onDark" size="iconSm" onClick={goNextWeek} aria-label={t.planner.nextWeek}>
             <ChevronRight size={20} aria-hidden="true" />
@@ -206,7 +205,7 @@ export function PlannerScreen() {
                   setCopyConfirm({
                     fromDate: day.date,
                     toDate: addDays(day.date, 1),
-                    dayLabel: t.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? dateLabel(day.date),
+                    dayLabel: t.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? formatShortDate(day.date),
                   })
                 }
               />
@@ -218,7 +217,7 @@ export function PlannerScreen() {
         {groceryListOpen && (
           <GroceryListSheet
             startDate={weekStart}
-            rangeLabel={weekRangeLabel(weekStart, weekEnd)}
+            rangeLabel={formatWeekRange(weekStart, weekEnd)}
             onClose={() => setGroceryListOpen(false)}
           />
         )}
@@ -273,7 +272,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
   const goalKcal = goal?.calories ?? 0;
   const tone = dayTone(day.totals.calories, goalKcal);
   const hasEntries = dayHasEntries(day);
-  const label = dateLabel(day.date);
+  const label = formatShortDate(day.date);
   const pct = goalKcal > 0 ? Math.min(100, (day.totals.calories / goalKcal) * 100) : 0;
 
   return (
@@ -287,7 +286,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
       >
         <span className="w-12 shrink-0 text-center">
           <span className="block text-sm font-semibold">{t.planner.weekdays[weekdayIndexOf(day.date)]}</span>
-          <span className="block text-[11px] leading-tight text-muted-foreground">{label}</span>
+          <span className="block whitespace-nowrap text-[11px] leading-tight text-muted-foreground">{label}</span>
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-2">
@@ -303,7 +302,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
             </span>
           </span>
           <span className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
-            <span className="block h-1 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+            <span className={`block h-1 rounded-full ${barClass(tone)}`} style={{ width: `${pct}%` }} />
           </span>
         </span>
         {open ? (

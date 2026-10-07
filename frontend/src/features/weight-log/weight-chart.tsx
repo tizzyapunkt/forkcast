@@ -3,6 +3,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { computeMovingAverage } from '../../domain/weight-log-trend';
 import type { WeightEntry } from '../../domain/weight-log';
 import { t } from '../../i18n';
+import { formatFixed } from '../../lib/decimal';
 
 type Range = '30d' | '90d' | '180d' | '365d' | 'all';
 
@@ -94,7 +95,7 @@ export function WeightChart({ entries, asOf, defaultRange = '90d' }: WeightChart
                 strokeOpacity={0.2}
                 tickLine={false}
                 width={40}
-                tickFormatter={(v: number) => v.toFixed(1)}
+                tickFormatter={(v: number) => formatFixed(v, 1)}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'currentColor', strokeOpacity: 0.15 }} />
               {/* Raw entry dots: line invisible, dots only */}
@@ -136,8 +137,8 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
   return (
     <div className="rounded-md border border-input bg-popover px-2 py-1 text-xs shadow-xs">
       <p className="font-medium tabular-nums">{shortDate(row.date)}</p>
-      {row.weightKg !== null && <p className="tabular-nums">{row.weightKg.toFixed(1)} kg</p>}
-      {row.ma !== null && <p className="tabular-nums text-muted-foreground">⌀ {row.ma.toFixed(1)} kg</p>}
+      {row.weightKg !== null && <p className="tabular-nums">{formatFixed(row.weightKg, 1)} kg</p>}
+      {row.ma !== null && <p className="tabular-nums text-muted-foreground">⌀ {formatFixed(row.ma, 1)} kg</p>}
     </div>
   );
 }

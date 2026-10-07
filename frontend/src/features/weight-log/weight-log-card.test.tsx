@@ -48,9 +48,9 @@ describe('WeightLogCard', () => {
       lastEntryDate: dateStr,
     });
     renderWithProviders(<WeightLogCard onOpenTracker={() => {}} />);
-    expect(await screen.findByText(/78.4 kg/)).toBeInTheDocument();
-    expect(screen.getByText(/7-Tage-Trend: 78\.2 kg/)).toBeInTheDocument();
-    expect(screen.getByText(/-0\.50 %\/Wo\./)).toBeInTheDocument();
+    expect(await screen.findByText(/78,4 kg/)).toBeInTheDocument();
+    expect(screen.getByText(/7-Tage-Trend: 78,2 kg/)).toBeInTheDocument();
+    expect(screen.getByText(/-0,50 %\/Wo\./)).toBeInTheDocument();
   });
 
   it('submitting the form posts to the API', async () => {

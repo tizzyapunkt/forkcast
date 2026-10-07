@@ -5,7 +5,7 @@ import { useWeightTrend } from '../../queries/use-weight-trend';
 import { useLogWeight } from '../../queries/use-log-weight';
 import { t } from '../../i18n';
 import { today } from '../../domain/date';
-import { parseDecimal } from '../../lib/decimal';
+import { formatDecimal, formatFixed, formatSigned, parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -61,7 +61,7 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
             aria-label={t.weightLog.cardPromptEmpty}
             type="text"
             inputMode="decimal"
-            placeholder={todaysEntry ? todaysEntry.weightKg.toString() : t.weightLog.cardInputPlaceholder}
+            placeholder={todaysEntry ? formatDecimal(todaysEntry.weightKg) : t.weightLog.cardInputPlaceholder}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             className="flex-1"
@@ -88,18 +88,16 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
         <div className="mt-2 flex items-center justify-between gap-2">
           <div>
             <p className="text-lg font-semibold tabular-nums">
-              {todaysEntry!.weightKg.toFixed(1)} {t.weightLog.cardKgSuffix}
+              {formatFixed(todaysEntry!.weightKg, 1)} {t.weightLog.cardKgSuffix}
             </p>
             <p className="text-xs text-muted-foreground">
               {trend?.movingAverage7d !== null && trend?.movingAverage7d !== undefined
-                ? t.weightLog.averageHint(trend.movingAverage7d.toFixed(1))
+                ? t.weightLog.averageHint(formatFixed(trend.movingAverage7d, 1))
                 : t.weightLog.statsHintInsufficient}
               {trend?.weeklyRatePercent !== null && trend?.weeklyRatePercent !== undefined && (
                 <>
                   {' · '}
-                  {t.weightLog.deltaPerWeekShort(
-                    `${trend.weeklyRatePercent > 0 ? '+' : ''}${trend.weeklyRatePercent.toFixed(2)}`,
-                  )}
+                  {t.weightLog.deltaPerWeekShort(formatSigned(trend.weeklyRatePercent, 2))}
                 </>
               )}
             </p>
@@ -108,7 +106,7 @@ export function WeightLogCard({ onOpenTracker }: WeightLogCardProps) {
             type="button"
             aria-label={t.weightLog.cardEditAria}
             onClick={() => {
-              setDraft(todaysEntry!.weightKg.toString());
+              setDraft(formatDecimal(todaysEntry!.weightKg));
               setEditing(true);
             }}
             className="rounded-md border px-3 py-2 text-xs"

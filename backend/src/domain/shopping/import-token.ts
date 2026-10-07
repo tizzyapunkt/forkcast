@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { SignJWT, jwtVerify } from 'jose';
 
-/** What a Bring! import link may read: one week's grocery list, minus the items unticked in forkcast. */
+/** What a Bring! import link may read: one week's grocery list, minus the items ticked off as already at home. */
 export interface ImportGrant {
   startDate: string;
   excluded: string[]; // grocery item identities (case-insensitive name + unit)

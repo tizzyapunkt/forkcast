@@ -92,12 +92,25 @@ async function untrackedTail(recipes: RecipeRepository, member: LogEntry, date: 
     }));
 }
 
-/** Catalog piece size by folded name or synonym: the `mittel` piece, else the first one. Grams only. */
+/** A medium size: `mittel`, a qualified `Filet mittel`, or the egg size `M`. */
+function isMedium(piece: PieceWeight): boolean {
+  return piece.label === 'M' || piece.label.split(' ').at(-1) === 'mittel';
+}
+
+/**
+ * The piece a shopper counts in: the medium one, else the largest — a whole head of broccoli,
+ * not its florets.
+ */
+function shoppingPiece(pieces: PieceWeight[]): PieceWeight {
+  return pieces.find(isMedium) ?? pieces.reduce((a, b) => (b.grams > a.grams ? b : a));
+}
+
+/** Catalog piece size by folded name or synonym (see `shoppingPiece`). Grams only. */
 function pieceSizeLookup(catalog: CatalogStore): PieceSizeLookup {
   const byName = new Map<string, PieceWeight>();
   for (const food of catalog.indexed()) {
     if (food.unit !== 'g' || !food.pieces || food.pieces.length === 0) continue;
-    const piece = food.pieces.find((p) => p.label === 'mittel') ?? food.pieces[0]!;
+    const piece = shoppingPiece(food.pieces);
     const names = food.nameEnFolded !== undefined ? [food.nameFolded, food.nameEnFolded] : [food.nameFolded];
     for (const key of [...names, ...food.synonymsFolded]) {
       if (!byName.has(key)) byName.set(key, piece);

@@ -119,4 +119,19 @@ describe('mapOffProduct', () => {
 
     expect(result!.servingSize).toBeUndefined();
   });
+
+  it('tidies all-caps and all-lowercase names, leaving mixed case alone', () => {
+    expect(mapOffProduct({ ...baseProduct, product_name: 'SKYR NATUR' })!.name).toBe('Skyr natur');
+    expect(mapOffProduct({ ...baseProduct, product_name: 'skyr' })!.name).toBe('Skyr');
+    expect(mapOffProduct({ ...baseProduct, product_name: 'Skyr mit Heidelbeere' })!.name).toBe('Skyr mit Heidelbeere');
+  });
+
+  it('keeps the first brand to tell same-named products apart', () => {
+    // search-a-licious returns a list; the product API a comma-separated string.
+    expect(mapOffProduct({ ...baseProduct, brands: ['Arla', 'Arla Foods'] })!.brand).toBe('Arla');
+    expect(mapOffProduct({ ...baseProduct, brands: 'Arla, Arla Foods' })!.brand).toBe('Arla');
+    expect(mapOffProduct({ ...baseProduct, brands: [] })!.brand).toBeUndefined();
+    expect(mapOffProduct({ ...baseProduct, brands: '  ' })!.brand).toBeUndefined();
+    expect(mapOffProduct(baseProduct)!.brand).toBeUndefined();
+  });
 });

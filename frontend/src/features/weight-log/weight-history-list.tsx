@@ -3,7 +3,7 @@ import type { WeightEntry } from '../../domain/weight-log';
 import { useLogWeight } from '../../queries/use-log-weight';
 import { useRemoveWeight } from '../../queries/use-remove-weight';
 import { t } from '../../i18n';
-import { parseDecimal } from '../../lib/decimal';
+import { formatDecimal, formatFixed, parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 
@@ -34,7 +34,7 @@ export function WeightHistoryList({ entries }: WeightHistoryListProps) {
 
 function HistoryRow({ entry }: { entry: WeightEntry }) {
   const [mode, setMode] = useState<'view' | 'edit' | 'confirm-delete'>('view');
-  const [draft, setDraft] = useState(entry.weightKg.toString());
+  const [draft, setDraft] = useState(formatDecimal(entry.weightKg));
   const logMutation = useLogWeight();
   const removeMutation = useRemoveWeight();
 
@@ -99,13 +99,13 @@ function HistoryRow({ entry }: { entry: WeightEntry }) {
   return (
     <li className="flex items-center gap-2 p-2">
       <span className="w-28 text-sm tabular-nums text-muted-foreground">{entry.date}</span>
-      <span className="flex-1 text-sm font-medium tabular-nums">{entry.weightKg.toFixed(1)} kg</span>
+      <span className="flex-1 text-sm font-medium tabular-nums">{formatFixed(entry.weightKg, 1)} kg</span>
       <Button
         variant="outline"
         size="sm"
         aria-label={t.weightLog.historyEditAria(entry.date)}
         onClick={() => {
-          setDraft(entry.weightKg.toString());
+          setDraft(formatDecimal(entry.weightKg));
           setMode('edit');
         }}
         className="px-2"
