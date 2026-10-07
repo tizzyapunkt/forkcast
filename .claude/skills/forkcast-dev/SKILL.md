@@ -13,7 +13,7 @@ Architecture/domain rules live in `AGENTS.md` (read it). This skill is the **ope
 ## The verify gate
 
 ```bash
-make check        # lint + typecheck + fmt-check + tests (both workspaces). MUST be green before committing.
+make check        # lint + typecheck + fmt-check + tests (backend, frontend) + website build. MUST be green before committing.
 ```
 
 Individual pieces (all wrap pnpm workspace scripts):
@@ -24,8 +24,16 @@ make test-backend         # pnpm --filter @forkcast/backend test
 make test-frontend
 make typecheck            # pnpm -r typecheck
 make lint                 # vp lint (config in root vite.config.ts)
-make fmt                  # vp fmt write, scoped to backend/src frontend/src
+make fmt                  # vp fmt write, scoped to backend/src frontend/src website/src website/vite.config.ts
 make fmt-check            # vp fmt --check, same scope
+```
+
+Landing page (`website/`):
+
+```bash
+make website-dev          # dev server on :5174 (no tracking, form not live)
+make website-build        # production build into website/dist (settings from website/.env.production)
+make website-preview      # build + serve on :4173; Umami ignores it (UMAMI_DOMAINS)
 ```
 
 Run a single test file during TDD (from the workspace dir, e.g. `backend/`):

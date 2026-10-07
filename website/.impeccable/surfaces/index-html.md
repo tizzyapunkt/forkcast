@@ -9,9 +9,7 @@ related_targets: ["de/index.html"]
 
 Visitor mode: Persuade. Audience, job and constraints: see `website/PRODUCT.md` (two equal audiences, possible Hacker News submission, honest pre-launch state).
 
-Action: the interest check (hosted / self-host, both selectable, optional e-mail), working in the first viewport, submitted to Tally. Umami counts visits only.
-
-Unresolved: see `website/OPEN-ITEMS.md`.
+Action: the interest check (hosted / self-host, both selectable), working in the first viewport, confirmed on a Tally form (one per language) where an e-mail is an optional extra. The page itself never asks for an e-mail. Umami counts visits only.
 
 ## Direction contract
 
@@ -21,7 +19,7 @@ OWN-WORLD: White and near-white lilac-tinted grounds, forkcast lilac (`244 36% 4
 
 STORY: The visitor understands "planning-first meal planning" in one line, sees the real week view, learns it was built for one person and why a spreadsheet failed, checks what it does (including packaged foods via Open Food Facts), how it is built and where data goes, then tells us hosted or self-host.
 
-FIRST VIEWPORT: Left (desktop) / top (mobile): wordmark nav, a two-line headline, one sentence of subcopy, then the interest-check form: two toggle options, Hosted and Self-host, an optional e-mail field and a primary lilac button, with a one-line note that e-mail is optional. Right / below: a large phone frame showing the week plan, slightly overlapping a second frame with the grocery list.
+FIRST VIEWPORT: Left (desktop) / top (mobile): wordmark nav, a two-line headline, one sentence of subcopy, then the interest-check form: two toggle options, Hosted and Self-host, and a primary lilac button, with a short note that the choice counts without an e-mail. Right / below: a large phone frame showing the week plan, slightly overlapping a second frame with the grocery list.
 
 FORM: Category standard (canon), played straight; the bar is Cultured Code's Things site. Seed key 38951d6d.
 
