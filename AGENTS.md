@@ -12,11 +12,12 @@ forkcast is a mobile-first, planning-first meal planning and nutrition tracking 
 
 ## Monorepo
 
-pnpm workspaces: `backend/` (`@forkcast/backend`, Hono API, port 3000) and `frontend/` (`@forkcast/frontend`, Vite React PWA, port 5173).
+pnpm workspaces: `backend/` (`@forkcast/backend`, Hono API, port 3000), `frontend/` (`@forkcast/frontend`, Vite React PWA, port 5173) and `website/` (`@forkcast/website`, public landing page, port 5174).
 
 ```bash
 pnpm install
-pnpm dev                                  # both workspaces in parallel
+pnpm dev                                  # backend + frontend in parallel
+pnpm dev:website                          # landing page
 pnpm --filter @forkcast/<backend|frontend> <command|add pkg>
 pnpm add -Dw <pkg>                        # root dev dependency
 ```
@@ -40,6 +41,10 @@ Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css
 - `components/app/` holds app-aware composites (header, bottom nav, sheets, error banner).
 - `<select>`/`<textarea>` get a primitive once a second call site needs one.
 - `pnpm --filter @forkcast/frontend build:ui` bundles `components/ui/` into `dist-ui/` for `/design-sync` (needs `/design-login`, local terminal only). New primitives just need exporting from `components/ui/index.ts`.
+
+## Website
+
+Public landing page (EN at `/`, DE at `/de/`) with an interest check for hosted vs. self-hosted use. Plain HTML + a little vanilla JS, built by Vite+ as a multi-page app — no framework, no React, independent of the app's design system. Umami is injected at build time only when `UMAMI_SCRIPT_URL` and `UMAMI_WEBSITE_ID` are set (`website/.env.example`).
 
 ## Environment & caveats
 

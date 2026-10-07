@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>forkcast — plan your meals a week ahead</title>
+    <meta
+      name="description"
+      content="forkcast is a meal planner that starts with the week, not the day: plan meals against your own calorie and macro goals and get the grocery list from the plan."
+    />
+    <meta name="theme-color" content="#4d4899" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" hreflang="en" href="/" vite-ignore />
+    <link rel="alternate" hreflang="de" href="/de/" vite-ignore />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap">
+        <a class="wordmark" href="/" aria-label="forkcast home">
+          <img src="/favicon.svg" alt="" width="28" height="28" />forkcast
+        </a>
+        <nav class="nav" aria-label="Main">
+          <a class="nav-section" href="#how">How it works</a>
+          <a class="nav-section" href="#built">How it's built</a>
+          <a class="nav-section" href="#faq">FAQ</a>
+          <a class="nav-github" href="https://github.com/tizzyapunkt/forkcast">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"
+              />
+            </svg>
+            GitHub
+          </a>
+          <a class="lang" href="/de/" hreflang="de" lang="de" aria-label="Deutsche Version">DE</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="wrap">
+          <div>
+            <h1>Meal planning that starts with the <span>week</span>, not the day.</h1>
+            <p class="lede">
+              forkcast plans your meals a week ahead against your own calorie and macro goals, and turns the plan into
+              a grocery list. Built for one person. Maybe useful for you.
+            </p>
+
+            <form
+              class="interest"
+              id="interest"
+              action="%TALLY_ACTION%"
+              method="get"
+              target="_blank"
+              data-live="%TALLY_LIVE%"
+              data-msg-pick="Pick at least one option."
+              data-msg-offline="The waitlist isn't open yet. Thanks for trying!"
+              data-msg-sent="Thanks! Tally opened in a new tab to confirm."
+            >
+              <fieldset>
+                <legend>Would you use it?</legend>
+                <div class="choices">
+                  <label class="choice">
+                    <input type="checkbox" name="hosted" value="yes" />
+                    <span><strong>Hosted</strong><small>I'd like an account</small></span>
+                  </label>
+                  <label class="choice">
+                    <input type="checkbox" name="selfhost" value="yes" />
+                    <span><strong>Self-hosted</strong><small>I'd run it myself</small></span>
+                  </label>
+                </div>
+              </fieldset>
+              <div class="email-row">
+                <label for="email">E-mail (optional)</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  inputmode="email"
+                  placeholder="E-mail (optional)"
+                />
+                <button class="button" type="submit">Count me in</button>
+              </div>
+              <p class="form-note">
+                The e-mail is optional. Leave it and I'll tell you when there's something to try. Hosted doesn't
+                exist yet.
+              </p>
+              <p class="form-status" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="hero-shots">
+            <div class="device device--back">
+              <img
+                src="/screenshots/en/grocery-list.webp"
+                alt="The grocery list for the week, grouped and summed from the meal plan."
+                data-missing="Grocery list screenshot"
+                width="1170"
+                height="2532"
+              />
+            </div>
+            <div class="device device--front">
+              <img
+                src="/screenshots/en/week-plan.webp"
+                alt="The week plan: seven days of meals with average calories and macro bars against the goal."
+                data-missing="Week plan screenshot"
+                width="1170"
+                height="2532"
+                fetchpriority="high"
+              />
+            </div>
+            <p class="shot-caption">Real app, demo data.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section origin" aria-labelledby="origin-title">
+        <div class="wrap">
+          <div class="prose">
+            <h2 id="origin-title">Built for one person. Maybe not only for me.</h2>
+            <p>
+              I have a full-time job, a young family and fitness goals I take seriously. Every tracker I tried, fddb,
+              yazio, MyFitnessPal, is built around logging what you already ate. I wanted to decide on Sunday what I
+              eat all week, and know it adds up.
+            </p>
+            <p>
+              A spreadsheet got me halfway. It did the maths, but it was never ergonomic enough to keep up every week.
+              So I built forkcast, for myself, with no plan to turn it into a product.
+            </p>
+            <p>
+              It has grown to the point where other people might want it too. This page is how I find out whether
+              that's true, and whether you'd want it hosted or on your own server.
+            </p>
+          </div>
+
+          <figure class="sheet" aria-label="Illustration of the old spreadsheet">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Mon</th>
+                  <th>Tue</th>
+                  <th>Wed</th>
+                  <th>kcal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Breakfast</th>
+                  <td>Oats</td>
+                  <td>Oats</td>
+                  <td>Skyr</td>
+                  <td class="num">1,420</td>
+                </tr>
+                <tr>
+                  <th>Lunch</th>
+                  <td>Bowl</td>
+                  <td>Dal</td>
+                  <td>Bowl</td>
+                  <td class="num">2,310</td>
+                </tr>
+                <tr>
+                  <th>Dinner</th>
+                  <td>Salmon</td>
+                  <td>?</td>
+                  <td>Leftovers</td>
+                  <td class="num err">#REF!</td>
+                </tr>
+                <tr>
+                  <th>Protein</th>
+                  <td class="num">171</td>
+                  <td class="num">—</td>
+                  <td class="num">158</td>
+                  <td class="num"></td>
+                </tr>
+              </tbody>
+            </table>
+            <figcaption>Illustration: roughly where the spreadsheet stopped being fun.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section--tint" id="how" aria-labelledby="how-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="how-title">How it works</h2>
+            <p>The week is the unit. Daily logging is still there, as the flexible part, not the main job.</p>
+          </div>
+
+          <div class="steps">
+            <div class="step step--wide">
+              <div class="step-text">
+                <h3>Plan the week</h3>
+                <p>
+                  Put meals on each day of the coming week and see the daily and weekly averages against your goals
+                  before you've eaten anything. Copy a day to the next when you meal-prep.
+                </p>
+                <ul class="macro-legend" aria-label="Macro colours">
+                  <li><i style="background: var(--macro-p)"></i>Protein</li>
+                  <li><i style="background: var(--macro-c)"></i>Carbs</li>
+                  <li><i style="background: var(--macro-f)"></i>Fat</li>
+                </ul>
+              </div>
+              <div class="duo">
+                <div class="browser">
+                  <img
+                    src="/screenshots/en/week-plan-desktop.webp"
+                    alt="The week planner on a desktop browser."
+                    data-missing="Desktop week plan screenshot"
+                    width="2880"
+                    height="1800"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="device device--small">
+                  <img
+                    src="/screenshots/en/week-plan.webp"
+                    alt="Week plan with planned meals and macro progress."
+                    data-missing="Week plan screenshot"
+                    width="1170"
+                    height="2532"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-text">
+                <h3>Adjust the day</h3>
+                <p>
+                  Plans change. Swap a meal or log something unplanned on your phone, and the macros update while you
+                  type the amount.
+                </p>
+              </div>
+              <div>
+                <div class="device">
+                  <img
+                    src="/screenshots/en/daily-log.webp"
+                    alt="Daily log with breakfast, lunch, dinner and snacks and their macros."
+                    data-missing="Daily log screenshot"
+                    width="1170"
+                    height="2532"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-text">
+                <h3>Shop from the plan</h3>
+                <p>
+                  The grocery list adds up everything the week needs, with piece hints like "≈ 3" for onions. Tick off
+                  what's already at home, or send the list to Bring!.
+                </p>
+              </div>
+              <div>
+                <div class="device">
+                  <img
+                    src="/screenshots/en/grocery-list.webp"
+                    alt="Grocery list generated from the week plan."
+                    data-missing="Grocery list screenshot"
+                    width="1170"
+                    height="2532"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="capture-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="capture-title">Two things that save the most typing</h2>
+            <p>Most of the time in a food tracker goes into entering food. These two cut it down.</p>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-text">
+                <h3>Packaged foods via Open Food Facts</h3>
+                <p>Search branded products or scan a barcode, and the nutrition values come from Open Food Facts. If a product isn't there, photograph the packaging and it's read into your own catalog.</p>
+              </div>
+              <div>
+                <div class="device">
+                  <img
+                    src="/screenshots/en/food-search.webp"
+                    alt="Adding a snack: searching “skyr” with Open Food Facts results switched on."
+                    data-missing="Food search screenshot"
+                    width="1170"
+                    height="2532"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-text">
+                <h3>Recipes from photos</h3>
+                <p>Photograph a cookbook page, take a screenshot or shoot both sides of a recipe card, and you get a draft recipe. You check every ingredient before anything is saved, and the recipe then carries its macros per portion.</p>
+              </div>
+              <div>
+                <div class="device">
+                  <img
+                    src="/screenshots/en/recipe.webp"
+                    alt="A saved recipe with ingredients and macros per portion."
+                    data-missing="Recipe screenshot"
+                    width="1170"
+                    height="2532"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tint" aria-labelledby="features-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="features-title">And the rest of the basics</h2>
+          </div>
+          <dl class="features">
+            <div class="feature">
+              <dt>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z" />
+                  <path d="M5 17a3 3 0 0 1 3-3h11M9 8h6" />
+                </svg>
+                Your own food catalog
+              </dt>
+              <dd>A curated base of everyday foods you can correct and extend, with piece weights like "1 egg".</dd>
+            </div>
+            <div class="feature">
+              <dt>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="12" cy="12" r="0.5" fill="currentColor" />
+                </svg>
+                Your goals, no diet template
+              </dt>
+              <dd>Set calories and macros yourself, or work them out with the built-in calculator.</dd>
+            </div>
+            <div class="feature">
+              <dt>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
+                  <path d="M11 18.5h2" />
+                </svg>
+                Phone first, desktop too
+              </dt>
+              <dd>An installable web app that works offline in the supermarket and is just as usable at a desk.</dd>
+            </div>
+            <div class="feature">
+              <dt>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" />
+                </svg>
+                Weight alongside the plan
+              </dt>
+              <dd>Log your weight and see the trend next to what you actually planned and ate.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="section" id="built" aria-labelledby="built-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="built-title">How it's built, and where data goes</h2>
+            <p>Two separate things: the app you'd run or use, and this website asking whether you would.</p>
+          </div>
+
+          <div class="built">
+            <div class="built-col">
+              <h3>The app</h3>
+              <p>Your data lives in plain JSON files on the server that runs it. No database, no account system.</p>
+              <ul class="flows">
+                <li>
+                  <b>Meals, recipes, goals</b>
+                  <span>Stored on your instance only.</span>
+                </li>
+                <li>
+                  <b>Product search</b>
+                  <span>Queries Open Food Facts when you switch it on or scan a barcode.</span>
+                </li>
+                <li>
+                  <b>Photo import</b>
+                  <span
+                    >Recipe and packaging photos go to the Anthropic API, only if you configure your own API key.
+                    Without one, the feature hides itself.</span
+                  >
+                </li>
+              </ul>
+              <p class="stack">
+                TypeScript throughout: a <code>Hono</code> API with a hexagonal, domain-driven core, and a
+                <code>React</code> PWA. Source code on
+                <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>.
+              </p>
+            </div>
+
+            <div class="built-col">
+              <h3>This website</h3>
+              <p>Static HTML, no cookies. One script loads with the page: Umami's, to count the visit. Tally is only contacted when you submit the form.</p>
+              <ul class="flows">
+                <li>
+                  <b>Visits</b>
+                  <span>Counted with Umami, cookieless and without personal data.</span>
+                </li>
+                <li>
+                  <b>Interest check</b>
+                  <span>Your choice and optional e-mail are submitted to a Tally form.</span>
+                </li>
+                <li>
+                  <b>Your e-mail</b>
+                  <span>Only used to tell you when there's something to try.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tint" id="selfhost" aria-labelledby="selfhost-title">
+        <div class="wrap selfhost">
+          <div class="prose">
+            <h2 id="selfhost-title">Run it yourself today</h2>
+            <p>
+              forkcast is what I use every day, so self-hosting works now. Be aware it's built for a single person:
+            </p>
+            <ul>
+              <li>One password-protected user, no sign-up, no sharing.</li>
+              <li>Container images and a <code>docker-compose.yml</code> exist. Proper deployment docs are next.</li>
+              <li>Photo import needs your own Anthropic API key. Everything else works without one.</li>
+            </ul>
+          </div>
+          <pre
+            class="terminal"
+            aria-label="Run forkcast locally"
+          ><span class="c"># Node 24, pnpm via corepack</span>
+<span class="p">$ </span>git clone https://github.com/tizzyapunkt/forkcast
+<span class="p">$ </span>cd forkcast &amp;&amp; corepack enable &amp;&amp; pnpm install
+<span class="p">$ </span>cp backend/.env.example backend/.env
+<span class="c"># set AUTH_PASSWORD and AUTH_JWT_SECRET</span>
+<span class="p">$ </span>pnpm dev</pre>
+        </div>
+      </section>
+
+      <section class="section" id="faq" aria-labelledby="faq-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="faq-title">Questions</h2>
+          </div>
+          <div class="faq">
+            <details>
+              <summary>
+                Why not just use a spreadsheet?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                I tried, in Excel. It handled the maths, but entering a week of meals, looking up macros and rebuilding
+                the grocery list was never ergonomic enough to do every single week. forkcast exists because the
+                spreadsheet kept getting skipped.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Is there a hosted version?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                Not yet. Whether there will be one depends on the answers to the question at the top of this page. If
+                you left your e-mail, you'll hear about it first.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Will it cost money?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                The code is public and you can run it yourself. Whether a hosted version would cost something isn't
+                decided. There's nothing to sell yet.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Where is my data?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                When you self-host: in JSON files on your server. Product lookups go to Open Food Facts, and photos go
+                to the Anthropic API only if you add a key. See "How it's built" above for the full list.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Is the app available in English?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                Yes. The app speaks English and German: it follows your browser's language, and you can switch it in
+                the settings. The food catalog has English names too.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Who's behind this?
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              </summary>
+              <p>
+                One developer, building it in spare time for their own kitchen. No company, no investors, no growth
+                team.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tint closing" aria-labelledby="closing-title">
+        <div class="wrap">
+          <h2 id="closing-title">Would you plan your week with it?</h2>
+          <p>Hosted or on your own server: one click tells me which one is worth building next.</p>
+          <a class="button" href="#interest">Answer the question</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Food data from <a href="https://world.openfoodfacts.org">Open Food Facts</a>, available under the
+          <a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License</a>.
+        </p>
+        <nav aria-label="Footer">
+          <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>
+          <a href="/de/" hreflang="de" lang="de">Deutsch</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>
