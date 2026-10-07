@@ -29,3 +29,22 @@ export function formatDecimal(value: number, locale: string = intlLocale): strin
     maximumFractionDigits: 3,
   }).format(value);
 }
+
+/** Format a read-only number with exactly `fractionDigits` decimals in the given locale (`80,8`). */
+export function formatFixed(value: number, fractionDigits: number, locale: string = intlLocale): string {
+  return new Intl.NumberFormat(locale, {
+    useGrouping: false,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(value);
+}
+
+/** Like `formatFixed`, with an explicit `+`/`-` on non-zero values (`-0,76`, `+0.50`). */
+export function formatSigned(value: number, fractionDigits: number, locale: string = intlLocale): string {
+  return new Intl.NumberFormat(locale, {
+    useGrouping: false,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+    signDisplay: 'exceptZero',
+  }).format(value);
+}

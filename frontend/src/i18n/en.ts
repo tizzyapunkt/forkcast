@@ -51,20 +51,6 @@ export const en: Messages = {
     copyDayBody: 'Copy every planned meal to the next day.',
     copyDayConfirm: (day: string) => `Copy to ${day}`,
     expandDayAria: (day: string) => `Expand or collapse ${day}`,
-    months: [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ],
     weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     weekdaysLong: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     groceryList: 'Grocery list',
@@ -85,7 +71,7 @@ export const en: Messages = {
     sendingToBring: 'Opening Bring!…',
     bringFailed: 'Could not create the Bring! link',
     loadFailed: 'Could not load the grocery list',
-    itemAria: (name: string) => `Buy ${name}`,
+    itemAria: (name: string) => `Already have ${name}`,
     pieceHint: (count: number) => `≈ ${count} pcs`,
     units: { g: 'g', ml: 'ml', oz: 'oz', cup: 'cup', tbsp: 'tbsp', tsp: 'tsp', piece: 'pcs' },
   },
@@ -136,6 +122,8 @@ export const en: Messages = {
     cookedSave: 'Apply',
     cookedCancel: 'Cancel',
     fallbackRecipeName: 'Recipe',
+    toggleIngredientsAria: (name: string) => `Ingredients of “${name}”`,
+    ingredientCount: (n: number) => `${n} ${plural(n, 'ingredient', 'ingredients')}`,
   },
 
   errors: {
@@ -435,6 +423,7 @@ export const en: Messages = {
       return `${Math.round(kcal * mul)} kcal / ${label}`;
     },
     untrackedHint: 'Seasoning — not tracked. Usable in recipes.',
+    sourceLabel: { OFF: 'Open Food Facts', SCAN: 'Scanned' },
   },
 
   productCapture: {

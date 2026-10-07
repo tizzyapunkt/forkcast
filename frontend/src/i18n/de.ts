@@ -49,20 +49,6 @@ export const de = {
     copyDayBody: 'Alle geplanten Mahlzeiten auf den Folgetag übertragen.',
     copyDayConfirm: (day: string) => `Auf ${day} übertragen`,
     expandDayAria: (day: string) => `${day} ein-/ausklappen`,
-    months: [
-      'Januar',
-      'Februar',
-      'März',
-      'April',
-      'Mai',
-      'Juni',
-      'Juli',
-      'August',
-      'September',
-      'Oktober',
-      'November',
-      'Dezember',
-    ],
     weekdays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
     weekdaysLong: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
     groceryList: 'Einkaufsliste',
@@ -84,7 +70,7 @@ export const de = {
     sendingToBring: 'Öffne Bring!…',
     bringFailed: 'Bring!-Link konnte nicht erstellt werden',
     loadFailed: 'Einkaufsliste konnte nicht geladen werden',
-    itemAria: (name: string) => `${name} einkaufen`,
+    itemAria: (name: string) => `${name} schon da`,
     pieceHint: (count: number) => `≈ ${count} Stück`,
     units: { g: 'g', ml: 'ml', oz: 'oz', cup: 'Tasse', tbsp: 'EL', tsp: 'TL', piece: 'Stück' } as const,
   },
@@ -135,6 +121,8 @@ export const de = {
     cookedSave: 'Übernehmen',
     cookedCancel: 'Abbrechen',
     fallbackRecipeName: 'Rezept',
+    toggleIngredientsAria: (name: string) => `Zutaten von „${name}“`,
+    ingredientCount: (n: number) => `${n} ${n === 1 ? 'Zutat' : 'Zutaten'}`,
   },
 
   errors: {
@@ -435,6 +423,8 @@ export const de = {
       return `${Math.round(kcal * mul)} kcal / ${label}`;
     },
     untrackedHint: 'Würzmittel — nicht getrackt. In Rezepten verwendbar.',
+    /** Where a non-catalog result came from; catalog results need no label. */
+    sourceLabel: { OFF: 'Open Food Facts', SCAN: 'Gescannt' },
   },
 
   productCapture: {

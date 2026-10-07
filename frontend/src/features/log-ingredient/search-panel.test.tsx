@@ -80,12 +80,13 @@ describe('SearchPanel', () => {
     expect(await screen.findByText('389 kcal / 100g')).toBeInTheDocument();
   });
 
-  it('renders a source badge for each result', async () => {
+  it('names the source and brand of Open Food Facts results, and no source for catalog results', async () => {
     const catalogResult: IngredientSearchResult = { ...oats, source: 'CATALOG' };
     const offResult: IngredientSearchResult = {
       id: 'off-1',
       source: 'OFF',
       name: 'Packaged Oats',
+      brand: 'Kölln',
       unit: 'g',
       macrosPerUnit: { calories: 3.6, protein: 0.13, carbs: 0.6, fat: 0.06 },
     };
@@ -93,8 +94,18 @@ describe('SearchPanel', () => {
     renderWithProviders(<SearchPanel onSelect={() => {}} />);
     await userEvent.type(screen.getByRole('searchbox'), 'oa');
     await screen.findByText('Oats');
-    expect(screen.getByText('CATALOG')).toBeInTheDocument();
-    expect(screen.getByText('OFF')).toBeInTheDocument();
+    expect(screen.getByText('Kölln · Open Food Facts')).toBeInTheDocument();
+    expect(screen.queryByText('CATALOG')).not.toBeInTheDocument();
+    expect(screen.queryByText('OFF')).not.toBeInTheDocument();
+  });
+
+  it('offers creating a new food after the results, not before them', async () => {
+    server.use(http.get('/api/search-ingredients', () => HttpResponse.json([oats])));
+    renderWithProviders(<SearchPanel onSelect={() => {}} onCreate={() => {}} />);
+    await userEvent.type(screen.getByRole('searchbox'), 'oa');
+    const result = await screen.findByRole('button', { name: /^oats/i });
+    const createTrigger = screen.getByText('„oa“ neu anlegen');
+    expect(result.compareDocumentPosition(createTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('renders two rows without key collision when OFF and FOODS share the same id', async () => {

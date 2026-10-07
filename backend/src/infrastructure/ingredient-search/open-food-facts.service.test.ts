@@ -51,7 +51,7 @@ describe('OpenFoodFactsService.searchByName', () => {
     expect(url.searchParams.get('langs')).toBe('de');
     expect(url.searchParams.get('page_size')).toBe('20');
     expect(url.searchParams.get('fields')).toBe(
-      'code,product_name,product_name_de,serving_size,serving_quantity,nutriments',
+      'code,product_name,product_name_de,brands,serving_size,serving_quantity,nutriments',
     );
   });
 

@@ -4,7 +4,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search/type
 import type { DiagnosticsRecorder } from '../../domain/diagnostics/diagnostics-log.ts';
 import { mapOffProduct } from '../../domain/ingredient-search/map-off-product.ts';
 
-const FIELDS = 'code,product_name,product_name_de,serving_size,serving_quantity,nutriments';
+const FIELDS = 'code,product_name,product_name_de,brands,serving_size,serving_quantity,nutriments';
 const REQUEST_TIMEOUT_MS = 8_000;
 const BODY_SNIPPET_MAX = 300;
 

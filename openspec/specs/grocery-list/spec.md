@@ -34,8 +34,9 @@ Contributions MUST be combined into one **item** per food identity: case-insensi
   untracked recipe ingredient.
 - the dates in the week that contribute to it, in ascending order
 - a **piece hint** when the unit is `g` and a catalog food with the same name or synonym
-  (case-insensitive) has piece sizes. The hint uses the piece labelled `mittel`, or the first piece when
-  there is no `mittel`, and gives `count = ⌈total / piece grams⌉` with that piece's label.
+  (case-insensitive) has piece sizes. The hint uses the medium piece (labelled `mittel`, ending in
+  ` mittel` such as `Filet mittel`, or `M`), else the largest piece — a whole head, not its florets —
+  and gives `count = ⌈total / piece grams⌉` with that piece's label.
 
 Items MUST be ordered with tracked items first, then untracked items, each group alphabetically by name.
 A week with nothing to buy MUST return an empty item list, not an error.
@@ -101,6 +102,13 @@ for a malformed date.
 - **WHEN** the grocery list is requested
 - **THEN** the Zwiebel item carries the piece hint 3 × mittel
 
+#### Scenario: Whole piece without a medium size
+
+- **GIVEN** a catalog food Brokkoli (unit g) with pieces Röschen 30 g and Kopf 500 g, and 700 g of
+  Brokkoli across the week
+- **WHEN** the grocery list is requested
+- **THEN** the Brokkoli item carries the piece hint 2 × Kopf
+
 #### Scenario: Amounts rounded up
 
 - **GIVEN** a batch contribution of 133.4 g Reis
@@ -141,12 +149,13 @@ open a sheet that loads the grocery list for that week's `startDate` and shows:
 - a note when quick entries were skipped (e.g. "2 Schnelleinträge nicht enthalten")
 - an empty state when there is nothing to buy
 
-Every item MUST start **checked**, and the user can untick items they already have. The tick state lives
-only as long as the sheet is open: closing and reopening starts again with everything checked.
+Every item MUST start **unticked**: everything is on the list. The user ticks off items they already
+have at home, which strikes them through. The tick state lives only as long as the sheet is open:
+closing and reopening starts again with nothing ticked off.
 
-A **Kopieren** action MUST copy the checked items to the clipboard as plain text, one item per line
+A **Kopieren** action MUST copy the items not ticked off to the clipboard as plain text, one item per line
 (`{name} — {amount} {unit}`, with the piece hint appended when present), and confirm the copy. With
-nothing checked, the action MUST be disabled.
+every item ticked off, the action MUST be disabled.
 
 #### Scenario: Opens for the week in view
 
@@ -160,21 +169,21 @@ nothing checked, the action MUST be disabled.
 - **WHEN** they open Einkaufsliste
 - **THEN** the list is the one for next week, not the current week
 
-#### Scenario: Everything starts checked
+#### Scenario: Nothing starts ticked off
 
 - **WHEN** the sheet opens
-- **THEN** every item is checked
+- **THEN** no item is ticked off
 
-#### Scenario: Untick and copy
+#### Scenario: Tick off and copy
 
 - **GIVEN** the sheet lists Hähnchenbrust, Zwiebel and Olivenöl
-- **WHEN** the user unticks Olivenöl and activates Kopieren
+- **WHEN** the user ticks off Olivenöl and activates Kopieren
 - **THEN** the clipboard holds the lines for Hähnchenbrust and Zwiebel only, and a confirmation is shown
 
 #### Scenario: Ticks reset on reopen
 
-- **WHEN** the user unticks an item, closes the sheet and opens it again
-- **THEN** every item is checked again
+- **WHEN** the user ticks off an item, closes the sheet and opens it again
+- **THEN** no item is ticked off
 
 #### Scenario: Untracked items in their own section
 

@@ -47,10 +47,10 @@ describe('WeightTrackerScreen', () => {
     );
     renderWithProviders(<WeightTrackerScreen onBack={() => {}} />);
     await waitFor(() => {
-      expect(screen.getAllByText(/78\.5 kg/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/78,5 kg/).length).toBeGreaterThan(0);
     });
-    expect(screen.getByText(/79\.3 kg|79\.2 kg/)).toBeInTheDocument();
-    expect(screen.getByText(/-0\.50 %/)).toBeInTheDocument();
+    expect(screen.getByText(/79,3 kg|79,2 kg/)).toBeInTheDocument();
+    expect(screen.getByText(/-0,50 %/)).toBeInTheDocument();
   });
 
   it('renders em-dash + hint for null trend fields', async () => {

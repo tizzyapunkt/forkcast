@@ -10,7 +10,7 @@ page that Bring!'s import deeplink can fetch and parse.
 
 The system SHALL expose an authenticated command `POST /bring-import-token` with body
 `{ startDate, excluded }`. `startDate` is an ISO date, and `excluded` is a list of grocery item identities
-(case-insensitive name plus unit) the user unticked. It returns `{ token }`. The token MUST:
+(case-insensitive name plus unit) the user ticked off as already at home. It returns `{ token }`. The token MUST:
 
 - encode `startDate` and `excluded`
 - expire **one hour** after minting
@@ -66,7 +66,7 @@ items MUST still render the page, with no ingredient lines.
 - **THEN** the response is `200` HTML whose Recipe microdata has the ingredient lines "800 g Hähnchenbrust"
   and "380 g Zwiebel"
 
-#### Scenario: Unticked items are left out
+#### Scenario: Ticked-off items are left out
 
 - **GIVEN** a token whose `excluded` contains Olivenöl (ml)
 - **WHEN** the page is requested
@@ -103,16 +103,16 @@ items MUST still render the page, with no ingredient lines.
 
 The Einkaufsliste sheet SHALL offer an **An Bring! senden** action next to Kopieren. Activating it MUST:
 
-1. mint an import token for the sheet's week, with the identities of all currently unticked items as `excluded`
+1. mint an import token for the sheet's week, with the identities of all items currently ticked off as `excluded`
 2. build the page URL from the app's current origin: `{origin}/api/bring-import/{token}`
 3. open `https://api.getbring.com/rest/bringrecipes/deeplink?url={encoded page URL}&source=web&baseQuantity=1&requestedQuantity=1`
 
 While the token is being minted, the action MUST show a pending state. If minting fails, the sheet MUST
-show an error and open nothing. With nothing checked, the action MUST be disabled.
+show an error and open nothing. With every item ticked off, the action MUST be disabled.
 
-#### Scenario: Send the checked items
+#### Scenario: Send the items still to buy
 
-- **GIVEN** the sheet for `2026-09-28` with Olivenöl unticked
+- **GIVEN** the sheet for `2026-09-28` with Olivenöl ticked off
 - **WHEN** the user activates An Bring! senden
 - **THEN** a token is minted with Olivenöl excluded, and the Bring! deeplink opens with
   `url` = `{origin}/api/bring-import/{token}` and `source=web`
@@ -122,7 +122,7 @@ show an error and open nothing. With nothing checked, the action MUST be disable
 - **WHEN** minting the token fails
 - **THEN** the sheet shows an error and no deeplink is opened
 
-#### Scenario: Nothing checked
+#### Scenario: Everything ticked off
 
-- **WHEN** every item in the sheet is unticked
+- **WHEN** every item in the sheet is ticked off
 - **THEN** An Bring! senden is disabled

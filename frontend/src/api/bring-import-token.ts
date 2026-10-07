@@ -2,7 +2,7 @@ import { fetchJson } from './client';
 
 export interface BringImportTokenInput {
   startDate: string;
-  /** Identities (case-insensitive name + unit) of the items unticked in the sheet. */
+  /** Identities (case-insensitive name + unit) of the items ticked off as already at home. */
   excluded: string[];
 }
 

@@ -197,6 +197,7 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
     const group = await screen.findByTestId('recipe-batch-batch-1');
     expect(await within(group).findByText('Bolognese')).toBeInTheDocument();
     expect(within(group).getByText('1 Port.')).toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('button', { name: 'Zutaten von „Bolognese“' }));
     expect(within(group).getByText('Rindertatar')).toBeInTheDocument();
     expect(within(group).getByText('Sojasauce')).toBeInTheDocument();
   });
@@ -289,6 +290,7 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
     expect(await within(group).findByRole('button', { name: 'Zutat zu „Bolognese“ hinzufügen' })).toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('button', { name: 'Zutaten von „Bolognese“' }));
     await userEvent.click(within(group).getByRole('button', { name: 'Zutat „Rindertatar“ ersetzen' }));
     await userEvent.type(await screen.findByPlaceholderText(/zutaten suchen/i), 'tofu');
     await userEvent.click(await screen.findByRole('button', { name: /^tofu/i }));
@@ -371,17 +373,17 @@ describe('PlannerScreen — Einkaufsliste', () => {
     await waitFor(() => expect(requested).toEqual(['2026-06-15']));
   });
 
-  it('starts fresh with every item checked when reopened', async () => {
+  it('starts fresh with nothing ticked off when reopened', async () => {
     useWeek(weekWithWednesday());
     serveGroceryLists();
     renderWithProviders(<PlannerScreen />);
 
     await userEvent.click(await screen.findByRole('button', { name: /einkaufsliste für/i }));
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Reis einkaufen' }));
-    expect(screen.getByRole('checkbox', { name: 'Reis einkaufen' })).not.toBeChecked();
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Reis schon da' }));
+    expect(screen.getByRole('checkbox', { name: 'Reis schon da' })).toBeChecked();
     await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));
     await userEvent.click(screen.getByRole('button', { name: /einkaufsliste für/i }));
 
-    expect(await screen.findByRole('checkbox', { name: 'Reis einkaufen' })).toBeChecked();
+    expect(await screen.findByRole('checkbox', { name: 'Reis schon da' })).not.toBeChecked();
   });
 });

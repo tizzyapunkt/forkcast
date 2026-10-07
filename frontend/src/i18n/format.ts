@@ -22,3 +22,16 @@ export function formatClockTime(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleTimeString(intlLocale, { hour12: false });
 }
+
+/** A day and short month for the planner's day list: `5 Oct` / `5. Okt.`. */
+export function formatShortDate(isoDate: string, intl: string = intlLocale): string {
+  return new Date(isoDate + 'T00:00:00').toLocaleDateString(intl, { day: 'numeric', month: 'short' });
+}
+
+/** A planner week: `5–11 October` / `5.–11. Oktober`, naming both months when the week crosses one. */
+export function formatWeekRange(startIso: string, endIso: string, intl: string = intlLocale): string {
+  return new Intl.DateTimeFormat(intl, { day: 'numeric', month: 'long' }).formatRange(
+    new Date(startIso + 'T00:00:00'),
+    new Date(endIso + 'T00:00:00'),
+  );
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { formatDecimal } from '../lib/decimal';
-import { formatDayLabel, intlLocale, intlLocaleFor } from './format';
+import { formatDayLabel, formatShortDate, formatWeekRange, intlLocale, intlLocaleFor } from './format';
 
 describe('intlLocaleFor', () => {
   it('formats German as de-DE and English as en-GB', () => {
@@ -38,5 +38,24 @@ describe('formatDecimal in the active locale', () => {
   it('defaults to the active locale rather than the browser language', () => {
     // jsdom's navigator.language is en-US; the active (pinned) locale is German.
     expect(formatDecimal(1.5)).toBe('1,5');
+  });
+});
+
+describe('formatShortDate', () => {
+  it('puts the day before a short month, without the German dot in English', () => {
+    expect(formatShortDate('2026-10-05', 'en-GB')).toBe('5 Oct');
+    expect(formatShortDate('2026-10-05', 'de-DE')).toBe('5. Okt.');
+  });
+});
+
+describe('formatWeekRange', () => {
+  it('names the month once when the week stays in it', () => {
+    expect(formatWeekRange('2026-10-05', '2026-10-11', 'en-GB')).toMatch(/^5\s?–\s?11 October$/);
+    expect(formatWeekRange('2026-10-05', '2026-10-11', 'de-DE')).toBe('5.–11. Oktober');
+  });
+
+  it('names both months when the week crosses into the next', () => {
+    expect(formatWeekRange('2026-09-28', '2026-10-04', 'en-GB')).toMatch(/^28 September\s–\s4 October$/);
+    expect(formatWeekRange('2026-09-28', '2026-10-04', 'de-DE')).toMatch(/^28\. September\s–\s4\. Oktober$/);
   });
 });

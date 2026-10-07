@@ -14,14 +14,27 @@ interface OffProduct {
   code?: string;
   product_name?: string;
   product_name_de?: string;
+  /** A list from search-a-licious, a comma-separated string from the product API. */
+  brands?: string | string[];
   serving_size?: string;
   serving_quantity?: number | string;
   nutriments?: OffNutriments;
 }
 
+/** Open Food Facts names are often shouted (`SKYR`) or all lowercase (`skyr`): sentence-case those, keep the rest. */
+function tidyName(raw: string): string {
+  const name = raw.trim();
+  if (name !== name.toUpperCase() && name !== name.toLowerCase()) return name;
+  const lower = name.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 export function mapOffProduct(product: OffProduct): IngredientSearchResult | null {
-  const name = product.product_name || product.product_name_de;
-  if (!name) return null;
+  const rawName = product.product_name || product.product_name_de;
+  if (!rawName) return null;
+  const name = tidyName(rawName);
+  const brands = typeof product.brands === 'string' ? product.brands.split(',') : (product.brands ?? []);
+  const brand = brands[0]?.trim() || undefined;
 
   const n = product.nutriments ?? {};
   const calories100 = n['energy-kcal_100g'];
@@ -44,6 +57,7 @@ export function mapOffProduct(product: OffProduct): IngredientSearchResult | nul
       carbs: (n.carbohydrates_100g ?? 0) / 100,
       fat: (n.fat_100g ?? 0) / 100,
     },
+    ...(brand !== undefined ? { brand } : {}),
     ...(servingSize !== undefined ? { servingSize } : {}),
     ...(servingQuantity !== undefined ? { servingQuantity } : {}),
   };

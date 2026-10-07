@@ -209,12 +209,53 @@ describe('buildGroceryList', () => {
     expect(list.items[0]!.pieceHint).toEqual({ count: 2, label: 'mittel' });
   });
 
-  it("falls back to the catalog's first piece when there is no 'mittel'", async () => {
-    const ei: FoodEntry = { ...zwiebel, id: 'ei', name: 'Ei', synonyms: [], pieces: [{ label: 'Größe M', grams: 60 }] };
+  it("uses a size-qualified medium piece ('Filet mittel', 'M') as the medium", async () => {
+    const kabeljau: FoodEntry = {
+      ...zwiebel,
+      id: 'kabeljau',
+      name: 'Kabeljau',
+      synonyms: [],
+      pieces: [
+        { label: 'Filet klein', grams: 120 },
+        { label: 'Filet mittel', grams: 160 },
+        { label: 'Filet gross', grams: 220 },
+      ],
+    };
+    const ei: FoodEntry = {
+      ...zwiebel,
+      id: 'ei',
+      name: 'Ei',
+      synonyms: [],
+      pieces: [
+        { label: 'S', grams: 48 },
+        { label: 'M', grams: 58 },
+        { label: 'L', grams: 68 },
+      ],
+    };
 
-    const list = await build([adhoc('Ei', 360, '2026-09-28')], { catalog: [ei] });
+    const list = await build([adhoc('Kabeljau', 320, '2026-09-28'), adhoc('Ei', 348, '2026-09-28')], {
+      catalog: [kabeljau, ei],
+    });
 
-    expect(list.items[0]!.pieceHint).toEqual({ count: 6, label: 'Größe M' });
+    expect(list.items.find((i) => i.name === 'Kabeljau')?.pieceHint).toEqual({ count: 2, label: 'Filet mittel' });
+    expect(list.items.find((i) => i.name === 'Ei')?.pieceHint).toEqual({ count: 6, label: 'M' });
+  });
+
+  it('falls back to the largest piece without a medium, so a whole head beats its florets', async () => {
+    const brokkoli: FoodEntry = {
+      ...zwiebel,
+      id: 'brokkoli',
+      name: 'Brokkoli',
+      synonyms: [],
+      pieces: [
+        { label: 'Röschen', grams: 30 },
+        { label: 'Kopf', grams: 500 },
+      ],
+    };
+
+    const list = await build([adhoc('Brokkoli', 700, '2026-09-28')], { catalog: [brokkoli] });
+
+    expect(list.items[0]!.pieceHint).toEqual({ count: 2, label: 'Kopf' });
   });
 
   it('gives no piece hint for ml amounts or foods without pieces', async () => {

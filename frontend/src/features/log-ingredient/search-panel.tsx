@@ -206,26 +206,6 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
         <p className="text-sm text-muted-foreground">{t.searchPanel.noResults(debouncedQuery)}</p>
       )}
 
-      {onCreate && hasQuery && (
-        <button
-          type="button"
-          onClick={() => onCreate(debouncedQuery.trim())}
-          aria-label={t.aiRecipeImport.resolve.createTriggerAria(debouncedQuery.trim())}
-          className="flex w-full items-center gap-3 rounded-md border border-dashed border-primary/60 bg-accent/40 px-3 py-3 text-left"
-        >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background text-primary">
-            <Plus aria-hidden="true" className="h-4 w-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-primary">
-              {t.aiRecipeImport.resolve.createTrigger(debouncedQuery.trim())}
-            </span>
-            <span className="block text-xs text-muted-foreground">{t.aiRecipeImport.resolve.createTriggerHint}</span>
-          </span>
-          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
-        </button>
-      )}
-
       {results && results.length > 0 && (
         <ul className="w-full min-w-0 divide-y">
           {results.map((result) => {
@@ -249,11 +229,15 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
                       gated ? 'cursor-not-allowed text-muted-foreground' : 'hover:bg-muted/50'
                     }`}
                   >
-                    <span className="min-w-0 flex-1 truncate font-medium">{result.name}</span>
-                    <span className="shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span className="rounded-sm px-1 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-muted text-muted-foreground">
-                        {result.source}
-                      </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{result.name}</span>
+                      {(result.source === 'OFF' || result.source === 'SCAN') && (
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {[result.brand, t.searchPanel.sourceLabel[result.source]].filter(Boolean).join(' · ')}
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
                       {t.searchPanel.kcalPer(result.macrosPerUnit.calories, result.unit)}
                     </span>
                   </button>
@@ -270,6 +254,23 @@ export function SearchPanel({ onSelect, disableUntracked = false, onCreate }: Se
             );
           })}
         </ul>
+      )}
+      {onCreate && hasQuery && !isLoading && (
+        <button
+          type="button"
+          onClick={() => onCreate(debouncedQuery.trim())}
+          aria-label={t.aiRecipeImport.resolve.createTriggerAria(debouncedQuery.trim())}
+          className="flex w-full items-center gap-2 rounded-md px-1 py-2 text-left text-sm text-primary hover:bg-muted/50"
+        >
+          <Plus aria-hidden="true" className="h-4 w-4 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate font-medium">
+              {t.aiRecipeImport.resolve.createTrigger(debouncedQuery.trim())}
+            </span>
+            <span className="block text-xs text-muted-foreground">{t.aiRecipeImport.resolve.createTriggerHint}</span>
+          </span>
+          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0" />
+        </button>
       )}
     </div>
   );

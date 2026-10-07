@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button';
 import { useGroceryList } from '../../queries/use-grocery-list';
 import { mintBringImportToken } from '../../api/bring-import-token';
 import { groceryItemKey, type GroceryItem } from '../../domain/grocery-list';
+import { cn } from '../../lib/cn';
 import { t } from '../../i18n';
 
 interface GroceryListSheetProps {
@@ -66,8 +67,8 @@ function weekdays(dates: string[]): string {
 }
 
 /**
- * The week's grocery list for review before shopping. Every item starts checked; unticking what is
- * already at home lives only as long as the sheet — nothing is stored.
+ * The week's grocery list for review before shopping. Everything is on the list; ticking off what is
+ * already at home leaves it out of Kopieren and Bring!. Ticks live only as long as the sheet — nothing is stored.
  */
 export function GroceryListSheet({
   startDate,
@@ -77,19 +78,19 @@ export function GroceryListSheet({
   openUrl = defaultOpenUrl,
 }: GroceryListSheetProps) {
   const { data: list, isLoading, error } = useGroceryList(startDate);
-  const [unticked, setUnticked] = useState<Set<string>>(() => new Set());
+  const [atHome, setAtHome] = useState<Set<string>>(() => new Set());
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [bringState, setBringState] = useState<'idle' | 'pending' | 'failed'>('idle');
 
   const items = list?.items ?? [];
-  const checked = items.filter((item) => !unticked.has(groceryItemKey(item)));
+  const toBuy = items.filter((item) => !atHome.has(groceryItemKey(item)));
   const tracked = items.filter((item) => !item.untracked);
   const untracked = items.filter((item) => item.untracked);
 
   function toggle(item: GroceryItem) {
     const key = groceryItemKey(item);
     setCopyState('idle');
-    setUnticked((prev) => {
+    setAtHome((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -99,7 +100,7 @@ export function GroceryListSheet({
 
   async function copy() {
     try {
-      await writeClipboard(checked.map(clipboardLine).join('\n'));
+      await writeClipboard(toBuy.map(clipboardLine).join('\n'));
       setCopyState('copied');
     } catch {
       setCopyState('failed');
@@ -109,7 +110,7 @@ export function GroceryListSheet({
   async function sendToBring() {
     setBringState('pending');
     try {
-      const { token } = await mintBringImportToken({ startDate, excluded: [...unticked] });
+      const { token } = await mintBringImportToken({ startDate, excluded: [...atHome] });
       openUrl(bringDeeplink(token));
       setBringState('idle');
     } catch {
@@ -120,19 +121,23 @@ export function GroceryListSheet({
   function renderItem(item: GroceryItem) {
     const key = groceryItemKey(item);
     const amount = quantity(item);
+    const have = atHome.has(key);
     return (
       <li key={key}>
         <label className="flex cursor-pointer items-start gap-3 py-2.5">
           <input
             type="checkbox"
-            checked={!unticked.has(key)}
+            checked={have}
             onChange={() => toggle(item)}
             aria-label={t.groceryList.itemAria(item.name)}
             className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
           />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="flex items-baseline justify-between gap-2">
-              <span data-name className="min-w-0 truncate text-sm font-medium">
+              <span
+                data-name
+                className={cn('min-w-0 truncate text-sm font-medium', have && 'text-muted-foreground line-through')}
+              >
                 {item.name}
               </span>
               {amount && <span className="shrink-0 text-sm tabular-nums text-muted-foreground">{amount}</span>}
@@ -197,13 +202,13 @@ export function GroceryListSheet({
           </p>
         )}
         <div className="flex gap-2">
-          <Button variant="outline" onClick={copy} disabled={checked.length === 0} className="shrink-0">
+          <Button variant="outline" onClick={copy} disabled={toBuy.length === 0} className="shrink-0">
             <Copy size={16} aria-hidden="true" />
             {t.groceryList.copy}
           </Button>
           <Button
             onClick={sendToBring}
-            disabled={checked.length === 0 || bringState === 'pending'}
+            disabled={toBuy.length === 0 || bringState === 'pending'}
             className="min-w-0 flex-1"
           >
             <ShoppingBasket size={16} aria-hidden="true" />

@@ -16,6 +16,8 @@ export interface IngredientSearchResult {
   untracked?: boolean;
   /** Mass per millilitre (g/ml) for volume→mass conversion of spoon measures. Catalog-only, optional. */
   density?: number;
+  /** The product's (first) brand, to tell same-named products apart. OFF only. */
+  brand?: string;
   /** Human-readable serving size from the source product, e.g. "1 slice (25g)". */
   servingSize?: string;
   /** Gram weight of one serving from the source product. */
