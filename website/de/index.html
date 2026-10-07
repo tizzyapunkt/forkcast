@@ -435,19 +435,20 @@
             </p>
             <ul>
               <li>Ein passwortgeschützter Nutzer, keine Registrierung, kein Teilen.</li>
-              <li>Container-Images und eine <code>docker-compose.yml</code> gibt es. Eine ordentliche Deployment-Doku kommt als Nächstes.</li>
+              <li>Öffentliche Container-Images auf Docker Hub (linux/amd64). HTTPS, Updates und Backups stehen in der <a href="https://github.com/tizzyapunkt/forkcast#self-hosting">README</a>.</li>
               <li>Der Foto-Import braucht einen eigenen Anthropic-API-Key. Alles andere läuft ohne.</li>
             </ul>
           </div>
           <pre
             class="terminal"
-            aria-label="forkcast lokal starten"
-          ><span class="c"># Node 24, pnpm über corepack</span>
-<span class="p">$ </span>git clone https://github.com/tizzyapunkt/forkcast
-<span class="p">$ </span>cd forkcast &amp;&amp; corepack enable &amp;&amp; pnpm install
-<span class="p">$ </span>cp backend/.env.example backend/.env
-<span class="c"># AUTH_PASSWORD und AUTH_JWT_SECRET setzen</span>
-<span class="p">$ </span>pnpm dev</pre>
+            aria-label="forkcast mit Docker starten"
+          ><span class="c"># Docker mit Compose-Plugin</span>
+<span class="p">$ </span>mkdir forkcast &amp;&amp; cd forkcast
+<span class="p">$ </span>curl -LO https://raw.githubusercontent.com/tizzyapunkt/forkcast/main/docker-compose.yml
+<span class="p">$ </span>echo "AUTH_PASSWORD=passwort-waehlen" &gt; .env
+<span class="p">$ </span>echo "AUTH_JWT_SECRET=$(openssl rand -hex 32)" &gt;&gt; .env
+<span class="p">$ </span>docker compose up -d
+<span class="c"># http://localhost:8080 öffnen</span></pre>
         </div>
       </section>
 
@@ -540,6 +541,8 @@
         </p>
         <nav aria-label="Fußzeile">
           <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>
+          <a href="/de/datenschutz/">Datenschutz</a>
+          <a href="/de/impressum/">Impressum</a>
           <a href="/" hreflang="en" lang="en">English</a>
         </nav>
       </div>

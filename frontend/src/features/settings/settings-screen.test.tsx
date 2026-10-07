@@ -29,4 +29,20 @@ describe('Settings navigation', () => {
     await userEvent.click(screen.getByRole('button', { name: /zurück/i }));
     expect(await screen.findByRole('heading', { name: /ernährungsziel/i })).toBeInTheDocument();
   });
+
+  it('names the author and the AGPL licence, and links to the source code', async () => {
+    renderWithProviders(<App />, { queryClient: createTestQueryClient() });
+    await userEvent.click(screen.getByRole('button', { name: /Einstellungen/i }));
+    await screen.findByRole('heading', { name: /ernährungsziel/i });
+
+    expect(screen.getByText(/© Tizian Adam/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'AGPL-3.0' })).toHaveAttribute(
+      'href',
+      'https://www.gnu.org/licenses/agpl-3.0.html',
+    );
+    expect(screen.getByRole('link', { name: 'Quellcode' })).toHaveAttribute(
+      'href',
+      'https://github.com/tizzyapunkt/forkcast',
+    );
+  });
 });

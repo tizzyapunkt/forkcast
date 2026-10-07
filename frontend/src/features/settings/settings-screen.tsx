@@ -81,6 +81,17 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
             {t.auth.logout}
           </Button>
         </div>
+        {/* The AGPL's "Appropriate Legal Notices": modified versions run as a service must keep showing them. */}
+        <p className="text-center text-xs text-muted-foreground">
+          forkcast © Tizian Adam ·{' '}
+          <a href="https://www.gnu.org/licenses/agpl-3.0.html" className="underline-offset-2 hover:underline">
+            AGPL-3.0
+          </a>{' '}
+          ·{' '}
+          <a href="https://github.com/tizzyapunkt/forkcast" className="underline-offset-2 hover:underline">
+            {t.settings.sourceCode}
+          </a>
+        </p>
       </div>
     </>
   );

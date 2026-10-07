@@ -2,7 +2,7 @@
   "name": "forkcast",
   "version": "1.0.0",
   "private": true,
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "pnpm --parallel --filter @forkcast/backend --filter @forkcast/frontend dev",
     "dev:website": "pnpm --filter @forkcast/website dev",
