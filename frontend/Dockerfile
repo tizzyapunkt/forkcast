@@ -20,7 +20,9 @@ RUN pnpm build
 FROM nginx:alpine
 
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Rendered to /etc/nginx/conf.d/default.conf at start, with the runtime's DNS resolver filled in.
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 

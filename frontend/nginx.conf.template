@@ -4,7 +4,10 @@ server {
     index index.html;
 
     location /api/ {
-        resolver 127.0.0.11 valid=30s;
+        # The container's own DNS server, filled in at start by the nginx image from
+        # /etc/resolv.conf (NGINX_ENTRYPOINT_LOCAL_RESOLVERS in the Dockerfile): Docker's
+        # 127.0.0.11, Podman's network DNS, whatever the runtime provides.
+        resolver ${NGINX_LOCAL_RESOLVERS} valid=30s;
         set $backend backend;
         rewrite ^/api/(.*)$ /$1 break;
         proxy_pass http://$backend:3000;
