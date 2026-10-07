@@ -10,8 +10,10 @@
     />
     <meta name="theme-color" content="#4d4899" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" hreflang="en" href="/" vite-ignore />
-    <link rel="alternate" hreflang="de" href="/de/" vite-ignore />
+    <link rel="canonical" href="https://check-forkcast.tizzy.dev/" vite-ignore />
+    <link rel="alternate" hreflang="en" href="https://check-forkcast.tizzy.dev/" vite-ignore />
+    <link rel="alternate" hreflang="de" href="https://check-forkcast.tizzy.dev/de/" vite-ignore />
+    <link rel="alternate" hreflang="x-default" href="https://check-forkcast.tizzy.dev/" vite-ignore />
     <link rel="stylesheet" href="/src/styles.css" />
     <script type="module" src="/src/main.js"></script>
   </head>
@@ -74,20 +76,12 @@
                   </label>
                 </div>
               </fieldset>
-              <div class="email-row">
-                <label for="email">E-mail (optional)</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  inputmode="email"
-                  placeholder="E-mail (optional)"
-                />
+              <div class="submit-row">
                 <button class="button" type="submit">Count me in</button>
               </div>
               <p class="form-note">
-                The e-mail is optional. Leave it and I'll tell you when there's something to try. Hosted doesn't
+                Your choice counts on its own, no e-mail needed. Tally opens to confirm it; leave an e-mail there only
+                if you want one message when there's something to try. It's used once, then deleted. Hosted doesn't
                 exist yet.
               </p>
               <p class="form-status" role="status" aria-live="polite"></p>
@@ -419,11 +413,11 @@
                 </li>
                 <li>
                   <b>Interest check</b>
-                  <span>Your choice and optional e-mail are submitted to a Tally form.</span>
+                  <span>Your choice goes to a Tally form, where you confirm it. No e-mail needed.</span>
                 </li>
                 <li>
                   <b>Your e-mail</b>
-                  <span>Only used to tell you when there's something to try.</span>
+                  <span>Only if you add it on the Tally form yourself. Used once to tell you when there's something to try, then deleted.</span>
                 </li>
               </ul>
             </div>
@@ -480,7 +474,7 @@
               </summary>
               <p>
                 Not yet. Whether there will be one depends on the answers to the question at the top of this page. If
-                you left your e-mail, you'll hear about it first.
+                you left your e-mail on the Tally form, you'll hear about it first.
               </p>
             </details>
             <details>

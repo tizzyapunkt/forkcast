@@ -25,7 +25,7 @@ The page may be shared on Hacker News as a regular submission, not as a Show HN:
 
 ## Product Purpose
 
-The public landing page for forkcast. It explains what the app does and runs an interest check: does the visitor want a hosted version, or to self-host? The interest check runs entirely through Tally: every submission records the hosted / self-host choice (one or both), and an e-mail address for the waitlist is an optional field of the same submission. Umami only measures who visits (page views, referrers), never the interest check itself. Success means a clear signal of which offering people want, and a list of people to contact once it exists.
+The public landing page for forkcast. It explains what the app does and runs an interest check: does the visitor want a hosted version, or to self-host? The interest check runs entirely through Tally: every submission records the hosted / self-host choice (one or both). The landing page never asks for an e-mail; an address for the waitlist is an optional field the visitor fills in on the Tally form itself. Umami only measures who visits (page views, referrers), never the interest check itself. Success means a clear signal of which offering people want, and a list of people to contact once it exists.
 
 ## Origin
 

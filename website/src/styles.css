@@ -493,42 +493,9 @@ pre {
   outline-offset: 2px;
 }
 
-.email-row {
+.submit-row {
   display: flex;
-  gap: 10px;
   margin-top: 12px;
-}
-
-.email-row label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
-.email-row input {
-  flex: 1;
-  min-width: 0;
-  height: 48px;
-  padding: 0 14px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--ground);
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--fs-label);
-  caret-color: var(--brand);
-}
-
-.email-row input::placeholder {
-  color: var(--ink-3);
-}
-
-.email-row input:focus {
-  border-color: var(--brand);
-  outline: 2px solid var(--brand);
-  outline-offset: 1px;
 }
 
 .button {
@@ -595,15 +562,6 @@ pre {
 @media (max-width: 480px) {
   .choices {
     grid-template-columns: 1fr;
-  }
-
-  .email-row {
-    flex-direction: column;
-  }
-
-  .email-row input {
-    flex: none;
-    width: 100%;
   }
 
   .button {
