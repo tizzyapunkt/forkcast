@@ -10,12 +10,12 @@ import { Button } from '../../components/ui/button';
 import { Field } from '../../components/ui/field';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Check } from 'lucide-react';
-import { de, formatMacroTriplet } from '../../i18n/de';
+import { t } from '../../i18n';
 
 const schema = z.object({
   amount: z.coerce
-    .number<number>({ error: de.fullEntry.validation.amountNumber })
-    .positive(de.fullEntry.validation.amountPositive),
+    .number<number>({ error: t.fullEntry.validation.amountNumber })
+    .positive(t.fullEntry.validation.amountPositive),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -97,12 +97,12 @@ export function FullEntryConfirm({
       <div className="rounded-md bg-muted/50 p-3 space-y-1.5">
         <p className="font-medium">{result.name}</p>
         <p className="text-xs text-muted-foreground">
-          {de.fullEntry.perUnit(result.unit, m.calories, m.protein, m.carbs, m.fat)}
+          {t.fullEntry.perUnit(result.unit, m.calories, m.protein, m.carbs, m.fat)}
         </p>
       </div>
 
       <div className="space-y-1">
-        <Field label={de.fullEntry.amount(result.unit)} htmlFor="amount" error={errors.amount?.message}>
+        <Field label={t.fullEntry.amount(result.unit)} htmlFor="amount" error={errors.amount?.message}>
           <Controller
             name="amount"
             control={control}
@@ -114,7 +114,7 @@ export function FullEntryConfirm({
                 onBlur={field.onBlur}
                 ref={field.ref}
                 className="w-full"
-                placeholder={de.fullEntry.amountPlaceholder}
+                placeholder={t.fullEntry.amountPlaceholder}
                 autoFocus
               />
             )}
@@ -127,7 +127,7 @@ export function FullEntryConfirm({
               key={a}
               type="button"
               onClick={() => setValue('amount', a, { shouldValidate: true, shouldDirty: true })}
-              aria-label={de.fullEntry.quickAmountAria(a, result.unit)}
+              aria-label={t.fullEntry.quickAmountAria(a, result.unit)}
               className={`rounded-full border px-3 py-1 text-xs ${
                 amount === a ? 'border-accent bg-accent/10 font-medium text-foreground' : 'text-muted-foreground'
               }`}
@@ -144,10 +144,10 @@ export function FullEntryConfirm({
           className="flex items-center justify-between gap-2 rounded-md bg-muted p-3 tabular-nums"
         >
           <span className="text-2xl font-extrabold text-primary">
-            {Math.round(m.calories * amount)} <span className="text-sm font-semibold">{de.fullEntry.macroKcal}</span>
+            {Math.round(m.calories * amount)} <span className="text-sm font-semibold">{t.fullEntry.macroKcal}</span>
           </span>
           <span className="text-sm font-semibold text-muted-foreground">
-            {formatMacroTriplet(m.protein * amount, m.carbs * amount, m.fat * amount)}
+            {t.formatMacroTriplet(m.protein * amount, m.carbs * amount, m.fat * amount)}
           </span>
         </div>
       )}
@@ -155,16 +155,16 @@ export function FullEntryConfirm({
       <div className="flex gap-2">
         {onBack && (
           <Button variant="outline" onClick={onBack} className="flex-1">
-            {de.fullEntry.back}
+            {t.fullEntry.back}
           </Button>
         )}
         <Button type="submit" disabled={isPending} className="flex-1">
           <Check size={17} aria-hidden="true" />
           {isPending
-            ? de.fullEntry.saving
+            ? t.fullEntry.saving
             : amount !== null
-              ? de.fullEntry.logAmount(amount, result.unit)
-              : de.fullEntry.log}
+              ? t.fullEntry.logAmount(amount, result.unit)
+              : t.fullEntry.log}
         </Button>
       </div>
     </form>

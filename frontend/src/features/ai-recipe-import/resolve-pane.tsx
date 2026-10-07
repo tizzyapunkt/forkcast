@@ -3,7 +3,7 @@ import { BottomSheet } from '../../components/app/bottom-sheet';
 import { useConfirmResolution } from '../../queries/use-resolve-ingredients';
 import { useDraftCatalogEntry } from '../../queries/use-catalog';
 import { toEditableEntry } from '../../domain/food-catalog';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { MacrosPerUnit, MeasurementUnit } from '../../domain/meal-log';
 import type { MatchedDraftIngredient, PieceQuantity } from '../../domain/recipes';
@@ -94,7 +94,7 @@ function draftToSearchResult(entry: FoodEntryDraft): IngredientSearchResult {
   return result;
 }
 
-const t = de.aiRecipeImport.resolve;
+const copy = t.aiRecipeImport.resolve;
 
 export function ResolvePane({
   item,
@@ -321,8 +321,8 @@ export function ResolvePane({
     showNote = draft !== null;
     footer = draft ? (
       <ConfirmFooter
-        label={isCreate ? t.confirmCreate : t.confirmImport}
-        caption={t.captionNewFood}
+        label={isCreate ? copy.confirmCreate : copy.confirmImport}
+        caption={copy.captionNewFood}
         pending={confirmMutation.isPending}
         error={confirmError}
         onCancel={onClose}
@@ -330,7 +330,7 @@ export function ResolvePane({
       />
     ) : (
       <Button variant="outline" onClick={() => setMode(returnMode)} className="h-11 w-full py-0">
-        {t.cancel}
+        {copy.cancel}
       </Button>
     );
   } else if (state === 'loading') {
@@ -338,10 +338,10 @@ export function ResolvePane({
   } else if (state === 'error') {
     body = (
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-destructive">{t.errorTitle}</p>
-        <p className="text-sm text-muted-foreground">{t.errorBody}</p>
+        <p className="text-sm font-medium text-destructive">{copy.errorTitle}</p>
+        <p className="text-sm text-muted-foreground">{copy.errorBody}</p>
         <Button variant="outline" onClick={onRetry} className="self-start px-3 py-1.5">
-          {t.errorRetry}
+          {copy.errorRetry}
         </Button>
       </div>
     );
@@ -349,8 +349,8 @@ export function ResolvePane({
   } else if (!proposal || proposal.verdict === 'skip') {
     body = (
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium">{t.noProposalTitle}</p>
-        <p className="text-sm text-muted-foreground">{t.noProposalBody(item.name)}</p>
+        <p className="text-sm font-medium">{copy.noProposalTitle}</p>
+        <p className="text-sm text-muted-foreground">{copy.noProposalBody(item.name)}</p>
       </div>
     );
     footer = <FallbackActions onManual={() => goTo('manual')} onDiscard={onDiscard} />;
@@ -368,8 +368,8 @@ export function ResolvePane({
     );
     footer = (
       <ConfirmFooter
-        label={isCreate ? t.confirmCreate : t.confirmImport}
-        caption={t.captionSynonym}
+        label={isCreate ? copy.confirmCreate : copy.confirmImport}
+        caption={copy.captionSynonym}
         pending={confirmMutation.isPending}
         error={confirmError}
         onCancel={onClose}
@@ -390,8 +390,8 @@ export function ResolvePane({
     );
     footer = (
       <ConfirmFooter
-        label={isCreate ? t.confirmCreate : t.confirmImport}
-        caption={t.captionNewFood}
+        label={isCreate ? copy.confirmCreate : copy.confirmImport}
+        caption={copy.captionNewFood}
         pending={confirmMutation.isPending}
         error={confirmError}
         onCancel={onClose}
@@ -418,18 +418,18 @@ export function ResolvePane({
         {body}
         {showNote && !isCreate && (
           <label className="mt-3 flex flex-col gap-1">
-            <span className="text-sm font-medium">{t.noteLabel}</span>
+            <span className="text-sm font-medium">{copy.noteLabel}</span>
             <Input
               value={noteValue}
               onChange={(e) => {
                 setNoteEdited(true);
                 setNote(e.target.value);
               }}
-              placeholder={t.notePlaceholder}
-              aria-label={t.noteLabel}
+              placeholder={copy.notePlaceholder}
+              aria-label={copy.noteLabel}
               className="h-10 w-full py-0 text-sm"
             />
-            <span className="text-[11px] text-muted-foreground">{t.noteHint}</span>
+            <span className="text-[11px] text-muted-foreground">{copy.noteHint}</span>
           </label>
         )}
       </div>
@@ -442,7 +442,7 @@ export function ResolvePane({
 function DraftingState() {
   return (
     <div className="flex flex-col gap-3 py-2">
-      <p className="text-sm font-medium text-primary">{t.draftingTitle}</p>
+      <p className="text-sm font-medium text-primary">{copy.draftingTitle}</p>
       <div className="h-3 w-2/3 animate-pulse rounded-sm bg-muted" />
       <div className="grid grid-cols-4 gap-2">
         <div className="h-12 animate-pulse rounded-md bg-muted" />
@@ -457,7 +457,7 @@ function DraftingState() {
 function LoadingState() {
   return (
     <div className="flex flex-col gap-3 py-2">
-      <p className="text-sm font-medium text-primary">{t.loadingEyebrow}</p>
+      <p className="text-sm font-medium text-primary">{copy.loadingEyebrow}</p>
       <div className="h-3 w-2/3 animate-pulse rounded-sm bg-muted" />
       <div className="flex gap-2">
         <div className="h-12 flex-1 animate-pulse rounded-md bg-muted" />
@@ -472,10 +472,10 @@ function FallbackActions({ onManual, onDiscard }: { onManual: () => void; onDisc
   return (
     <div className="flex gap-2">
       <Button variant="outline" onClick={onManual} className="h-11 flex-1 py-0">
-        {t.catalogFallback}
+        {copy.catalogFallback}
       </Button>
       <Button variant="destructiveOutline" onClick={onDiscard} className="h-11 flex-1 py-0">
-        {de.aiRecipeImport.discardUnmatched}
+        {t.aiRecipeImport.discardUnmatched}
       </Button>
     </div>
   );
@@ -498,10 +498,10 @@ function ConfirmFooter({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      {error && <p className="text-center text-xs text-destructive">{t.errorBody}</p>}
+      {error && <p className="text-center text-xs text-destructive">{copy.errorBody}</p>}
       <div className="flex gap-2">
         <Button variant="outline" onClick={onCancel} className="h-12 flex-1 py-0">
-          {t.cancel}
+          {copy.cancel}
         </Button>
         <Button onClick={onConfirm} disabled={pending} className="h-12 flex-[1.5] py-0 font-semibold">
           {label}
@@ -514,11 +514,11 @@ function ConfirmFooter({
 
 export function ResolveSheet({ item, ...rest }: { item: ResolveItem | null } & Omit<ResolvePaneProps, 'item'>) {
   return (
-    <BottomSheet open={item !== null} onClose={rest.onClose} ariaLabel={item ? t.sheetTitle(item.name) : ''}>
+    <BottomSheet open={item !== null} onClose={rest.onClose} ariaLabel={item ? copy.sheetTitle(item.name) : ''}>
       {item && (
         <>
           <div className="shrink-0 px-4 pt-3 pb-1">
-            <h2 className="truncate text-sm font-semibold">{t.sheetTitle(item.name)}</h2>
+            <h2 className="truncate text-sm font-semibold">{copy.sheetTitle(item.name)}</h2>
           </div>
           <ResolvePane key={item.name} item={item} {...rest} />
         </>

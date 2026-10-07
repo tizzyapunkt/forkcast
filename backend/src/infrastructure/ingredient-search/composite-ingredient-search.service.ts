@@ -7,6 +7,7 @@ import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-p
 import { mapScannedProduct } from '../../domain/barcode-product-capture/map-scanned-product.ts';
 import { fold } from '../../domain/ingredient-search/fold.ts';
 import { matchFoodEntry, type FoodMatch } from '../../domain/ingredient-search/score-food-match.ts';
+import type { CatalogLocale } from '../../domain/foods/types.ts';
 
 const DEFAULT_SOURCES: Set<IngredientSource> = new Set(['CATALOG']);
 const SCAN_RESULT_CAP = 20;
@@ -21,12 +22,13 @@ export class CompositeIngredientSearchService implements IngredientSearchService
   async searchByName(
     query: string,
     sources: Set<IngredientSource> = DEFAULT_SOURCES,
+    locale: CatalogLocale = 'de',
   ): Promise<IngredientSearchResult[]> {
     const tasks: Promise<IngredientSearchResult[]>[] = [];
     const order: IngredientSource[] = [];
 
     if (sources.has('CATALOG')) {
-      tasks.push(this.catalog.searchByName(query));
+      tasks.push(this.catalog.searchByName(query, undefined, locale));
       order.push('CATALOG');
     }
     if (sources.has('SCAN')) {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AppHeader } from '../../components/app/app-header';
 import type { RecipeDraft } from '../../domain/recipes';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { describeImportFailure, ImportCancelledError, ImportTimeoutError } from './import-failure';
 import { PhotoStaging, type StagedPhoto } from './photo-staging';
 import { ReviewImportScreen } from './review-import-screen';
@@ -85,7 +85,7 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
 
   return (
     <>
-      <AppHeader title={de.aiRecipeImport.screenTitle} onBack={onCancel} backAria={de.aiRecipeImport.back} />
+      <AppHeader title={t.aiRecipeImport.screenTitle} onBack={onCancel} backAria={t.aiRecipeImport.back} />
       <div className="space-y-4 p-4">
         <PhotoStaging
           photos={photos}
@@ -103,7 +103,7 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
             action={
               failure.canRetry ? (
                 <Button variant="outline" size="sm" onClick={startImport} disabled={photos.length === 0}>
-                  {de.aiRecipeImport.failure.retry}
+                  {t.aiRecipeImport.failure.retry}
                 </Button>
               ) : undefined
             }
@@ -116,21 +116,21 @@ export function ImportRecipeScreen({ onCancel, onSaved, maxImages, maxImageBytes
           <div className="flex gap-2">
             <Button onClick={startImport} disabled={photos.length === 0 || isPending} className="flex-1">
               {isPending && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
-              {isPending ? de.aiRecipeImport.submitting : de.aiRecipeImport.submit}
+              {isPending ? t.aiRecipeImport.submitting : t.aiRecipeImport.submit}
             </Button>
             {isPending && (
-              <Button variant="outline" onClick={cancelImport} aria-label={de.aiRecipeImport.cancelImport}>
-                {de.aiRecipeImport.cancel}
+              <Button variant="outline" onClick={cancelImport} aria-label={t.aiRecipeImport.cancelImport}>
+                {t.aiRecipeImport.cancel}
               </Button>
             )}
           </div>
           {isPending && (
             <p aria-live="polite" className="text-xs text-muted-foreground">
-              {de.aiRecipeImport.submitHint}
+              {t.aiRecipeImport.submitHint}
             </p>
           )}
           {!isPending && photos.length === 0 && (
-            <p className="text-xs text-muted-foreground">{de.aiRecipeImport.emptySelection}</p>
+            <p className="text-xs text-muted-foreground">{t.aiRecipeImport.emptySelection}</p>
           )}
         </div>
       </div>

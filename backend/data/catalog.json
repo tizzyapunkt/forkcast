@@ -2,6 +2,7 @@
   {
     "id": "ananas",
     "name": "Ananas",
+    "nameEn": "Pineapple",
     "synonyms": [
       "pineapple"
     ],
@@ -26,6 +27,7 @@
   {
     "id": "apfel",
     "name": "Apfel",
+    "nameEn": "Apple",
     "synonyms": [
       "Tafelapfel",
       "apple"
@@ -55,6 +57,7 @@
   {
     "id": "aprikose",
     "name": "Aprikose",
+    "nameEn": "Apricot",
     "synonyms": [
       "Marille",
       "apricot"
@@ -84,6 +87,7 @@
   {
     "id": "artischocke",
     "name": "Artischocke",
+    "nameEn": "Artichoke",
     "synonyms": [
       "Gemüseartischocke",
       "artichoke",
@@ -114,6 +118,7 @@
   {
     "id": "aubergine",
     "name": "Aubergine",
+    "nameEn": "Aubergine",
     "synonyms": [
       "Eierfrucht",
       "Melanzani",
@@ -144,6 +149,7 @@
   {
     "id": "avocado",
     "name": "Avocado",
+    "nameEn": "Avocado",
     "synonyms": [
       "Butterfrucht",
       "Alligatorbirne",
@@ -174,6 +180,7 @@
   {
     "id": "baguette",
     "name": "Baguette",
+    "nameEn": "Baguette",
     "synonyms": [
       "Stangenbrot",
       "Weißbrot",
@@ -204,6 +211,7 @@
   {
     "id": "balsamicoessig",
     "name": "Balsamicoessig",
+    "nameEn": "Balsamic vinegar",
     "synonyms": [
       "Balsamic vinegar",
       "Balsamico-Essig",
@@ -220,6 +228,7 @@
   {
     "id": "banane",
     "name": "Banane",
+    "nameEn": "Banana",
     "synonyms": [
       "banana"
     ],
@@ -248,6 +257,7 @@
   {
     "id": "basilikum",
     "name": "Basilikum",
+    "nameEn": "Basil",
     "synonyms": [
       "Basilienkraut",
       "Königskraut",
@@ -265,6 +275,7 @@
   {
     "id": "basmati-reis",
     "name": "Basmatireis",
+    "nameEn": "Basmati rice",
     "synonyms": [
       "Basmati",
       "basmati rice"
@@ -280,6 +291,7 @@
   {
     "id": "birne",
     "name": "Birne",
+    "nameEn": "Pear",
     "synonyms": [
       "Birnen",
       "Tafelbirne",
@@ -310,6 +322,7 @@
   {
     "id": "blumenkohl",
     "name": "Blumenkohl",
+    "nameEn": "Cauliflower",
     "synonyms": [
       "Karfiol",
       "Käsekohl",
@@ -336,6 +349,7 @@
   {
     "id": "brokkoli",
     "name": "Brokkoli",
+    "nameEn": "Broccoli",
     "synonyms": [
       "Spargelkohl",
       "broccoli",
@@ -362,6 +376,7 @@
   {
     "id": "brombeere",
     "name": "Brombeere",
+    "nameEn": "Blackberry",
     "synonyms": [
       "blackberry"
     ],
@@ -376,6 +391,7 @@
   {
     "id": "bulgur",
     "name": "Bulgur",
+    "nameEn": "Bulgur",
     "synonyms": [
       "Weizengrütze",
       "cracked wheat"
@@ -391,6 +407,7 @@
   {
     "id": "butter",
     "name": "Butter",
+    "nameEn": "Butter",
     "synonyms": [
       "Süßrahmbutter",
       "Markenbutter"
@@ -406,6 +423,7 @@
   {
     "id": "cashew",
     "name": "Cashew",
+    "nameEn": "Cashew nut",
     "synonyms": [
       "Cashewkerne",
       "Cashewnuss",
@@ -428,6 +446,7 @@
   {
     "id": "champignon",
     "name": "Champignon",
+    "nameEn": "Button mushroom",
     "synonyms": [
       "Egerling",
       "Zuchtchampignon",
@@ -459,6 +478,7 @@
   {
     "id": "cherrytomate",
     "name": "Cherrytomate",
+    "nameEn": "Cherry tomato",
     "synonyms": [
       "Kirschtomate",
       "Cocktailtomate",
@@ -482,6 +502,7 @@
   {
     "id": "chiasamen",
     "name": "Chiasamen",
+    "nameEn": "Chia seeds",
     "synonyms": [
       "Chia",
       "chia seeds"
@@ -497,6 +518,7 @@
   {
     "id": "chili",
     "name": "Chili",
+    "nameEn": "Chilli",
     "synonyms": [
       "Chilischote",
       "frische Chili",
@@ -517,6 +539,7 @@
   {
     "id": "chiliflocken",
     "name": "Chiliflocken",
+    "nameEn": "Chilli flakes",
     "synonyms": [
       "Chilischrot",
       "getrocknete Chili",
@@ -536,6 +559,7 @@
   {
     "id": "couscous",
     "name": "Couscous",
+    "nameEn": "Couscous",
     "synonyms": [
       "Kuskus"
     ],
@@ -550,6 +574,7 @@
   {
     "id": "creme-fraiche",
     "name": "Crème fraîche",
+    "nameEn": "Crème fraîche",
     "synonyms": [
       "saure Sahne dick"
     ],
@@ -564,6 +589,7 @@
   {
     "id": "datteln",
     "name": "Datteln",
+    "nameEn": "Dates",
     "synonyms": [
       "Dattel",
       "Medjool",
@@ -594,6 +620,7 @@
   {
     "id": "dill",
     "name": "Dill",
+    "nameEn": "Dill",
     "synonyms": [
       "Gurkenkraut",
       "dill weed"
@@ -610,6 +637,7 @@
   {
     "id": "dinkel-vollkorn",
     "name": "Dinkel Vollkorn",
+    "nameEn": "Wholegrain spelt",
     "synonyms": [
       "Dinkelkorn",
       "Vollkorndinkel",
@@ -626,6 +654,7 @@
   {
     "id": "dinkelvollkornmehl",
     "name": "Dinkelvollkornmehl",
+    "nameEn": "Wholemeal spelt flour",
     "synonyms": [
       "Vollkorndinkelmehl",
       "spelt wholemeal flour"
@@ -642,6 +671,7 @@
   {
     "id": "edamame",
     "name": "Edamame",
+    "nameEn": "Edamame",
     "synonyms": [
       "junge Sojabohnen",
       "soybeans"
@@ -657,6 +687,7 @@
   {
     "id": "eisbergsalat",
     "name": "Eisbergsalat",
+    "nameEn": "Iceberg lettuce",
     "synonyms": [
       "Eissalat",
       "iceberg lettuce"
@@ -678,6 +709,7 @@
   {
     "id": "erbse",
     "name": "Erbse",
+    "nameEn": "Pea",
     "synonyms": [
       "Erbsen",
       "Gartenerbse",
@@ -695,6 +727,7 @@
   {
     "id": "erdbeere",
     "name": "Erdbeere",
+    "nameEn": "Strawberry",
     "synonyms": [
       "strawberry"
     ],
@@ -723,6 +756,7 @@
   {
     "id": "erdnussbutter",
     "name": "Erdnussbutter",
+    "nameEn": "Peanut butter",
     "synonyms": [
       "Erdnussmus",
       "peanut butter"
@@ -738,6 +772,7 @@
   {
     "id": "feige",
     "name": "Feige",
+    "nameEn": "Fig",
     "synonyms": [
       "frische Feige",
       "fig"
@@ -767,6 +802,7 @@
   {
     "id": "feldsalat",
     "name": "Feldsalat",
+    "nameEn": "Lamb's lettuce",
     "synonyms": [
       "Rapunzel",
       "Nüsslisalat",
@@ -785,6 +821,7 @@
   {
     "id": "fenchel",
     "name": "Fenchel",
+    "nameEn": "Fennel",
     "synonyms": [
       "Gemüsefenchel",
       "Knollenfenchel",
@@ -816,6 +853,7 @@
   {
     "id": "feta",
     "name": "Feta",
+    "nameEn": "Feta",
     "synonyms": [
       "Schafskäse",
       "Hirtenkäse",
@@ -832,6 +870,7 @@
   {
     "id": "forelle",
     "name": "Forelle",
+    "nameEn": "Trout",
     "synonyms": [
       "Regenbogenforelle",
       "Forellenfilet",
@@ -858,6 +897,7 @@
   {
     "id": "frischkaese",
     "name": "Frischkäse (Doppelrahmstufe)",
+    "nameEn": "Cream cheese (full fat)",
     "synonyms": [
       "Streichkäse",
       "cream cheese"
@@ -873,6 +913,7 @@
   {
     "id": "fruehlingszwiebel",
     "name": "Frühlingszwiebel",
+    "nameEn": "Spring onion",
     "synonyms": [
       "Lauchzwiebel",
       "Jungzwiebel",
@@ -896,6 +937,7 @@
   {
     "id": "garnele",
     "name": "Garnele",
+    "nameEn": "Prawn",
     "synonyms": [
       "Shrimp",
       "Crevette",
@@ -927,6 +969,7 @@
   {
     "id": "getrocknete-tomaten-in-oel",
     "name": "Getrocknete Tomaten in Öl",
+    "nameEn": "Sun-dried tomatoes in oil",
     "synonyms": [
       "sun-dried tomatoes in oil",
       "Ölpacked getrocknete Tomaten"
@@ -942,6 +985,7 @@
   {
     "id": "gouda",
     "name": "Gouda",
+    "nameEn": "Gouda",
     "synonyms": [
       "Schnittkäse",
       "gouda cheese"
@@ -963,6 +1007,7 @@
   {
     "id": "granatapfel",
     "name": "Granatapfel",
+    "nameEn": "Pomegranate",
     "synonyms": [
       "Grenadine",
       "pomegranate"
@@ -992,6 +1037,7 @@
   {
     "id": "grapefruit",
     "name": "Grapefruit",
+    "nameEn": "Grapefruit",
     "synonyms": [
       "Pampelmuse"
     ],
@@ -1020,6 +1066,7 @@
   {
     "id": "griechischer-joghurt",
     "name": "Griechischer Joghurt (10 % Fett)",
+    "nameEn": "Greek yoghurt (10 % fat)",
     "synonyms": [
       "Joghurt griechischer Art",
       "Greek yogurt"
@@ -1035,6 +1082,7 @@
   {
     "id": "gruene-bohne",
     "name": "Grüne Bohne",
+    "nameEn": "Green bean",
     "synonyms": [
       "Brechbohne",
       "Gartenbohne",
@@ -1053,6 +1101,7 @@
   {
     "id": "gruenkohl",
     "name": "Grünkohl",
+    "nameEn": "Kale",
     "synonyms": [
       "Braunkohl",
       "Krauskohl",
@@ -1069,6 +1118,7 @@
   {
     "id": "gurke",
     "name": "Gurke",
+    "nameEn": "Cucumber",
     "synonyms": [
       "Salatgurke",
       "Schlangengurke",
@@ -1095,6 +1145,7 @@
   {
     "id": "haehnchenfluegel",
     "name": "Hähnchenflügel",
+    "nameEn": "Chicken wings",
     "synonyms": [
       "Chicken Wings",
       "Hühnerflügel",
@@ -1125,6 +1176,7 @@
   {
     "id": "haferflocken",
     "name": "Haferflocken",
+    "nameEn": "Rolled oats",
     "synonyms": [
       "Hafer",
       "oats",
@@ -1142,6 +1194,7 @@
   {
     "id": "haferkleie",
     "name": "Haferkleie",
+    "nameEn": "Oat bran",
     "synonyms": [
       "Kleie",
       "oat bran"
@@ -1157,6 +1210,7 @@
   {
     "id": "hafermilch",
     "name": "Hafermilch",
+    "nameEn": "Oat milk",
     "synonyms": [
       "Haferdrink",
       "oat milk"
@@ -1172,6 +1226,7 @@
   {
     "id": "haselnuss",
     "name": "Haselnuss",
+    "nameEn": "Hazelnut",
     "synonyms": [
       "Haselnüsse",
       "hazelnut"
@@ -1193,6 +1248,7 @@
   {
     "id": "heidelbeere",
     "name": "Heidelbeere",
+    "nameEn": "Blueberry",
     "synonyms": [
       "Blaubeere",
       "blueberry"
@@ -1208,6 +1264,7 @@
   {
     "id": "himbeere",
     "name": "Himbeere",
+    "nameEn": "Raspberry",
     "synonyms": [
       "raspberry"
     ],
@@ -1222,6 +1279,7 @@
   {
     "id": "honigmelone",
     "name": "Honigmelone",
+    "nameEn": "Honeydew melon",
     "synonyms": [
       "Zuckermelone",
       "honeydew",
@@ -1238,6 +1296,7 @@
   {
     "id": "huehnchenbrust",
     "name": "Hähnchenbrust",
+    "nameEn": "Chicken breast",
     "synonyms": [
       "Hühnerbrust",
       "Hähnchenbrustfilet",
@@ -1268,6 +1327,7 @@
   {
     "id": "huehnchenschenkel",
     "name": "Hähnchenschenkel",
+    "nameEn": "Chicken thigh",
     "synonyms": [
       "Hühnerschenkel",
       "Hähnchenkeule",
@@ -1299,6 +1359,7 @@
   {
     "id": "huehnerei",
     "name": "Hühnerei",
+    "nameEn": "Egg",
     "synonyms": [
       "Ei",
       "Eier",
@@ -1330,6 +1391,7 @@
   {
     "id": "huettenkaese",
     "name": "Hüttenkäse",
+    "nameEn": "Cottage cheese",
     "synonyms": [
       "Körniger Frischkäse",
       "Cottage Cheese"
@@ -1345,6 +1407,7 @@
   {
     "id": "ingwer",
     "name": "Ingwer",
+    "nameEn": "Ginger",
     "synonyms": [
       "Ingwerwurzel",
       "ginger",
@@ -1363,6 +1426,7 @@
   {
     "id": "joghurt-natur",
     "name": "Naturjoghurt (3,5 % Fett)",
+    "nameEn": "Natural yoghurt (3.5 % fat)",
     "synonyms": [
       "Joghurt",
       "Yoghurt",
@@ -1380,6 +1444,7 @@
   {
     "id": "johannisbeere-rot",
     "name": "Rote Johannisbeere",
+    "nameEn": "Redcurrant",
     "synonyms": [
       "Ribisel",
       "rote Ribisel",
@@ -1397,6 +1462,7 @@
   {
     "id": "kabeljau",
     "name": "Kabeljau",
+    "nameEn": "Cod",
     "synonyms": [
       "Dorsch",
       "Kabeljaufilet",
@@ -1427,6 +1493,7 @@
   {
     "id": "kartoffel",
     "name": "Kartoffel",
+    "nameEn": "Potato",
     "synonyms": [
       "Erdapfel",
       "Grundbirne",
@@ -1457,6 +1524,7 @@
   {
     "id": "kichererbsen",
     "name": "Kichererbsen",
+    "nameEn": "Chickpeas",
     "synonyms": [
       "Garbanzo",
       "chickpeas"
@@ -1472,6 +1540,7 @@
   {
     "id": "kidneybohnen",
     "name": "Kidneybohnen",
+    "nameEn": "Kidney beans",
     "synonyms": [
       "rote Bohnen",
       "kidney beans"
@@ -1487,6 +1556,7 @@
   {
     "id": "kirsche",
     "name": "Kirsche",
+    "nameEn": "Cherry",
     "synonyms": [
       "Süßkirsche",
       "cherry"
@@ -1508,6 +1578,7 @@
   {
     "id": "kiwi",
     "name": "Kiwi",
+    "nameEn": "Kiwi",
     "synonyms": [
       "Kiwifrucht",
       "kiwifruit"
@@ -1537,6 +1608,7 @@
   {
     "id": "knoblauch",
     "name": "Knoblauch",
+    "nameEn": "Garlic",
     "synonyms": [
       "garlic",
       "Knoblauchzehe, fein gehackt"
@@ -1553,6 +1625,7 @@
   {
     "id": "kohlrabi",
     "name": "Kohlrabi",
+    "nameEn": "Kohlrabi",
     "synonyms": [
       "Oberrübe",
       "German turnip"
@@ -1582,6 +1655,7 @@
   {
     "id": "kokosoel",
     "name": "Kokosöl",
+    "nameEn": "Coconut oil",
     "synonyms": [
       "Kokosfett",
       "coconut oil"
@@ -1597,6 +1671,7 @@
   {
     "id": "kraeuterseitling",
     "name": "Kräuterseitling",
+    "nameEn": "King oyster mushroom",
     "synonyms": [
       "Kräuter-Seitling",
       "King-Trompete",
@@ -1628,6 +1703,7 @@
   {
     "id": "kreuzkuemmel",
     "name": "Kreuzkümmel",
+    "nameEn": "Cumin",
     "synonyms": [
       "Cumin",
       "Jeera",
@@ -1646,6 +1722,7 @@
   {
     "id": "kuerbis-butternut",
     "name": "Butternut-Kürbis",
+    "nameEn": "Butternut squash",
     "synonyms": [
       "Butternuss-Kürbis",
       "Birnenkürbis",
@@ -1677,6 +1754,7 @@
   {
     "id": "kuerbis-hokkaido",
     "name": "Hokkaido-Kürbis",
+    "nameEn": "Hokkaido squash",
     "synonyms": [
       "Hokkaido",
       "Roter Kürbis",
@@ -1708,6 +1786,7 @@
   {
     "id": "kuerbiskern",
     "name": "Kürbiskerne",
+    "nameEn": "Pumpkin seeds",
     "synonyms": [
       "Pepitas",
       "pumpkin seeds"
@@ -1723,6 +1802,7 @@
   {
     "id": "kurkuma",
     "name": "Kurkuma",
+    "nameEn": "Turmeric",
     "synonyms": [
       "Gelbwurz",
       "Curcuma",
@@ -1740,6 +1820,7 @@
   {
     "id": "lachs-filet",
     "name": "Lachsfilet",
+    "nameEn": "Salmon fillet",
     "synonyms": [
       "Lachs",
       "Atlantischer Lachs",
@@ -1771,6 +1852,7 @@
   {
     "id": "lauch",
     "name": "Lauch",
+    "nameEn": "Leek",
     "synonyms": [
       "Porree",
       "leek"
@@ -1792,6 +1874,7 @@
   {
     "id": "leinoel",
     "name": "Leinöl",
+    "nameEn": "Flaxseed oil",
     "synonyms": [
       "Leinsamenöl",
       "flaxseed oil",
@@ -1808,6 +1891,7 @@
   {
     "id": "leinsamen",
     "name": "Leinsamen",
+    "nameEn": "Flaxseed",
     "synonyms": [
       "Leinsaat",
       "flax seeds",
@@ -1824,6 +1908,7 @@
   {
     "id": "limette",
     "name": "Limette",
+    "nameEn": "Lime",
     "synonyms": [
       "lime"
     ],
@@ -1852,6 +1937,7 @@
   {
     "id": "linsen-gruen",
     "name": "Grüne Linsen",
+    "nameEn": "Green lentils",
     "synonyms": [
       "Tellerlinsen",
       "green lentils"
@@ -1867,6 +1953,7 @@
   {
     "id": "linsen-rot",
     "name": "Rote Linsen",
+    "nameEn": "Red lentils",
     "synonyms": [
       "geschälte Linsen",
       "red lentils"
@@ -1882,6 +1969,7 @@
   {
     "id": "lorbeerblatt",
     "name": "Lorbeerblatt",
+    "nameEn": "Bay leaf",
     "synonyms": [
       "Lorbeer",
       "Lorbeerblätter",
@@ -1900,6 +1988,7 @@
   {
     "id": "mandarine",
     "name": "Mandarine",
+    "nameEn": "Mandarin",
     "synonyms": [
       "Clementine",
       "tangerine",
@@ -1930,6 +2019,7 @@
   {
     "id": "mandel",
     "name": "Mandel",
+    "nameEn": "Almond",
     "synonyms": [
       "Mandeln",
       "almond"
@@ -1951,6 +2041,7 @@
   {
     "id": "mandelmilch",
     "name": "Mandelmilch",
+    "nameEn": "Almond milk",
     "synonyms": [
       "Mandeldrink",
       "almond milk"
@@ -1966,6 +2057,7 @@
   {
     "id": "mango",
     "name": "Mango",
+    "nameEn": "Mango",
     "synonyms": [],
     "unit": "g",
     "macrosPer100": {
@@ -1992,6 +2084,7 @@
   {
     "id": "mangold",
     "name": "Mangold",
+    "nameEn": "Swiss chard",
     "synonyms": [
       "Beißkohl",
       "Krautstiel",
@@ -2009,6 +2102,7 @@
   {
     "id": "milch-fettarm",
     "name": "Fettarme Milch (1,5 % Fett)",
+    "nameEn": "Low-fat milk (1.5 % fat)",
     "synonyms": [
       "Magermilch",
       "leichte Milch",
@@ -2026,6 +2120,7 @@
   {
     "id": "milch-vollfett",
     "name": "Vollmilch (3,5 % Fett)",
+    "nameEn": "Whole milk (3.5 % fat)",
     "synonyms": [
       "Milch",
       "Vollfettmilch",
@@ -2042,6 +2137,7 @@
   {
     "id": "moehre",
     "name": "Möhre",
+    "nameEn": "Carrot",
     "synonyms": [
       "Karotte",
       "Mohrrübe",
@@ -2074,6 +2170,7 @@
   {
     "id": "mozzarella",
     "name": "Mozzarella",
+    "nameEn": "Mozzarella",
     "synonyms": [
       "Büffelmozzarella",
       "mozzarella cheese"
@@ -2095,6 +2192,7 @@
   {
     "id": "muskat",
     "name": "Muskatnuss",
+    "nameEn": "Nutmeg",
     "synonyms": [
       "Muskat",
       "gemahlener Muskat",
@@ -2112,6 +2210,7 @@
   {
     "id": "nektarine",
     "name": "Nektarine",
+    "nameEn": "Nectarine",
     "synonyms": [
       "Nektarinen",
       "Glattpfirsich",
@@ -2142,6 +2241,7 @@
   {
     "id": "olive-gruen",
     "name": "Grüne Olive",
+    "nameEn": "Green olive",
     "synonyms": [
       "Oliven grün",
       "green olive",
@@ -2173,6 +2273,7 @@
   {
     "id": "olive-schwarz",
     "name": "Schwarze Olive",
+    "nameEn": "Black olive",
     "synonyms": [
       "Oliven schwarz",
       "black olive",
@@ -2203,6 +2304,7 @@
   {
     "id": "olivenoel",
     "name": "Olivenöl",
+    "nameEn": "Olive oil",
     "synonyms": [
       "natives Olivenöl",
       "olive oil"
@@ -2218,6 +2320,7 @@
   {
     "id": "orange",
     "name": "Orange",
+    "nameEn": "Orange",
     "synonyms": [
       "Apfelsine"
     ],
@@ -2246,6 +2349,7 @@
   {
     "id": "oregano",
     "name": "Oregano",
+    "nameEn": "Oregano",
     "synonyms": [
       "Dost",
       "Wilder Majoran"
@@ -2262,6 +2366,7 @@
   {
     "id": "pak-choi",
     "name": "Pak Choi",
+    "nameEn": "Pak choi",
     "synonyms": [
       "Bok Choy",
       "Senfkohl",
@@ -2289,6 +2394,7 @@
   {
     "id": "paprika-gelb",
     "name": "Paprika gelb",
+    "nameEn": "Yellow bell pepper",
     "synonyms": [
       "Gelbe Paprika",
       "Gemüsepaprika gelb",
@@ -2319,6 +2425,7 @@
   {
     "id": "paprika-gruen",
     "name": "Paprika grün",
+    "nameEn": "Green bell pepper",
     "synonyms": [
       "Grüne Paprika",
       "Gemüsepaprika grün",
@@ -2349,6 +2456,7 @@
   {
     "id": "paprika-rot",
     "name": "Paprika rot",
+    "nameEn": "Red bell pepper",
     "synonyms": [
       "Rote Paprika",
       "Gemüsepaprika rot",
@@ -2379,6 +2487,7 @@
   {
     "id": "paprikapulver",
     "name": "Paprikapulver",
+    "nameEn": "Paprika",
     "synonyms": [
       "Paprika edelsüß",
       "gemahlene Paprika",
@@ -2397,6 +2506,7 @@
   {
     "id": "parmesan",
     "name": "Parmesan",
+    "nameEn": "Parmesan",
     "synonyms": [
       "Parmigiano Reggiano",
       "Hartkäse",
@@ -2413,6 +2523,7 @@
   {
     "id": "pastinake",
     "name": "Pastinake",
+    "nameEn": "Parsnip",
     "synonyms": [
       "Hammelmöhre",
       "parsnip"
@@ -2434,6 +2545,7 @@
   {
     "id": "penne-vollkorn",
     "name": "Penne Vollkorn",
+    "nameEn": "Wholewheat penne",
     "synonyms": [
       "Vollkornpenne",
       "Vollkornnudeln",
@@ -2450,6 +2562,7 @@
   {
     "id": "petersilie",
     "name": "Petersilie",
+    "nameEn": "Parsley",
     "synonyms": [
       "Glatte Petersilie",
       "Krause Petersilie",
@@ -2467,6 +2580,7 @@
   {
     "id": "pfeffer-schwarz",
     "name": "Schwarzer Pfeffer",
+    "nameEn": "Black pepper",
     "synonyms": [
       "Pfeffer",
       "schwarzer gemahlener Pfeffer",
@@ -2485,6 +2599,7 @@
   {
     "id": "pfifferling",
     "name": "Pfifferling",
+    "nameEn": "Chanterelle",
     "synonyms": [
       "Eierschwammerl",
       "Reherl",
@@ -2502,6 +2617,7 @@
   {
     "id": "pfirsich",
     "name": "Pfirsich",
+    "nameEn": "Peach",
     "synonyms": [
       "Pfirsiche",
       "peach"
@@ -2531,6 +2647,7 @@
   {
     "id": "pflaume",
     "name": "Pflaume",
+    "nameEn": "Plum",
     "synonyms": [
       "Zwetschge",
       "Zwetschke",
@@ -2561,6 +2678,7 @@
   {
     "id": "putenbrust",
     "name": "Putenbrust",
+    "nameEn": "Turkey breast",
     "synonyms": [
       "Truthahnbrust",
       "Putenbrustfilet",
@@ -2591,6 +2709,7 @@
   {
     "id": "quark-mager",
     "name": "Magerquark",
+    "nameEn": "Low-fat quark",
     "synonyms": [
       "Speisequark mager",
       "low-fat quark",
@@ -2607,6 +2726,7 @@
   {
     "id": "quark-vollfett",
     "name": "Sahnequark (40 % Fett i. Tr.)",
+    "nameEn": "Full-fat quark (40 % fat in dry matter)",
     "synonyms": [
       "Vollfettquark",
       "Speisequark Vollfettstufe",
@@ -2623,6 +2743,7 @@
   {
     "id": "quinoa",
     "name": "Quinoa",
+    "nameEn": "Quinoa",
     "synonyms": [
       "Inkakorn",
       "Inkareis"
@@ -2638,6 +2759,7 @@
   {
     "id": "radieschen",
     "name": "Radieschen",
+    "nameEn": "Radish",
     "synonyms": [
       "Monatsrettich",
       "radish"
@@ -2667,6 +2789,7 @@
   {
     "id": "rapsoel",
     "name": "Rapsöl",
+    "nameEn": "Rapeseed oil",
     "synonyms": [
       "canola oil",
       "rapeseed oil"
@@ -2682,6 +2805,7 @@
   {
     "id": "reis-vollkorn",
     "name": "Vollkornreis",
+    "nameEn": "Brown rice",
     "synonyms": [
       "Naturreis",
       "brauner Reis",
@@ -2698,6 +2822,7 @@
   {
     "id": "reis-weiss",
     "name": "Weißer Reis",
+    "nameEn": "White rice",
     "synonyms": [
       "Langkornreis",
       "white rice",
@@ -2714,6 +2839,7 @@
   {
     "id": "rettich",
     "name": "Rettich",
+    "nameEn": "White radish",
     "synonyms": [
       "Weißer Rettich",
       "Daikon",
@@ -2740,6 +2866,7 @@
   {
     "id": "rinderhack",
     "name": "Rinderhack",
+    "nameEn": "Beef mince",
     "synonyms": [
       "Rinderhackfleisch",
       "Hackfleisch vom Rind",
@@ -2757,6 +2884,7 @@
   {
     "id": "rindertatar",
     "name": "Rindertatar",
+    "nameEn": "Beef tartare",
     "synonyms": [
       "Tatar",
       "Beefsteak Tatar",
@@ -2781,6 +2909,7 @@
   {
     "id": "rindfleisch-filet",
     "name": "Rinderfilet",
+    "nameEn": "Beef fillet",
     "synonyms": [
       "Rindfleisch Filet",
       "Filetsteak",
@@ -2812,6 +2941,7 @@
   {
     "id": "rindfleisch-roastbeef",
     "name": "Roastbeef",
+    "nameEn": "Roast beef",
     "synonyms": [
       "Rinderrücken",
       "Roast Beef",
@@ -2842,6 +2972,7 @@
   {
     "id": "roggenbrot",
     "name": "Roggenbrot",
+    "nameEn": "Rye bread",
     "synonyms": [
       "Roggenlaib",
       "rye bread"
@@ -2871,6 +3002,7 @@
   {
     "id": "romanasalat",
     "name": "Romanasalat",
+    "nameEn": "Romaine lettuce",
     "synonyms": [
       "Römersalat",
       "Romana",
@@ -2898,6 +3030,7 @@
   {
     "id": "rosenkohl",
     "name": "Rosenkohl",
+    "nameEn": "Brussels sprouts",
     "synonyms": [
       "Kohlsprossen",
       "Sprossenkohl",
@@ -2920,6 +3053,7 @@
   {
     "id": "rosmarin",
     "name": "Rosmarin",
+    "nameEn": "Rosemary",
     "synonyms": [
       "Rosmarinkraut",
       "rosemary"
@@ -2936,6 +3070,7 @@
   {
     "id": "rote-bete",
     "name": "Rote Bete",
+    "nameEn": "Beetroot",
     "synonyms": [
       "Rote Rübe",
       "Rande",
@@ -2968,6 +3103,7 @@
   {
     "id": "rote-zwiebel",
     "name": "Rote Zwiebel",
+    "nameEn": "Red onion",
     "synonyms": [
       "Gemüsezwiebel rot",
       "red onion"
@@ -2997,6 +3133,7 @@
   {
     "id": "rotkohl",
     "name": "Rotkohl",
+    "nameEn": "Red cabbage",
     "synonyms": [
       "Blaukraut",
       "Rotkraut",
@@ -3027,6 +3164,7 @@
   {
     "id": "rucola",
     "name": "Rucola",
+    "nameEn": "Rocket",
     "synonyms": [
       "Rauke",
       "Salatrauke",
@@ -3044,6 +3182,7 @@
   {
     "id": "sahne",
     "name": "Schlagsahne (30 % Fett)",
+    "nameEn": "Whipping cream (30 % fat)",
     "synonyms": [
       "Schlagobers",
       "Rahm",
@@ -3061,6 +3200,7 @@
   {
     "id": "salami",
     "name": "Salami",
+    "nameEn": "Salami",
     "synonyms": [
       "italienische Salami"
     ],
@@ -3081,6 +3221,7 @@
   {
     "id": "salz",
     "name": "Salz",
+    "nameEn": "Salt",
     "synonyms": [
       "Speisesalz",
       "Kochsalz",
@@ -3100,6 +3241,7 @@
   {
     "id": "sauerkraut",
     "name": "Sauerkraut",
+    "nameEn": "Sauerkraut",
     "synonyms": [
       "Sauerkohl",
       "fermented cabbage"
@@ -3115,6 +3257,7 @@
   {
     "id": "schalotte",
     "name": "Schalotte",
+    "nameEn": "Shallot",
     "synonyms": [
       "Edelzwiebel",
       "shallot"
@@ -3140,6 +3283,7 @@
   {
     "id": "schinken-gekocht",
     "name": "Kochschinken",
+    "nameEn": "Cooked ham",
     "synonyms": [
       "gekochter Schinken",
       "Schinken gekocht",
@@ -3162,6 +3306,7 @@
   {
     "id": "schmand",
     "name": "Schmand",
+    "nameEn": "Sour cream",
     "synonyms": [
       "saure Sahne 24%",
       "sour cream"
@@ -3177,6 +3322,7 @@
   {
     "id": "schnittlauch",
     "name": "Schnittlauch",
+    "nameEn": "Chives",
     "synonyms": [
       "Graslauch",
       "chives"
@@ -3193,6 +3339,7 @@
   {
     "id": "schweinefilet",
     "name": "Schweinefilet",
+    "nameEn": "Pork tenderloin",
     "synonyms": [
       "Schweinelende",
       "Filet vom Schwein",
@@ -3224,6 +3371,7 @@
   {
     "id": "schweinekotelett",
     "name": "Schweinekotelett",
+    "nameEn": "Pork chop",
     "synonyms": [
       "Kotelett",
       "Schweinerippchen",
@@ -3254,6 +3402,7 @@
   {
     "id": "seelachs",
     "name": "Seelachs",
+    "nameEn": "Pollock",
     "synonyms": [
       "Köhler",
       "Pollack",
@@ -3285,6 +3434,7 @@
   {
     "id": "sellerie-knolle",
     "name": "Knollensellerie",
+    "nameEn": "Celeriac",
     "synonyms": [
       "Sellerieknolle",
       "Wurzelsellerie",
@@ -3316,6 +3466,7 @@
   {
     "id": "sesam",
     "name": "Sesam",
+    "nameEn": "Sesame seeds",
     "synonyms": [
       "Sesamsamen",
       "sesame seeds"
@@ -3331,6 +3482,7 @@
   {
     "id": "shiitake",
     "name": "Shiitake",
+    "nameEn": "Shiitake mushroom",
     "synonyms": [
       "Shii-Take",
       "Pasaniapilz",
@@ -3361,6 +3513,7 @@
   {
     "id": "sojamilch",
     "name": "Sojamilch",
+    "nameEn": "Soy milk",
     "synonyms": [
       "Sojadrink",
       "soy milk"
@@ -3376,6 +3529,7 @@
   {
     "id": "sojasauce",
     "name": "Sojasauce",
+    "nameEn": "Soy sauce",
     "synonyms": [
       "Sojasoße",
       "Shoyu",
@@ -3392,6 +3546,7 @@
   {
     "id": "sonnenblumenkern",
     "name": "Sonnenblumenkerne",
+    "nameEn": "Sunflower seeds",
     "synonyms": [
       "Sonnenblumensamen",
       "sunflower seeds"
@@ -3407,6 +3562,7 @@
   {
     "id": "spaghetti",
     "name": "Spaghetti",
+    "nameEn": "Spaghetti",
     "synonyms": [
       "Nudeln",
       "Pasta",
@@ -3423,6 +3579,7 @@
   {
     "id": "spargel-gruen",
     "name": "Grüner Spargel",
+    "nameEn": "Green asparagus",
     "synonyms": [
       "Spargel grün",
       "green asparagus"
@@ -3452,6 +3609,7 @@
   {
     "id": "spargel-weiss",
     "name": "Weißer Spargel",
+    "nameEn": "White asparagus",
     "synonyms": [
       "Spargel weiß",
       "Bleichspargel",
@@ -3482,6 +3640,7 @@
   {
     "id": "speck",
     "name": "Speck",
+    "nameEn": "Bacon",
     "synonyms": [
       "Bacon",
       "Frühstücksspeck",
@@ -3504,6 +3663,7 @@
   {
     "id": "speisestaerke",
     "name": "Speisestärke",
+    "nameEn": "Corn starch",
     "synonyms": [
       "Maisstärke",
       "Kartoffelstärke",
@@ -3524,6 +3684,7 @@
   {
     "id": "spinat",
     "name": "Spinat",
+    "nameEn": "Spinach",
     "synonyms": [
       "Blattspinat",
       "spinach"
@@ -3539,6 +3700,7 @@
   {
     "id": "spitzkohl",
     "name": "Spitzkohl",
+    "nameEn": "Pointed cabbage",
     "synonyms": [
       "Spitzkraut",
       "pointed cabbage",
@@ -3561,6 +3723,7 @@
   {
     "id": "suesskartoffel",
     "name": "Süßkartoffel",
+    "nameEn": "Sweet potato",
     "synonyms": [
       "Batate",
       "sweet potato"
@@ -3590,6 +3753,7 @@
   {
     "id": "sushireis",
     "name": "Sushireis",
+    "nameEn": "Sushi rice",
     "synonyms": [
       "Reis für Sushi",
       "japanischer Reis",
@@ -3608,6 +3772,7 @@
   {
     "id": "tempeh",
     "name": "Tempeh",
+    "nameEn": "Tempeh",
     "synonyms": [
       "Sojatempeh",
       "fermented soy"
@@ -3623,6 +3788,7 @@
   {
     "id": "thunfisch-filet",
     "name": "Thunfischfilet",
+    "nameEn": "Tuna steak",
     "synonyms": [
       "Thunfisch",
       "frischer Thunfisch",
@@ -3654,6 +3820,7 @@
   {
     "id": "thunfisch-konserve",
     "name": "Thunfisch (Konserve, im eigenen Saft)",
+    "nameEn": "Canned tuna (in its own juice)",
     "synonyms": [
       "Thunfisch in Wasser",
       "Dosenthunfisch",
@@ -3671,6 +3838,7 @@
   {
     "id": "thymian",
     "name": "Thymian",
+    "nameEn": "Thyme",
     "synonyms": [
       "Echter Thymian",
       "Gartenthymian",
@@ -3688,6 +3856,7 @@
   {
     "id": "tofu-natur",
     "name": "Tofu natur",
+    "nameEn": "Plain tofu",
     "synonyms": [
       "Naturtofu",
       "tofu",
@@ -3704,6 +3873,7 @@
   {
     "id": "tomate",
     "name": "Tomate",
+    "nameEn": "Tomato",
     "synonyms": [
       "Paradeiser",
       "tomato"
@@ -3733,6 +3903,7 @@
   {
     "id": "topinambur",
     "name": "Topinambur",
+    "nameEn": "Jerusalem artichoke",
     "synonyms": [
       "Erdbirne",
       "Jerusalem-Artischocke",
@@ -3760,6 +3931,7 @@
   {
     "id": "vollkornbrot",
     "name": "Vollkornbrot",
+    "nameEn": "Wholegrain bread",
     "synonyms": [
       "Vollkornlaib",
       "wholegrain bread",
@@ -3790,6 +3962,7 @@
   {
     "id": "walnuss",
     "name": "Walnuss",
+    "nameEn": "Walnut",
     "synonyms": [
       "Walnüsse",
       "walnut"
@@ -3815,6 +3988,7 @@
   {
     "id": "wasser",
     "name": "Wasser",
+    "nameEn": "Water",
     "synonyms": [
       "Trinkwasser",
       "Leitungswasser",
@@ -3832,6 +4006,7 @@
   {
     "id": "wassermelone",
     "name": "Wassermelone",
+    "nameEn": "Watermelon",
     "synonyms": [
       "watermelon"
     ],
@@ -3846,6 +4021,7 @@
   {
     "id": "weintraube",
     "name": "Weintraube",
+    "nameEn": "Grape",
     "synonyms": [
       "Traube",
       "grape"
@@ -3867,6 +4043,7 @@
   {
     "id": "weisse-bohnen",
     "name": "Weiße Bohnen",
+    "nameEn": "White beans",
     "synonyms": [
       "Cannellini",
       "navy beans",
@@ -3883,6 +4060,7 @@
   {
     "id": "weisskohl",
     "name": "Weißkohl",
+    "nameEn": "White cabbage",
     "synonyms": [
       "Weißkraut",
       "Kappes",
@@ -3913,6 +4091,7 @@
   {
     "id": "weizenmehl-405",
     "name": "Weizenmehl Type 405",
+    "nameEn": "Plain flour (type 405)",
     "synonyms": [
       "Mehl 405",
       "Weißmehl",
@@ -3931,6 +4110,7 @@
   {
     "id": "wirsing",
     "name": "Wirsing",
+    "nameEn": "Savoy cabbage",
     "synonyms": [
       "Wirsingkohl",
       "Welschkohl",
@@ -3953,6 +4133,7 @@
   {
     "id": "zimt",
     "name": "Zimt",
+    "nameEn": "Cinnamon",
     "synonyms": [
       "Ceylon-Zimt",
       "Cassia",
@@ -3970,6 +4151,7 @@
   {
     "id": "zitrone",
     "name": "Zitrone",
+    "nameEn": "Lemon",
     "synonyms": [
       "lemon"
     ],
@@ -3998,6 +4180,7 @@
   {
     "id": "zucchini",
     "name": "Zucchini",
+    "nameEn": "Courgette",
     "synonyms": [
       "Courgette",
       "courgette"
@@ -4027,6 +4210,7 @@
   {
     "id": "zuckerfreier-ahornsirup",
     "name": "Zuckerfreier Ahornsirup",
+    "nameEn": "Sugar-free maple syrup",
     "synonyms": [
       "Ahornsirup zuckerfrei",
       "kalorienarmer Ahornsirup",
@@ -4045,6 +4229,7 @@
   {
     "id": "zuckerschote",
     "name": "Zuckerschote",
+    "nameEn": "Mangetout",
     "synonyms": [
       "Kaiserschote",
       "Zuckererbse",
@@ -4062,6 +4247,7 @@
   {
     "id": "zwiebel",
     "name": "Zwiebel",
+    "nameEn": "Onion",
     "synonyms": [
       "Speisezwiebel",
       "Küchenzwiebel",

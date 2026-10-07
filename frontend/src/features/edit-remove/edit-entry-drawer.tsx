@@ -8,7 +8,7 @@ import { DecimalInput } from '../../components/ui/decimal-input';
 import { Field } from '../../components/ui/field';
 import { useEditLogEntry } from '../../queries/use-edit-log-entry';
 import { ErrorBanner } from '../../components/app/error-banner';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 // An empty / cleared macro field (DecimalInput emits null) means "not provided".
 const optionalMacro = z.preprocess(
@@ -17,7 +17,7 @@ const optionalMacro = z.preprocess(
 );
 
 const quickSchema = z.object({
-  calories: z.coerce.number<number>().positive(de.editEntry.validation.caloriesPositive),
+  calories: z.coerce.number<number>().positive(t.editEntry.validation.caloriesPositive),
   protein: optionalMacro,
   carbs: optionalMacro,
   fat: optionalMacro,
@@ -64,11 +64,11 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
   }
 
   return (
-    <BottomSheet open onClose={onClose} ariaLabel={de.editEntry.dialogAria} heightClassName="max-h-[90dvh]">
+    <BottomSheet open onClose={onClose} ariaLabel={t.editEntry.dialogAria} heightClassName="max-h-[90dvh]">
       <div className="flex shrink-0 items-center justify-between px-4 pt-3 pb-2">
-        <h2 className="text-sm font-semibold">{de.editEntry.title}</h2>
+        <h2 className="text-sm font-semibold">{t.editEntry.title}</h2>
         <Button variant="ghost" onClick={onClose} className="p-0 text-muted-foreground hover:text-foreground">
-          {de.editEntry.cancel}
+          {t.editEntry.cancel}
         </Button>
       </div>
 
@@ -76,7 +76,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
         {error && <ErrorBanner error={error} />}
         <p className="text-sm font-medium text-muted-foreground">{ing.label}</p>
 
-        <Field label={de.editEntry.caloriesLabel} htmlFor="edit-calories" error={errors.calories?.message}>
+        <Field label={t.editEntry.caloriesLabel} htmlFor="edit-calories" error={errors.calories?.message}>
           <Controller
             name="calories"
             control={control}
@@ -95,7 +95,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
 
         <div className="grid grid-cols-3 gap-2">
           {(['protein', 'carbs', 'fat'] as const).map((macro) => (
-            <Field key={macro} label={de.editEntry.macroLabel(de.macros[macro])} htmlFor={`edit-${macro}`} size="sm">
+            <Field key={macro} label={t.editEntry.macroLabel(t.macros[macro])} htmlFor={`edit-${macro}`} size="sm">
               <Controller
                 name={macro}
                 control={control}
@@ -117,7 +117,7 @@ export function EditEntryDrawer({ entry, onClose }: EditEntryDrawerProps) {
         </div>
 
         <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? de.editEntry.saving : de.editEntry.save}
+          {isPending ? t.editEntry.saving : t.editEntry.save}
         </Button>
       </form>
     </BottomSheet>

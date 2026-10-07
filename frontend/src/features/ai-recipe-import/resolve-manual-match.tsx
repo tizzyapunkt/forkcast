@@ -1,9 +1,9 @@
 import { Button } from '../../components/ui/button';
 import { SearchPanel } from '../log-ingredient/search-panel';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 
-const t = de.aiRecipeImport.resolve;
+const copy = t.aiRecipeImport.resolve;
 
 export function ManualMatch({
   onPick,
@@ -21,25 +21,25 @@ export function ManualMatch({
 }) {
   return (
     <div className="flex min-h-0 flex-col gap-2">
-      <span className="text-xs font-semibold uppercase tracking-wide text-primary">{t.manualEyebrow}</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-primary">{copy.manualEyebrow}</span>
       {rawName.trim().length > 0 && (
         <label className="flex items-start gap-2 rounded-md border border-input bg-accent/40 p-2.5 text-sm">
           <input
             type="checkbox"
             checked={learnSynonym}
             onChange={(e) => setLearnSynonym(e.target.checked)}
-            aria-label={t.learnSynonymToggle(rawName)}
+            aria-label={copy.learnSynonymToggle(rawName)}
             className="mt-0.5 h-4 w-4 rounded-sm"
           />
           <span className="min-w-0">
-            {t.learnSynonymToggle(rawName)}
-            <span className="block text-[11px] text-muted-foreground">{t.learnSynonymHint}</span>
+            {copy.learnSynonymToggle(rawName)}
+            <span className="block text-[11px] text-muted-foreground">{copy.learnSynonymHint}</span>
           </span>
         </label>
       )}
       <SearchPanel onSelect={onPick} />
       <Button variant="ghost" onClick={onBack} className="self-start p-0">
-        {t.manualBack}
+        {copy.manualBack}
       </Button>
     </div>
   );

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ImageOff, X } from 'lucide-react';
 import type { SupportedImageMediaType } from '../../api/import-recipe-from-photos';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
+import { intlLocale } from '../../i18n/format';
 import { Banner } from '../../components/ui/banner';
 import { Button } from '../../components/ui/button';
 import { prepareImageForUpload } from './prepare-image';
@@ -38,7 +39,7 @@ function megabytes(bytes: number): number {
 }
 
 function formatMegabytes(bytes: number): string {
-  return (bytes / (1024 * 1024)).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+  return (bytes / (1024 * 1024)).toLocaleString(intlLocale, { maximumFractionDigits: 1 });
 }
 
 export function PhotoStaging({
@@ -84,7 +85,7 @@ export function PhotoStaging({
     const accepted: StagedPhoto[] = [];
 
     const remaining = maxImages - photos.length;
-    if (incoming.length > remaining) newErrors.push(de.aiRecipeImport.tooManyImages(maxImages));
+    if (incoming.length > remaining) newErrors.push(t.aiRecipeImport.tooManyImages(maxImages));
 
     let totalBytes = photos.reduce((sum, p) => sum + p.sizeBytes, 0);
 
@@ -94,7 +95,7 @@ export function PhotoStaging({
       for (const [idx, file] of allowedSlice.entries()) {
         const positionInSet = photos.length + idx + 1;
         if (!isSupported(file.type)) {
-          newErrors.push(de.aiRecipeImport.unsupportedType(file.type || 'unknown'));
+          newErrors.push(t.aiRecipeImport.unsupportedType(file.type || 'unknown'));
           continue;
         }
 
@@ -103,11 +104,11 @@ export function PhotoStaging({
         if (!mounted.current) return;
 
         if (prepared.size > maxImageBytes) {
-          newErrors.push(de.aiRecipeImport.imageTooLarge(positionInSet, megabytes(maxImageBytes)));
+          newErrors.push(t.aiRecipeImport.imageTooLarge(positionInSet, megabytes(maxImageBytes)));
           continue;
         }
         if (totalBytes + prepared.size > maxTotalBytes) {
-          newErrors.push(de.aiRecipeImport.totalTooLarge(megabytes(maxTotalBytes)));
+          newErrors.push(t.aiRecipeImport.totalTooLarge(megabytes(maxTotalBytes)));
           break;
         }
         totalBytes += prepared.size;
@@ -158,21 +159,19 @@ export function PhotoStaging({
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">
-            {de.aiRecipeImport.photoCount(photos.length, maxImages)}
-            {photos.length > 0 && ` · ${de.aiRecipeImport.photoTotalSize(formatMegabytes(totalBytes))}`}
+            {t.aiRecipeImport.photoCount(photos.length, maxImages)}
+            {photos.length > 0 && ` · ${t.aiRecipeImport.photoTotalSize(formatMegabytes(totalBytes))}`}
           </p>
-          <p className="text-[11px] text-muted-foreground/80">
-            {de.aiRecipeImport.photoHint(megabytes(maxImageBytes))}
-          </p>
+          <p className="text-[11px] text-muted-foreground/80">{t.aiRecipeImport.photoHint(megabytes(maxImageBytes))}</p>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => inputRef.current?.click()}
           disabled={busy || photos.length >= maxImages}
-          aria-label={photos.length === 0 ? de.aiRecipeImport.pickPhotosAria : de.aiRecipeImport.addMore}
+          aria-label={photos.length === 0 ? t.aiRecipeImport.pickPhotosAria : t.aiRecipeImport.addMore}
         >
-          {photos.length === 0 ? `+ ${de.aiRecipeImport.pickPhotos}` : `+ ${de.aiRecipeImport.addMore}`}
+          {photos.length === 0 ? `+ ${t.aiRecipeImport.pickPhotos}` : `+ ${t.aiRecipeImport.addMore}`}
         </Button>
       </div>
 
@@ -186,16 +185,16 @@ export function PhotoStaging({
       />
 
       <p aria-live="polite" className="sr-only">
-        {preparing ? de.aiRecipeImport.preparingPhotos : ''}
+        {preparing ? t.aiRecipeImport.preparingPhotos : ''}
       </p>
       {preparing && (
         <p className="text-xs text-muted-foreground" data-testid="preparing-photos">
-          {de.aiRecipeImport.preparingPhotos}
+          {t.aiRecipeImport.preparingPhotos}
         </p>
       )}
 
       {errors.length > 0 && (
-        <Banner tone="error" density="sm" onDismiss={() => setErrors([])} dismissLabel={de.aiRecipeImport.dismissHints}>
+        <Banner tone="error" density="sm" onDismiss={() => setErrors([])} dismissLabel={t.aiRecipeImport.dismissHints}>
           <ul className="space-y-1">
             {errors.map((err, idx) => (
               <li key={idx} className="break-words">
@@ -217,12 +216,12 @@ export function PhotoStaging({
               {brokenIds.includes(photo.id) ? (
                 <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 bg-muted px-2 text-center">
                   <ImageOff aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground">{de.aiRecipeImport.photoUnavailable}</span>
+                  <span className="text-[11px] text-muted-foreground">{t.aiRecipeImport.photoUnavailable}</span>
                 </div>
               ) : (
                 <img
                   src={photo.previewUrl}
-                  alt={de.aiRecipeImport.photoAlt(idx + 1)}
+                  alt={t.aiRecipeImport.photoAlt(idx + 1)}
                   onError={() => setBrokenIds((prev) => (prev.includes(photo.id) ? prev : [...prev, photo.id]))}
                   className="aspect-square w-full object-cover"
                 />
@@ -236,7 +235,7 @@ export function PhotoStaging({
                   size="icon"
                   onClick={() => move(idx, -1)}
                   disabled={idx === 0}
-                  aria-label={de.aiRecipeImport.moveUp(idx + 1)}
+                  aria-label={t.aiRecipeImport.moveUp(idx + 1)}
                 >
                   <ArrowUp aria-hidden="true" className="h-4 w-4" />
                 </Button>
@@ -245,7 +244,7 @@ export function PhotoStaging({
                   size="icon"
                   onClick={() => move(idx, 1)}
                   disabled={idx === photos.length - 1}
-                  aria-label={de.aiRecipeImport.moveDown(idx + 1)}
+                  aria-label={t.aiRecipeImport.moveDown(idx + 1)}
                 >
                   <ArrowDown aria-hidden="true" className="h-4 w-4" />
                 </Button>
@@ -253,7 +252,7 @@ export function PhotoStaging({
                   variant="scrim"
                   size="icon"
                   onClick={() => remove(idx)}
-                  aria-label={de.aiRecipeImport.removePhoto(idx + 1)}
+                  aria-label={t.aiRecipeImport.removePhoto(idx + 1)}
                 >
                   <X aria-hidden="true" className="h-4 w-4" />
                 </Button>

@@ -1,5 +1,5 @@
 import { BookOpen, CalendarDays, ListChecks, Settings } from 'lucide-react';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 export type AppView = 'log' | 'planner' | 'recipes' | 'settings';
 
@@ -15,10 +15,10 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { view: 'log', label: de.nav.log, Icon: ListChecks },
-  { view: 'planner', label: de.nav.planner, Icon: CalendarDays },
-  { view: 'recipes', label: de.nav.recipes, Icon: BookOpen },
-  { view: 'settings', label: de.nav.settings, Icon: Settings },
+  { view: 'log', label: t.nav.log, Icon: ListChecks },
+  { view: 'planner', label: t.nav.planner, Icon: CalendarDays },
+  { view: 'recipes', label: t.nav.recipes, Icon: BookOpen },
+  { view: 'settings', label: t.nav.settings, Icon: Settings },
 ];
 
 export function BottomNav({ active, onChange }: Props) {
@@ -27,7 +27,7 @@ export function BottomNav({ active, onChange }: Props) {
     // in the installed PWA; it is 0 everywhere else.
     <nav
       role="navigation"
-      aria-label={de.nav.primary}
+      aria-label={t.nav.primary}
       className="pb-safe-b fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background"
     >
       {TABS.map(({ view, label, Icon }) => {

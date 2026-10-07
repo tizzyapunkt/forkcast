@@ -1,6 +1,7 @@
 import type { ClientLogEntry } from '../../lib/client-log';
 import type { ServerLogEntry } from '../../api/debug-logs';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
+import { formatClockTime } from '../../i18n/format';
 
 interface BundleContext {
   url: string;
@@ -14,15 +15,10 @@ interface BundleInput {
   server: ServerLogEntry[] | undefined;
 }
 
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleTimeString('de-DE', { hour12: false });
-}
-
 function renderEntries(entries: Array<ClientLogEntry | ServerLogEntry>): string[] {
-  if (entries.length === 0) return [de.diagnostics.empty];
+  if (entries.length === 0) return [t.diagnostics.empty];
   return entries.flatMap((e) => {
-    const line = `${formatTime(e.at)} [${e.kind}] ${e.message}`;
+    const line = `${formatClockTime(e.at)} [${e.kind}] ${e.message}`;
     return e.detail ? [line, `    ${e.detail.split('\n').join('\n    ')}`] : [line];
   });
 }
@@ -34,11 +30,11 @@ export function buildDiagnosticsBundle({ context, client, server }: BundleInput)
     `URL: ${context.url}`,
     `User-Agent: ${context.userAgent}`,
     '',
-    `## ${de.diagnostics.clientSection} (${de.diagnostics.entryCount(client.length)})`,
+    `## ${t.diagnostics.clientSection} (${t.diagnostics.entryCount(client.length)})`,
     ...renderEntries(client),
     '',
-    `## ${de.diagnostics.serverSection}${server ? ` (${de.diagnostics.entryCount(server.length)})` : ''}`,
-    ...(server ? renderEntries(server) : [de.diagnostics.serverError]),
+    `## ${t.diagnostics.serverSection}${server ? ` (${t.diagnostics.entryCount(server.length)})` : ''}`,
+    ...(server ? renderEntries(server) : [t.diagnostics.serverError]),
     '',
   ];
   return lines.join('\n');

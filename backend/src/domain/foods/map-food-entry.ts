@@ -1,11 +1,20 @@
 import type { IngredientResultSource, IngredientSearchResult } from '../ingredient-search/types.ts';
-import type { FoodEntry } from './types.ts';
+import type { CatalogLocale, FoodEntry } from './types.ts';
 
-export function mapFoodEntry(entry: FoodEntry, source: IngredientResultSource = 'CATALOG'): IngredientSearchResult {
+/** The name an entry is shown by in `locale`: the English name in English when it has one, else the canonical name. */
+export function foodDisplayName(entry: Pick<FoodEntry, 'name' | 'nameEn'>, locale: CatalogLocale): string {
+  return locale === 'en' && entry.nameEn !== undefined ? entry.nameEn : entry.name;
+}
+
+export function mapFoodEntry(
+  entry: FoodEntry,
+  source: IngredientResultSource = 'CATALOG',
+  locale: CatalogLocale = 'de',
+): IngredientSearchResult {
   const result: IngredientSearchResult = {
     id: entry.id,
     source,
-    name: entry.name,
+    name: foodDisplayName(entry, locale),
     unit: entry.unit,
     macrosPerUnit: {
       calories: entry.macrosPer100.calories / 100,

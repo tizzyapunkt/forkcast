@@ -5,7 +5,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { Recipe } from '../../domain/recipes';
 import { BottomSheet } from '../../components/app/bottom-sheet';
 import { Button } from '../../components/ui/button';
-import { de, slotLabelsDe } from '../../i18n/de';
+import { t } from '../../i18n';
 import { QuickEntryForm } from './quick-entry-form';
 import { SearchPanel } from './search-panel';
 import { CreateFoodSheet } from '../ai-recipe-import/create-food-sheet';
@@ -96,18 +96,18 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
     setStep({ kind: 'search' });
   }
 
-  const slotLabel = slotLabelsDe[slot];
+  const slotLabel = t.slotLabels[slot];
   const title = !target
-    ? de.logIngredient.addToSlot(slotLabel)
+    ? t.logIngredient.addToSlot(slotLabel)
     : target.kind === 'replace'
-      ? de.logIngredient.replaceInRecipe(target.recipeName)
-      : de.logIngredient.addToRecipe(target.recipeName);
+      ? t.logIngredient.replaceInRecipe(target.recipeName)
+      : t.logIngredient.addToRecipe(target.recipeName);
   const inSubStep = step.kind !== 'search';
 
   const drawerHeight = tab === 'quick' ? 'h-[55dvh]' : 'h-[82dvh]';
 
   return (
-    <BottomSheet open onClose={handleClose} ariaLabel={de.logIngredient.dialogAria} heightClassName={drawerHeight}>
+    <BottomSheet open onClose={handleClose} ariaLabel={t.logIngredient.dialogAria} heightClassName={drawerHeight}>
       <div className="shrink-0">
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <div className="flex min-w-0 items-center gap-1">
@@ -116,7 +116,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
                 variant="ghost"
                 size="iconSm"
                 onClick={handleBack}
-                aria-label={de.logIngredient.back}
+                aria-label={t.logIngredient.back}
                 className="-ml-2"
               >
                 <ChevronLeft size={22} aria-hidden="true" />
@@ -129,7 +129,7 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
             onClick={handleClose}
             className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
           >
-            {de.logIngredient.cancel}
+            {t.logIngredient.cancel}
           </button>
         </div>
 
@@ -139,19 +139,19 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
               onClick={() => handleTabChange('search')}
               className={`shrink-0 pb-2 ${tab === 'search' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.logIngredient.search}
+              {t.logIngredient.search}
             </button>
             <button
               onClick={() => handleTabChange('favorites')}
               className={`shrink-0 pb-2 ${tab === 'favorites' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.logIngredient.favorites}
+              {t.logIngredient.favorites}
             </button>
             <button
               onClick={() => handleTabChange('recent')}
               className={`shrink-0 pb-2 ${tab === 'recent' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.logIngredient.recent}
+              {t.logIngredient.recent}
             </button>
             {!target && (
               <>
@@ -159,13 +159,13 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
                   onClick={() => handleTabChange('recipes')}
                   className={`shrink-0 pb-2 ${tab === 'recipes' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
                 >
-                  {de.logIngredient.recipesTab}
+                  {t.logIngredient.recipesTab}
                 </button>
                 <button
                   onClick={() => handleTabChange('quick')}
                   className={`shrink-0 pb-2 ${tab === 'quick' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
                 >
-                  {de.logIngredient.quick}
+                  {t.logIngredient.quick}
                 </button>
               </>
             )}

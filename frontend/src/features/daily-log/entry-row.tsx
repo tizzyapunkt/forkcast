@@ -6,7 +6,7 @@ import { EditEntryDrawer } from '../edit-remove/edit-entry-drawer';
 import { RemoveEntryConfirm } from '../edit-remove/remove-entry-confirm';
 import { InlineAmountInput } from './inline-amount-input';
 import { Button } from '../../components/ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface EntryRowProps {
   entry: LogEntry;
@@ -48,7 +48,7 @@ export function EntryRow({ entry, hideRecipeHint, onReplace }: EntryRowProps) {
           <span className="font-medium">{label}</span>
           {recipeName && (
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground" data-testid="recipe-hint">
-              {de.entryRow.fromRecipe(recipeName)}
+              {t.entryRow.fromRecipe(recipeName)}
             </span>
           )}
           {ingredient.type === 'full' && (
@@ -63,21 +63,21 @@ export function EntryRow({ entry, hideRecipeHint, onReplace }: EntryRowProps) {
           <span className="flex min-w-0 flex-wrap items-baseline justify-end gap-x-1.5 text-right text-muted-foreground">
             <span className="whitespace-nowrap">
               {calories}
-              {de.dailyLog.kcalSuffix}
+              {t.dailyLog.kcalSuffix}
             </span>
             {macros && (
               <span className="whitespace-nowrap text-xs">
-                {de.dailyLog.macroInline(macros.protein, macros.carbs, macros.fat)}
+                {t.dailyLog.macroInline(macros.protein, macros.carbs, macros.fat)}
               </span>
             )}
           </span>
           {ingredient.type === 'quick' && (
             <button
               onClick={() => setEditing(true)}
-              aria-label={de.entryRow.editAria}
+              aria-label={t.entryRow.editAria}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              {de.entryRow.edit}
+              {t.entryRow.edit}
             </button>
           )}
           {onReplace && (
@@ -85,7 +85,7 @@ export function EntryRow({ entry, hideRecipeHint, onReplace }: EntryRowProps) {
               variant="ghost"
               size="iconSm"
               onClick={onReplace}
-              aria-label={de.entryRow.replaceAria(label)}
+              aria-label={t.entryRow.replaceAria(label)}
               className="-my-1 text-muted-foreground"
             >
               <ArrowLeftRight aria-hidden="true" className="h-4 w-4" />
@@ -95,7 +95,7 @@ export function EntryRow({ entry, hideRecipeHint, onReplace }: EntryRowProps) {
             variant="quietDestructive"
             size="iconSm"
             onClick={() => setRemoving(true)}
-            aria-label={de.entryRow.removeAria}
+            aria-label={t.entryRow.removeAria}
             className="-my-1"
           >
             <X aria-hidden="true" className="h-4 w-4" />

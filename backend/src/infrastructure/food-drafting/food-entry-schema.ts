@@ -9,6 +9,11 @@ export const FOOD_ENTRY_SCHEMA = {
   properties: {
     id: { type: 'string', description: 'Stable ASCII kebab-case id (German romanisation: ä→ae, ö→oe, ü→ue, ß→ss).' },
     name: { type: 'string', description: 'Canonical German display name with proper umlauts and capitalisation.' },
+    nameEn: {
+      type: 'string',
+      description:
+        'The common English name of the same food, in sentence case (e.g. "Carrot", "Balsamic vinegar"). Keep a loanword English uses as is ("Quark").',
+    },
     synonyms: {
       type: 'array',
       items: { type: 'string' },
@@ -45,12 +50,13 @@ export const FOOD_ENTRY_SCHEMA = {
         'Optional. Mass per millilitre (g/ml). Include ONLY for g-unit dry staples commonly measured by spoon (e.g. Speisestärke ≈ 0.55, flour ≈ 0.55, sugar ≈ 0.85) so spoon amounts convert to grams. Omit for liquids and non-spoon foods.',
     },
   },
-  required: ['id', 'name', 'synonyms', 'unit', 'macrosPer100'],
+  required: ['id', 'name', 'nameEn', 'synonyms', 'unit', 'macrosPer100'],
 } as const;
 
 /** The entry-quality rules both drafting prompts state, so a drafted entry looks the same either way. */
 export const FOOD_ENTRY_GUIDANCE = `Entry rules:
 - Canonical German display name with proper umlauts and capitalisation; the synonyms list mixes German alternates and 1-2 common English equivalents and MUST NOT repeat the canonical name.
+- nameEn: the food's common English name in sentence case (Möhre → "Carrot", Balsamicoessig → "Balsamic vinegar"); keep a loanword English uses unchanged (Quark → "Quark"). The canonical name stays German even when the food was named in English.
 - macrosPer100 are per 100 g (or 100 ml) from authoritative nutrition tables, as plausible non-negative numbers. Use the raw, unprepared food unless the name says otherwise.
 - unit is "g" for solids and "ml" for liquids only.
 - pieces: 1-3 typical piece weights when the food is commonly counted by piece (vegetables, fruits, cuts of meat); omit for liquids, grains, oils, and powders.

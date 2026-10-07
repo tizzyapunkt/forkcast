@@ -1,9 +1,9 @@
 import type { IngredientMatchProvenance, RawIngredientProvenance } from '../../domain/recipes';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { fold } from '../../lib/fold';
 import { formatPieceCount } from './scale-ingredient';
 
-const p = de.recipeIngredientEditor.provenance;
+const p = t.recipeIngredientEditor.provenance;
 
 /**
  * What the model read for this row, as one short line. The verbatim transcription wins; without

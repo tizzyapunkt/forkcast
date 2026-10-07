@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { computeMovingAverage } from '../../domain/weight-log-trend';
 import type { WeightEntry } from '../../domain/weight-log';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 type Range = '30d' | '90d' | '180d' | '365d' | 'all';
 
@@ -15,11 +15,11 @@ const RANGE_DAYS: Record<Range, number | null> = {
 };
 
 const RANGES: { value: Range; label: string }[] = [
-  { value: '30d', label: de.weightLog.chartRange30 },
-  { value: '90d', label: de.weightLog.chartRange90 },
-  { value: '180d', label: de.weightLog.chartRange180 },
-  { value: '365d', label: de.weightLog.chartRange365 },
-  { value: 'all', label: de.weightLog.chartRangeAll },
+  { value: '30d', label: t.weightLog.chartRange30 },
+  { value: '90d', label: t.weightLog.chartRange90 },
+  { value: '180d', label: t.weightLog.chartRange180 },
+  { value: '365d', label: t.weightLog.chartRange365 },
+  { value: 'all', label: t.weightLog.chartRangeAll },
 ];
 
 interface WeightChartProps {
@@ -43,8 +43,8 @@ export function WeightChart({ entries, asOf, defaultRange = '90d' }: WeightChart
   const hasMa = useMemo(() => rows.some((r) => r.ma !== null), [rows]);
 
   return (
-    <section aria-label={de.weightLog.chartLabel} className="space-y-3">
-      <div className="flex gap-2" role="radiogroup" aria-label={de.weightLog.chartRangeAria}>
+    <section aria-label={t.weightLog.chartLabel} className="space-y-3">
+      <div className="flex gap-2" role="radiogroup" aria-label={t.weightLog.chartRangeAria}>
         {RANGES.map((r) => (
           <button
             key={r.value}
@@ -63,7 +63,7 @@ export function WeightChart({ entries, asOf, defaultRange = '90d' }: WeightChart
 
       {rawCount === 0 ? (
         <p className="rounded-md border border-dashed border-input p-6 text-center text-sm text-muted-foreground">
-          {de.weightLog.chartEmpty}
+          {t.weightLog.chartEmpty}
         </p>
       ) : (
         <div

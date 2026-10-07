@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface AppHeaderProps {
   /**
@@ -29,7 +29,7 @@ export function AppHeader({ title, subtitle, onBack, backAria, children, bottom 
               variant="onDark"
               size="iconSm"
               onClick={onBack}
-              aria-label={backAria ?? de.recipeForm.backAria}
+              aria-label={backAria ?? t.recipeForm.backAria}
               // -my-1 keeps the 36px tap target without making the row taller than the
               // title's first line, so the chevron centers on the title rather than sitting low.
               className="-my-1 -ml-2 text-white"
@@ -40,7 +40,7 @@ export function AppHeader({ title, subtitle, onBack, backAria, children, bottom 
           <div className="min-w-0 flex-1">
             {/* leading-7 (28px) gives the title's first line the same height as the back
                 button's tap target, so its text centers level with the chevron. */}
-            <h1 className="text-lg font-semibold leading-7 [overflow-wrap:break-word]">{title ?? de.appTitle}</h1>
+            <h1 className="text-lg font-semibold leading-7 [overflow-wrap:break-word]">{title ?? t.appTitle}</h1>
             {subtitle && <p className="-mt-0.5 text-xs font-medium text-white/70">{subtitle}</p>}
           </div>
         </div>

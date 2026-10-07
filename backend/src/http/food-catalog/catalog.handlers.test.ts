@@ -102,6 +102,29 @@ describe('POST /add-catalog-entry', () => {
     expect(store.list()).toEqual([moehre]);
   });
 
+  it('400s a blank English name and leaves the catalog unchanged', async () => {
+    const store = new FakeCatalogStore([moehre]);
+
+    const res = await post(makeApp(store), '/add-catalog-entry', { entry: { ...balsamico, nameEn: '  ' } });
+
+    expect(res.status).toBe(400);
+    expect(store.list()).toEqual([moehre]);
+  });
+
+  it('400s an English name that duplicates an existing entry and names it', async () => {
+    const store = new FakeCatalogStore([{ ...moehre, nameEn: 'Carrot' }]);
+
+    const res = await post(makeApp(store), '/add-catalog-entry', {
+      entry: { ...balsamico, name: 'Karotte gelb', nameEn: 'carrot' },
+    });
+
+    expect(res.status).toBe(400);
+    expect((await res.json()) as { code: string; existingId: string }).toMatchObject({
+      code: 'catalog-entry-exists',
+      existingId: 'moehre',
+    });
+  });
+
   it('400s a body without an entry', async () => {
     const res = await post(makeApp(new FakeCatalogStore()), '/add-catalog-entry', { nope: true });
     expect(res.status).toBe(400);
@@ -121,6 +144,27 @@ describe('POST /update-catalog-entry', () => {
     expect(res.status).toBe(200);
     expect(store.findById('moehre')?.macrosPer100.calories).toBe(25);
     expect((await search.searchByName('möhre'))[0]!.macrosPerUnit.calories).toBeCloseTo(0.25);
+  });
+
+  it('saves an English name added from the manager', async () => {
+    const store = new FakeCatalogStore([moehre]);
+
+    const res = await post(makeApp(store), '/update-catalog-entry', {
+      id: 'moehre',
+      entry: { ...moehre, nameEn: 'Carrot' },
+    });
+
+    expect(res.status).toBe(200);
+    expect(store.findById('moehre')?.nameEn).toBe('Carrot');
+  });
+
+  it('400s an update to a blank English name and leaves the entry untouched', async () => {
+    const store = new FakeCatalogStore([moehre]);
+
+    const res = await post(makeApp(store), '/update-catalog-entry', { id: 'moehre', entry: { ...moehre, nameEn: '' } });
+
+    expect(res.status).toBe(400);
+    expect(store.findById('moehre')).toEqual(moehre);
   });
 
   it('drops a synonym the user removed', async () => {

@@ -203,6 +203,12 @@ describe('buildGroceryList', () => {
     expect(list.items.find((i) => i.name === 'Speisezwiebel')?.pieceHint).toEqual({ count: 1, label: 'mittel' });
   });
 
+  it('adds a piece hint for an entry logged under its English name', async () => {
+    const list = await build([adhoc('Onion', 360, '2026-09-28')], { catalog: [{ ...zwiebel, nameEn: 'Onion' }] });
+
+    expect(list.items[0]!.pieceHint).toEqual({ count: 2, label: 'mittel' });
+  });
+
   it("falls back to the catalog's first piece when there is no 'mittel'", async () => {
     const ei: FoodEntry = { ...zwiebel, id: 'ei', name: 'Ei', synonyms: [], pieces: [{ label: 'Größe M', grams: 60 }] };
 

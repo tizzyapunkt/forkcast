@@ -13,6 +13,10 @@ describe('parseDecimal', () => {
     expect(parseDecimal('0,25')).toBe(0.25);
   });
 
+  it('accepts both separators in either UI locale (parsing takes no locale)', () => {
+    for (const raw of ['1,5', '1.5']) expect(parseDecimal(raw)).toBe(1.5);
+  });
+
   it('tolerates surrounding whitespace', () => {
     expect(parseDecimal('  1,5  ')).toBe(1.5);
   });

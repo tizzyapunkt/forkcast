@@ -1,3 +1,4 @@
+import type { Locale } from '../i18n/locale';
 import type { MacrosPerUnit } from './meal-log';
 
 export interface CatalogPieceWeight {
@@ -8,7 +9,10 @@ export interface CatalogPieceWeight {
 /** One food in the user's editable catalog — the same shape the backend persists. */
 export interface CatalogEntry {
   id: string;
+  /** Canonical German name. */
   name: string;
+  /** Optional English display name, used when the app runs in English. */
+  nameEn?: string;
   synonyms: string[];
   unit: 'g' | 'ml';
   macrosPer100: MacrosPerUnit;
@@ -20,6 +24,11 @@ export interface CatalogEntry {
 
 /** A new or edited entry as the editor holds it — the id is derived from the name by the backend. */
 export type CatalogEntryDraft = Omit<CatalogEntry, 'id'> & { id?: string };
+
+/** The name an entry is listed by: its English name in English when it has one, else the canonical name. */
+export function catalogDisplayName(entry: Pick<CatalogEntry, 'name' | 'nameEn'>, locale: Locale): string {
+  return locale === 'en' && entry.nameEn ? entry.nameEn : entry.name;
+}
 
 const ZERO_MACROS: MacrosPerUnit = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 

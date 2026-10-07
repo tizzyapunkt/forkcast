@@ -1,8 +1,8 @@
 import { ApiError } from '../../api/client';
 import { ImportNotConfiguredError } from '../../api/import-recipe-from-photos';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
-const f = de.aiRecipeImport.failure;
+const f = t.aiRecipeImport.failure;
 
 /** The client gave up waiting for the vision call — distinct from the user cancelling it. */
 export class ImportTimeoutError extends Error {
@@ -36,7 +36,7 @@ export interface ImportFailure {
  */
 export function describeImportFailure(error: unknown): ImportFailure {
   if (error instanceof ImportNotConfiguredError) {
-    return { message: de.aiRecipeImport.notConfigured, hint: f.notConfiguredHint, canRetry: false };
+    return { message: t.aiRecipeImport.notConfigured, hint: f.notConfiguredHint, canRetry: false };
   }
 
   // A bare AbortError means the browser aborted without our reason surviving — treat the

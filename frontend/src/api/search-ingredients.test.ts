@@ -34,6 +34,37 @@ describe('searchIngredients', () => {
     expect(new URL(capturedUrl).searchParams.has('sources')).toBe(false);
   });
 
+  it('carries the active locale', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    await searchIngredients('apfel');
+    expect(new URL(capturedUrl).searchParams.get('locale')).toBe('de');
+  });
+
+  it('carries locale=en when the app runs in English', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('/api/search-ingredients', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
+    localStorage.setItem('forkcast:locale', 'en');
+    vi.resetModules();
+    try {
+      const fresh = await import('./search-ingredients');
+      await fresh.searchIngredients('apple');
+    } finally {
+      localStorage.setItem('forkcast:locale', 'de');
+    }
+    expect(new URL(capturedUrl).searchParams.get('locale')).toBe('en');
+  });
+
   it('appends sources param as lowercase comma-joined string', async () => {
     let capturedUrl = '';
     server.use(

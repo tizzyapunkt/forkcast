@@ -10,7 +10,7 @@ import { useImportConfigured } from '../ai-recipe-import/use-import-configured';
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import { Camera, ChevronRight, CookingPot, Plus } from 'lucide-react';
 import { AppHeader } from '../../components/app/app-header';
-import { de, formatMacroTriplet } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Button } from '../../components/ui/button';
 
 type View = { mode: 'list' } | { mode: 'create' } | { mode: 'import' } | { mode: 'detail'; id: string };
@@ -33,8 +33,8 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
   if (view.mode === 'create') {
     return (
       <RecipeForm
-        title={de.recipeForm.titleNew}
-        submitLabel={de.recipes.create}
+        title={t.recipeForm.titleNew}
+        submitLabel={t.recipes.create}
         isSubmitting={addMutation.isPending}
         error={addMutation.error}
         onCancel={() => setView({ mode: 'list' })}
@@ -59,7 +59,7 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
 
   return (
     <>
-      <AppHeader title={de.recipes.screenTitle} />
+      <AppHeader title={t.recipes.screenTitle} />
       <div className="space-y-3 p-4">
         <div className="flex gap-2">
           {importConfigured && (
@@ -67,19 +67,19 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
               variant="outline"
               onClick={() => setView({ mode: 'import' })}
               className="flex-1 gap-1.5 px-3 text-primary"
-              aria-label={de.aiRecipeImport.entryButtonAria}
+              aria-label={t.aiRecipeImport.entryButtonAria}
             >
               <Camera size={16} aria-hidden="true" />
-              {de.aiRecipeImport.entryButton}
+              {t.aiRecipeImport.entryButton}
             </Button>
           )}
           <Button
             onClick={() => setView({ mode: 'create' })}
             className="flex-1 gap-1.5 px-3"
-            aria-label={de.recipes.newRecipeAria}
+            aria-label={t.recipes.newRecipeAria}
           >
             <Plus size={16} aria-hidden="true" />
-            {de.recipes.newButton}
+            {t.recipes.newButton}
           </Button>
         </div>
 
@@ -87,7 +87,7 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
         {isLoading && <ListSkeleton rows={4} />}
 
         {!isLoading && recipes && recipes.length === 0 && (
-          <p className="text-sm text-muted-foreground">{de.recipes.empty}</p>
+          <p className="text-sm text-muted-foreground">{t.recipes.empty}</p>
         )}
 
         {recipes && recipes.length > 0 && (
@@ -115,11 +115,12 @@ export function RecipesScreen({ onSubScreenChange }: Props = {}) {
                         <span className="font-bold text-primary">{Math.round(perServing.calories)} kcal</span>
                         <span className="text-muted-foreground">
                           {' · '}
-                          {formatMacroTriplet(perServing.protein, perServing.carbs, perServing.fat)} / Portion
+                          {t.formatMacroTriplet(perServing.protein, perServing.carbs, perServing.fat)}{' '}
+                          {t.recipes.perServingSuffix}
                         </span>
                       </span>
                       <span className="mt-0.5 block text-[11px] text-muted-foreground/70">
-                        {de.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
+                        {t.recipes.listMeta(recipe.ingredients.length, recipe.yield)}
                       </span>
                     </span>
                     <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-muted-foreground/60" />

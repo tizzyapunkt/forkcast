@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/input';
 import { RecipeIngredientEditor } from './recipe-ingredient-editor';
 import { PerPortionHero } from './per-portion-hero';
 import { ArrowDown, ArrowUp, X } from 'lucide-react';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
 interface Props {
   initial?: Recipe;
@@ -57,15 +57,15 @@ export function RecipeForm({
     e.preventDefault();
     setValidationError(null);
     if (name.trim().length === 0) {
-      setValidationError(de.recipeForm.nameRequired);
+      setValidationError(t.recipeForm.nameRequired);
       return;
     }
     if (!Number.isFinite(recipeYield) || recipeYield < 1) {
-      setValidationError(de.recipeForm.yieldMin);
+      setValidationError(t.recipeForm.yieldMin);
       return;
     }
     if (ingredients.length === 0) {
-      setValidationError(de.recipeForm.minOneIngredient);
+      setValidationError(t.recipeForm.minOneIngredient);
       return;
     }
     const trimmedSteps = steps.map((s) => s.trim()).filter((s) => s.length > 0);
@@ -103,19 +103,19 @@ export function RecipeForm({
 
   return (
     <>
-      {title && <AppHeader title={title} onBack={onCancel} backAria={de.recipeForm.backAria} />}
+      {title && <AppHeader title={title} onBack={onCancel} backAria={t.recipeForm.backAria} />}
       <form onSubmit={handleSubmit} className="space-y-4 p-4">
         {headerSlot}
         {error && <ErrorBanner error={error} />}
         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
 
-        <Field label={de.recipeForm.name} htmlFor="recipe-name">
+        <Field label={t.recipeForm.name} htmlFor="recipe-name">
           <Input
             id="recipe-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full"
-            placeholder={de.recipeForm.namePlaceholder}
+            placeholder={t.recipeForm.namePlaceholder}
           />
         </Field>
 
@@ -135,20 +135,20 @@ export function RecipeForm({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{de.recipeForm.steps}</h3>
+            <h3 className="text-sm font-medium">{t.recipeForm.steps}</h3>
             <Button variant="outline" size="sm" onClick={addStep}>
-              {de.recipeForm.addStep}
+              {t.recipeForm.addStep}
             </Button>
           </div>
           {steps.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{de.recipeForm.noStepsOptional}</p>
+            <p className="text-sm text-muted-foreground">{t.recipeForm.noStepsOptional}</p>
           ) : (
             <ol className="space-y-2">
               {steps.map((s, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <span className="pt-2 text-xs text-muted-foreground">{idx + 1}.</span>
                   <textarea
-                    aria-label={de.recipeForm.stepAria(idx + 1)}
+                    aria-label={t.recipeForm.stepAria(idx + 1)}
                     value={s}
                     onChange={(e) => updateStep(idx, e.target.value)}
                     className="min-h-[3rem] min-w-0 flex-1 rounded-md border px-3 py-2 text-base sm:text-sm"
@@ -157,7 +157,7 @@ export function RecipeForm({
                     <Button
                       variant="quiet"
                       size="iconSm"
-                      aria-label={de.recipeForm.moveStepUp(idx + 1)}
+                      aria-label={t.recipeForm.moveStepUp(idx + 1)}
                       onClick={() => moveStep(idx, -1)}
                     >
                       <ArrowUp aria-hidden="true" className="h-4 w-4" />
@@ -165,7 +165,7 @@ export function RecipeForm({
                     <Button
                       variant="quiet"
                       size="iconSm"
-                      aria-label={de.recipeForm.moveStepDown(idx + 1)}
+                      aria-label={t.recipeForm.moveStepDown(idx + 1)}
                       onClick={() => moveStep(idx, 1)}
                     >
                       <ArrowDown aria-hidden="true" className="h-4 w-4" />
@@ -173,7 +173,7 @@ export function RecipeForm({
                     <Button
                       variant="quietDestructive"
                       size="iconSm"
-                      aria-label={de.recipeForm.removeStep(idx + 1)}
+                      aria-label={t.recipeForm.removeStep(idx + 1)}
                       onClick={() => removeStep(idx)}
                     >
                       <X aria-hidden="true" className="h-4 w-4" />
@@ -187,10 +187,10 @@ export function RecipeForm({
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={onCancel} className="flex-1">
-            {de.recipeForm.cancel}
+            {t.recipeForm.cancel}
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? de.recipeForm.saving : submitLabel}
+            {isSubmitting ? t.recipeForm.saving : submitLabel}
           </Button>
         </div>
       </form>

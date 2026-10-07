@@ -3,11 +3,11 @@ import { ChevronRight } from 'lucide-react';
 import { exportCatalog } from '../../api/catalog';
 import { useCatalog } from '../../queries/use-catalog';
 import type { CatalogEntry } from '../../domain/food-catalog';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 
-const t = de.catalog;
+const copy = t.catalog;
 
 function pad2(n: number): string {
   return n < 10 ? `0${n}` : String(n);
@@ -60,20 +60,20 @@ export function CatalogPanel({ onManage }: CatalogPanelProps) {
 
   return (
     <Card data-testid="catalog-panel">
-      <h3 className="text-sm font-semibold">{t.title}</h3>
-      <p className="mt-1 text-xs text-muted-foreground">{t.hint}</p>
-      <p className="mt-2 text-xs font-medium">{t.countLabel(count)}</p>
+      <h3 className="text-sm font-semibold">{copy.title}</h3>
+      <p className="mt-1 text-xs text-muted-foreground">{copy.hint}</p>
+      <p className="mt-2 text-xs font-medium">{copy.countLabel(count)}</p>
 
       <Button variant="outline" onClick={onManage} className="mt-3 w-full justify-between px-3 text-left">
-        <span className="font-medium">{t.manageLink}</span>
+        <span className="font-medium">{copy.manageLink}</span>
         <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0" />
       </Button>
 
       <Button variant="outline" onClick={() => void onExport()} disabled={exporting} className="mt-2 w-full px-3">
-        {t.exportButton}
+        {copy.exportButton}
       </Button>
-      <p className="mt-1 text-[11px] text-muted-foreground">{t.exportHint}</p>
-      {failed && <p className="mt-2 text-xs text-destructive">{t.exportError}</p>}
+      <p className="mt-1 text-[11px] text-muted-foreground">{copy.exportHint}</p>
+      {failed && <p className="mt-2 text-xs text-destructive">{copy.exportError}</p>}
     </Card>
   );
 }

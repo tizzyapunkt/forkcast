@@ -3,11 +3,11 @@ import { X } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { DecimalInput } from '../../components/ui/decimal-input';
 import { Input } from '../../components/ui/input';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { MacrosPerUnit } from '../../domain/meal-log';
 import type { FoodEntryDraft } from '../../domain/food-resolution';
 
-const t = de.aiRecipeImport.resolve;
+const copy = t.aiRecipeImport.resolve;
 
 function NumberField({
   label,
@@ -47,7 +47,7 @@ function SynonymList({ synonyms, setSynonyms }: { synonyms: string[]; setSynonym
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium">{t.synonymsLabel}</span>
+      <span className="text-sm font-medium">{copy.synonymsLabel}</span>
       {synonyms.length > 0 && (
         <ul className="flex flex-wrap gap-1.5">
           {synonyms.map((s) => (
@@ -58,7 +58,7 @@ function SynonymList({ synonyms, setSynonyms }: { synonyms: string[]; setSynonym
               <button
                 type="button"
                 onClick={() => setSynonyms(synonyms.filter((x) => x !== s))}
-                aria-label={t.synonymRemoveAria(s)}
+                aria-label={copy.synonymRemoveAria(s)}
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               >
                 <X aria-hidden="true" className="h-3.5 w-3.5" />
@@ -76,12 +76,12 @@ function SynonymList({ synonyms, setSynonyms }: { synonyms: string[]; setSynonym
             e.preventDefault();
             add();
           }}
-          placeholder={t.synonymAddPlaceholder}
-          aria-label={t.synonymAddPlaceholder}
+          placeholder={copy.synonymAddPlaceholder}
+          aria-label={copy.synonymAddPlaceholder}
           className="h-10 flex-1 py-0 text-sm"
         />
         <Button variant="outline" onClick={add} className="h-10 px-3 py-0 text-sm">
-          {t.synonymAdd}
+          {copy.synonymAdd}
         </Button>
       </div>
     </div>
@@ -113,14 +113,14 @@ export function NewFoodEditor({
   return (
     <div className="flex flex-col gap-3">
       <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-        {aiAssisted ? t.newEntryEyebrow : t.newEntryEyebrowManual}
+        {aiAssisted ? copy.newEntryEyebrow : copy.newEntryEyebrowManual}
       </span>
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t.nameLabel}</span>
+        <span className="text-sm font-medium">{copy.nameLabel}</span>
         <Input
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          aria-label={t.nameLabel}
+          aria-label={copy.nameLabel}
           className="h-11 w-full py-0 font-medium"
         />
       </label>
@@ -129,7 +129,7 @@ export function NewFoodEditor({
 
       <div className="flex items-end justify-between gap-3">
         <div>
-          <span className="mb-1 block text-sm font-medium">{t.unitLabel}</span>
+          <span className="mb-1 block text-sm font-medium">{copy.unitLabel}</span>
           <div className="flex gap-1 rounded-md bg-muted p-1">
             {(['g', 'ml'] as const).map((u) => (
               <button
@@ -151,56 +151,56 @@ export function NewFoodEditor({
             type="checkbox"
             checked={draft.untracked === true}
             onChange={(e) => setDraft({ ...draft, untracked: e.target.checked || undefined })}
-            aria-label={t.untrackedToggle}
+            aria-label={copy.untrackedToggle}
             className="h-4 w-4 rounded-sm"
           />
-          {t.untrackedToggle}
+          {copy.untrackedToggle}
         </label>
       </div>
 
       {draft.untracked !== true && (
         <div>
           <span className="mb-1.5 block text-sm font-medium">
-            {t.macrosLabel}{' '}
-            <span className="text-xs font-normal text-muted-foreground">· {t.macrosPer(draft.unit)}</span>
+            {copy.macrosLabel}{' '}
+            <span className="text-xs font-normal text-muted-foreground">· {copy.macrosPer(draft.unit)}</span>
           </span>
           <div className="grid grid-cols-4 gap-2">
             <NumberField
-              label={t.kcalLabel}
+              label={copy.kcalLabel}
               value={draft.macrosPer100.calories}
               estimate={aiAssisted}
               onChange={(v) => setMacro('calories', v)}
             />
             <NumberField
-              label={t.proteinLabel}
+              label={copy.proteinLabel}
               value={draft.macrosPer100.protein}
               estimate={aiAssisted}
               onChange={(v) => setMacro('protein', v)}
             />
             <NumberField
-              label={t.carbsLabel}
+              label={copy.carbsLabel}
               value={draft.macrosPer100.carbs}
               estimate={aiAssisted}
               onChange={(v) => setMacro('carbs', v)}
             />
             <NumberField
-              label={t.fatLabel}
+              label={copy.fatLabel}
               value={draft.macrosPer100.fat}
               estimate={aiAssisted}
               onChange={(v) => setMacro('fat', v)}
             />
           </div>
-          {aiAssisted && <p className="mt-2 text-[11px] text-muted-foreground">{t.aiEstimateHint}</p>}
+          {aiAssisted && <p className="mt-2 text-[11px] text-muted-foreground">{copy.aiEstimateHint}</p>}
         </div>
       )}
 
       <div className="flex flex-col items-start gap-1">
         <Button variant="ghost" onClick={onManual} className="p-0">
-          {t.manualLink}
+          {copy.manualLink}
         </Button>
         {onBack && (
           <Button variant="ghost" onClick={onBack} className="p-0">
-            {t.manualBack}
+            {copy.manualBack}
           </Button>
         )}
       </div>

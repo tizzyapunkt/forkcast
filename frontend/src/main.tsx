@@ -8,8 +8,10 @@ import { ErrorBoundary } from './components/app/error-boundary';
 import { ApiError } from './api/client';
 import { SESSION_KEY } from './features/auth/use-auth';
 import { installClientDiagnostics } from './lib/client-log';
+import { applyDocumentLanguage } from './i18n/locale';
 import './index.css';
 
+applyDocumentLanguage();
 installClientDiagnostics();
 registerSW({ immediate: true });
 

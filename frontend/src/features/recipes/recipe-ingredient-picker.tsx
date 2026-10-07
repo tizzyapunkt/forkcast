@@ -12,7 +12,7 @@ import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecipeIngredient, SearchCandidateProvenance } from '../../domain/recipes';
 import { searchIngredients } from '../../api/search-ingredients';
 import { queryKeys } from '../../queries/keys';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { parseDecimal } from '../../lib/decimal';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -40,8 +40,8 @@ type Step = { kind: 'pick' } | { kind: 'amount'; result: IngredientSearchResult 
 
 const amountSchema = z.object({
   amount: z.coerce
-    .number<number>({ error: de.recipeIngredientPicker.validation.amountNumber })
-    .positive(de.recipeIngredientPicker.validation.amountPositive),
+    .number<number>({ error: t.recipeIngredientPicker.validation.amountNumber })
+    .positive(t.recipeIngredientPicker.validation.amountPositive),
 });
 type AmountForm = z.infer<typeof amountSchema>;
 
@@ -73,18 +73,13 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
 
   const titleText =
     step.kind === 'amount'
-      ? de.recipeIngredientPicker.titleAmount(step.result.name)
+      ? t.recipeIngredientPicker.titleAmount(step.result.name)
       : mode === 'replace'
-        ? de.recipeIngredientPicker.titleReplace
-        : de.recipeIngredientPicker.titlePick;
+        ? t.recipeIngredientPicker.titleReplace
+        : t.recipeIngredientPicker.titlePick;
 
   return (
-    <BottomSheet
-      open
-      onClose={handleClose}
-      ariaLabel={de.recipeIngredientPicker.dialogAria}
-      heightClassName="h-[82dvh]"
-    >
+    <BottomSheet open onClose={handleClose} ariaLabel={t.recipeIngredientPicker.dialogAria} heightClassName="h-[82dvh]">
       <div className="shrink-0">
         <div className="flex min-w-0 items-center justify-between gap-2 px-4 pt-3 pb-1">
           <h2 className="min-w-0 truncate text-sm font-semibold">{titleText}</h2>
@@ -93,7 +88,7 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
             onClick={handleClose}
             className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
           >
-            {de.recipeIngredientPicker.cancel}
+            {t.recipeIngredientPicker.cancel}
           </button>
         </div>
 
@@ -104,21 +99,21 @@ export function RecipeIngredientPicker({ open, onClose, onPicked, mode = 'add', 
               onClick={() => setTab('search')}
               className={`shrink-0 pb-2 ${tab === 'search' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.recipeIngredientPicker.search}
+              {t.recipeIngredientPicker.search}
             </button>
             <button
               type="button"
               onClick={() => setTab('favorites')}
               className={`shrink-0 pb-2 ${tab === 'favorites' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.recipeIngredientPicker.favorites}
+              {t.recipeIngredientPicker.favorites}
             </button>
             <button
               type="button"
               onClick={() => setTab('recent')}
               className={`shrink-0 pb-2 ${tab === 'recent' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
             >
-              {de.recipeIngredientPicker.recent}
+              {t.recipeIngredientPicker.recent}
             </button>
           </div>
         )}
@@ -183,7 +178,7 @@ function CandidateSection({
   const [resolvingName, setResolvingName] = useState<string | null>(null);
   const [unresolvableName, setUnresolvableName] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const c = de.recipeIngredientPicker.candidates;
+  const c = t.recipeIngredientPicker.candidates;
 
   async function select(candidate: SearchCandidateProvenance) {
     setUnresolvableName(null);
@@ -277,7 +272,7 @@ function AmountStep({
   return (
     <div className="space-y-4 p-4">
       <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-        {de.recipeIngredientPicker.perUnit(
+        {t.recipeIngredientPicker.perUnit(
           result.unit,
           result.macrosPerUnit.calories,
           result.macrosPerUnit.protein,
@@ -287,7 +282,7 @@ function AmountStep({
       </div>
       <div className="space-y-1">
         <label htmlFor="amount" className="text-sm font-medium">
-          {de.recipeIngredientPicker.amountLabel(result.unit)}
+          {t.recipeIngredientPicker.amountLabel(result.unit)}
         </label>
         <Input
           id="amount"
@@ -299,14 +294,14 @@ function AmountStep({
           onKeyDown={submitOnEnter}
           className="h-12 w-full py-0 sm:h-10"
           autoFocus
-          placeholder={de.recipeIngredientPicker.amountPlaceholder}
+          placeholder={t.recipeIngredientPicker.amountPlaceholder}
         />
         {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
       </div>
       {nameEditable && (
         <div className="space-y-1">
           <label htmlFor="ingredient-name" className="text-sm font-medium">
-            {de.recipeIngredientPicker.nameLabel}
+            {t.recipeIngredientPicker.nameLabel}
           </label>
           <Input
             id="ingredient-name"
@@ -320,10 +315,10 @@ function AmountStep({
       )}
       <div className="flex gap-2">
         <Button variant="outline" onClick={onBack} className="h-11 flex-1 py-0 sm:h-10">
-          {de.recipeIngredientPicker.back}
+          {t.recipeIngredientPicker.back}
         </Button>
         <Button onClick={() => void submit()} className="h-11 flex-1 py-0 sm:h-10">
-          {de.recipeIngredientPicker.add}
+          {t.recipeIngredientPicker.add}
         </Button>
       </div>
     </div>

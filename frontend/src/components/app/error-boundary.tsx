@@ -1,8 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '../ui/button';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 
-const t = de.errors;
+const copy = t.errors;
 
 interface Props {
   children: ReactNode;
@@ -39,16 +39,16 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6">
         <div role="alert" className="w-full max-w-md rounded-md border border-destructive/50 bg-destructive/10 p-4">
-          <p className="text-sm font-semibold text-destructive">{t.generic}</p>
+          <p className="text-sm font-semibold text-destructive">{copy.generic}</p>
           <p className="mt-2 break-words font-mono text-xs text-destructive">{error.message}</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => this.setState({ error: null })}>{t.boundaryRetry}</Button>
+          <Button onClick={() => this.setState({ error: null })}>{copy.boundaryRetry}</Button>
           <Button variant="outline" onClick={() => window.location.reload()}>
-            {t.boundaryReload}
+            {copy.boundaryReload}
           </Button>
         </div>
-        <p className="max-w-md text-center text-xs text-muted-foreground">{t.boundaryHint}</p>
+        <p className="max-w-md text-center text-xs text-muted-foreground">{copy.boundaryHint}</p>
       </div>
     );
   }

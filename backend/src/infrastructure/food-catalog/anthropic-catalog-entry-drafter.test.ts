@@ -36,6 +36,25 @@ describe('AnthropicCatalogEntryDrafter', () => {
     expect(entry).toMatchObject({ id: 'zitronensaft', name: 'Zitronensaft', unit: 'ml', synonyms: ['Lemon juice'] });
   });
 
+  it('requests an English name alongside the canonical German name', async () => {
+    const client = clientDrafting(zitronensaft);
+    await new AnthropicCatalogEntryDrafter({ client, model: 'm' }).draft('Zitronensaft');
+    const params = vi.mocked(client.messages.create).mock.calls[0]![0];
+    const schema = params.tools![0]! as { input_schema: { required: string[]; properties: Record<string, unknown> } };
+    expect(schema.input_schema.required).toContain('nameEn');
+    expect(schema.input_schema.properties).toHaveProperty('nameEn');
+  });
+
+  it('passes the drafted English name through', async () => {
+    const entry = await drafter({ ...zitronensaft, nameEn: 'Lemon juice' }).draft('lemon juice');
+    expect(entry).toMatchObject({ name: 'Zitronensaft', nameEn: 'Lemon juice' });
+  });
+
+  it('drops a blank drafted English name instead of rejecting the draft', async () => {
+    const entry = await drafter({ ...zitronensaft, nameEn: '  ' }).draft('Zitronensaft');
+    expect(entry.nameEn).toBeUndefined();
+  });
+
   it('defaults a missing synonyms list to an empty array', async () => {
     const { synonyms: _dropped, ...withoutSynonyms } = zitronensaft;
     const entry = await drafter(withoutSynonyms).draft('Zitronensaft');

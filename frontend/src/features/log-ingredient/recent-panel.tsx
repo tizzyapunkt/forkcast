@@ -3,7 +3,7 @@ import Fuse from 'fuse.js';
 import { useRecentlyUsedIngredients } from '../../queries/use-recently-used-ingredients';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
 import type { RecentlyUsedIngredient } from '../../domain/meal-log';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Input } from '../../components/ui/input';
 import { Banner } from '../../components/ui/banner';
 import { FavoriteStar } from './favorite-star';
@@ -48,24 +48,24 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={de.recentPanel.placeholder}
+        placeholder={t.recentPanel.placeholder}
         className="w-full appearance-none"
       />
 
       {favoriteError && (
         <Banner tone="error" density="sm">
-          {de.favoriteStar.failed}
+          {t.favoriteStar.failed}
         </Banner>
       )}
 
-      {isLoading && <p className="text-sm text-muted-foreground">{de.recentPanel.loading}</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t.recentPanel.loading}</p>}
 
       {!isLoading && (recents?.length ?? 0) === 0 && (
-        <p className="text-sm text-muted-foreground">{de.recentPanel.empty}</p>
+        <p className="text-sm text-muted-foreground">{t.recentPanel.empty}</p>
       )}
 
       {!isLoading && (recents?.length ?? 0) > 0 && filtered.length === 0 && (
-        <p className="text-sm text-muted-foreground">{de.recentPanel.noMatches(trimmed)}</p>
+        <p className="text-sm text-muted-foreground">{t.recentPanel.noMatches(trimmed)}</p>
       )}
 
       {filtered.length > 0 && (
@@ -79,7 +79,7 @@ export function RecentPanel({ onSelect }: RecentPanelProps) {
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{recent.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {de.recentPanel.kcalPer(recent.macrosPerUnit.calories, recent.unit)}
+                  {t.recentPanel.kcalPer(recent.macrosPerUnit.calories, recent.unit)}
                 </span>
               </button>
               {toFavoriteUnit(recent.unit) !== null && (

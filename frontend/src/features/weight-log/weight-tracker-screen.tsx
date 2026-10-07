@@ -6,7 +6,7 @@ import { WeightHistoryList } from './weight-history-list';
 import { AppHeader } from '../../components/app/app-header';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { today } from '../../domain/date';
 
 interface WeightTrackerScreenProps {
@@ -18,7 +18,7 @@ export function WeightTrackerScreen({ onBack }: WeightTrackerScreenProps) {
   const entriesQuery = useWeightLog();
   const trendQuery = useWeightTrend();
 
-  const header = <AppHeader title={de.weightLog.screenTitle} onBack={onBack} backAria={de.recipes.back} />;
+  const header = <AppHeader title={t.weightLog.screenTitle} onBack={onBack} backAria={t.recipes.back} />;
 
   if (entriesQuery.isLoading || trendQuery.isLoading) {
     return (
@@ -61,7 +61,7 @@ export function WeightTrackerScreen({ onBack }: WeightTrackerScreenProps) {
       <div className="space-y-4 p-4">
         {trend.firstEntryDate && (
           <p className="text-xs text-muted-foreground">
-            {de.weightLog.coverage(trend.totalEntries, trend.firstEntryDate)}
+            {t.weightLog.coverage(trend.totalEntries, trend.firstEntryDate)}
           </p>
         )}
         <WeightStats trend={trend} />

@@ -1,4 +1,4 @@
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { cn } from '../../lib/cn';
 
 interface Props {
@@ -19,11 +19,11 @@ export function RawReadLine({ text, name, className, testId }: Props) {
   return (
     <p
       data-testid={testId}
-      aria-label={de.recipeIngredientEditor.provenance.rawLineAria(name)}
+      aria-label={t.recipeIngredientEditor.provenance.rawLineAria(name)}
       title={text}
       className={cn('line-clamp-2 break-words text-xs text-muted-foreground/80', className)}
     >
-      {de.recipeIngredientEditor.provenance.rawLine(text)}
+      {t.recipeIngredientEditor.provenance.rawLine(text)}
     </p>
   );
 }

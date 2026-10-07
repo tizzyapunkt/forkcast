@@ -12,7 +12,7 @@ import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { addDays, mondayOf, today } from '../../domain/date';
 import { dayHasEntries, dayTone, plannedDaysCount, type DayTone } from './week-rollup';
-import { de, slotLabelsDe } from '../../i18n/de';
+import { t } from '../../i18n';
 import type { DailyLog, MealSlot } from '../../domain/meal-log';
 import type { DailyGoal } from '../../domain/nutrition';
 import { Button } from '../../components/ui/button';
@@ -31,14 +31,14 @@ function weekdayIndexOf(iso: string): number {
 
 function dateLabel(iso: string): string {
   const d = new Date(iso + 'T00:00:00');
-  return `${d.getDate()}. ${de.planner.months[d.getMonth()]}`;
+  return `${d.getDate()}. ${t.planner.months[d.getMonth()]}`;
 }
 
 function weekRangeLabel(startIso: string, endIso: string): string {
   const a = new Date(startIso + 'T00:00:00');
   const b = new Date(endIso + 'T00:00:00');
-  const am = de.planner.months[a.getMonth()];
-  const bm = de.planner.months[b.getMonth()];
+  const am = t.planner.months[a.getMonth()];
+  const bm = t.planner.months[b.getMonth()];
   if (a.getMonth() === b.getMonth()) return `${a.getDate()}.–${b.getDate()}. ${bm}`;
   return `${a.getDate()}. ${am} – ${b.getDate()}. ${bm}`;
 }
@@ -117,49 +117,49 @@ export function PlannerScreen() {
   return (
     <>
       <AppHeader
-        title={de.planner.title}
+        title={t.planner.title}
         bottom={
           week ? (
             <div className="mt-1.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-white/80 tabular-nums">
                   <span className="text-sm font-semibold text-white">
-                    {de.planner.avgPerDay(r(week.averages.calories))}
+                    {t.planner.avgPerDay(r(week.averages.calories))}
                   </span>
-                  <span>{de.planner.plannedDays(plannedDaysCount(week.days))}</span>
+                  <span>{t.planner.plannedDays(plannedDaysCount(week.days))}</span>
                 </div>
                 <Button
                   variant="onDark"
                   size="sm"
                   onClick={() => setGroceryListOpen(true)}
-                  aria-label={de.planner.groceryListAria(weekRangeLabel(weekStart, weekEnd))}
+                  aria-label={t.planner.groceryListAria(weekRangeLabel(weekStart, weekEnd))}
                   className="shrink-0"
                 >
                   <ShoppingCart size={14} aria-hidden="true" />
-                  {de.planner.groceryList}
+                  {t.planner.groceryList}
                 </Button>
               </div>
               {goal ? (
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
-                    {de.planner.avgMacrosLabel}
+                    {t.planner.avgMacrosLabel}
                   </p>
                   <div className="mt-1 flex gap-4">
                     <HeaderMacroCell
                       macroKey="p"
-                      label={de.dayTotals.protein}
+                      label={t.dayTotals.protein}
                       valueText={`${r(week.averages.protein)} / ${goal.protein} g`}
                       pct={goal.protein > 0 ? (week.averages.protein / goal.protein) * 100 : 0}
                     />
                     <HeaderMacroCell
                       macroKey="c"
-                      label={de.dayTotals.carbs}
+                      label={t.dayTotals.carbs}
                       valueText={`${r(week.averages.carbs)} / ${goal.carbs} g`}
                       pct={goal.carbs > 0 ? (week.averages.carbs / goal.carbs) * 100 : 0}
                     />
                     <HeaderMacroCell
                       macroKey="f"
-                      label={de.dayTotals.fat}
+                      label={t.dayTotals.fat}
                       valueText={`${r(week.averages.fat)} / ${goal.fat} g`}
                       pct={goal.fat > 0 ? (week.averages.fat / goal.fat) * 100 : 0}
                     />
@@ -167,8 +167,8 @@ export function PlannerScreen() {
                 </div>
               ) : (
                 <span className="text-xs text-white/80 tabular-nums">
-                  {de.planner.avgMacrosLabel}:{' '}
-                  {de.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
+                  {t.planner.avgMacrosLabel}:{' '}
+                  {t.planner.macroLine(r(week.averages.protein), r(week.averages.carbs), r(week.averages.fat))}
                 </span>
               )}
             </div>
@@ -176,13 +176,13 @@ export function PlannerScreen() {
         }
       >
         <div className="flex items-center gap-1">
-          <Button variant="onDark" size="iconSm" onClick={goPrevWeek} aria-label={de.planner.prevWeek}>
+          <Button variant="onDark" size="iconSm" onClick={goPrevWeek} aria-label={t.planner.prevWeek}>
             <ChevronLeft size={20} aria-hidden="true" />
           </Button>
           <span className="min-w-[7rem] text-center text-sm font-medium tabular-nums">
             {weekRangeLabel(weekStart, weekEnd)}
           </span>
-          <Button variant="onDark" size="iconSm" onClick={goNextWeek} aria-label={de.planner.nextWeek}>
+          <Button variant="onDark" size="iconSm" onClick={goNextWeek} aria-label={t.planner.nextWeek}>
             <ChevronRight size={20} aria-hidden="true" />
           </Button>
         </div>
@@ -206,7 +206,7 @@ export function PlannerScreen() {
                   setCopyConfirm({
                     fromDate: day.date,
                     toDate: addDays(day.date, 1),
-                    dayLabel: de.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? dateLabel(day.date),
+                    dayLabel: t.planner.weekdaysLong[weekdayIndexOf(day.date)] ?? dateLabel(day.date),
                   })
                 }
               />
@@ -225,12 +225,12 @@ export function PlannerScreen() {
 
         {copyConfirm && (
           <Card padding="sm">
-            <p className="mb-1 text-sm font-medium">{de.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
-            <p className="mb-2 text-xs text-muted-foreground">{de.planner.copyDayBody}</p>
+            <p className="mb-1 text-sm font-medium">{t.planner.copyDayTitle(copyConfirm.dayLabel)}</p>
+            <p className="mb-2 text-xs text-muted-foreground">{t.planner.copyDayBody}</p>
             {copyMutation.error && <ErrorBanner error={copyMutation.error} />}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setCopyConfirm(null)} className="flex-1 px-3">
-                {de.recipeForm.cancel}
+                {t.recipeForm.cancel}
               </Button>
               <Button
                 disabled={copyMutation.isPending}
@@ -242,7 +242,7 @@ export function PlannerScreen() {
                 }
                 className="flex-1 px-3"
               >
-                {de.planner.copyDayConfirm(de.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
+                {t.planner.copyDayConfirm(t.planner.weekdaysLong[weekdayIndexOf(copyConfirm.toDate)] ?? '')}
               </Button>
             </div>
           </Card>
@@ -282,24 +282,24 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        aria-label={de.planner.expandDayAria(label)}
+        aria-label={t.planner.expandDayAria(label)}
         className="flex w-full items-center gap-3 p-3 text-left"
       >
         <span className="w-12 shrink-0 text-center">
-          <span className="block text-sm font-semibold">{de.planner.weekdays[weekdayIndexOf(day.date)]}</span>
+          <span className="block text-sm font-semibold">{t.planner.weekdays[weekdayIndexOf(day.date)]}</span>
           <span className="block text-[11px] leading-tight text-muted-foreground">{label}</span>
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-2">
             <span className={`text-sm font-medium tabular-nums ${toneClass(tone)}`}>
               {goalKcal > 0
-                ? de.planner.goalLine(r(day.totals.calories), r(goalKcal))
+                ? t.planner.goalLine(r(day.totals.calories), r(goalKcal))
                 : `${r(day.totals.calories)} kcal`}
             </span>
             <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
               {hasEntries
-                ? de.planner.macroLine(r(day.totals.protein), r(day.totals.carbs), r(day.totals.fat))
-                : de.planner.empty}
+                ? t.planner.macroLine(r(day.totals.protein), r(day.totals.carbs), r(day.totals.fat))
+                : t.planner.empty}
             </span>
           </span>
           <span className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
@@ -318,17 +318,17 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
           {hasEntries && goal && (
             <div className="mb-2 rounded-md bg-muted p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {de.planner.dayTotal}
+                {t.planner.dayTotal}
               </p>
               <div className="mt-1.5 flex gap-4">
                 <DayMacroCell
                   macroKey="p"
-                  label={de.dayTotals.protein}
+                  label={t.dayTotals.protein}
                   actual={day.totals.protein}
                   goal={goal.protein}
                 />
-                <DayMacroCell macroKey="c" label={de.dayTotals.carbs} actual={day.totals.carbs} goal={goal.carbs} />
-                <DayMacroCell macroKey="f" label={de.dayTotals.fat} actual={day.totals.fat} goal={goal.fat} />
+                <DayMacroCell macroKey="c" label={t.dayTotals.carbs} actual={day.totals.carbs} goal={goal.carbs} />
+                <DayMacroCell macroKey="f" label={t.dayTotals.fat} actual={day.totals.fat} goal={goal.fat} />
               </div>
             </div>
           )}
@@ -339,7 +339,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
               return (
                 <li key={slot} className="py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">{slotLabelsDe[slot]}</span>
+                    <span className="text-sm font-medium">{t.slotLabels[slot]}</span>
                     <div className="flex items-center gap-2">
                       {entries.length > 0 && (
                         <span className="text-xs text-muted-foreground tabular-nums">
@@ -350,7 +350,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
                         variant="accent"
                         size="icon"
                         onClick={() => onAdd(slot)}
-                        aria-label={de.planner.addToSlotAria(slotLabelsDe[slot], label)}
+                        aria-label={t.planner.addToSlotAria(t.slotLabels[slot], label)}
                       >
                         <Plus size={20} aria-hidden="true" />
                       </Button>
@@ -371,7 +371,7 @@ function DaySection({ day, open, goal, onToggle, onAdd, onCopy }: DaySectionProp
             className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-muted px-3 py-2 text-xs font-medium hover:bg-secondary"
           >
             <Copy size={14} aria-hidden="true" />
-            {de.planner.copyDay}
+            {t.planner.copyDay}
           </button>
         </div>
       )}

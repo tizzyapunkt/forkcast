@@ -1,34 +1,28 @@
 import type { MealSlot, MeasurementUnit } from '../domain/meal-log';
 import { formatDecimal } from '../lib/decimal';
-
-export const slotLabelsDe: Record<MealSlot, string> = {
-  breakfast: 'Frühstück',
-  lunch: 'Mittagessen',
-  dinner: 'Abendessen',
-  snack: 'Snack',
-};
-
-// Picker rows display nutrient density per 100 for mass/volume units (g, ml), where
-// nutrition labels are conventionally read. Other units (piece, oz, cup, …) fall back
-// to per-unit display because "100piece" is not meaningful. Underlying storage stays
-// per-unit either way — the multiplication is purely presentational.
-function per100Display(unit: MeasurementUnit): { mul: number; label: string } {
-  if (unit === 'g' || unit === 'ml') return { mul: 100, label: `100${unit}` };
-  return { mul: 1, label: unit };
-}
+import { per100Display } from './per-100-display';
 
 /**
  * The ONE app-wide macro-triplet format: `{P} P · {KH} KH · {F} F` — middot separators,
  * carbs labelled `KH`, integer-rounded values without a `g` suffix. Every macro triplet
- * in the UI MUST go through this helper so the format cannot drift per screen.
+ * in the UI MUST go through `t.formatMacroTriplet` so the format cannot drift per screen.
  */
-export function formatMacroTriplet(protein: number, carbs: number, fat: number): string {
+function formatMacroTriplet(protein: number, carbs: number, fat: number): string {
   return `${Math.round(protein)} P · ${Math.round(carbs)} KH · ${Math.round(fat)} F`;
 }
 
 /** German UI copy for the forkcast frontend. */
 export const de = {
   appTitle: 'forkcast',
+
+  slotLabels: {
+    breakfast: 'Frühstück',
+    lunch: 'Mittagessen',
+    dinner: 'Abendessen',
+    snack: 'Snack',
+  } satisfies Record<MealSlot, string>,
+
+  formatMacroTriplet,
 
   nav: {
     primary: 'Hauptnavigation',
@@ -153,6 +147,9 @@ export const de = {
   settings: {
     title: 'Ernährungsziel',
     calculatorTitle: 'Makro-Rechner',
+    languageLabel: 'Sprache',
+    languageGerman: 'Deutsch',
+    languageEnglish: 'English',
   },
 
   catalog: {
@@ -185,6 +182,9 @@ export const de = {
     editorTitleEdit: 'Lebensmittel bearbeiten',
     nameLabel: 'Name',
     namePlaceholder: 'z. B. Balsamicoessig',
+    nameEnLabel: 'Englischer Name',
+    nameEnPlaceholder: 'z. B. Balsamic vinegar',
+    nameEnHint: 'Optional — wird angezeigt, wenn die App auf Englisch läuft. Leer lassen, um den Namen zu verwenden.',
     synonymsLabel: 'Synonyme',
     synonymsHint: 'Kommagetrennt — alternative Namen, unter denen die Suche den Eintrag findet.',
     unitLabel: 'Einheit',
@@ -211,7 +211,7 @@ export const de = {
     // AI fill
     aiFill: 'KI ausfüllen',
     aiFilling: 'KI füllt aus…',
-    aiFillHint: 'Füllt Einheit, Synonyme und Nährwerte als Vorschlag — alles bleibt änderbar.',
+    aiFillHint: 'Füllt Einheit, englischen Namen, Synonyme und Nährwerte als Vorschlag — alles bleibt änderbar.',
     aiFillNeedsName: 'Bitte zuerst einen Namen eingeben.',
     aiFillError: 'KI-Vorschlag fehlgeschlagen — Eingaben bleiben erhalten.',
     aiEstimateHint: 'KI-Schätzung — bitte prüfen und bei Bedarf korrigieren.',
@@ -523,6 +523,7 @@ export const de = {
     newRecipeAria: 'Neues Rezept',
     empty: 'Noch keine Rezepte — lege eines an, um loszulegen.',
     listMeta: (ingCount: number, yield_: number) => `${ingCount} Zutat${ingCount === 1 ? '' : 'en'} · ${yield_} Port.`,
+    perServingSuffix: '/ Portion',
     loading: 'Laden…',
     back: 'Zurück',
     backAria: 'Zurück zu Rezepten',

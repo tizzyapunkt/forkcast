@@ -1,5 +1,5 @@
 import type { TrendSnapshot } from '../../domain/weight-log';
-import { de } from '../../i18n/de';
+import { t } from '../../i18n';
 import { Card } from '../../components/ui/card';
 
 interface WeightStatsProps {
@@ -22,29 +22,29 @@ export function WeightStats({ trend }: WeightStatsProps) {
   return (
     <section className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5" aria-label="Trend">
       <StatCard
-        title={de.weightLog.statsCurrent}
+        title={t.weightLog.statsCurrent}
         value={formatKg(trend.current)}
-        hint={trend.current === null ? de.weightLog.statsHintCurrent : undefined}
+        hint={trend.current === null ? t.weightLog.statsHintCurrent : undefined}
       />
       <StatCard
-        title={de.weightLog.statsMa7}
+        title={t.weightLog.statsMa7}
         value={formatKg(trend.movingAverage7d)}
-        hint={trend.movingAverage7d === null ? de.weightLog.statsHintInsufficient : undefined}
+        hint={trend.movingAverage7d === null ? t.weightLog.statsHintInsufficient : undefined}
       />
       <StatCard
-        title={de.weightLog.statsWeekly}
+        title={t.weightLog.statsWeekly}
         value={formatPct(trend.weeklyRatePercent)}
-        hint={trend.weeklyRatePercent === null ? de.weightLog.statsHintInsufficient : undefined}
+        hint={trend.weeklyRatePercent === null ? t.weightLog.statsHintInsufficient : undefined}
       />
       <StatCard
-        title={de.weightLog.statsMonthly}
+        title={t.weightLog.statsMonthly}
         value={formatPct(trend.changePercent28d)}
-        hint={trend.changePercent28d === null ? de.weightLog.statsHint28d : undefined}
+        hint={trend.changePercent28d === null ? t.weightLog.statsHint28d : undefined}
       />
       <StatCard
-        title={de.weightLog.statsTotal}
+        title={t.weightLog.statsTotal}
         value={formatPct(trend.totalChangePercent)}
-        hint={trend.totalChangePercent === null ? de.weightLog.statsHintTotal : undefined}
+        hint={trend.totalChangePercent === null ? t.weightLog.statsHintTotal : undefined}
       />
     </section>
   );

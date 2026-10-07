@@ -122,11 +122,15 @@ function matchNameInQuery(name: string, query: string, wholeWordScore: number): 
 
 /** Score an entry against a folded query for ranking, and say whether the hit is safe to auto-accept. */
 export function matchFoodEntry(
-  entry: Pick<FoodIndexedEntry, 'nameFolded' | 'synonymsFolded'>,
+  entry: Pick<FoodIndexedEntry, 'nameFolded' | 'nameEnFolded' | 'synonymsFolded'>,
   foldedQuery: string,
 ): FoodMatch {
   let best = matchName(entry.nameFolded, foldedQuery, CANONICAL_SCORES);
   best = better(best, matchNameInQuery(entry.nameFolded, foldedQuery, CANONICAL_SCORES.wholeWord));
+  if (entry.nameEnFolded !== undefined) {
+    best = better(best, matchName(entry.nameEnFolded, foldedQuery, CANONICAL_SCORES));
+    best = better(best, matchNameInQuery(entry.nameEnFolded, foldedQuery, CANONICAL_SCORES.wholeWord));
+  }
   for (const syn of entry.synonymsFolded) {
     best = better(best, matchName(syn, foldedQuery, SYNONYM_SCORES));
     best = better(best, matchNameInQuery(syn, foldedQuery, SYNONYM_SCORES.wholeWord));
@@ -135,7 +139,7 @@ export function matchFoodEntry(
 }
 
 export function scoreFoodMatch(
-  entry: Pick<FoodIndexedEntry, 'nameFolded' | 'synonymsFolded'>,
+  entry: Pick<FoodIndexedEntry, 'nameFolded' | 'nameEnFolded' | 'synonymsFolded'>,
   foldedQuery: string,
 ): number {
   return matchFoodEntry(entry, foldedQuery).score;

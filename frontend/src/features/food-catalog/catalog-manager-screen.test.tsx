@@ -78,6 +78,25 @@ describe('CatalogManagerScreen — list', () => {
     expect(screen.queryByText('Olivenöl')).not.toBeInTheDocument();
   });
 
+  it('filters by English name', async () => {
+    serveCatalog([{ ...olivenoel, synonyms: [], nameEn: 'Olive oil' }, moehre]);
+    renderManager();
+    await screen.findByText('Möhre');
+
+    await userEvent.type(screen.getByRole('searchbox'), 'olive o');
+
+    expect(screen.getByText('Olivenöl')).toBeInTheDocument();
+    expect(screen.queryByText('Möhre')).not.toBeInTheDocument();
+  });
+
+  it('lists the canonical German name in the German locale even when an English name exists', async () => {
+    serveCatalog([{ ...moehre, nameEn: 'Carrot' }]);
+    renderManager();
+
+    expect(await screen.findByText('Möhre')).toBeInTheDocument();
+    expect(screen.queryByText('Carrot')).not.toBeInTheDocument();
+  });
+
   it('reports when a filter matches nothing', async () => {
     serveCatalog([moehre]);
     renderManager();
@@ -111,6 +130,47 @@ describe('CatalogManagerScreen — editing', () => {
     expect(await screen.findByText('25 kcal / 100 g')).toBeInTheDocument();
     expect(sent!.id).toBe('moehre');
     expect(sent!.entry.macrosPer100.calories).toBe(25);
+  });
+
+  it('adds an English name from the editor', async () => {
+    serveCatalog([moehre]);
+    let sent: { entry: CatalogEntry } | null = null;
+    server.use(
+      http.post('/api/update-catalog-entry', async ({ request }) => {
+        sent = (await request.json()) as { entry: CatalogEntry };
+        return HttpResponse.json({ entry: sent.entry });
+      }),
+    );
+    renderManager();
+
+    await userEvent.click(await screen.findByRole('button', { name: /möhre bearbeiten/i }));
+    await userEvent.type(await screen.findByLabelText('Englischer Name'), 'Carrot');
+    await userEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+
+    await screen.findByRole('searchbox');
+    expect(sent!.entry.nameEn).toBe('Carrot');
+  });
+
+  it('sends no English name when the field is cleared', async () => {
+    serveCatalog([{ ...moehre, nameEn: 'Carrot' }]);
+    let sent: { entry: CatalogEntry } | null = null;
+    server.use(
+      http.post('/api/update-catalog-entry', async ({ request }) => {
+        sent = (await request.json()) as { entry: CatalogEntry };
+        return HttpResponse.json({ entry: sent.entry });
+      }),
+    );
+    renderManager();
+
+    await userEvent.click(await screen.findByRole('button', { name: /möhre bearbeiten/i }));
+    const nameEn = await screen.findByLabelText('Englischer Name');
+    expect(nameEn).toHaveValue('Carrot');
+    await userEvent.clear(nameEn);
+    await userEvent.type(nameEn, '   ');
+    await userEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+
+    await screen.findByRole('searchbox');
+    expect(sent!.entry).not.toHaveProperty('nameEn');
   });
 
   it('removes a synonym the user deleted from the field', async () => {
@@ -214,6 +274,7 @@ describe('CatalogManagerScreen — creating', () => {
           entry: {
             id: 'balsamicoessig',
             name: 'Balsamicoessig',
+            nameEn: 'Balsamic vinegar',
             synonyms: ['Balsamico-Essig', 'balsamic vinegar'],
             unit: 'ml',
             macrosPer100: { calories: 88, protein: 0, carbs: 17, fat: 0 },
@@ -228,6 +289,7 @@ describe('CatalogManagerScreen — creating', () => {
     await userEvent.click(screen.getByRole('button', { name: 'KI ausfüllen' }));
 
     expect(await screen.findByLabelText('Synonyme')).toHaveValue('Balsamico-Essig, balsamic vinegar');
+    expect(screen.getByLabelText('Englischer Name')).toHaveValue('Balsamic vinegar');
     expect(screen.getByLabelText('kcal')).toHaveValue('88');
     expect(screen.getByRole('radio', { name: 'ml' })).toBeChecked();
     expect(screen.getByText(/KI-Schätzung/i)).toBeInTheDocument();
@@ -236,6 +298,32 @@ describe('CatalogManagerScreen — creating', () => {
     await userEvent.clear(kcal);
     await userEvent.type(kcal, '90');
     expect(kcal).toHaveValue('90');
+  });
+
+  it('takes the German canonical name when the fill was asked with the English name', async () => {
+    serveCatalog([]);
+    server.use(
+      http.post('/api/draft-catalog-entry', () =>
+        HttpResponse.json({
+          entry: {
+            id: 'balsamicoessig',
+            name: 'Balsamicoessig',
+            nameEn: 'Balsamic vinegar',
+            synonyms: [],
+            unit: 'ml',
+            macrosPer100: { calories: 88, protein: 0, carbs: 17, fat: 0 },
+          },
+        }),
+      ),
+    );
+    renderManager();
+
+    await userEvent.click(await screen.findByRole('button', { name: '+ Neues Lebensmittel' }));
+    await userEvent.type(await screen.findByLabelText('Name'), 'balsamic vinegar');
+    await userEvent.click(screen.getByRole('button', { name: 'KI ausfüllen' }));
+
+    expect(await screen.findByLabelText('Englischer Name')).toHaveValue('Balsamic vinegar');
+    expect(screen.getByLabelText('Name')).toHaveValue('Balsamicoessig');
   });
 
   it('shows an error and keeps typed input when the fill fails', async () => {
