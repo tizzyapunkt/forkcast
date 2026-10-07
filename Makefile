@@ -4,13 +4,13 @@
 
 # Source dirs the format gate covers — deliberately NOT the repo root, so it
 # never churns the many markdown/openspec files that `vp fmt` would otherwise rewrite.
-FMT_DIRS := backend/src frontend/src
+FMT_DIRS := backend/src frontend/src website/src website/vite.config.ts
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port
+.PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port website-dev website-build website-preview
 
 help: ## List available targets
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install all workspace dependencies
 	pnpm install
@@ -21,7 +21,7 @@ dev: ## Run backend + frontend in parallel (frontend over HTTPS, self-signed)
 dev-http: ## Run the app over plain HTTP for browser smoke testing (no SSL warning); see the forkcast-dev skill
 	FORKCAST_NO_HTTPS=1 pnpm dev
 
-check: lint typecheck fmt-check test ## Full green gate: lint + typecheck + format + tests (both workspaces)
+check: lint typecheck fmt-check test website-build ## Full green gate: lint + typecheck + format + tests + website build
 	@echo "✅ all checks passed"
 
 test: ## Run all tests (both workspaces)
@@ -44,6 +44,15 @@ fmt: ## Format source dirs in place (vp fmt / Oxfmt)
 
 fmt-check: ## Verify source dirs are formatted (vp fmt --check)
 	pnpm exec vp fmt --check $(FMT_DIRS)
+
+website-dev: ## Run the landing page dev server (port 5174)
+	pnpm dev:website
+
+website-build: ## Build the landing page into website/dist (production settings from website/.env.production)
+	pnpm --filter @forkcast/website build
+
+website-preview: website-build ## Serve the built landing page locally (port 4173); Umami does not count it
+	pnpm --filter @forkcast/website preview
 
 smoke: ## Boot the backend and run the auth/resolution round-trip (no API key needed)
 	@bash scripts/smoke-backend.sh

@@ -51,9 +51,7 @@ Constraints:
 - A hosted version does not exist yet. The app currently runs as a single-user, self-hosted setup.
 - No pricing, launch dates, user counts or availability promises.
 
-Open decisions:
-
-- Tracked in `website/OPEN-ITEMS.md` (waitlist service, legal pages, license, domain, e-mail retention, screenshots).
+Live at https://check-forkcast.tizzy.dev (GitHub Pages). The launch decisions are recorded where they apply: Tally forms and Umami in `website/.env.production`, e-mail retention on the page and in the privacy policy, license in `LICENSE` (AGPL-3.0-only), self-hosting in the root README.
 
 ## Brand Commitments
 

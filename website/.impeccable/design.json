@@ -665,7 +665,7 @@
       "label": {
         "displayName": "Label",
         "token": "--fs-label",
-        "purpose": "Button text, choice titles, interest legend, e-mail input."
+        "purpose": "Button text, choice titles, interest legend."
       },
       "small": {
         "displayName": "Small",
@@ -710,11 +710,6 @@
         "name": "choice-focus",
         "value": "outline: 2px solid var(--brand); outline-offset: 2px",
         "purpose": "Keyboard focus on an interest-check choice card."
-      },
-      {
-        "name": "input-focus",
-        "value": "border-color: var(--brand); outline: 2px solid var(--brand); outline-offset: 1px",
-        "purpose": "E-mail input :focus."
       }
     ],
     "motion": [
@@ -786,14 +781,6 @@
       "description": "Checkbox card for Hosted / Self-hosted; both may be selected.",
       "html": "<div class=\"ds-root ds-choices\"><label class=\"ds-choice\"><input type=\"checkbox\" checked /><span><strong>Hosted</strong><small>I'd like an account</small></span></label><label class=\"ds-choice\"><input type=\"checkbox\" /><span><strong>Self-hosted</strong><small>I'd run it myself</small></span></label></div>",
       "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 480px; } .ds-choice { position: relative; display: block; cursor: pointer; } .ds-choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; } .ds-choice span { display: flex; flex-direction: column; gap: 2px; height: 100%; padding: 12px 14px 12px 42px; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--ground); transition: border-color 0.15s ease-out, background-color 0.15s ease-out; } .ds-choice span::before { content: ''; position: absolute; left: 14px; top: 15px; width: 18px; height: 18px; border: 1.5px solid var(--ink-3); border-radius: 6px; background: var(--ground); box-sizing: border-box; transition: background-color 0.15s ease-out, border-color 0.15s ease-out; } .ds-choice span::after { content: ''; position: absolute; left: 20px; top: 18px; width: 6px; height: 10px; border: solid var(--on-brand); border-width: 0 2px 2px 0; transform: rotate(45deg) scale(0); transition: transform 0.15s ease-out; } .ds-choice strong { font-size: var(--fs-label); line-height: 1.35; } .ds-choice small { font-size: var(--fs-caption); line-height: 1.4; color: var(--ink-3); } .ds-choice:hover span { border-color: var(--brand-line); } .ds-choice input:checked + span { border-color: var(--brand); background: var(--brand-soft); } .ds-choice input:checked + span::before { background: var(--brand); border-color: var(--brand); } .ds-choice input:checked + span::after { transform: rotate(45deg) scale(1); } .ds-choice input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }"
-    },
-    {
-      "name": "E-mail Input",
-      "kind": "input",
-      "refersTo": "input-email",
-      "description": "Optional waitlist e-mail beside the submit button.",
-      "html": "<div class=\"ds-root ds-email-row\"><input class=\"ds-input\" type=\"email\" placeholder=\"E-mail (optional)\" /><button class=\"ds-button\" type=\"button\">Count me in</button></div>",
-      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-email-row { display: flex; gap: 10px; max-width: 480px; } .ds-input { flex: 1; min-width: 0; height: 48px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--ground); color: var(--ink); font: inherit; font-size: var(--fs-label); caret-color: var(--brand); } .ds-input::placeholder { color: var(--ink-3); } .ds-input:focus { border-color: var(--brand); outline: 2px solid var(--brand); outline-offset: 1px; } .ds-button { height: 48px; padding: 0 22px; border: 0; border-radius: var(--radius); background: var(--brand); color: var(--on-brand); font: inherit; font-size: var(--fs-label); font-weight: 650; cursor: pointer; } .ds-button:hover { background: var(--brand-strong); }"
     },
     {
       "name": "Site Header",

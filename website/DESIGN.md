@@ -81,7 +81,7 @@ typography:
     fontSize: "17px"
     fontWeight: 400
     lineHeight: 1.6
-  label: # --fs-label: button, choice titles, interest legend, e-mail input
+  label: # --fs-label: button, choice titles, interest legend
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "16px"
     fontWeight: 650
@@ -138,12 +138,6 @@ components:
   choice-checked:
     backgroundColor: "{colors.brand-soft}"
     textColor: "{colors.ink}"
-  input-email:
-    backgroundColor: "{colors.ground}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "0 14px"
-    height: "48px"
   device-frame:
     backgroundColor: "{colors.frame}"
     rounded: "{rounded.device}"
@@ -233,7 +227,7 @@ Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom p
 - **Subtitle** (700, 1.25rem): the wordmark (-0.03em) and build-column titles.
 - **Large** (400, 1.125rem, 1.6): section intros, prose paragraphs, step copy and closing copy in Ink Soft; also feature terms (680) and FAQ summaries (650).
 - **Body** (400, 17px, 1.6): base text; pretty wrapping; prose capped at 40rem.
-- **Label** (650, 16px, 1.35): button text, choice titles, the interest legend; the e-mail input uses it at regular weight.
+- **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
 - **Small** (400, 14px): nav links, form note and status (550), macro legend, data-flow rows, stack line, terminal (1.75), screenshot placeholder, footer.
 - **Caption** (400, 13px, Ink Muted): screenshot captions, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table and figure caption.
 - **Mono** (0.88em of context): inline code and the terminal.
@@ -251,7 +245,7 @@ A single centred column of `max` (1120px) plus `gutter` (20px) each side. Sectio
 
 **Grids.** Two-column, equal-fraction grids with `columns` (64px) gaps: hero (48px gap), origin (1.1fr / 0.9fr), step rows, self-host. Step rows alternate text side on even rows. The features list and the build section are two-column definition grids with 1px top rules per row. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge.
 
-**Breakpoints.** 900px: hero, origin and self-host stack to one column; the tilted devices and sheet straighten. 760px: steps, features, build columns stack; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 480px: choices, e-mail row and button go full width.
+**Breakpoints.** 900px: hero, origin and self-host stack to one column; the tilted devices and sheet straighten. 760px: steps, features, build columns stack; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 480px: choices and the button go full width.
 
 ## Elevation & Depth
 
@@ -285,9 +279,8 @@ Large, tappable checkbox cards (the only bordered boxes on the page, because the
 - **States:** hover tints the border to Lilac Hairline; checked turns the border Lilac, fill Lilac Wash, the box solid Lilac and scales in a drawn checkmark (0.15s); keyboard focus gets a 2px lilac outline at 2px offset. The native input stays in place, transparent, covering the card.
 - **Layout:** two equal columns, 10px gap; one column under 480px.
 
-### Inputs / Fields
-- **Style:** e-mail field 48px tall, Paper fill, 1.5px Rule border, 14px radius, Label-size text, Ink Muted placeholder, lilac caret. Visible label is the placeholder; a visually-hidden label carries the name.
-- **Focus:** border and a 2px Lilac outline at 1px offset.
+### Form status
+The page has no text inputs: the interest check is the choice cards and the button, and the optional e-mail lives on the Tally form.
 - **Status line:** a polite live region under the form; empty is hidden; error tone in Error, sent tone in Lilac.
 
 ### Navigation
