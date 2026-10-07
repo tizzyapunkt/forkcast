@@ -138,6 +138,7 @@ export const de = {
     languageLabel: 'Sprache',
     languageGerman: 'Deutsch',
     languageEnglish: 'English',
+    sourceCode: 'Quellcode',
   },
 
   catalog: {

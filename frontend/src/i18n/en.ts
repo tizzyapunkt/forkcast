@@ -139,6 +139,7 @@ export const en: Messages = {
     languageLabel: 'Language',
     languageGerman: 'Deutsch',
     languageEnglish: 'English',
+    sourceCode: 'Source code',
   },
 
   catalog: {

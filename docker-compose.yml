@@ -1,24 +1,20 @@
+# forkcast for self-hosting: the public images, one data volume, settings from .env next to this
+# file (AUTH_PASSWORD, AUTH_JWT_SECRET, optional ANTHROPIC_API_KEY; see backend/.env.example).
 services:
   backend:
-    image: ${DOCKERHUB_USERNAME}/forkcast-backend:latest
+    image: tizzyapunkt/forkcast-backend:latest
     restart: unless-stopped
+    env_file: .env
     volumes:
       - forkcast_data:/app/backend/data
-    networks:
-      - internal
 
   frontend:
-    image: ${DOCKERHUB_USERNAME}/forkcast-frontend:latest
+    image: tizzyapunkt/forkcast-frontend:latest
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - backend
-    networks:
-      - internal
-
-networks:
-  internal:
 
 volumes:
   forkcast_data:

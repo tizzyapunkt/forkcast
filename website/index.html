@@ -434,19 +434,20 @@
             </p>
             <ul>
               <li>One password-protected user, no sign-up, no sharing.</li>
-              <li>Container images and a <code>docker-compose.yml</code> exist. Proper deployment docs are next.</li>
+              <li>Public container images on Docker Hub (linux/amd64). HTTPS, updates and backups are in the <a href="https://github.com/tizzyapunkt/forkcast#self-hosting">README</a>.</li>
               <li>Photo import needs your own Anthropic API key. Everything else works without one.</li>
             </ul>
           </div>
           <pre
             class="terminal"
-            aria-label="Run forkcast locally"
-          ><span class="c"># Node 24, pnpm via corepack</span>
-<span class="p">$ </span>git clone https://github.com/tizzyapunkt/forkcast
-<span class="p">$ </span>cd forkcast &amp;&amp; corepack enable &amp;&amp; pnpm install
-<span class="p">$ </span>cp backend/.env.example backend/.env
-<span class="c"># set AUTH_PASSWORD and AUTH_JWT_SECRET</span>
-<span class="p">$ </span>pnpm dev</pre>
+            aria-label="Run forkcast with Docker"
+          ><span class="c"># Docker with the compose plugin</span>
+<span class="p">$ </span>mkdir forkcast &amp;&amp; cd forkcast
+<span class="p">$ </span>curl -LO https://raw.githubusercontent.com/tizzyapunkt/forkcast/main/docker-compose.yml
+<span class="p">$ </span>echo "AUTH_PASSWORD=choose-a-password" &gt; .env
+<span class="p">$ </span>echo "AUTH_JWT_SECRET=$(openssl rand -hex 32)" &gt;&gt; .env
+<span class="p">$ </span>docker compose up -d
+<span class="c"># open http://localhost:8080</span></pre>
         </div>
       </section>
 
@@ -538,6 +539,8 @@
         </p>
         <nav aria-label="Footer">
           <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>
+          <a href="/privacy/">Privacy</a>
+          <a href="/imprint/">Imprint</a>
           <a href="/de/" hreflang="de" lang="de">Deutsch</a>
         </nav>
       </div>

@@ -2,6 +2,7 @@
   "name": "@forkcast/frontend",
   "version": "1.0.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "module": "dist-ui/forkcast-ui.js",
   "types": "dist-ui/types/components/ui/index.d.ts",

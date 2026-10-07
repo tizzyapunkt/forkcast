@@ -1059,6 +1059,31 @@ pre {
   gap: 8px 20px;
 }
 
+/* Legal pages (privacy policy, imprint): one readable column of plain prose. */
+.legal {
+  padding: 72px 0 96px;
+}
+
+.legal h1 {
+  font-size: clamp(1.9rem, 1.3rem + 2vw, 2.6rem);
+  font-weight: 720;
+}
+
+.legal .prose h2 {
+  margin-top: 40px;
+  font-size: var(--fs-subtitle);
+  font-weight: 650;
+}
+
+.legal .prose p {
+  margin-top: 12px;
+  font-size: var(--fs-body);
+}
+
+.legal .prose a {
+  color: var(--ink);
+}
+
 /* One authored moment: device frames settle in once on load. Content is visible by default
  * and the animation only runs when motion is allowed. */
 @media (prefers-reduced-motion: no-preference) {
