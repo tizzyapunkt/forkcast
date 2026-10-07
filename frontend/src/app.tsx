@@ -27,8 +27,10 @@ export function App() {
   const navHidden = view === 'recipes' && recipeSubScreen;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className={`flex-1 ${navHidden ? 'pb-safe-b' : 'pb-nav-safe'}`}>
+    // overflow-x-clip: the full-bleed header spans 100vw, which includes a classic scrollbar's width.
+    <div className="flex min-h-screen flex-col overflow-x-clip">
+      {/* Every screen is phone-shaped; on a desktop it stays a readable centred column. */}
+      <main className={`mx-auto w-full max-w-2xl flex-1 ${navHidden ? 'pb-safe-b' : 'pb-nav-safe'}`}>
         {view === 'log' && (
           <DailyLogScreen
             date={date}

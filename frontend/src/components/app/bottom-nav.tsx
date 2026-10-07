@@ -28,26 +28,29 @@ export function BottomNav({ active, onChange }: Props) {
     <nav
       role="navigation"
       aria-label={t.nav.primary}
-      className="pb-safe-b fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background"
+      className="pb-safe-b fixed inset-x-0 bottom-0 z-30 border-t bg-background"
     >
-      {TABS.map(({ view, label, Icon }) => {
-        const isActive = view === active;
-        return (
-          <button
-            key={view}
-            type="button"
-            onClick={() => onChange(view)}
-            aria-current={isActive ? 'page' : undefined}
-            aria-label={label}
-            className={`flex flex-col items-center gap-0.5 py-2 text-xs ${
-              isActive ? 'font-medium text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <Icon size={20} aria-hidden="true" />
-            {label}
-          </button>
-        );
-      })}
+      {/* Tabs stay within the app's centred column (see App) instead of spreading across a desktop. */}
+      <div className="mx-auto grid max-w-2xl grid-cols-4">
+        {TABS.map(({ view, label, Icon }) => {
+          const isActive = view === active;
+          return (
+            <button
+              key={view}
+              type="button"
+              onClick={() => onChange(view)}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={label}
+              className={`flex flex-col items-center gap-0.5 py-2 text-xs ${
+                isActive ? 'font-medium text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              <Icon size={20} aria-hidden="true" />
+              {label}
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }
