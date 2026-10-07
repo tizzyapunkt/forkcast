@@ -1,15 +1,15 @@
 ---
 version: 1
-slug: "index-html"
-primary_target: "index.html"
-related_targets: ["de/index.html"]
+slug: 'index-html'
+primary_target: 'index.html'
+related_targets: ['de/index.html']
 ---
 
 # Landing page (EN `/`, DE `/de/`)
 
 Visitor mode: Persuade. Audience, job and constraints: see `website/PRODUCT.md` (two equal audiences, possible Hacker News submission, honest pre-launch state).
 
-Action: the interest check (hosted / self-host, both selectable), working in the first viewport, confirmed on a Tally form (one per language) where an e-mail is an optional extra. The page itself never asks for an e-mail. Umami counts visits only.
+Action: the interest check (hosted / self-host, both selectable), working in the first viewport: ticking an option counts it (Umami event). The button opens the optional launch e-mail on a Tally form (one per language). The page itself never asks for an e-mail.
 
 ## Direction contract
 

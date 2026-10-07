@@ -5,7 +5,10 @@
  *
  * playwright-core is not a repo dependency; `npx -p` provides it and this script resolves it from there.
  * Pass a shot name (week-plan, daily-log, grocery-list, recipe, food-search, week-plan-desktop) to
- * capture only that one. Each shot is written as PNG and, when `cwebp` is on PATH, as a q85 WebP.
+ * capture only that one. Each shot is written as PNG and, when `cwebp` is on PATH, as a q85 WebP plus a
+ * smaller WebP for the page's srcset (`<name>-600.webp` for phone shots, `<name>-1440.webp` for the
+ * desktop shot). With `ffmpeg` on PATH the desktop shot also yields `og.jpg` (1200x630, top crop), the
+ * page's link-preview image.
  *
  * Env:
  *   LOCALE              en | de (default en) — browser locale and the app's stored UI language
@@ -128,12 +131,43 @@ async function collapseExpandedDay(page) {
   if (await expanded.count()) await expanded.click();
   await settle(page);
 }
-async function shot(page, name) {
+async function shot(page, name, smallWidth = 600) {
   await settle(page);
   const png = join(OUT, `${name}.png`);
   await page.screenshot({ path: png });
-  if (hasCwebp) execFileSync('cwebp', ['-quiet', '-q', '85', png, '-o', join(OUT, `${name}.webp`)]);
+  if (hasCwebp) {
+    execFileSync('cwebp', ['-quiet', '-q', '85', png, '-o', join(OUT, `${name}.webp`)]);
+    execFileSync('cwebp', [
+      '-quiet',
+      '-q',
+      '85',
+      '-resize',
+      String(smallWidth),
+      '0',
+      png,
+      '-o',
+      join(OUT, `${name}-${smallWidth}.webp`),
+    ]);
+  }
   console.log('saved', png);
+}
+function ogImage(png) {
+  try {
+    execFileSync('ffmpeg', [
+      '-loglevel',
+      'error',
+      '-y',
+      '-i',
+      png,
+      '-vf',
+      'scale=1200:-1,crop=1200:630:0:0',
+      '-q:v',
+      '3',
+      join(OUT, 'og.jpg'),
+    ]);
+  } catch {
+    console.warn('ffmpeg not found, skipped og.jpg');
+  }
 }
 const want = (n) => !only || only === n;
 
@@ -190,7 +224,8 @@ if (want('week-plan-desktop')) {
   await nav(page, UI.plan).click();
   await settle(page);
   await collapseExpandedDay(page);
-  await shot(page, 'week-plan-desktop');
+  await shot(page, 'week-plan-desktop', 1440);
+  ogImage(join(OUT, 'week-plan-desktop.png'));
   await ctx.close();
 }
 await browser.close();

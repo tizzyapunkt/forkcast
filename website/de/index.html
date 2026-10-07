@@ -3,11 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>forkcast — Mahlzeiten eine Woche im Voraus planen</title>
+    <title>forkcast — ein Wochen-Essensplaner. Hättest du ihn gern gehostet?</title>
     <meta
       name="description"
-      content="forkcast ist ein Essensplaner, der mit der Woche beginnt, nicht mit dem Tag: Mahlzeiten gegen eigene Kalorien- und Makroziele planen, die Einkaufsliste kommt aus dem Plan."
+      content="Ein Essensplaner, der mit der Woche beginnt: gegen eigene Kalorien- und Makroziele planen, aus der Einkaufsliste einkaufen, mit den eigenen Rezepten kochen. Er läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="forkcast" />
+    <meta property="og:title" content="forkcast — ein Wochen-Essensplaner. Hättest du ihn gern gehostet?" />
+    <meta
+      property="og:description"
+      content="Ein Essensplaner, der mit der Woche beginnt: gegen eigene Kalorien- und Makroziele planen, aus der Einkaufsliste einkaufen, mit den eigenen Rezepten kochen. Er läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
+    />
+    <meta property="og:url" content="https://check-forkcast.tizzy.dev/de/" />
+    <meta property="og:image" content="https://check-forkcast.tizzy.dev/og-de.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Der Wochenplan von forkcast: sieben Tage mit Kalorien und Makros gegen das Ziel."
+    />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#4d4899" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href="https://check-forkcast.tizzy.dev/de/" vite-ignore />
@@ -46,10 +64,11 @@
       <section class="hero">
         <div class="wrap">
           <div>
-            <h1>Essensplanung, die mit der <span>Woche</span> beginnt, nicht mit dem Tag.</h1>
+            <h1>Ein Essensplaner, der mit der Woche beginnt. Hättest du ihn gern <span>gehostet</span>?</h1>
             <p class="lede">
-              forkcast plant deine Mahlzeiten eine Woche im Voraus gegen deine eigenen Kalorien- und Makroziele und macht
-              aus dem Plan die Einkaufsliste. Gebaut für eine Person. Vielleicht auch für dich.
+              Du planst deine Mahlzeiten eine Woche im Voraus gegen deine eigenen Kalorien- und Makroziele. forkcast
+              rechnet mit, macht aus dem Plan die Einkaufsliste und hat beim Kochen das Rezept parat. Es läuft heute
+              selbst gehostet, für eine Person. Diese Seite prüft, ob sich eine gehostete Version lohnt.
             </p>
 
             <form
@@ -59,12 +78,13 @@
               method="get"
               target="_blank"
               data-live="%TALLY_LIVE%"
-              data-msg-pick="Wähl mindestens eine Option."
-              data-msg-offline="Die Warteliste ist noch nicht offen. Danke fürs Ausprobieren!"
-              data-msg-sent="Danke! Tally ist zum Bestätigen in einem neuen Tab offen."
+              data-msg-counted="Gezählt. Danke!"
+              data-msg-blocked="Das ließ sich hier nicht zählen, vielleicht blockiert ein Blocker den Zähler. Nimm den Button: Das Tally-Formular speichert deine Auswahl auch."
+              data-msg-offline="Die Start-Mail ist noch nicht offen. Danke fürs Ausprobieren!"
+              data-msg-sent="Tally ist in einem neuen Tab offen. Hinterlass dort deine E-Mail."
             >
               <fieldset>
-                <legend>Würdest du es nutzen?</legend>
+                <legend>Was würdest du nutzen?</legend>
                 <div class="choices">
                   <label class="choice">
                     <input type="checkbox" name="hosted" value="yes" />
@@ -76,13 +96,26 @@
                   </label>
                 </div>
               </fieldset>
+              <p class="form-note form-note--lead">
+                Mit dem Ankreuzen zählt deine Antwort. Mehr ist nicht nötig, keine E-Mail.
+              </p>
+              <noscript>
+                <style>
+                  .form-note--lead:not(.form-note--nojs) {
+                    display: none;
+                  }
+                </style>
+                <p class="form-note form-note--lead form-note--nojs">
+                  Ohne JavaScript lässt sich deine Wahl hier nicht zählen. Nimm den Button: Das Tally-Formular speichert
+                  sie.
+                </p>
+              </noscript>
               <div class="submit-row">
-                <button class="button" type="submit">Ich bin dabei</button>
+                <button class="button" type="submit">Start-Mail bekommen</button>
               </div>
               <p class="form-note">
-                Deine Wahl zählt auch ohne E-Mail. Zum Bestätigen öffnet sich Tally; nur wenn du willst, hinterlässt du
-                dort eine E-Mail für eine einzige Nachricht, sobald es etwas zum Ausprobieren gibt. Sie wird danach
-                gelöscht. Eine gehostete Version gibt es noch nicht.
+                Freiwillig. Öffnet ein Tally-Formular für deine E-Mail. Ich schreibe einmal: wenn die gehostete Version
+                zum Ausprobieren bereit ist, oder Ende 2026, falls nicht. Danach wird die Adresse gelöscht.
               </p>
               <p class="form-status" role="status" aria-live="polite"></p>
             </form>
@@ -92,6 +125,8 @@
             <div class="device device--back">
               <img
                 src="/screenshots/de/grocery-list.webp"
+                srcset="/screenshots/de/grocery-list-600.webp 600w, /screenshots/de/grocery-list.webp 1170w"
+                sizes="300px"
                 alt="Die Einkaufsliste der Woche, aus dem Essensplan zusammengerechnet."
                 data-missing="Screenshot Einkaufsliste"
                 width="1170"
@@ -101,6 +136,8 @@
             <div class="device device--front">
               <img
                 src="/screenshots/de/week-plan.webp"
+                srcset="/screenshots/de/week-plan-600.webp 600w, /screenshots/de/week-plan.webp 1170w"
+                sizes="300px"
                 alt="Der Wochenplan: sieben Tage Mahlzeiten mit Durchschnittskalorien und Makrobalken gegen das Ziel."
                 data-missing="Screenshot Wochenplan"
                 width="1170"
@@ -116,7 +153,9 @@
       <section class="section origin" aria-labelledby="origin-title">
         <div class="wrap">
           <div class="prose">
-            <h2 id="origin-title">Gebaut für eine Person. Vielleicht nicht nur für mich.</h2>
+            <h2 id="origin-title">
+              Ich habe yazio, fddb, MyFitnessPal und Excel zu meinem eigenen Essensplaner zusammengeflickt.
+            </h2>
             <p>
               Ich habe einen Vollzeitjob, eine junge Familie und Fitnessziele, die ich ernst nehme. Jeder Tracker, den
               ich probiert habe, fddb, yazio, MyFitnessPal, dreht sich ums Eintragen dessen, was man schon gegessen hat.
@@ -124,8 +163,8 @@
             </p>
             <p>
               Eine Excel-Tabelle hat mich halb dorthin gebracht. Rechnen konnte sie, aber sie war nie ergonomisch genug,
-              um sie jede Woche durchzuhalten. Also habe ich forkcast gebaut, für mich, ohne Plan, ein Produkt daraus
-              zu machen.
+              um sie jede Woche durchzuhalten. Also habe ich das, was bei jedem funktioniert hat, zu forkcast
+              zusammengenäht, für mich, ohne Plan, ein Produkt daraus zu machen.
             </p>
             <p>
               Inzwischen ist es so weit gewachsen, dass es vielleicht auch andere nutzen wollen. Mit dieser Seite finde
@@ -133,7 +172,27 @@
             </p>
           </div>
 
-          <figure class="sheet" aria-label="Illustration der alten Tabelle">
+          <figure class="sheet sheet--live" aria-label="Illustration der alten Tabelle">
+            <div class="fx" aria-hidden="true">
+              <span class="fx-ref"
+                ><span data-f="B2">B2</span><span data-f="C2">C2</span><span data-f="D2">D2</span
+                ><span data-f="E2">E2</span><span data-f="B3">B3</span><span data-f="C3">C3</span
+                ><span data-f="D3">D3</span><span data-f="E3">E3</span><span data-f="B4">B4</span
+                ><span data-f="C4">C4</span><span data-f="D4">D4</span><span data-f="E4">E4</span
+                ><span data-f="B5">B5</span><span data-f="C5">C5</span><span data-f="D5">D5</span></span
+              >
+              <span class="fx-sign">fx</span>
+              <span class="fx-formula"
+                ><span data-f="B2">Haferflocken</span><span data-f="C2">Haferflocken</span><span data-f="D2">Skyr</span
+                ><span data-f="E2">=SUMME(SVERWEIS(B2:D2; Lebensmittel!A:C; 3; 0))</span><span data-f="B3">Bowl</span
+                ><span data-f="C3">Dal</span><span data-f="D3">Bowl</span
+                ><span data-f="E3">=SUMME(SVERWEIS(B3:D3; Lebensmittel!A:C; 3; 0))</span><span data-f="B4">Lachs</span
+                ><span data-f="C4">? (später entscheiden)</span><span data-f="D4">Reste (wovon?)</span
+                ><span data-f="E4">=SUMME(SVERWEIS(B4:D4; Lebensmittel_alt!A:C; 3; 0))</span
+                ><span data-f="B5">=SUMMEWENN(Mo!A:A; "*"; Mo!G:G)</span><span data-f="C5">=WENNFEHLER(Di!G9; "—")</span
+                ><span data-f="D5">=SUMMEWENN(Mi!A:A; "*"; Mi!G:G)</span></span
+              >
+            </div>
             <table>
               <thead>
                 <tr>
@@ -147,35 +206,34 @@
               <tbody>
                 <tr>
                   <th>Frühstück</th>
-                  <td>Haferflocken</td>
-                  <td>Haferflocken</td>
-                  <td>Skyr</td>
-                  <td class="num">1.420</td>
+                  <td data-c="B2" tabindex="-1">Haferflocken</td>
+                  <td data-c="C2" tabindex="-1">Haferflocken</td>
+                  <td data-c="D2" tabindex="-1">Skyr</td>
+                  <td class="num" data-c="E2" tabindex="-1">1.420</td>
                 </tr>
                 <tr>
                   <th>Mittag</th>
-                  <td>Bowl</td>
-                  <td>Dal</td>
-                  <td>Bowl</td>
-                  <td class="num">2.310</td>
+                  <td data-c="B3" tabindex="-1">Bowl</td>
+                  <td data-c="C3" tabindex="-1">Dal</td>
+                  <td data-c="D3" tabindex="-1">Bowl</td>
+                  <td class="num" data-c="E3" tabindex="-1">2.310</td>
                 </tr>
                 <tr>
                   <th>Abend</th>
-                  <td>Lachs</td>
-                  <td>?</td>
-                  <td>Reste</td>
-                  <td class="num err">#REF!</td>
+                  <td data-c="B4" tabindex="-1">Lachs</td>
+                  <td data-c="C4" tabindex="-1">?</td>
+                  <td data-c="D4" tabindex="-1">Reste</td>
+                  <td class="num err" data-c="E4" tabindex="0">#REF!</td>
                 </tr>
                 <tr>
                   <th>Eiweiß</th>
-                  <td class="num">171</td>
-                  <td class="num">—</td>
-                  <td class="num">158</td>
-                  <td class="num"></td>
+                  <td class="num" data-c="B5" tabindex="-1">171</td>
+                  <td class="num" data-c="C5" tabindex="-1">—</td>
+                  <td class="num" data-c="D5" tabindex="-1">158</td>
+                  <td class="num" data-c="E5" tabindex="-1"></td>
                 </tr>
               </tbody>
             </table>
-            <figcaption>Illustration: ungefähr hier hat die Tabelle aufgehört, Spaß zu machen.</figcaption>
           </figure>
         </div>
       </section>
@@ -184,7 +242,10 @@
         <div class="wrap">
           <div class="section-head">
             <h2 id="how-title">So funktioniert's</h2>
-            <p>Die Woche ist die Einheit. Tägliches Eintragen gibt es weiterhin, als flexiblen Teil, nicht als Hauptarbeit.</p>
+            <p>
+              Die Woche ist die Einheit. Tägliches Eintragen gibt es weiterhin, als flexiblen Teil, nicht als
+              Hauptarbeit.
+            </p>
           </div>
 
           <div class="steps">
@@ -192,8 +253,8 @@
               <div class="step-text">
                 <h3>Woche planen</h3>
                 <p>
-                  Leg Mahlzeiten auf jeden Tag der kommenden Woche und sieh Tages- und Wochendurchschnitt gegen deine Ziele,
-                  bevor du etwas gegessen hast. Beim Meal-Prep kopierst du einen Tag auf den nächsten.
+                  Leg Mahlzeiten auf jeden Tag der kommenden Woche und sieh Tages- und Wochendurchschnitt gegen deine
+                  Ziele, bevor du etwas gegessen hast. Beim Meal-Prep kopierst du einen Tag auf den nächsten.
                 </p>
                 <ul class="macro-legend" aria-label="Makrofarben">
                   <li><i style="background: var(--macro-p)"></i>Eiweiß</li>
@@ -205,6 +266,11 @@
                 <div class="browser">
                   <img
                     src="/screenshots/de/week-plan-desktop.webp"
+                    srcset="
+                      /screenshots/de/week-plan-desktop-1440.webp 1440w,
+                      /screenshots/de/week-plan-desktop.webp      2880w
+                    "
+                    sizes="860px"
                     alt="Der Wochenplaner im Desktop-Browser."
                     data-missing="Screenshot Wochenplan Desktop"
                     width="2880"
@@ -215,6 +281,8 @@
                 <div class="device device--small">
                   <img
                     src="/screenshots/de/week-plan.webp"
+                    srcset="/screenshots/de/week-plan-600.webp 600w, /screenshots/de/week-plan.webp 1170w"
+                    sizes="300px"
                     alt="Wochenplan mit geplanten Mahlzeiten und Makrofortschritt."
                     data-missing="Screenshot Wochenplan"
                     width="1170"
@@ -229,14 +297,16 @@
               <div class="step-text">
                 <h3>Den Tag anpassen</h3>
                 <p>
-                  Pläne ändern sich. Tausch eine Mahlzeit oder trag Ungeplantes am Handy ein, die Makros rechnen schon beim
-                  Tippen der Menge mit.
+                  Pläne ändern sich. Tausch eine Mahlzeit oder trag Ungeplantes am Handy ein, die Makros rechnen schon
+                  beim Tippen der Menge mit.
                 </p>
               </div>
               <div>
                 <div class="device">
                   <img
                     src="/screenshots/de/daily-log.webp"
+                    srcset="/screenshots/de/daily-log-600.webp 600w, /screenshots/de/daily-log.webp 1170w"
+                    sizes="300px"
                     alt="Tagesprotokoll mit Frühstück, Mittag, Abend und Snacks samt Makros."
                     data-missing="Screenshot Tagesprotokoll"
                     width="1170"
@@ -251,14 +321,16 @@
               <div class="step-text">
                 <h3>Einkaufen nach Plan</h3>
                 <p>
-                  Die Einkaufsliste rechnet zusammen, was die Woche braucht, mit Stückhinweisen wie „≈ 3“ bei Zwiebeln. Hak
-                  ab, was schon da ist, oder schick die Liste an Bring!.
+                  Die Einkaufsliste rechnet zusammen, was die Woche braucht, mit Stückhinweisen wie „≈ 3“ bei Zwiebeln.
+                  Hak ab, was schon da ist, oder schick die Liste an Bring!.
                 </p>
               </div>
               <div>
                 <div class="device">
                   <img
                     src="/screenshots/de/grocery-list.webp"
+                    srcset="/screenshots/de/grocery-list-600.webp 600w, /screenshots/de/grocery-list.webp 1170w"
+                    sizes="300px"
                     alt="Aus dem Wochenplan erzeugte Einkaufsliste."
                     data-missing="Screenshot Einkaufsliste"
                     width="1170"
@@ -276,18 +348,25 @@
         <div class="wrap">
           <div class="section-head">
             <h2 id="capture-title">Zwei Dinge, die am meisten Tipparbeit sparen</h2>
-            <p>Die meiste Zeit in einem Ernährungstracker geht ins Eintragen von Lebensmitteln. Diese zwei verkürzen das.</p>
+            <p>
+              Die meiste Zeit in einem Ernährungstracker geht ins Eintragen von Lebensmitteln. Diese zwei verkürzen das.
+            </p>
           </div>
           <div class="steps">
             <div class="step">
               <div class="step-text">
                 <h3>Abgepackte Lebensmittel über Open Food Facts</h3>
-                <p>Markenprodukte suchen oder Barcode scannen, die Nährwerte kommen von Open Food Facts. Fehlt ein Produkt dort, fotografierst du die Verpackung und es landet in deinem eigenen Katalog.</p>
+                <p>
+                  Markenprodukte suchen oder Barcode scannen, die Nährwerte kommen von Open Food Facts. Fehlt ein
+                  Produkt dort, fotografierst du die Verpackung und es landet in deinem eigenen Katalog.
+                </p>
               </div>
               <div>
                 <div class="device">
                   <img
                     src="/screenshots/de/food-search.webp"
+                    srcset="/screenshots/de/food-search-600.webp 600w, /screenshots/de/food-search.webp 1170w"
+                    sizes="300px"
                     alt="Snack hinzufügen: Suche nach „skyr“ mit eingeschalteten Open-Food-Facts-Ergebnissen."
                     data-missing="Screenshot Produktsuche"
                     width="1170"
@@ -300,12 +379,18 @@
             <div class="step">
               <div class="step-text">
                 <h3>Rezepte aus Fotos</h3>
-                <p>Kochbuchseite fotografieren, Screenshot machen oder Vorder- und Rückseite einer Rezeptkarte aufnehmen, und du bekommst einen Rezeptentwurf. Du prüfst jede Zutat, bevor etwas gespeichert wird, danach kennt das Rezept seine Makros pro Portion.</p>
+                <p>
+                  Kochbuchseite fotografieren, Screenshot machen oder Vorder- und Rückseite einer Rezeptkarte aufnehmen,
+                  und du bekommst einen Rezeptentwurf. Du prüfst jede Zutat, bevor etwas gespeichert wird, danach kennt
+                  das Rezept seine Makros pro Portion.
+                </p>
               </div>
               <div>
                 <div class="device">
                   <img
                     src="/screenshots/de/recipe.webp"
+                    srcset="/screenshots/de/recipe-600.webp 600w, /screenshots/de/recipe.webp 1170w"
+                    sizes="300px"
                     alt="Ein gespeichertes Rezept mit Zutaten und Makros pro Portion."
                     data-missing="Screenshot Rezept"
                     width="1170"
@@ -327,17 +412,36 @@
           <dl class="features">
             <div class="feature">
               <dt>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z" />
                   <path d="M5 17a3 3 0 0 1 3-3h11M9 8h6" />
                 </svg>
                 Dein eigener Lebensmittelkatalog
               </dt>
-              <dd>Eine kuratierte Basis alltäglicher Lebensmittel, die du korrigieren und erweitern kannst, mit Stückgewichten wie „1 Ei“.</dd>
+              <dd>
+                Eine kuratierte Basis alltäglicher Lebensmittel, die du korrigieren und erweitern kannst, mit
+                Stückgewichten wie „1 Ei“.
+              </dd>
             </div>
             <div class="feature">
               <dt>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <circle cx="12" cy="12" r="8" />
                   <circle cx="12" cy="12" r="4" />
                   <circle cx="12" cy="12" r="0.5" fill="currentColor" />
@@ -348,17 +452,35 @@
             </div>
             <div class="feature">
               <dt>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
                   <path d="M11 18.5h2" />
                 </svg>
                 Fürs Handy gebaut, am Desktop genauso
               </dt>
-              <dd>Eine installierbare Web-App, die im Supermarkt offline funktioniert und am Schreibtisch genauso gut.</dd>
+              <dd>
+                Eine installierbare Web-App, die im Supermarkt offline funktioniert und am Schreibtisch genauso gut.
+              </dd>
             </div>
             <div class="feature">
               <dt>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" />
                 </svg>
                 Gewicht neben dem Plan
@@ -373,84 +495,52 @@
         <div class="wrap">
           <div class="section-head">
             <h2 id="built-title">Wie es gebaut ist und wohin Daten gehen</h2>
-            <p>Zwei getrennte Dinge: die App, die du nutzen oder betreiben würdest, und diese Website, die fragt, ob du das willst.</p>
+            <p>Im Moment läuft forkcast als eine Instanz für eine Person: mich. Das hier ist alles, was es berührt.</p>
           </div>
 
-          <div class="built">
-            <div class="built-col">
-              <h3>Die App</h3>
-              <p>Deine Daten liegen als einfache JSON-Dateien auf dem Server, der sie betreibt. Keine Datenbank, kein Account-System.</p>
-              <ul class="flows">
-                <li>
-                  <b>Mahlzeiten, Rezepte, Ziele</b>
-                  <span>Nur auf deiner Instanz gespeichert.</span>
-                </li>
-                <li>
-                  <b>Produktsuche</b>
-                  <span>Fragt Open Food Facts ab, wenn du sie einschaltest oder einen Barcode scannst.</span>
-                </li>
-                <li>
-                  <b>Foto-Import</b>
-                  <span
-                    >Rezept- und Verpackungsfotos gehen an die Anthropic API, nur wenn du einen eigenen API-Key hinterlegst.
-                    Ohne Key blendet sich die Funktion aus.</span
-                  >
-                </li>
-              </ul>
-              <p class="stack">
-                Durchgehend TypeScript: eine <code>Hono</code>-API mit hexagonalem, domänengetriebenem Kern und eine
-                <code>React</code>-PWA. Quellcode auf
-                <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>.
-              </p>
-            </div>
+          <ul class="data-flows">
+            <li class="is-local">
+              <b>Mahlzeiten, Rezepte, Ziele</b>
+              <span>Einfache JSON-Dateien auf dem Server, der es betreibt. Keine Datenbank, kein Account-System.</span>
+            </li>
+            <li class="is-local">
+              <b>Erfasste Produkte</b>
+              <span
+                >Aus Verpackungsfotos gelesene Produkte landen in deinem eigenen Lebensmittelkatalog, auf deinem
+                Server.</span
+              >
+            </li>
+            <li>
+              <b>Produktsuche</b>
+              <span>Fragt Open Food Facts ab, wenn du sie einschaltest oder einen Barcode scannst.</span>
+            </li>
+            <li>
+              <b>Foto-Import</b>
+              <span
+                >Rezept- und Verpackungsfotos gehen an die Anthropic API, nur wenn du einen eigenen API-Key hinterlegst.
+                Ohne Key blendet sich die Funktion aus.</span
+              >
+            </li>
+          </ul>
 
-            <div class="built-col">
-              <h3>Diese Website</h3>
-              <p>Statisches HTML, keine Cookies. Mit der Seite lädt ein Skript: das von Umami, um den Besuch zu zählen. Tally wird erst kontaktiert, wenn du das Formular abschickst.</p>
-              <ul class="flows">
-                <li>
-                  <b>Besuche</b>
-                  <span>Gezählt mit Umami, ohne Cookies und ohne personenbezogene Daten.</span>
-                </li>
-                <li>
-                  <b>Interessen-Check</b>
-                  <span>Deine Auswahl geht an ein Tally-Formular, wo du sie bestätigst. Ohne E-Mail.</span>
-                </li>
-                <li>
-                  <b>Deine E-Mail</b>
-                  <span>Nur, wenn du sie selbst im Tally-Formular angibst. Einmal genutzt, um dir Bescheid zu geben, wenn es etwas zum Ausprobieren gibt, danach gelöscht.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <p class="stack">
+            Durchgehend TypeScript: eine <code>Hono</code>-API mit hexagonalem, domänengetriebenem Kern und eine
+            <code>React</code>-PWA. Quellcode auf <a href="https://github.com/tizzyapunkt/forkcast">GitHub</a>.
+          </p>
         </div>
       </section>
 
-      <section class="section section--tint" id="selfhost" aria-labelledby="selfhost-title">
-        <div class="wrap selfhost">
-          <div class="prose">
-            <h2 id="selfhost-title">Heute schon selbst betreiben</h2>
+      <aside class="try-now" aria-labelledby="try-now-title">
+        <div class="wrap">
+          <div>
+            <h2 id="try-now-title">Selbst betreiben geht schon heute</h2>
             <p>
-              Ich nutze forkcast jeden Tag, selbst hosten funktioniert also jetzt schon. Nur: Es ist für eine Person gebaut.
+              Du kannst es jetzt auf deinem eigenen Server laufen lassen. Die Anleitung steht in der README auf GitHub.
             </p>
-            <ul>
-              <li>Ein passwortgeschützter Nutzer, keine Registrierung, kein Teilen.</li>
-              <li>Öffentliche Container-Images auf Docker Hub (linux/amd64). HTTPS, Updates und Backups stehen in der <a href="https://github.com/tizzyapunkt/forkcast#self-hosting">README</a>.</li>
-              <li>Der Foto-Import braucht einen eigenen Anthropic-API-Key. Alles andere läuft ohne.</li>
-            </ul>
           </div>
-          <pre
-            class="terminal"
-            aria-label="forkcast mit Docker starten"
-          ><span class="c"># Docker mit Compose-Plugin</span>
-<span class="p">$ </span>mkdir forkcast &amp;&amp; cd forkcast
-<span class="p">$ </span>curl -LO https://raw.githubusercontent.com/tizzyapunkt/forkcast/main/docker-compose.yml
-<span class="p">$ </span>echo "AUTH_PASSWORD=passwort-waehlen" &gt; .env
-<span class="p">$ </span>echo "AUTH_JWT_SECRET=$(openssl rand -hex 32)" &gt;&gt; .env
-<span class="p">$ </span>docker compose up -d
-<span class="c"># http://localhost:8080 öffnen</span></pre>
+          <a class="button" href="https://github.com/tizzyapunkt/forkcast#self-hosting">Auf GitHub einrichten</a>
         </div>
-      </section>
+      </aside>
 
       <section class="section" id="faq" aria-labelledby="faq-title">
         <div class="wrap">
@@ -461,49 +551,94 @@
             <details>
               <summary>
                 Warum nicht einfach eine Tabelle?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
-                Hab ich versucht, in Excel. Rechnen ging, aber eine Woche Mahlzeiten eintragen, Makros nachschlagen und die
-                Einkaufsliste neu bauen war nie ergonomisch genug, um es wirklich jede Woche zu machen. forkcast gibt es,
-                weil die Tabelle immer wieder ausgefallen ist.
+                Hab ich versucht, in Excel. Rechnen ging, aber eine Woche Mahlzeiten eintragen, Makros nachschlagen und
+                die Einkaufsliste neu bauen war nie ergonomisch genug, um es wirklich jede Woche zu machen. forkcast
+                gibt es, weil die Tabelle immer wieder ausgefallen ist.
               </p>
             </details>
             <details>
               <summary>
                 Gibt es eine gehostete Version?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
-                Noch nicht. Ob es eine geben wird, hängt von den Antworten auf die Frage oben auf dieser Seite ab. Wenn du
-                deine E-Mail im Tally-Formular dagelassen hast, erfährst du es zuerst.
+                Noch nicht. Ob es eine geben wird, hängt von den Antworten auf die Frage oben auf dieser Seite ab. Wenn
+                du deine E-Mail im Tally-Formular dagelassen hast, erfährst du es zuerst.
               </p>
             </details>
             <details>
               <summary>
                 Wird es etwas kosten?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
-                Der Code ist öffentlich und du kannst ihn selbst betreiben. Ob eine gehostete Version etwas kosten würde,
-                ist nicht entschieden. Es gibt noch nichts zu verkaufen.
+                Der Code ist öffentlich und du kannst ihn selbst betreiben. Ob eine gehostete Version etwas kosten
+                würde, ist nicht entschieden. Es gibt noch nichts zu verkaufen.
               </p>
             </details>
             <details>
               <summary>
                 Wo liegen meine Daten?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
-                Beim Selbsthosten: in JSON-Dateien auf deinem Server. Produktabfragen gehen an Open Food Facts, Fotos an die
-                Anthropic API, nur wenn du einen Key hinterlegst. Die vollständige Liste steht oben unter „Wie es gebaut
-                ist“.
+                Beim Selbsthosten: in JSON-Dateien auf deinem Server. Produktabfragen gehen an Open Food Facts, Fotos an
+                die Anthropic API, nur wenn du einen Key hinterlegst. Die vollständige Liste steht oben unter „Wie es
+                gebaut ist“.
               </p>
             </details>
             <details>
               <summary>
                 Gibt es die App auf Englisch?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
                 Ja. Die App gibt es auf Deutsch und Englisch: Sie folgt der Sprache deines Browsers, umstellen lässt sie
@@ -513,7 +648,16 @@
             <details>
               <summary>
                 Wer steckt dahinter?
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <p>
                 Eine Person, die es in der Freizeit für die eigene Küche baut. Keine Firma, keine Investoren, kein
