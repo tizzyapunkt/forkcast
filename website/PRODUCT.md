@@ -25,7 +25,7 @@ The page may be shared on Hacker News as a regular submission, not as a Show HN:
 
 ## Product Purpose
 
-The public landing page for forkcast. It explains what the app does and runs an interest check: does the visitor want a hosted version, or to self-host? The interest check runs entirely through Tally: every submission records the hosted / self-host choice (one or both). The landing page never asks for an e-mail; an address for the waitlist is an optional field the visitor fills in on the Tally form itself. Umami only measures who visits (page views, referrers), never the interest check itself. Success means a clear signal of which offering people want, and a list of people to contact once it exists.
+The public landing page for forkcast. It explains what the app does and runs an interest check: does the visitor want a hosted version, or to self-host? Ticking an option is the vote: it is counted as a cookieless Umami event (`interest`, once per option and page view), so picking needs no further step. The button is only the optional launch e-mail: it opens the Tally form (one per language), prefilled with the ticked options, where the visitor can leave an address. The landing page itself never asks for an e-mail. Success means a clear signal of which offering people want, and a list of people to contact once it exists.
 
 ## Origin
 
@@ -73,4 +73,4 @@ Live at https://check-forkcast.tizzy.dev (GitHub Pages). The launch decisions ar
 2. **Time is the pitch.** The value is that planning a week takes minutes, so the site should be just as quick to understand.
 3. **Two audiences, one story.** Neither hosted nor self-hosted is the default path until the interest check says so.
 4. **Same truth in both languages.** EN and DE make identical claims.
-5. **Plain and checkable.** No marketing superlatives. Every claim can be verified in the repo, data flows are named and kept apart by where they happen — the app (photo import and packaging capture send images to the Anthropic API; product search and barcode lookups query Open Food Facts) versus this website (cookieless Umami analytics for visits; the interest check and waitlist via Tally) — and nothing is required to read the page: no JS, no cookies, no e-mail.
+5. **Plain and checkable.** No marketing superlatives. Every claim can be verified in the repo, data flows are named and kept apart by where they happen — the app (photo import and packaging capture send images to the Anthropic API; product search and barcode lookups query Open Food Facts) versus this website (cookieless Umami analytics for visits and the interest check; the optional launch e-mail via Tally) — and nothing is required to read the page: no JS, no cookies, no e-mail.

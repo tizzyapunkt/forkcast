@@ -129,8 +129,11 @@ p {
   text-wrap: pretty;
 }
 
-code,
-pre {
+figure {
+  margin: 0;
+}
+
+code {
   font-family: var(--mono);
   font-size: 0.88em;
 }
@@ -242,6 +245,27 @@ pre {
   }
 }
 
+/* On touch screens, header and footer links get a 44px tall hit area without changing the look. */
+@media (pointer: coarse) {
+  .nav a:not(.lang),
+  .site-footer nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* The language pill keeps its size; an invisible ring around it takes the tap. */
+  .nav .lang {
+    position: relative;
+  }
+
+  .nav .lang::after {
+    content: '';
+    position: absolute;
+    inset: -7px -4px;
+  }
+}
+
 /* ---------- Hero ---------- */
 
 .hero {
@@ -258,9 +282,10 @@ pre {
 }
 
 .hero h1 {
-  font-size: clamp(2.4rem, 1.4rem + 3.6vw, 4rem);
+  font-size: clamp(2.1rem, 1.3rem + 2.8vw, 3.3rem);
   font-weight: 750;
   letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 
 .hero h1 span {
@@ -279,10 +304,12 @@ pre {
   min-height: 670px;
 }
 
+/* The bezel is the screenshot's margin, not the frame's padding: a percentage margin resolves
+ * against the frame's own width, so the bezel scales with the device at every size. */
 .device {
+  display: flow-root; /* keeps the screenshot's margin inside the frame */
   position: relative;
   width: 280px;
-  padding: 3.2%;
   border-radius: 16% / 7.4%;
   background: var(--frame);
   box-shadow: var(--shadow-device);
@@ -290,7 +317,9 @@ pre {
 
 .device img,
 .device .shot-missing {
-  width: 100%;
+  display: block;
+  width: 88.8%;
+  margin: 5.6%;
   height: auto;
   aspect-ratio: 390 / 844;
   border-radius: 13% / 6%;
@@ -541,6 +570,13 @@ pre {
   color: var(--ink-3);
 }
 
+/* The line that says picking already counts: read before the optional e-mail button. */
+.form-note--lead {
+  margin-top: 12px;
+  margin-bottom: 20px;
+  color: var(--ink-2);
+}
+
 .form-status {
   margin-top: 10px;
   font-size: var(--fs-small);
@@ -557,6 +593,12 @@ pre {
 
 .form-status[data-tone='ok'] {
   color: var(--brand);
+}
+
+/* Not the visitor's fault (a blocked counter): a plain hint, not an error. */
+.form-status[data-tone='note'] {
+  color: var(--ink-2);
+  font-weight: 400;
 }
 
 @media (max-width: 480px) {
@@ -657,11 +699,78 @@ pre {
   font-family: var(--mono);
 }
 
-.sheet figcaption {
-  padding: 10px 12px;
-  color: var(--ink-3);
+/* Formula bar: pointing at or tabbing to a cell shows its formula. CSS only (:has), so the
+ * picture works without JS. The broken #REF! cell (E4) is selected by default. */
+.fx {
+  display: grid;
+  grid-template-columns: 3.2rem auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
   font-size: var(--fs-caption);
-  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+}
+
+.fx-ref {
+  padding-right: 10px;
+  border-right: 1px solid var(--line);
+  color: var(--ink-3);
+}
+
+.fx-sign {
+  font-style: italic;
+  color: var(--ink-3);
+}
+
+.fx-formula {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fx [data-f] {
+  display: none;
+}
+
+.fx [data-f='E4'],
+.sheet--live:has([data-c='B2']:is(:hover, :focus-visible)) .fx [data-f='B2'],
+.sheet--live:has([data-c='C2']:is(:hover, :focus-visible)) .fx [data-f='C2'],
+.sheet--live:has([data-c='D2']:is(:hover, :focus-visible)) .fx [data-f='D2'],
+.sheet--live:has([data-c='E2']:is(:hover, :focus-visible)) .fx [data-f='E2'],
+.sheet--live:has([data-c='B3']:is(:hover, :focus-visible)) .fx [data-f='B3'],
+.sheet--live:has([data-c='C3']:is(:hover, :focus-visible)) .fx [data-f='C3'],
+.sheet--live:has([data-c='D3']:is(:hover, :focus-visible)) .fx [data-f='D3'],
+.sheet--live:has([data-c='E3']:is(:hover, :focus-visible)) .fx [data-f='E3'],
+.sheet--live:has([data-c='B4']:is(:hover, :focus-visible)) .fx [data-f='B4'],
+.sheet--live:has([data-c='C4']:is(:hover, :focus-visible)) .fx [data-f='C4'],
+.sheet--live:has([data-c='D4']:is(:hover, :focus-visible)) .fx [data-f='D4'],
+.sheet--live:has([data-c='E4']:is(:hover, :focus-visible)) .fx [data-f='E4'],
+.sheet--live:has([data-c='B5']:is(:hover, :focus-visible)) .fx [data-f='B5'],
+.sheet--live:has([data-c='C5']:is(:hover, :focus-visible)) .fx [data-f='C5'],
+.sheet--live:has([data-c='D5']:is(:hover, :focus-visible)) .fx [data-f='D5'] {
+  display: inline;
+}
+
+.sheet--live:has([data-c]:is(:hover, :focus-visible)):not(:has([data-c='E4']:is(:hover, :focus-visible)))
+  .fx
+  [data-f='E4'] {
+  display: none;
+}
+
+.sheet--live td[data-c] {
+  cursor: cell;
+}
+
+.sheet--live td[data-c]:is(:hover, :focus-visible),
+.sheet--live td[data-c='E4'] {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+
+.sheet--live:has(td[data-c]:is(:hover, :focus-visible)) td[data-c='E4']:not(:hover, :focus-visible) {
+  outline: none;
 }
 
 @media (max-width: 900px) {
@@ -848,47 +957,37 @@ pre {
 }
 
 /* How it's built */
-.built {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 96px;
-  row-gap: 48px;
-}
-
-.built-col h3 {
-  font-size: var(--fs-subtitle);
-  font-weight: 700;
-}
-
-.built-col > p {
-  margin-top: 8px;
-  color: var(--ink-2);
-}
-
-.flows {
-  margin: 20px 0 0;
+.data-flows {
+  max-width: 52rem;
+  margin: 0;
   padding: 0;
   list-style: none;
+  border-bottom: 1px solid var(--line);
 }
 
-.flows li {
+.data-flows li {
   display: grid;
-  grid-template-columns: 9.5rem minmax(0, 1fr);
-  gap: 12px;
-  padding: 12px 0;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 24px;
+  padding: 18px 0;
   border-top: 1px solid var(--line);
-  font-size: var(--fs-small);
 }
 
-.flows li > b {
+.data-flows b {
   font-weight: 650;
 }
 
-.flows li > span {
+/* What stays on your server carries the brand colour. */
+.data-flows .is-local b {
+  color: var(--brand);
+}
+
+.data-flows span {
   color: var(--ink-2);
 }
 
 .stack {
+  max-width: 52rem;
   margin-top: 28px;
   font-size: var(--fs-small);
   color: var(--ink-2);
@@ -902,60 +1001,35 @@ pre {
 }
 
 @media (max-width: 760px) {
-  .built {
+  .data-flows li {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .flows li {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
+    gap: 4px;
   }
 }
 
-/* Self-host */
-.selfhost {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 64px;
-  align-items: start;
+/* Try it today: a lilac band between "How it's built" and the FAQ. */
+.try-now {
+  padding: 40px 0;
+  border-top: 1px solid var(--brand-line);
+  background: var(--brand-soft);
 }
 
-.selfhost ul {
-  margin: 22px 0 0;
-  padding-left: 1.1em;
+.try-now .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 48px;
+}
+
+.try-now h2 {
+  font-size: var(--fs-subtitle);
+  font-weight: 700;
+}
+
+.try-now p {
+  margin-top: 4px;
   color: var(--ink-2);
-}
-
-.selfhost li + li {
-  margin-top: 8px;
-}
-
-.terminal {
-  margin: 0;
-  padding: 22px 24px;
-  border-radius: 16px;
-  background: hsl(244 24% 11%);
-  color: hsl(244 30% 92%);
-  font-size: var(--fs-small);
-  line-height: 1.75;
-  overflow-x: auto;
-  box-shadow: 0 18px 40px -24px hsl(240 10% 10% / 0.45);
-}
-
-.terminal .c {
-  color: hsl(244 14% 62%);
-}
-
-.terminal .p {
-  color: hsl(249 72% 76%);
-  user-select: none;
-}
-
-@media (max-width: 900px) {
-  .selfhost {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
 }
 
 /* FAQ */

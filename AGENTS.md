@@ -48,7 +48,7 @@ Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css
 Public landing page at https://check-forkcast.tizzy.dev (EN at `/`, DE at `/de/`, plus privacy policy and imprint in both languages) with an interest check for hosted vs. self-hosted use. Plain HTML + a little vanilla JS, built by Vite+ as a multi-page app — no framework, no React, independent of the app's design system; a new page needs an entry in `website/vite.config.ts`.
 
 - Production settings are committed in `website/.env.production` (not secret, they end up in the HTML): Umami script, website ID and `UMAMI_DOMAINS`, and one Tally form per language (`TALLY_FORM_ID_EN` / `_DE`). Dev builds without them never track; `.env.example` documents every key.
-- The page never asks for an e-mail: it sends only the hosted / self-host choice to Tally, where the e-mail is an optional question. Keep it that way; the privacy policy says so.
+- Ticking hosted / self-host counts the vote as a cookieless Umami event (`interest`). The button only opens the optional launch e-mail on Tally, prefilled with the choice. The page itself never asks for an e-mail; keep it that way, the privacy policy says so.
 - `.github/workflows/website.yml` deploys to GitHub Pages on pushes to `main` that touch `website/`.
 
 ## Environment & caveats

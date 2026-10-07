@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-05T15:58:34.000Z",
+  "generatedAt": "2026-10-07T21:12:56+00:00",
   "title": "Design System: forkcast website",
   "extensions": {
     "colorMeta": {
@@ -275,70 +275,6 @@
           "hsl(199 70% 95%)"
         ],
         "scheme": "light"
-      },
-      "terminal-ground": {
-        "role": "neutral",
-        "displayName": "Night",
-        "canonical": "hsl(244 24% 11%)",
-        "tonalRamp": [
-          "hsl(244 24% 15%)",
-          "hsl(244 24% 26%)",
-          "hsl(244 24% 37%)",
-          "hsl(244 24% 48%)",
-          "hsl(244 24% 59%)",
-          "hsl(244 24% 70%)",
-          "hsl(244 24% 82%)",
-          "hsl(244 24% 95%)"
-        ],
-        "scheme": "both"
-      },
-      "terminal-ink": {
-        "role": "neutral",
-        "displayName": "Terminal Ink",
-        "canonical": "hsl(244 30% 92%)",
-        "tonalRamp": [
-          "hsl(244 30% 15%)",
-          "hsl(244 30% 26%)",
-          "hsl(244 30% 37%)",
-          "hsl(244 30% 48%)",
-          "hsl(244 30% 59%)",
-          "hsl(244 30% 70%)",
-          "hsl(244 30% 82%)",
-          "hsl(244 30% 95%)"
-        ],
-        "scheme": "both"
-      },
-      "terminal-prompt": {
-        "role": "neutral",
-        "displayName": "Terminal Prompt",
-        "canonical": "hsl(249 72% 76%)",
-        "tonalRamp": [
-          "hsl(249 72% 15%)",
-          "hsl(249 72% 26%)",
-          "hsl(249 72% 37%)",
-          "hsl(249 72% 48%)",
-          "hsl(249 72% 59%)",
-          "hsl(249 72% 70%)",
-          "hsl(249 72% 82%)",
-          "hsl(249 72% 95%)"
-        ],
-        "scheme": "both"
-      },
-      "terminal-comment": {
-        "role": "neutral",
-        "displayName": "Terminal Comment",
-        "canonical": "hsl(244 14% 62%)",
-        "tonalRamp": [
-          "hsl(244 14% 15%)",
-          "hsl(244 14% 26%)",
-          "hsl(244 14% 37%)",
-          "hsl(244 14% 48%)",
-          "hsl(244 14% 59%)",
-          "hsl(244 14% 70%)",
-          "hsl(244 14% 82%)",
-          "hsl(244 14% 95%)"
-        ],
-        "scheme": "both"
       },
       "brand-dark": {
         "role": "primary",
@@ -633,11 +569,11 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "Hero headline only; one word in lilac."
+        "purpose": "Hero headline only, clamp(2.1rem, 1.3rem + 2.8vw, 3.3rem), balanced; one word in lilac."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Section titles, prose h2 and the closing question."
+        "purpose": "Section titles, prose h2, the closing question; legal h1 capped at 2.6rem."
       },
       "title": {
         "displayName": "Title",
@@ -650,7 +586,7 @@
       "subtitle": {
         "displayName": "Subtitle",
         "token": "--fs-subtitle",
-        "purpose": "Wordmark and build-column titles."
+        "purpose": "Wordmark, try-now heading, legal-page section heads (650)."
       },
       "large": {
         "displayName": "Large",
@@ -660,7 +596,7 @@
       "body": {
         "displayName": "Body",
         "token": "--fs-body",
-        "purpose": "Base running text, prose capped at 40rem."
+        "purpose": "Base running text, data-flow rows, legal prose; prose capped at 40rem."
       },
       "label": {
         "displayName": "Label",
@@ -670,16 +606,16 @@
       "small": {
         "displayName": "Small",
         "token": "--fs-small",
-        "purpose": "Nav, form note and status, macro legend, data flows, stack line, terminal, screenshot placeholder, footer."
+        "purpose": "Nav, form notes (lead note in Ink Soft) and status, macro legend, stack line, screenshot placeholder, footer."
       },
       "caption": {
         "displayName": "Caption",
         "token": "--fs-caption",
-        "purpose": "Screenshot captions, choice hints, language pill, spreadsheet table and figcaption, in Ink Muted."
+        "purpose": "Screenshot captions, choice hints, language pill, spreadsheet table and formula bar, in Ink Muted."
       },
       "mono": {
         "displayName": "Mono",
-        "purpose": "Inline code and pre at 0.88em; the terminal sets Small."
+        "purpose": "Inline code at 0.88em; the spreadsheet formula bar (at Caption) and the #REF! cell."
       }
     },
     "shadows": [
@@ -688,11 +624,6 @@
         "value": "0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18)",
         "dark": "0 30px 60px -20px hsl(0 0% 0% / 0.6), 0 12px 24px -12px hsl(0 0% 0% / 0.5)",
         "purpose": "Phone and browser frames only (--shadow-device)."
-      },
-      {
-        "name": "terminal-drop",
-        "value": "0 18px 40px -24px hsl(240 10% 10% / 0.45)",
-        "purpose": "The shell block (literal in .terminal)."
       },
       {
         "name": "button-press",
@@ -710,6 +641,11 @@
         "name": "choice-focus",
         "value": "outline: 2px solid var(--brand); outline-offset: 2px",
         "purpose": "Keyboard focus on an interest-check choice card."
+      },
+      {
+        "name": "sheet-cell",
+        "value": "outline: 2px solid var(--brand); outline-offset: -2px",
+        "purpose": "Selected spreadsheet cell (hover, focus, or the default #REF! cell)."
       }
     ],
     "motion": [
@@ -732,20 +668,28 @@
     "breakpoints": [
       {
         "name": "stack-hero",
-        "value": "900px"
+        "value": "900px",
+        "purpose": "Hero and origin stack; tilted devices and sheet straighten."
       },
       {
         "name": "stack-sections",
-        "value": "760px"
+        "value": "760px",
+        "purpose": "Steps, features and data-flow rows stack; section nav hides; browser frame removed."
       },
       {
         "name": "full-width-controls",
-        "value": "480px"
+        "value": "480px",
+        "purpose": "Choices one column; buttons full width."
+      },
+      {
+        "name": "touch",
+        "value": "(pointer: coarse)",
+        "purpose": "Header and footer nav links get 44px hit areas; the language pill gets an invisible tap ring."
       }
     ],
     "schemes": {
       "switch": "prefers-color-scheme",
-      "note": "Every colour token has a -dark counterpart redefined in one media block; the four terminal colours are dark in both schemes."
+      "note": "Every colour token has a -dark counterpart redefined in one prefers-color-scheme block; no exceptions."
     },
     "grounds": [
       {
@@ -762,16 +706,25 @@
         "name": "selection",
         "value": "::selection { background: var(--selection); color: var(--ink) }",
         "purpose": "Text selection highlight."
+      },
+      {
+        "name": "try-now-band",
+        "value": "background: var(--brand-soft); border-top: 1px solid var(--brand-line); padding: 40px 0",
+        "purpose": "The one Lilac Wash band, between \"How it's built\" and the FAQ."
       }
-    ]
+    ],
+    "imagery": {
+      "screenshots": "Phone shots 390:844 with srcset 600w / 1170w (sizes 300px); desktop shot 16:10 with srcset 1440w / 2880w.",
+      "linkPreviews": "og-en.jpg / og-de.jpg, 1200x630, generated from the real app by scripts/demo/capture-screenshots.mjs."
+    }
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The single button style: interest-check submit and the closing call to action.",
-      "html": "<div class=\"ds-root\"><button class=\"ds-button\" type=\"button\">Count me in</button></div>",
+      "description": "The single button style: interest check (\"Get the launch e-mail\"), try-now band and closing call to action.",
+      "html": "<div class=\"ds-root\"><button class=\"ds-button\" type=\"button\">Get the launch e-mail</button></div>",
       "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-button { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 22px; border: 0; border-radius: var(--radius); background: var(--brand); color: var(--on-brand); font: inherit; font-size: var(--fs-label); font-weight: 650; cursor: pointer; box-shadow: 0 6px 14px -8px hsl(240 10% 10% / 0.35); transition: background-color 0.15s ease-out, transform 0.15s ease-out; } .ds-button:hover { background: var(--brand-strong); } .ds-button:active { transform: translateY(1px); } .ds-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; } .ds-button[aria-disabled='true'] { opacity: 0.6; cursor: progress; }"
     },
     {
@@ -794,9 +747,9 @@
       "name": "Device Frame",
       "kind": "custom",
       "refersTo": "device-frame",
-      "description": "Drawn phone bezel holding a real 390:844 app screenshot; the signature imagery container.",
+      "description": "Drawn phone holding a real 390:844 app screenshot; the bezel is the screenshot's 5.6% margin, so it scales with the frame.",
       "html": "<div class=\"ds-root\"><div class=\"ds-device\"><div class=\"ds-screen\">Week plan screenshot</div></div></div>",
-      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-device { width: 220px; padding: 3.2%; border-radius: 16% / 7.4%; background: var(--frame); box-shadow: var(--shadow-device); } .ds-screen { display: grid; place-items: center; aspect-ratio: 390 / 844; border-radius: 13% / 6%; background: var(--ground-2); color: var(--ink-3); font-size: var(--fs-small); text-align: center; }"
+      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-device { display: flow-root; width: 220px; border-radius: 16% / 7.4%; background: var(--frame); box-shadow: var(--shadow-device); } .ds-screen { display: grid; place-items: center; width: 88.8%; margin: 5.6%; aspect-ratio: 390 / 844; border-radius: 13% / 6%; background: var(--ground-2); color: var(--ink-3); font-size: var(--fs-small); text-align: center; }"
     },
     {
       "name": "Browser Frame",
@@ -815,22 +768,38 @@
       "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-features { margin: 0; max-width: 480px; } .ds-feature { padding: 28px 0; border-top: 1px solid var(--line); } .ds-feature dt { display: flex; align-items: center; gap: 12px; font-weight: 680; font-size: var(--fs-large); } .ds-feature dt svg { flex: none; width: 22px; height: 22px; color: var(--brand); } .ds-feature dd { margin: 8px 0 0 34px; color: var(--ink-2); line-height: 1.6; }"
     },
     {
-      "name": "Terminal",
+      "name": "Data Flow Rows",
       "kind": "custom",
-      "refersTo": "terminal",
-      "description": "Dark shell block for the self-host steps, dark in both schemes.",
-      "html": "<pre class=\"ds-terminal\"><span class=\"ds-c\"># Node 24, pnpm via corepack</span>\n<span class=\"ds-p\">$ </span>git clone https://github.com/tizzyapunkt/forkcast\n<span class=\"ds-p\">$ </span>pnpm dev</pre>",
-      "css": ".ds-terminal { margin: 0; padding: 22px 24px; border-radius: 16px; background: hsl(244 24% 11%); color: hsl(244 30% 92%); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.75; overflow-x: auto; box-shadow: 0 18px 40px -24px hsl(240 10% 10% / 0.45); } .ds-c { color: hsl(244 14% 62%); } .ds-p { color: hsl(249 72% 76%); user-select: none; }"
+      "refersTo": null,
+      "description": "Full-width rule list for \"How it's built\": 13rem label column, 18px rows; labels of data that stays on your server in lilac.",
+      "html": "<div class=\"ds-root\"><ul class=\"ds-flows\"><li class=\"is-local\"><b>Meals, recipes, goals</b><span>Plain JSON files on the server that runs it.</span></li><li><b>Product search</b><span>Queries Open Food Facts when you switch it on.</span></li></ul></div>",
+      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-flows { max-width: 52rem; margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--line); font-size: var(--fs-body); line-height: 1.6; } .ds-flows li { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 24px; padding: 18px 0; border-top: 1px solid var(--line); } .ds-flows b { font-weight: 650; } .ds-flows .is-local b { color: var(--brand); } .ds-flows span { color: var(--ink-2); }"
+    },
+    {
+      "name": "Try-now Band",
+      "kind": "custom",
+      "refersTo": "try-now-band",
+      "description": "Lilac Wash band with a hairline top rule: heading and one line left, primary button right.",
+      "html": "<div class=\"ds-root\"><aside class=\"ds-try\"><div><h2>Self-hosting works today</h2><p>Run it on your own server now.</p></div><a class=\"ds-button\" href=\"#\">Set it up from GitHub</a></aside></div>",
+      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-try { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; padding: 40px 20px; border-top: 1px solid var(--brand-line); background: var(--brand-soft); } .ds-try h2 { margin: 0; font-size: var(--fs-subtitle); font-weight: 700; letter-spacing: -0.022em; line-height: 1.12; } .ds-try p { margin: 4px 0 0; color: var(--ink-2); } .ds-button { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: var(--radius); background: var(--brand); color: var(--on-brand); font-size: var(--fs-label); font-weight: 650; text-decoration: none; box-shadow: 0 6px 14px -8px hsl(240 10% 10% / 0.35); transition: background-color 0.15s ease-out; } .ds-button:hover { background: var(--brand-strong); } .ds-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }"
+    },
+    {
+      "name": "Spreadsheet Illustration",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The origin story's old spreadsheet: mono formula bar over a hairline grid; the selected cell gets a 2px lilac outline and its formula shows via :has().",
+      "html": "<div class=\"ds-root\"><figure class=\"ds-sheet\"><div class=\"ds-fx\"><span class=\"ds-fx-ref\">E4</span><span class=\"ds-fx-sign\">fx</span><span>=SUM(VLOOKUP(B4:D4, Foods_old!A:C, 3, 0))</span></div><table><thead><tr><th></th><th>Mon</th><th>Tue</th><th>kcal</th></tr></thead><tbody><tr><th>Lunch</th><td tabindex=\"0\">Bowl</td><td tabindex=\"0\">Dal</td><td class=\"num\" tabindex=\"0\">2,310</td></tr><tr><th>Dinner</th><td tabindex=\"0\">Salmon</td><td tabindex=\"0\">?</td><td class=\"num err sel\" tabindex=\"0\">#REF!</td></tr></tbody></table></figure></div>",
+      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-sheet { margin: 0; max-width: 420px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ground); overflow: hidden; font-size: var(--fs-caption); font-variant-numeric: tabular-nums; } .ds-fx { display: grid; grid-template-columns: 3.2rem auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1px solid var(--line); font-family: var(--mono); color: var(--ink-2); } .ds-fx-ref { padding-right: 10px; border-right: 1px solid var(--line); color: var(--ink-3); } .ds-fx-sign { font-style: italic; color: var(--ink-3); } .ds-sheet table { width: 100%; border-collapse: collapse; } .ds-sheet th, .ds-sheet td { padding: 7px 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; } .ds-sheet th { background: var(--ground-2); color: var(--ink-3); font-weight: 600; } .ds-sheet .num { text-align: right; } .ds-sheet .err { color: var(--error); font-family: var(--mono); } .ds-sheet td { cursor: cell; } .ds-sheet td.sel, .ds-sheet td:hover, .ds-sheet td:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; } .ds-sheet:has(td:hover, td:focus-visible) td.sel:not(:hover, :focus-visible) { outline: none; }"
     }
   ],
   "narrative": {
     "northStar": "The App on the Table",
-    "overview": "A calm, honest product page in the Things tradition: the real app, in real device frames, does the persuading, and the copy stays plain. The world is white and near-white lilac-tinted ground, one brand colour, the platform's own sans, generous whitespace, and large rounded device frames lifted by soft shadows. Structure comes from whitespace, alternating section tints and hairline rules, never from cards.\n\nThe system is independent of the app's design system in `frontend/`. The only shared commitment is the brand lilac (`244 36% 44%`), which PRODUCT.md binds for both. Dark mode is a first-class redefinition of the same tokens on a deep indigo-tinted ground, switched by `prefers-color-scheme`, not a toggle.\n\nEverything reads without JavaScript. Script only adds the scrolled-header hairline, a labelled placeholder for missing screenshots, and interest-check validation messages.",
+    "overview": "A calm, honest product page in the Things tradition: the real app, in real device frames, does the persuading, and the copy stays plain. The world is white and near-white lilac-tinted ground, one brand colour, the platform's own sans, generous whitespace, and large rounded device frames lifted by soft shadows. Structure comes from whitespace, alternating section tints and hairline rules, never from cards.\n\nThe system is independent of the app's design system in `frontend/`. The only shared commitment is the brand lilac (`244 36% 44%`), which PRODUCT.md binds for both. Dark mode is a first-class redefinition of the same tokens on a deep indigo-tinted ground, switched by `prefers-color-scheme`, not a toggle.\n\nEverything reads without JavaScript. Script only adds the scrolled-header hairline, a labelled placeholder for missing screenshots, the interest-check count and status messages, and arrow-key movement inside the spreadsheet illustration (whose formula bar itself is pure CSS).",
     "keyCharacteristics": [
       "One brand colour (lilac) on actions, links, focus and the one accent word in the headline.",
       "System sans throughout; hierarchy by weight (650 to 750) and tight negative tracking, not by a second face.",
       "Real app screenshots in drawn device and browser frames are the only imagery.",
-      "Sections alternate plain ground and a faint lilac tint; content is divided by 1px rules, not boxes.",
+      "Sections alternate plain ground and a faint lilac tint, interrupted once by a Lilac Wash band; content is divided by 1px rules, not boxes.",
       "Exactly one authored motion: the hero devices settle in once on load."
     ],
     "rules": [
@@ -846,7 +815,7 @@
       },
       {
         "name": "The Paired Scheme Rule",
-        "body": "Every colour token has a dark-mode counterpart defined in the same `prefers-color-scheme: dark` block. A new token without a dark value is incomplete; the terminal colours are the one deliberate exception, dark in both schemes.",
+        "body": "Every colour token has a dark-mode counterpart defined in the same `prefers-color-scheme: dark` block. A new token without a dark value is incomplete; there are no exceptions.",
         "section": "colors"
       },
       {
@@ -861,7 +830,7 @@
       },
       {
         "name": "The Lift-the-App Rule",
-        "body": "Shadows belong to the things that are the product (devices, browser, terminal) and its one action. Text, lists and sections never float.",
+        "body": "Shadows belong to the things that are the product (devices, browser) and its one action. Text, lists and sections never float.",
         "section": "elevation"
       }
     ],
@@ -869,12 +838,12 @@
       "**Do** use the brand lilac (`244 36% 44%`) for every action, link and focus state, and its dark counterpart in dark mode.",
       "**Do** define every new colour in both the light `:root` and the `prefers-color-scheme: dark` block.",
       "**Do** show the product through real screenshots in the device or browser frame, with a plain caption about what is shown.",
-      "**Do** alternate plain and tinted section bands and divide content with 1px rules.",
+      "**Do** alternate plain and tinted section bands and divide content with 1px rules; the try-now band is the one Lilac Wash interruption.",
       "**Do** keep controls at 48px tall with the shared 14px radius.",
       "**Do** gate any new motion behind `prefers-reduced-motion: no-preference` with content visible by default."
     ],
     "donts": [
-      "**Don't** use cards or filled boxes as section structure; the interest-check choices are the only bordered boxes because they are controls.",
+      "**Don't** use cards or filled boxes as section structure; the interest-check choices are the only bordered boxes because they are controls (the spreadsheet is a picture, not structure).",
       "**Don't** put icons in tinted tiles; line icons sit inline beside their term.",
       "**Don't** use macro green, amber or blue outside app imagery and the macro legend.",
       "**Don't** add a second typeface or a webfont.",
