@@ -65,7 +65,7 @@ Open decisions:
 ## Evidence on Hand
 
 - Public source repository: https://github.com/tizzyapunkt/forkcast
-- Real screenshots of the running app may be used. The app UI is German only today. An English app locale is planned before any Hacker News launch (a separate change in the app), so English screenshots can be shown on the EN page.
+- Real screenshots of the running app may be used. The app ships English and German (#69); the EN page shows English screenshots, the DE page German ones, both from seeded demo data (`scripts/demo/`).
 - `docker-compose.yml` at the repo root runs prebuilt backend and frontend images. The root README's "no containerization" line is outdated.
 - None of the following exist and must not be fabricated: testimonials, user counts, press, benchmarks, pricing, launch dates.
 

@@ -6,7 +6,7 @@ Decisions and inputs the landing page needs before it goes public (and before an
 
 - [ ] **Tally:** verify free-plan limits, where submission data is stored, that one form can carry the hosted / self-host choice (both selectable) plus an optional e-mail, how it embeds (inline, popup or own form posting to it), and whether the "Made with Tally" branding on the free plan is acceptable.
 - [ ] **E-mail retention:** decide what happens to waitlist addresses (e.g. one launch e-mail, then deleted). The page states it, so it has to be true.
-- [ ] **English app screenshots:** blocked on the `add-english-locale` change (`openspec/changes/add-english-locale/`). Until then the page uses labelled screenshot placeholders.
+- [x] **English app screenshots:** captured after #69 into `public/screenshots/en/` with `scripts/demo/` (`LOCALE=en`).
 
 ## Before going public
 
@@ -30,6 +30,7 @@ Found while capturing the demo screenshots (`scripts/demo/`). Fixing these makes
 - [ ] Open Food Facts results show raw names (`SKYR`, `skyr`) and a bare `OFF` badge; the "neu anlegen" card is more prominent than the results.
 - [ ] Desktop planner has no max width, so the phone layout stretches across 1440 px.
 - [ ] After the Open Food Facts and desktop fixes, recapture `food-search.webp` and `week-plan-desktop.webp`. The finish review flagged both as showing the feature in its weakest state.
+- [ ] English planner shows German-style dates: `5.–11. October` in the week header and `5.` / `October` under each day (should be `5–11 October` / `5 Oct`). Visible in the EN screenshots.
 - [ ] Planner day labels wrap (`5.` / `Oktober`), and the per-day kcal bar stays indigo even when over goal.
 
 ## Nice to fix alongside
