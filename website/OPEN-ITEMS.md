@@ -11,7 +11,7 @@ Decisions and inputs the landing page needs before it goes public (and before an
 
 ## Before going public
 
-- [ ] **Impressum:** provider details for a public site operated from Germany. The footers and the privacy policy already link `/imprint/` and `/de/impressum/`; the pages need name, postal address and e-mail.
+- [x] **Impressum:** `/imprint/` and `/de/impressum/` (§ 5 DDG, § 18 Abs. 2 MStV): name, postal address, e-mail.
 - [x] **Datenschutzerklärung / privacy policy:** `/privacy/` and `/de/datenschutz/`, covering GitHub Pages, Umami and Tally. Points to the imprint for address and e-mail.
 - [x] **License:** AGPL-3.0-only (`LICENSE`, all `package.json`s); the app's settings show the copyright and license notice.
 - [x] **Domain:** `check-forkcast.tizzy.dev`.

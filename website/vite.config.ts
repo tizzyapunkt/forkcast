@@ -47,6 +47,8 @@ export default defineConfig(({ mode }) => {
           de: resolve(import.meta.dirname, 'de/index.html'),
           privacy: resolve(import.meta.dirname, 'privacy/index.html'),
           datenschutz: resolve(import.meta.dirname, 'de/datenschutz/index.html'),
+          imprint: resolve(import.meta.dirname, 'imprint/index.html'),
+          impressum: resolve(import.meta.dirname, 'de/impressum/index.html'),
         },
       },
     },
