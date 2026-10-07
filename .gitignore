@@ -13,3 +13,6 @@ ds-bundle/
 
 # local recipe photos for import smoke tests / benchmark (copyrighted, keep out of the public repo)
 rezepte/
+
+# Claude Code agent worktrees
+.claude/worktrees/

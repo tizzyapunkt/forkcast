@@ -16,10 +16,25 @@ function umami(env: Record<string, string>): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, import.meta.dirname, 'UMAMI_');
+// The interest check submits to a Tally form. Without TALLY_FORM_ID the form stays in the page
+// but says it is not live yet, instead of posting nowhere.
+function tally(env: Record<string, string>): Plugin {
+  const formId = env.TALLY_FORM_ID;
   return {
-    plugins: [umami(env)],
+    name: 'forkcast-tally',
+    transformIndexHtml(html) {
+      const action = formId ? `https://tally.so/r/${encodeURIComponent(formId)}` : '';
+      return html
+        .replaceAll('%TALLY_ACTION%', action)
+        .replaceAll('data-live="%TALLY_LIVE%"', formId ? 'data-live="true"' : '');
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, import.meta.dirname, ['UMAMI_', 'TALLY_']);
+  return {
+    plugins: [umami(env), tally(env)],
     build: {
       rollupOptions: {
         input: {
