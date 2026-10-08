@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-13T13:05:00Z",
+  "generatedAt": "2026-10-08T06:40:28+00:00",
   "title": "Design System: forkcast",
   "extensions": {
     "colorMeta": {
@@ -298,19 +298,19 @@
       },
       "micro": {
         "displayName": "Micro",
-        "purpose": "Floor of the type scale, one size (11px): uppercase tracking-wider eyebrows and sparing sentence-case captions, reused across ~15 files."
+        "purpose": "Floor of the type scale, one size (11px): uppercase tracking-wider eyebrows and sparing sentence-case captions, reused across ~19 files."
       }
     },
     "shadows": [
       {
         "name": "header-lift",
         "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        "purpose": "Sticky AppHeader separating pinned chrome from scrolled content."
+        "purpose": "Sticky AppHeader separating pinned chrome from scrolled content. Tailwind v4 `shadow-xs` (v3's `shadow-sm`, same value)."
       },
       {
         "name": "popover-lift",
         "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        "purpose": "Transient content anchored to a point rather than the layout — the weight chart's value tooltip."
+        "purpose": "Transient content anchored to a point rather than the layout — the weight chart's value tooltip. Tailwind v4 `shadow-xs` (v3's `shadow-sm`, same value)."
       },
       {
         "name": "overlay-lift",
@@ -319,8 +319,8 @@
       },
       {
         "name": "photo-scrim",
-        "value": "background: rgb(0 0 0 / 0.6)",
-        "purpose": "Not a shadow: the translucent black plate that keeps a control legible over user photography. Hover raises it to 0.75."
+        "value": "background: rgb(0 0 0 / 0.6); backdrop-filter: blur(4px)",
+        "purpose": "Not a shadow: the translucent black plate (with a light backdrop-blur-xs) that keeps a control legible over user photography. Hover raises it to 0.75."
       }
     ],
     "motion": [
@@ -350,6 +350,11 @@
         "purpose": "Macro goal bar widths slide to a new value instead of jumping."
       },
       {
+        "name": "disclosure-chevron",
+        "value": "transition: transform 150ms; transform: rotate(90deg) when open",
+        "purpose": "13px ChevronRight on a collapsed group (a logged recipe's ingredients in the daily log and planner); the one rotation in the system, marking open vs. closed only."
+      },
+      {
         "name": "reduced-motion-guard",
         "value": "@media (prefers-reduced-motion: reduce) { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }",
         "purpose": "Global collapse of every animation and transition — motion is never the sole carrier of meaning."
@@ -358,7 +363,25 @@
     "breakpoints": [
       {
         "name": "sm",
-        "value": "640px"
+        "value": "640px",
+        "purpose": "Thumbnail grids go from 2 to 3 columns; controls step down to text-sm."
+      },
+      {
+        "name": "app-column",
+        "value": "672px",
+        "purpose": "max-w-2xl: main, the bottom nav's tabs and the bottom sheet stay in this centred column on wide screens; only the header gradient spans the viewport."
+      }
+    ],
+    "safeArea": [
+      {
+        "name": "safe-b",
+        "value": "env(safe-area-inset-bottom)",
+        "purpose": "iOS home-indicator gutter, padded inside the bottom nav and the bottom sheet."
+      },
+      {
+        "name": "nav-safe",
+        "value": "calc(4rem + env(safe-area-inset-bottom))",
+        "purpose": "Bottom padding main needs while the nav is visible."
       }
     ]
   },
@@ -385,7 +408,7 @@
       "refersTo": "button-icon",
       "description": "Button variant=quiet|quietDestructive|onDark|scrim with size=icon (40px) or iconSm (36px). The scrim variant shown here is the photo-overlay case; quiet/quietDestructive are the same box with a transparent rest state. The accent variant (bg accent/10, indigo glyph) is the repeating add-to-slot affordance on the diary and planner.",
       "html": "<div style=\"display:flex;gap:8px;align-items:center\"><button class=\"ds-btn-icon ds-btn-icon--quiet\" aria-label=\"Nach oben\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 12 7-7 7 7\"/><path d=\"M12 19V5\"/></svg></button><button class=\"ds-btn-icon ds-btn-icon--destructive\" aria-label=\"Entfernen\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button><button class=\"ds-btn-icon ds-btn-icon--scrim\" aria-label=\"Foto entfernen\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button><button class=\"ds-btn-icon ds-btn-icon--accent\" aria-label=\"Hinzufügen\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg></button></div>",
-      "css": ".ds-btn-icon { display: inline-flex; align-items: center; justify-content: center; height: 36px; width: 36px; flex-shrink: 0; border: none; border-radius: 6px; background: transparent; transition: background-color 150ms, color 150ms; } .ds-btn-icon:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; } .ds-btn-icon:disabled { opacity: 0.5; pointer-events: none; } .ds-btn-icon--quiet { color: hsl(0 0% 36%); } .ds-btn-icon--quiet:hover { background: hsl(240 33% 94%); color: hsl(0 0% 20%); } .ds-btn-icon--destructive { color: hsl(0 0% 36%); } .ds-btn-icon--destructive:hover { background: hsl(0 84% 60% / 0.1); color: hsl(0 84% 60%); } .ds-btn-icon--scrim { height: 40px; width: 40px; background: rgb(0 0 0 / 0.6); color: #fff; backdrop-filter: blur(2px); } .ds-btn-icon--scrim:hover { background: rgb(0 0 0 / 0.75); } .ds-btn-icon--accent { height: 40px; width: 40px; background: hsl(249 72% 65% / 0.1); color: hsl(244 36% 44%); } .ds-btn-icon--accent:hover { background: hsl(249 72% 65% / 0.2); }"
+      "css": ".ds-btn-icon { display: inline-flex; align-items: center; justify-content: center; height: 36px; width: 36px; flex-shrink: 0; border: none; border-radius: 6px; background: transparent; transition: background-color 150ms, color 150ms; } .ds-btn-icon:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; } .ds-btn-icon:disabled { opacity: 0.5; pointer-events: none; } .ds-btn-icon--quiet { color: hsl(0 0% 36%); } .ds-btn-icon--quiet:hover { background: hsl(240 33% 94%); color: hsl(0 0% 20%); } .ds-btn-icon--destructive { color: hsl(0 0% 36%); } .ds-btn-icon--destructive:hover { background: hsl(0 84% 60% / 0.1); color: hsl(0 84% 60%); } .ds-btn-icon--scrim { height: 40px; width: 40px; background: rgb(0 0 0 / 0.6); color: #fff; backdrop-filter: blur(4px); } .ds-btn-icon--scrim:hover { background: rgb(0 0 0 / 0.75); } .ds-btn-icon--accent { height: 40px; width: 40px; background: hsl(249 72% 65% / 0.1); color: hsl(244 36% 44%); } .ds-btn-icon--accent:hover { background: hsl(249 72% 65% / 0.2); }"
     },
     {
       "name": "Text Input",
@@ -409,7 +432,7 @@
       "refersTo": "banner-destructive",
       "description": "One primitive for all three tones (error/warning/success) in two densities. Names what happened, what to do about it, and carries its own recovery control.",
       "html": "<div class=\"ds-banner ds-banner--error\" role=\"alert\"><p class=\"ds-banner-title\">Aus diesen Fotos ließ sich kein Rezept lesen.</p><p class=\"ds-banner-hint\">Achte auf scharfen, vollständig sichtbaren Text und versuche es erneut.</p><button class=\"ds-banner-action\">Erneut versuchen</button></div>",
-      "css": ".ds-banner { display: flex; flex-direction: column; gap: 8px; border-radius: 6px; padding: 12px; font-size: 0.875rem; } .ds-banner--error { border: 1px solid hsl(0 84% 60% / 0.5); background: hsl(0 84% 60% / 0.1); color: hsl(0 84% 60%); } .ds-banner--warning { border: 1px solid hsl(38 92% 50% / 0.5); background: hsl(38 92% 50% / 0.05); color: hsl(0 0% 20%); } .ds-banner--success { border: 1px solid hsl(160 84% 39% / 0.5); background: hsl(160 84% 39% / 0.1); color: hsl(160 84% 39%); } .ds-banner-title { margin: 0; font-weight: 500; } .ds-banner-hint { margin: 0; font-size: 0.75rem; } .ds-banner-action { align-self: flex-start; background: hsl(300 100% 99%); color: hsl(0 0% 20%); border: 1px solid hsl(240 9% 78%); border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 500; } .ds-banner-action:hover { background: hsl(240 33% 94%); }"
+      "css": ".ds-banner { display: flex; flex-direction: column; gap: 8px; border-radius: 6px; padding: 12px; font-size: 0.875rem; } .ds-banner--error { border: 1px solid hsl(0 84% 60% / 0.5); background: hsl(0 84% 60% / 0.1); color: hsl(0 84% 60%); } .ds-banner--warning { border: 1px solid hsl(38 92% 50% / 0.5); background: hsl(38 92% 50% / 0.1); color: hsl(0 0% 20%); } .ds-banner--success { border: 1px solid hsl(160 84% 39% / 0.5); background: hsl(160 84% 39% / 0.1); color: #047857; } .ds-banner-title { margin: 0; font-weight: 500; } .ds-banner-hint { margin: 0; font-size: 0.75rem; } .ds-banner-action { align-self: flex-start; background: hsl(300 100% 99%); color: hsl(0 0% 20%); border: 1px solid hsl(240 9% 78%); border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 500; } .ds-banner-action:hover { background: hsl(240 33% 94%); }"
     },
     {
       "name": "Segmented Control",
@@ -423,17 +446,25 @@
       "name": "Bottom Sheet",
       "kind": "custom",
       "refersTo": "bottom-sheet",
-      "description": "Signature component: portal-rendered drawer used for every full-screen form/picker/search flow instead of a route change.",
+      "description": "Signature component: portal-rendered drawer used for every full-screen form/picker/search flow instead of a route change; centred in the max-w-2xl app column, padded for the iOS home indicator.",
       "html": "<div class=\"ds-sheet-backdrop\"></div><div class=\"ds-sheet\" role=\"dialog\" aria-modal=\"true\"><div class=\"ds-sheet-handle\"></div><div class=\"ds-sheet-body\">Sheet content</div></div>",
-      "css": ".ds-sheet-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.4); } .ds-sheet { position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px 12px 0 0; background: hsl(300 100% 99%); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); height: 82dvh; transition: height 200ms; } .ds-sheet-handle { margin: 8px auto 0; height: 4px; width: 40px; flex-shrink: 0; border-radius: 9999px; background: hsl(240 33% 94%); }"
+      "css": ".ds-sheet-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.4); } .ds-sheet { position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 672px; padding-bottom: env(safe-area-inset-bottom); display: flex; flex-direction: column; overflow: hidden; border-radius: 12px 12px 0 0; background: hsl(300 100% 99%); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); height: 82dvh; transition: height 200ms; } .ds-sheet-handle { margin: 8px auto 0; height: 4px; width: 40px; flex-shrink: 0; border-radius: 9999px; background: hsl(240 33% 94%); }"
     },
     {
       "name": "App Header",
       "kind": "nav",
       "refersTo": "app-header",
-      "description": "Signature component: sticky indigo-gradient header naming the current screen, with optional macro-goal cells.",
-      "html": "<header class=\"ds-header\"><h1 class=\"ds-header-title\">Tagebuch</h1></header>",
-      "css": ".ds-header { position: sticky; top: 0; background-image: linear-gradient(160deg, hsl(244 36% 47%), hsl(244 38% 40%)); border-bottom: 1px solid rgb(0 0 0 / 0.1); padding: 12px 16px; color: white; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-header-title { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; }"
+      "description": "Signature component: sticky indigo-gradient header naming the current screen, with optional macro-goal cells. The gradient spans the viewport edge to edge; its content lines up with the centred max-w-2xl column.",
+      "html": "<header class=\"ds-header\"><div class=\"ds-header-inner\"><h1 class=\"ds-header-title\">Tagebuch</h1></div></header>",
+      "css": ".ds-header { position: sticky; top: 0; background-image: linear-gradient(160deg, hsl(244 36% 47%), hsl(244 38% 40%)); border-bottom: 1px solid rgb(0 0 0 / 0.1); padding: 12px 16px; color: white; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-header-title { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-header-inner { max-width: 672px; margin: 0 auto; }"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Fixed 4-tab bar at every width: full-width Paper White bar with a top hairline, tabs in the centred max-w-2xl column. Active tab is Ink and medium weight with aria-current; no pill or indicator.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Hauptnavigation\"><div class=\"ds-nav-tabs\"><button class=\"ds-nav-tab\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M13 5h8M13 12h8M13 19h8M3 17l2 2 4-4M3 7l2 2 4-4\"/></svg>Tagebuch</button><button class=\"ds-nav-tab\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v4M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>Planer</button><button class=\"ds-nav-tab\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/></svg>Rezepte</button><button class=\"ds-nav-tab\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>Einstellungen</button></div></nav>",
+      "css": ".ds-nav { border-top: 1px solid hsl(240 9% 78%); background: hsl(300 100% 99%); padding-bottom: env(safe-area-inset-bottom); } .ds-nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 672px; margin: 0 auto; } .ds-nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border: none; background: transparent; font-size: 0.75rem; line-height: 1rem; color: hsl(0 0% 36%); cursor: pointer; } .ds-nav-tab[aria-current='page'] { color: hsl(0 0% 20%); font-weight: 500; } .ds-nav-tab:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; }"
     },
     {
       "name": "Select",
@@ -446,7 +477,7 @@
   ],
   "narrative": {
     "northStar": "The Training Kitchen",
-    "overview": "forkcast treats meal planning and fitness/weight goals as one discipline, not two apps stitched together: the same screen that plans Tuesday's dinner also reads against the macro goal driving it. The visual language matches that — a precision instrument built for someone with a full-time job and a young family, meant to be operated correctly in seconds, not admired. Training Indigo is the single signature note (primary actions, the sticky header gradient); everything else stays quiet — flat lavender-tinted neutrals, thin borders, no decorative texture — so the indigo and the three fixed macro-identity colors (protein green, carb amber, fat blue) are the only things that ever call for attention.\n\nDensity is deliberately high but never cramped: dense rows (ingredient amounts, log entries) use the sm control size and tabular numerals so figures line up; primary screens use the roomier md size that clears a comfortable tap target. The system has no ornamental flourish, no illustration, no imagery — it is entirely typographic, icon-coded and color-coded, and German-only (lang=\"de\", no i18n abstraction beyond the single locale). Icons come from one library (lucide-react, ~19 files) at a consistent stroke; a Unicode glyph is never an icon.\n\nMotion exists but is strictly informational, never decorative: a pulse on skeleton placeholders while data loads, a spinner on an action that takes longer than a moment, a 200ms height transition on the bottom sheet, and a width transition on macro goal bars. Nothing enters, slides, fades in or parallaxes. A global prefers-reduced-motion rule collapses every animation and transition to 0.01ms, so any motion added to this system must remain optional to comprehension.",
+    "overview": "forkcast treats meal planning and fitness/weight goals as one discipline, not two apps stitched together: the same screen that plans Tuesday's dinner also reads against the macro goal driving it. The visual language matches that — a precision instrument built for someone with a full-time job and a young family, meant to be operated correctly in seconds, not admired. Training Indigo is the single signature note (primary actions, the sticky header gradient); everything else stays quiet — flat lavender-tinted neutrals, thin borders, no decorative texture — so the indigo and the three fixed macro-identity colors (protein green, carb amber, fat blue) are the only things that ever call for attention.\n\nDensity is deliberately high but never cramped: dense rows (ingredient amounts, log entries) use the `sm` control size and tabular numerals so figures line up; primary screens use the roomier `md` size that clears a comfortable tap target. The system has no ornamental flourish, no illustration, no imagery — it is entirely typographic, icon-coded and color-coded. Copy ships in German and English: the locale follows the browser, can be overridden in Settings, sets `lang` on the root element and drives date, number and macro formatting, so every layout must hold both languages' string lengths. Icons come from one library (lucide-react, ~32 files) at a consistent stroke; a Unicode glyph is never an icon.\n\nMotion exists but is strictly informational, never decorative: a pulse on skeleton placeholders while data loads, a spinner on an action that takes longer than a moment, a 200ms height transition on the bottom sheet, a width transition on macro goal bars, and a disclosure chevron that rotates 90° when a collapsed group opens. Nothing enters, slides, fades in or parallaxes. A global `prefers-reduced-motion` rule collapses every animation and transition to 0.01ms, so any motion added to this system must remain optional to comprehension.",
     "keyCharacteristics": [
       "One accent color (Training Indigo) for commitment/primary action; a brighter sibling (Bright Periwinkle) for focus and interactive accents only",
       "Flat-at-rest, bordered surfaces; shadow reserved for things floating above the page",
@@ -458,7 +489,7 @@
     "rules": [
       {
         "name": "The One Indigo Rule",
-        "body": "Training Indigo fills at most one control per screen — the single primary action or the header. Every other button variant (outline, ghost, destructiveOutline) stays neutral or uses indigo as text only, never as a second fill competing with the primary action.",
+        "body": "Training Indigo fills at most one control per screen — the single primary action or the header. Every other button variant (`outline`, `ghost`, `destructiveOutline`) stays neutral or uses indigo as text only, never as a second fill competing with the primary action.",
         "section": "colors"
       },
       {
@@ -468,12 +499,12 @@
       },
       {
         "name": "The Status-Token Rule",
-        "body": "Success, warning and error states are built from the success / warning / destructive tokens, never from a raw palette utility (amber-50, emerald-600, red-100). Audit test: a status surface whose class list contains a numbered Tailwind color is a bug, not a variant. Carb Amber and Warning Amber are different colors with different jobs — a warning never borrows the macro token, and a macro never borrows the status token.",
+        "body": "Success, warning and error states are built from the `success` / `warning` / `destructive` tokens, never from a raw palette utility (`amber-50`, `emerald-600`, `red-100`). Audit test: a status surface whose class list contains a numbered Tailwind color is a bug, not a variant. Carb Amber and Warning Amber are different colors with different jobs — a warning never borrows the macro token, and a macro never borrows the status token.",
         "section": "colors"
       },
       {
         "name": "The Fill-Is-Not-Ink Rule",
-        "body": "bg-success / bg-warning paint dots, bars and tinted surfaces; status text uses text-success-ink / text-warning-ink. Audit test: text-success or text-warning on a light background is a contrast bug (~2.5:1) — the ink variants exist for exactly that position.",
+        "body": "`bg-success` / `bg-warning` paint dots, bars and tinted surfaces; status *text* uses `text-success-ink` / `text-warning-ink`. Audit test: `text-success` or `text-warning` on a light background is a contrast bug (~2.5:1) — the ink variants exist for exactly that position.",
         "section": "colors"
       },
       {
@@ -483,12 +514,12 @@
       },
       {
         "name": "The Micro-Is-The-Floor Rule",
-        "body": "11px is the smallest text the system uses — one size, not a shrinking ramp. Below Label, text is either an uppercase tracking-wider eyebrow or a sparing one-line caption; it is never a shrunk paragraph.",
+        "body": "11px is the smallest text the system uses — one size, not a shrinking ramp. Below `Label`, text is either an uppercase `tracking-wider` eyebrow or a sparing one-line caption; it is never a shrunk paragraph.",
         "section": "typography"
       },
       {
         "name": "The Flat-at-Rest Rule",
-        "body": "Surfaces are flat and bordered at rest. Shadow is reserved for things that are literally floating above the page (sticky header, popover, sheet, dialog) — never used to add weight to an ordinary card or button. A selected state is a fill and weight change, never a lift: the white-pill-with-shadow segmented control is a borrowed iOS idiom, not this system's. Audit test: if the element scrolls with the page, it has no shadow.",
+        "body": "Surfaces are flat and bordered at rest. Shadow is reserved for things that are literally floating above the page (sticky header, popover, sheet, dialog) — never used to add weight to an ordinary card or button. A *selected* state is a fill and weight change, never a lift: the white-pill-with-shadow segmented control is a borrowed iOS idiom, not this system's. Audit test: if the element scrolls with the page, it has no shadow.",
         "section": "elevation"
       },
       {
@@ -498,39 +529,40 @@
       },
       {
         "name": "The Two-Radius Rule",
-        "body": "Interactive controls you act on directly — buttons, inputs, segmented-control options, icon buttons — use md (6px). Containers that hold content — cards, list shells, media frames, the icon plate that fronts a list row — use lg (8px). Overlays that float above the page use xl (12px): the bottom sheet on its leading edge, a centered confirm dialog on all four corners. Micro-elements below control size — badges, source chips, skeleton bars, native checkboxes — use sm (4px). Bare `rounded` is not part of the scale. Audit test: a rounded-xl outside an overlay, a rounded-lg on something you click, or a bare rounded anywhere is a bug.",
+        "body": "Interactive controls you act on directly — buttons, inputs, segmented-control options, icon buttons — use `md` (6px). Containers that hold content — cards, list shells, media frames, the icon plate that fronts a list row — use `lg` (8px). Overlays that float above the page use `xl` (12px): the bottom sheet on its leading edge, a centered confirm dialog on all four corners. Micro-elements below control size — badges, source chips, skeleton bars, native checkboxes — use `sm` (4px). Content always reads a shade softer than the controls that manipulate it.",
         "section": "shapes"
       },
       {
         "name": "The Pill-Means-Not-A-Box Rule",
-        "body": "rounded-full marks an element that is a token, a dot or a track — a chip, a status dot, a progress bar, a drag handle. A rectangular control (button, input, card) never becomes a pill.",
+        "body": "`rounded-full` marks an element that is a token, a dot or a track — a chip, a status dot, a progress bar, a drag handle. A rectangular control (button, input, card) never becomes a pill.",
         "section": "shapes"
       }
     ],
     "dos": [
-      "Do keep Training Indigo to one fill per screen (the primary action or the header) — see The One Indigo Rule.",
-      "Do use the fixed macro green/amber/blue for protein/carb/fat identity everywhere they appear, never reassigned.",
-      "Do build every status surface from the success / warning / destructive tokens at low opacity with a matching border, and set status text in the -ink sibling.",
-      "Do use text-base (16px) for any text input rendered on mobile — smaller sizes trigger iOS Safari's zoom-on-focus.",
-      "Do route full-screen forms/pickers through BottomSheet rather than a new route, keeping the header/nav context in place.",
-      "Do keep numeric values tabular (tabular-nums) wherever a figure updates or several must align in a column.",
-      "Do draw icons from lucide-react, mark them aria-hidden, and label the control that holds them.",
-      "Do give a control over a photo a 40px target and a black scrim; give overlay chrome 44px.",
-      "Do pair an error message with what to do next, and put the recovery control inside the banner.",
-      "Do pick the radius from what the element is — control md, container lg, overlay xl, micro-element sm — and never write bare rounded.",
-      "Do reach for the primitive before the class string: Button (with quiet / quietDestructive / onDark / scrim / accent and icon / iconSm), Banner, Select, Input, Field, Card, SegmentedControl. If none fits, add a variant there rather than a one-off at the call site."
+      "**Do** keep Training Indigo to one fill per screen (the primary action or the header) — see The One Indigo Rule.",
+      "**Do** use the fixed macro green/amber/blue for protein/carb/fat identity everywhere they appear, never reassigned.",
+      "**Do** build every status surface from the `success` / `warning` / `destructive` tokens at low opacity with a matching border, and set status text in the `-ink` sibling.",
+      "**Do** use `text-base` (16px) for any text input rendered on mobile — smaller sizes trigger iOS Safari's zoom-on-focus.",
+      "**Do** keep every screen inside the centred `max-w-2xl` column; only the header's gradient bleeds to the viewport edges.",
+      "**Do** route full-screen forms/pickers through `BottomSheet` rather than a new route, keeping the header/nav context in place.",
+      "**Do** keep numeric values tabular (`tabular-nums`) wherever a figure updates or several must align in a column.",
+      "**Do** draw icons from lucide-react, mark them `aria-hidden`, and label the control that holds them.",
+      "**Do** give a control over a photo a 40px target and a black scrim; give overlay chrome 44px.",
+      "**Do** pair an error message with what to do next, and put the recovery control inside the banner.",
+      "**Do** pick the radius from what the element is — control `md`, container `lg`, overlay `xl`, micro-element `sm` — and never write bare `rounded`.",
+      "**Do** reach for the primitive before the class string: `Button` (with `quiet` / `quietDestructive` / `onDark` / `scrim` / `accent` and `icon` / `iconSm`), `Banner`, `Select`, `Input`, `Field`, `Card`, `SegmentedControl`. If none fits, add a variant there rather than a one-off at the call site."
     ],
     "donts": [
-      "Don't add a shadow to an element that isn't literally floating above the page (ordinary cards and buttons stay flat with a border).",
-      "Don't introduce a display/hero type size — 18px semibold is the ceiling.",
-      "Don't fill a second control with Training Indigo on the same screen as the primary action; use outline or ghost instead.",
-      "Don't reuse a macro-identity color (protein/carb/fat) for anything other than that macro.",
-      "Don't reach for a numbered Tailwind color (amber-50, emerald-600) for a status surface — the tokens exist, and the app has no remaining call site that does this.",
-      "Don't set status text in the saturated fill token (text-success, text-warning); that pairing fails contrast on every light surface in the app.",
-      "Don't stand a Unicode glyph in for an icon — no ✕, ↑, ‹, → anywhere in a control. The app is glyph-free as of this revision; the only remaining Unicode operator is the × between a piece count and its per-piece weight, which is arithmetic, not an icon.",
-      "Don't add motion outside the sanctioned vocabulary (skeleton pulse, action spinner, sheet height, bar fill) — no entrances, slides, fades or parallax.",
-      "Don't show a raw server or fetch message to the user; map it to a German sentence that names the problem and the recovery.",
-      "Don't hand-roll an icon button (inline-flex h-9 w-9 items-center justify-center …) or a status surface (rounded-md border border-warning/50 bg-warning/10 p-3 …) — both are primitives now, and hand-rolled copies are how the 36/40/44px sizes drifted apart in the first place."
+      "**Don't** add a shadow to an element that isn't literally floating above the page (ordinary cards and buttons stay flat with a border).",
+      "**Don't** introduce a display/hero type size — 18px semibold is the ceiling.",
+      "**Don't** fill a second control with Training Indigo on the same screen as the primary action; use `outline` or `ghost` instead.",
+      "**Don't** reuse a macro-identity color (protein/carb/fat) for anything other than that macro.",
+      "**Don't** reach for a numbered Tailwind color (`amber-50`, `emerald-600`) for a status surface — the tokens exist, and the app has no remaining call site that does this.",
+      "**Don't** set status text in the saturated fill token (`text-success`, `text-warning`); that pairing fails contrast on every light surface in the app.",
+      "**Don't** stand a Unicode glyph in for an icon — no `✕`, `↑`, `‹`, `→` anywhere in a control. The app is glyph-free as of this revision; the only remaining Unicode operator is the `×` between a piece count and its per-piece weight, which is arithmetic, not an icon.",
+      "**Don't** add motion outside the sanctioned vocabulary (skeleton pulse, action spinner, sheet height, bar fill, disclosure chevron) — no entrances, slides, fades or parallax.",
+      "**Don't** show a raw server or fetch message to the user; map it to a sentence in the active locale that names the problem and the recovery.",
+      "**Don't** hand-roll an icon button (`inline-flex h-9 w-9 items-center justify-center …`) or a status surface (`rounded-md border border-warning/50 bg-warning/10 p-3 …`) — both are primitives now, and hand-rolled copies are how the 36/40/44px sizes drifted apart in the first place."
     ]
   }
 }

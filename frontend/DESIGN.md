@@ -133,9 +133,9 @@ components:
 
 forkcast treats meal planning and fitness/weight goals as one discipline, not two apps stitched together: the same screen that plans Tuesday's dinner also reads against the macro goal driving it. The visual language matches that — a precision instrument built for someone with a full-time job and a young family, meant to be operated correctly in seconds, not admired. Training Indigo is the single signature note (primary actions, the sticky header gradient); everything else stays quiet — flat lavender-tinted neutrals, thin borders, no decorative texture — so the indigo and the three fixed macro-identity colors (protein green, carb amber, fat blue) are the only things that ever call for attention.
 
-Density is deliberately high but never cramped: dense rows (ingredient amounts, log entries) use the `sm` control size and tabular numerals so figures line up; primary screens use the roomier `md` size that clears a comfortable tap target. The system has no ornamental flourish, no illustration, no imagery — it is entirely typographic, icon-coded and color-coded, and German-only (`lang="de"`, no i18n abstraction beyond the single locale). Icons come from one library (lucide-react, ~19 files) at a consistent stroke; a Unicode glyph is never an icon.
+Density is deliberately high but never cramped: dense rows (ingredient amounts, log entries) use the `sm` control size and tabular numerals so figures line up; primary screens use the roomier `md` size that clears a comfortable tap target. The system has no ornamental flourish, no illustration, no imagery — it is entirely typographic, icon-coded and color-coded. Copy ships in German and English: the locale follows the browser, can be overridden in Settings, sets `lang` on the root element and drives date, number and macro formatting, so every layout must hold both languages' string lengths. Icons come from one library (lucide-react, ~32 files) at a consistent stroke; a Unicode glyph is never an icon.
 
-Motion exists but is strictly informational, never decorative: a pulse on skeleton placeholders while data loads, a spinner on an action that takes longer than a moment, a 200ms height transition on the bottom sheet, and a width transition on macro goal bars. Nothing enters, slides, fades in or parallaxes. A global `prefers-reduced-motion` rule collapses every animation and transition to 0.01ms, so any motion added to this system must remain optional to comprehension.
+Motion exists but is strictly informational, never decorative: a pulse on skeleton placeholders while data loads, a spinner on an action that takes longer than a moment, a 200ms height transition on the bottom sheet, a width transition on macro goal bars, and a disclosure chevron that rotates 90° when a collapsed group opens. Nothing enters, slides, fades in or parallaxes. A global `prefers-reduced-motion` rule collapses every animation and transition to 0.01ms, so any motion added to this system must remain optional to comprehension.
 
 **Key Characteristics:**
 - One accent color (Training Indigo) for commitment/primary action; a brighter sibling (Bright Periwinkle) for focus and interactive accents only
@@ -196,7 +196,7 @@ All three status colors are live tokens, not reserves — every status surface i
 - **Body** (400, 0.875rem/14px, 1.25rem line-height): Default control and copy size on desktop (`sm:text-sm`).
 - **Body (mobile input)** (400, 1rem/16px, 1.5rem line-height): Text/decimal inputs on mobile. Load-bearing, not stylistic — anything smaller triggers iOS Safari's auto-zoom on focus.
 - **Label** (500, 0.75rem/12px, 1rem line-height): Field labels' dense variant, hints, error text, bottom-nav labels, macro header captions.
-- **Micro** (0.6875rem/11px, 1rem line-height): The floor of the type scale — a single size, no smaller variant. Two uses: **eyebrow** (600, uppercase, `tracking-wider` — section labels like "Pro Portion", "Tagesziel", source/status badges) and **caption** (400–500, sentence case — sparing secondary annotations like a day-picker's date-of-month, a photo-staging constraint hint, or a stat card's hint line). Reused across ~15 files (`per-portion-hero.tsx`, `recipe-detail.tsx`, `recipe-ingredient-editor.tsx`, `planner-screen.tsx`, `photo-staging.tsx`, and others).
+- **Micro** (0.6875rem/11px, 1rem line-height): The floor of the type scale — a single size, no smaller variant. Two uses: **eyebrow** (600, uppercase, `tracking-wider` — section labels like "Pro Portion", "Tagesziel", source/status badges) and **caption** (400–500, sentence case — sparing secondary annotations like a day-picker's date-of-month, a photo-staging constraint hint, or a stat card's hint line). Reused across ~19 files (`per-portion-hero.tsx`, `recipe-detail.tsx`, `recipe-ingredient-editor.tsx`, `planner-screen.tsx`, `photo-staging.tsx`, and others).
 
 ### Named Rules
 **The No-Display-Type Rule.** There is no hero/display type scale. The 18px header title is the ceiling; introducing anything larger breaks the instrument-not-billboard character.
@@ -205,18 +205,20 @@ All three status colors are live tokens, not reserves — every status surface i
 
 ## Layout
 
-Single-column, mobile-first layout that must never scroll horizontally (`overflow-x: clip` is a hard guard on `html, body` — see `.cursor/rules/no-horizontal-overflow-mobile.mdc`; `input, textarea, select { min-width: 0 }` is the matching guard on controls). A sticky `AppHeader` pins to the top; a 4-tab `BottomNav` pins to the bottom on mobile. Full-screen forms and pickers use a `BottomSheet` (portal-rendered, `82dvh` default height, drag handle) rather than a route change, keeping navigation context intact. Screen bodies are `p-4` with `space-y-4` between blocks; dense lists step down to `space-y-1`/`gap-2`. Image and thumbnail collections use a 2-column grid that becomes 3 at `sm` (640px) — the single defined breakpoint, beyond which only the `sm:text-sm` desktop density step applies.
+Single-column, mobile-first layout that must never scroll horizontally (`overflow-x: clip` is a hard guard on `html, body` — see `.cursor/rules/no-horizontal-overflow-mobile.mdc`; `input, textarea, select { min-width: 0 }` is the matching guard on controls). A sticky `AppHeader` pins to the top; a 4-tab `BottomNav` pins to the bottom at every width.
+
+Every screen is phone-shaped, so on wide screens the app does not stretch: `main` is capped at `max-w-2xl` (672px) and centred. The bottom nav's tabs and the bottom sheet use the same centred column. Only the header's indigo gradient spans the viewport edge to edge, while its padding keeps its content lined up with the column. The installed PWA clears the iOS home indicator through two spacing tokens from `tokens.css`: `safe-b` (the bare `env(safe-area-inset-bottom)` gutter, padded inside the nav and the sheet) and `nav-safe` (the 4rem nav plus that gutter, the bottom padding `main` needs while the nav is visible). Full-screen forms and pickers use a `BottomSheet` (portal-rendered, `82dvh` default height, drag handle) rather than a route change, keeping navigation context intact. Screen bodies are `p-4` with `space-y-4` between blocks; dense lists step down to `space-y-1`/`gap-2`. Image and thumbnail collections use a 2-column grid that becomes 3 at `sm` (640px) — the single defined breakpoint, beyond which only the `sm:text-sm` desktop density step applies.
 
 ## Elevation & Depth
 
-Flat by default. Cards and containers are separated from their surroundings by a 1px `Lavender Border`, not a shadow — depth is not part of the resting visual language. Shadow appears only on elements floating above the page: the sticky header (`shadow-sm`, separating it from scrolled content) and the `BottomSheet` (`shadow-lg`, a drawer overlaying the app). Controls that sit *on top of an image* (photo reorder/remove buttons, the fullscreen photo viewer's chrome) are the one further exception: they use a translucent black scrim (`bg-black/60`, `hover:bg-black/75`) instead of a shadow, because the surface underneath is photographic and unpredictable. This is a confirmed, forward-going invariant, not just an observed default.
+Flat by default. Cards and containers are separated from their surroundings by a 1px `Lavender Border`, not a shadow — depth is not part of the resting visual language. Shadow appears only on elements floating above the page: the sticky header (`shadow-xs`, separating it from scrolled content) and the `BottomSheet` (`shadow-lg`, a drawer overlaying the app). Controls that sit *on top of an image* (photo reorder/remove buttons, the fullscreen photo viewer's chrome) are the one further exception: they use a translucent black scrim (`bg-black/60`, `hover:bg-black/75`) instead of a shadow, because the surface underneath is photographic and unpredictable. This is a confirmed, forward-going invariant, not just an observed default.
 
 ### Shadow Vocabulary
-- **Header lift** (Tailwind `shadow-sm`): The sticky `AppHeader`, separating pinned chrome from scrolled content beneath it.
-- **Popover lift** (Tailwind `shadow-sm`): Transient content anchored to a point rather than to the layout — the weight chart's value tooltip.
+- **Header lift** (Tailwind `shadow-xs`): The sticky `AppHeader`, separating pinned chrome from scrolled content beneath it.
+- **Popover lift** (Tailwind `shadow-xs`): Transient content anchored to a point rather than to the layout — the weight chart's value tooltip.
 - **Overlay lift** (Tailwind `shadow-lg`): `BottomSheet` and the centered confirm dialog — content that covers the page.
 
-That is the complete list. Three uses, two values; anything else in the app is flat.
+That is the complete list. Three uses, two values; anything else in the app is flat. (`shadow-xs` is Tailwind v4's name for the small shadow v3 called `shadow-sm`; the value did not change.)
 
 ### Named Rules
 **The Flat-at-Rest Rule.** Surfaces are flat and bordered at rest. Shadow is reserved for things that are literally floating above the page (sticky header, popover, sheet, dialog) — never used to add weight to an ordinary card or button. A *selected* state is a fill and weight change, never a lift: the white-pill-with-shadow segmented control is a borrowed iOS idiom, not this system's. Audit test: if the element scrolls with the page, it has no shadow.
@@ -249,7 +251,7 @@ Every component reads **precise and unhurried**: motion limited to the informati
 - **Quiet / Quiet Destructive:** icon actions that must not compete with their row. Neutral `Ink Muted` at rest; on hover `quiet` fills `Soft Lavender` and darkens to ink, `quietDestructive` fills `Alert Red`/10 and turns red. Every reorder, close, remove and dismiss control in the app is one of these two.
 - **On Dark:** `white/90` with a `white/10` hover fill — chrome on the indigo header, the planner header, the date nav and the fullscreen photo viewer.
 - **Accent:** a Bright-Periwinkle-tinted plate (`accent/10`, hover `accent/20`) with a Training Indigo glyph — the repeating "add to this slot" affordance on the diary and planner. Louder than `quiet`, deliberately quieter than `primary`: a screen carries four to six of them at once, so it must never read as the screen's primary action (The One Indigo Rule).
-- **Scrim:** `bg-black/60` with white glyph, hover `black/75` — controls over user photography (The Scrim-Over-Photo Rule).
+- **Scrim:** `bg-black/60` with a light backdrop blur (`backdrop-blur-xs`) and white glyph, hover `black/75` — controls over user photography (The Scrim-Over-Photo Rule).
 - **Sizes:** `md` (`px-4 py-2`), `sm` (`px-3 py-1`), `icon` (40px square), `iconSm` (36px square, the tap-target floor for dense rows).
 - **Focus:** 2px Bright Periwinkle outline at 1px offset via `:focus-visible`, matching the input focus ring.
 - **Disabled:** `opacity-50` plus `pointer-events-none` — the control stays in place and legible rather than disappearing.
@@ -294,17 +296,18 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 - **Scope:** this is the surface for *messages*. A work queue with interactive rows (the unmatched-ingredients panel) or a confirm container with its own buttons (the recipe delete zone) borrows the token colors but is not a Banner.
 
 ### Navigation (Bottom Nav)
-- **Style:** Fixed 4-column grid, Paper White background, 1px top border. Icon (lucide, 20px) above a 12px label. Active tab: `Ink` text + `aria-current="page"`; inactive: `Ink Muted`. No pill/indicator background on the active state — color and weight alone carry it.
+- **Style:** Fixed full-width bar, Paper White background, 1px top border, padded by `safe-b` at the bottom; its 4-column tab grid sits in the centred `max-w-2xl` column. Icon (lucide, 20px) above a 12px label. Active tab: `Ink` text + `aria-current="page"`; inactive: `Ink Muted`. No pill/indicator background on the active state — color and weight alone carry it.
 
 ### Loading & Motion
 - **Skeletons:** `Soft Lavender` blocks at the height of the content they stand in for (`h-8`, `h-10`, `h-12`), `rounded-md`, `animate-pulse`. Used for lists and forms whose shape is known before the data arrives.
 - **Spinner:** lucide `Loader2` at 16px with `animate-spin`, inside the button that triggered the work, next to a label that names the wait ("Rezept wird gelesen…"). Never a full-screen or standalone spinner.
 - **Sheet height:** `transition-[height] duration-200` on the `BottomSheet` only.
 - **Bars:** `transition-all` on macro goal fills, so a changed value slides rather than jumps.
+- **Disclosure:** a 13px `ChevronRight` with `transition-transform` turns 90° when a collapsed group opens (a logged recipe's ingredients in the daily log and planner). It is the one rotation in the system and only ever marks open vs. closed.
 - **Reduced motion:** a global `prefers-reduced-motion: reduce` block collapses every animation, transition and smooth scroll to 0.01ms. Motion is therefore never the only carrier of meaning.
 
 ### Bottom Sheet (signature component)
-- **Style:** Portal-rendered to `<body>`, fixed to the viewport bottom, `rounded-t-xl` (12px) top corners only, `shadow-lg`, backdrop `bg-black/40`. A centered `h-1 w-10` `Soft Lavender` drag handle signals draggability even where drag isn't implemented. Default height `82dvh`; content-sized sheets pass a `max-h-…` override instead. Used for every full-screen form/picker/search flow in place of a route change.
+- **Style:** Portal-rendered to `<body>`, fixed to the viewport bottom and centred in the `max-w-2xl` column, padded by `safe-b` at the bottom, `rounded-t-xl` (12px) top corners only, `shadow-lg`, backdrop `bg-black/40`. A centered `h-1 w-10` `Soft Lavender` drag handle signals draggability even where drag isn't implemented. Default height `82dvh`; content-sized sheets pass a `max-h-…` override instead. Used for every full-screen form/picker/search flow in place of a route change.
 
 ### Header Macro Cells (signature component)
 - **Style:** Three columns inside the indigo header gradient, each: a macro-identity dot (6px) + label in `white/70`, a tabular-numeral value in `white/90` (or a status color when over/under goal), and an optional macro-identity-colored fill bar (`white/20` track) showing 0–100% of goal. This is the one place the macro-identity colors get their brightened `-on` variants, for legibility on the dark gradient.
@@ -320,6 +323,7 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 - **Do** use the fixed macro green/amber/blue for protein/carb/fat identity everywhere they appear, never reassigned.
 - **Do** build every status surface from the `success` / `warning` / `destructive` tokens at low opacity with a matching border, and set status text in the `-ink` sibling.
 - **Do** use `text-base` (16px) for any text input rendered on mobile — smaller sizes trigger iOS Safari's zoom-on-focus.
+- **Do** keep every screen inside the centred `max-w-2xl` column; only the header's gradient bleeds to the viewport edges.
 - **Do** route full-screen forms/pickers through `BottomSheet` rather than a new route, keeping the header/nav context in place.
 - **Do** keep numeric values tabular (`tabular-nums`) wherever a figure updates or several must align in a column.
 - **Do** draw icons from lucide-react, mark them `aria-hidden`, and label the control that holds them.
@@ -336,6 +340,6 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 - **Don't** reach for a numbered Tailwind color (`amber-50`, `emerald-600`) for a status surface — the tokens exist, and the app has no remaining call site that does this.
 - **Don't** set status text in the saturated fill token (`text-success`, `text-warning`); that pairing fails contrast on every light surface in the app.
 - **Don't** stand a Unicode glyph in for an icon — no `✕`, `↑`, `‹`, `→` anywhere in a control. The app is glyph-free as of this revision; the only remaining Unicode operator is the `×` between a piece count and its per-piece weight, which is arithmetic, not an icon.
-- **Don't** add motion outside the sanctioned vocabulary (skeleton pulse, action spinner, sheet height, bar fill) — no entrances, slides, fades or parallax.
-- **Don't** show a raw server or fetch message to the user; map it to a German sentence that names the problem and the recovery.
+- **Don't** add motion outside the sanctioned vocabulary (skeleton pulse, action spinner, sheet height, bar fill, disclosure chevron) — no entrances, slides, fades or parallax.
+- **Don't** show a raw server or fetch message to the user; map it to a sentence in the active locale that names the problem and the recovery.
 - **Don't** hand-roll an icon button (`inline-flex h-9 w-9 items-center justify-center …`) or a status surface (`rounded-md border border-warning/50 bg-warning/10 p-3 …`) — both are primitives now, and hand-rolled copies are how the 36/40/44px sizes drifted apart in the first place.
