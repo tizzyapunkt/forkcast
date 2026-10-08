@@ -41,7 +41,7 @@ Vite + React 19 + TS, Tailwind v4 (CSS-first, theme in `components/ui/tokens.css
 - Pass layout/one-off overrides via `className` (merged by `cn()` in `lib/cn.ts`).
 - `components/app/` holds app-aware composites (header, bottom nav, sheets, error banner).
 - `<textarea>` gets a primitive once a second call site needs one.
-- `pnpm --filter @forkcast/frontend build:ui` bundles `components/ui/` into `dist-ui/` for `/design-sync` (needs `/design-login`, local terminal only). New primitives just need exporting from `components/ui/index.ts`.
+- New primitives are exported from `components/ui/index.ts`; publishing them to Claude Design is in [Design workflow](#design-workflow).
 
 ## Website
 
@@ -50,6 +50,43 @@ Public landing page at https://check-forkcast.tizzy.dev (EN at `/`, DE at `/de/`
 - Production settings are committed in `website/.env.production` (not secret, they end up in the HTML): Umami script, website ID and `UMAMI_DOMAINS`, and one Tally form per language (`TALLY_FORM_ID_EN` / `_DE`). Dev builds without them never track; `.env.example` documents every key.
 - Ticking hosted / self-host counts the vote as a cookieless Umami event (`interest`). The button only opens the optional launch e-mail on Tally, prefilled with the choice. The page itself never asks for an e-mail; keep it that way, the privacy policy says so.
 - `.github/workflows/website.yml` deploys to GitHub Pages on pushes to `main` that touch `website/`.
+
+## Design workflow
+
+`frontend/` and `website/` are two separate design worlds. Each has its own product and design records; they share only the brand lilac (`244 36% 44%`). The code is the source of truth (`frontend/src/components/ui/tokens.css` + the primitives, `website/src/styles.css`); the records describe it and must not drift from it. Behaviour changes still go through OpenSpec (`openspec/changes/`); the design workflow covers how things look and feel.
+
+**Tools**
+
+- **Impeccable** (`/impeccable <command> [target]`, vendored in `.claude/skills/impeccable/`): product and design context, design commands (`shape`, `critique`, `audit`, `polish`, `layout`, `typeset`, `live`, …) and the record keeping below. Its hook (`.claude/settings.json`, `.cursor/hooks.json`, `.github/hooks/impeccable.json`) runs the design detector after UI edits and reports findings.
+- **Claude Design** (`/design-sync`, needs `/design-login`, local terminal only): publishes the frontend's `components/ui/` primitives to the Claude Design project, so designs made there use the real components. Website is not synced. A finished design comes back as a handoff export, `design_handoff_<feature>/` at the repo root: a prototype plus screen renders, reference only, never shipped or committed (lint ignores the pattern).
+
+**Which tool designs what**
+
+- **App screens and flows (`frontend/`): Claude Design**, then OpenSpec, then Impeccable. Design the screens and their states in Claude Design. Drop the handoff into the repo root and cite it in the OpenSpec change's `design.md`. Implement against the tokens and primitives, never the prototype's inlined values. Check the result against the renders, then run `/impeccable critique|polish` on the built screens. If the system changed, finish with step 3 of _Order_ below.
+- **Website pages (`website/`): Impeccable end to end.** The page is plain HTML with no synced components, so the code is the canvas: `/impeccable shape` → build → finish review → `document`.
+- **Small visual fixes anywhere:** Impeccable directly, no Claude Design round.
+
+**Files, per workspace (`frontend/`, `website/`)**
+
+| File                                                      | What                                                                                                                                                           | Owner                                            |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `PRODUCT.md`                                              | Product truth: users, purpose, brand commitments, principles. No visuals.                                                                                      | `/impeccable init`                               |
+| `DESIGN.md`                                               | Visual system: tokens in the YAML frontmatter, named rules and components in prose.                                                                            | `/impeccable document`                           |
+| `.impeccable/design.json`                                 | Sidecar generated from `DESIGN.md`: tonal ramps, shadows, motion, breakpoints, HTML/CSS snippets per component (rendered by `live` mode). Not read by the app. | regenerated with `DESIGN.md`, never edited alone |
+| `.impeccable/surfaces/<slug>.md`                          | Surface brief for one page (mode, direction contract), e.g. the landing page.                                                                                  | written by new work on that surface              |
+| `.impeccable/config.json`, `.impeccable/live/config.json` | Hook settings; which files `live` mode injects into.                                                                                                           | Impeccable                                       |
+
+Gitignored, never commit: `.impeccable/config.local.json`, `hook.cache.json`, `questions/`, `review/`.
+
+Claude Design files: `.design-sync/config.json` (project and build command), `conventions.md` (the README Claude Design reads), `previews/*.tsx` (one preview per primitive), `NOTES.md` (sync gotchas; read before a re-sync). Build output is gitignored: `frontend/dist-ui/`, `ds-bundle/`, `.ds-sync/`.
+
+**Order**
+
+1. **New surface or redesign without a handoff** (the website, or an app screen designed in code): `PRODUCT.md` must exist (`/impeccable init` writes it). Then `/impeccable shape <feature>` (or a plain design request): direction, then the surface brief, then build, then the finish review. Close with `/impeccable document target <workspace>`, which writes `DESIGN.md` and the sidecar.
+2. **Refinement:** `/impeccable <critique|audit|polish|layout|…> <target>` works on the existing world and keeps it. Fix what the hook reports in the same change.
+3. **The system changed** (a token, a primitive, a layout rule, a new motion): run `/impeccable document target <workspace>` in the same PR and pick _merge_. That updates `DESIGN.md` and regenerates the sidecar.
+4. **`components/ui/` changed:** run `pnpm --filter @forkcast/frontend build:ui` first, then `/design-sync`. Running the sync against a stale `dist-ui/` under-reports silently. A new primitive also needs a preview in `.design-sync/previews/` and a line in `conventions.md`.
+5. **Drift check:** run `/impeccable doctor`. In this monorepo the root report is always empty, so the useful part is the per-workspace report (doctor runs `--target frontend` / `--target website`). A stale sidecar is fixed with step 3.
 
 ## Environment & caveats
 

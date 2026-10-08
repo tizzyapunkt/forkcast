@@ -99,7 +99,7 @@ testing (now via `make dev-http`, no manual `vite.config.ts` edit needed).
 - **macOS has no `timeout`** — poll with a bash loop instead (see `scripts/smoke-backend.sh`).
 - **Test imports come from `vite-plus/test`**, not `vitest` (lint rule `prefer-vite-plus-imports`).
 - **`vitest` mock fns need a type param** (`vi.fn<() => void>()`) and `.rejects.toThrow()` needs a message — the lint config enforces both.
-- The `design_handoff_*` dirs are HTML/React prototypes (reference only, never shipped) and are excluded from lint.
+- **`design_handoff_<feature>/` at the repo root is a Claude Design export**, dropped in temporarily for one OpenSpec change: a prototype plus screen renders, reference only, never shipped and not committed (lint ignores the pattern). Implement against the Tailwind tokens and existing primitives, never the prototype's inlined literals. None is in the tree when no handoff is in flight; the archived changes that cite one describe how it was reconciled.
 
 ## OpenSpec change workflow
 

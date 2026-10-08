@@ -31,7 +31,7 @@ import { Field, DecimalInput, Select, Button, Banner } from '@forkcast/frontend'
 | Destructive (opening, quieter) | `border border-destructive text-destructive hover:bg-destructive/10` |
 | Inline/link action | `text-primary hover:text-primary/80` |
 | Accent plate (add affordance) | `bg-accent/10 text-primary hover:bg-accent/20` |
-| Scrim over a photo | `bg-black/60 text-white backdrop-blur-sm hover:bg-black/75` |
+| Scrim over a photo | `bg-black/60 text-white backdrop-blur-xs hover:bg-black/75` |
 | Error surface | `border-destructive/50 bg-destructive/10 text-destructive` |
 | Warning surface | `border-warning/50 bg-warning/10 text-foreground` |
 | Success surface | `border-success/50 bg-success/10 text-success-ink` |
