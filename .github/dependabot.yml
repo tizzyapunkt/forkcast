@@ -68,6 +68,12 @@ updates:
       time: "06:00"
       timezone: Europe/Berlin
     open-pull-requests-limit: 3
+    ignore:
+      # Node 24 LTS is what the project targets. Node 25+ no longer ships
+      # corepack, which the Dockerfiles need for pnpm.
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
     groups:
       base-images:
         patterns:
