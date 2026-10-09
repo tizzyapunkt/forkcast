@@ -4,6 +4,8 @@ export interface BringImportTokenInput {
   startDate: string;
   /** Identities (case-insensitive name + unit) of the items ticked off as already at home. */
   excluded: string[];
+  /** Portions cooked per recipe id, when changed in the sheet. */
+  portions?: Record<string, number>;
 }
 
 /** Mints the one-hour token that lets Bring!'s servers fetch this week's list. */

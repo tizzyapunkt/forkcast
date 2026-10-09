@@ -1,5 +1,6 @@
 import { computeRecipeTotals } from '../../domain/recipe-totals';
 import type { RecipeIngredient } from '../../domain/recipes';
+import { Stepper } from '../../components/ui/stepper';
 import { t } from '../../i18n';
 
 interface Props {
@@ -42,32 +43,14 @@ export function PerPortionHero({ ingredients, servings, onServingsChange }: Prop
         </span>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>{t.recipeTotals.heroServingsPrefix}</span>
-          <div className="flex items-center gap-1 rounded-md border bg-background px-1 py-0.5">
-            <button
-              type="button"
-              onClick={() => onServingsChange(Math.max(1, safeServings - 1))}
-              aria-label={t.recipes.servingsDecrement}
-              disabled={safeServings <= 1}
-              className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
-            >
-              −
-            </button>
-            <input
-              type="number"
-              readOnly
-              value={safeServings}
-              aria-label={t.recipes.servingsLabel}
-              className="w-8 bg-transparent text-center text-sm focus:outline-hidden [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
-            <button
-              type="button"
-              onClick={() => onServingsChange(Math.max(1, safeServings + 1))}
-              aria-label={t.recipes.servingsIncrement}
-              className="px-2 py-0.5 text-sm leading-none"
-            >
-              +
-            </button>
-          </div>
+          <Stepper
+            value={safeServings}
+            onChange={(next) => onServingsChange(Math.max(1, next))}
+            min={1}
+            label={t.recipes.servingsLabel}
+            decrementLabel={t.recipes.servingsDecrement}
+            incrementLabel={t.recipes.servingsIncrement}
+          />
           <span>{t.recipeTotals.heroServingsSuffix}</span>
         </div>
       </div>

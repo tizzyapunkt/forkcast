@@ -16,9 +16,21 @@ export interface GroceryItem {
   pieceHint?: PieceHint;
 }
 
+/** A recipe planned in the week: the portions logged for it and the portions the list was built for. */
+export interface GroceryRecipe {
+  recipeId: string;
+  name: string;
+  loggedPortions: number;
+  portions: number;
+}
+
+/** Portions cooked per recipe id, chosen in the sheet. A recipe without a value cooks its logged portions. */
+export type RecipePortions = Record<string, number>;
+
 export interface GroceryList {
   startDate: string;
   items: GroceryItem[];
+  recipes: GroceryRecipe[];
   skippedQuickEntries: number;
 }
 

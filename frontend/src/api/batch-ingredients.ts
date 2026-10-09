@@ -1,5 +1,6 @@
 import { fetchJson } from './client';
 import type { FullIngredientEntry, LogEntry } from '../domain/meal-log';
+import type { BatchIngredientChange } from '../domain/cooking-session';
 
 export interface ReplaceBatchIngredientInput {
   entryId: string;
@@ -27,5 +28,14 @@ export function addToRecipeBatch(input: AddToRecipeBatchInput): Promise<LogEntry
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
+  });
+}
+
+/** Writes the cooking view's edits into several recipe batches at once, with absolute amounts per batch. */
+export function setBatchIngredients(changes: BatchIngredientChange[]): Promise<LogEntry[]> {
+  return fetchJson<LogEntry[]>('/api/set-batch-ingredients', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ changes }),
   });
 }

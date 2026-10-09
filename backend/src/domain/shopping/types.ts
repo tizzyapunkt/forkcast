@@ -16,9 +16,18 @@ export interface GroceryItem {
   pieceHint?: PieceHint;
 }
 
+/** A recipe planned in the week: the portions logged for it and the portions the list was built for. */
+export interface GroceryRecipe {
+  recipeId: string;
+  name: string;
+  loggedPortions: number;
+  portions: number;
+}
+
 export interface GroceryList {
   startDate: string;
   items: GroceryItem[];
+  recipes: GroceryRecipe[];
   skippedQuickEntries: number;
 }
 

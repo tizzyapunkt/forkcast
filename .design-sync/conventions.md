@@ -1,6 +1,6 @@
 ## forkcast-ui conventions
 
-**No provider wrapper.** None of the eight primitives (`Button`, `Card`, `Field`, `Input`, `DecimalInput`, `Select`, `SegmentedControl`, `Banner`) needs a top-level wrapper — import directly and render:
+**No provider wrapper.** None of the nine primitives (`Button`, `Card`, `Field`, `Input`, `DecimalInput`, `Select`, `SegmentedControl`, `Stepper`, `Banner`) needs a top-level wrapper — import directly and render:
 
 ```tsx
 import { Field, DecimalInput, Select, Button, Banner } from '@forkcast/frontend';
@@ -18,7 +18,8 @@ import { Field, DecimalInput, Select, Button, Banner } from '@forkcast/frontend'
 
 **Use the primitive, not a class string.** Two mistakes cost the most here: hand-rolling an icon button out of `inline-flex h-9 w-9 …`, and hand-rolling a status message out of a tinted `<div>`. Both are `Button` variants / `Banner` props:
 
-- **Icon buttons** — `<Button variant="quiet|quietDestructive|onDark|scrim|accent" size="icon|iconSm">` with an inline SVG child and an `aria-label`. `icon` is 40px, `iconSm` 36px (the tap-target floor). `quiet` = neutral row action, `quietDestructive` = remove, `onDark` = chrome on the indigo header, `scrim` = a control over a photo, `accent` = the repeating "add here" affordance.
+- **Icon buttons** — `<Button variant="quiet|quietDestructive|onDark|scrim|accent" size="icon|iconSm|touch">` with an inline SVG child and an `aria-label`. `icon` is 40px, `iconSm` 36px (the tap-target floor), `touch` 44px for full-screen working surfaces used with busy hands (the cooking view). `quiet` = neutral row action, `quietDestructive` = remove, `onDark` = chrome on the indigo header, `scrim` = a control over a photo, `accent` = the repeating "add here" affordance.
+- **Counts** — `<Stepper value onChange label decrementLabel incrementLabel min? max? size="sm|touch">`, never a hand-built `[−] n [+]` group. `sm` sits inline in a dense header (recipe servings), `touch` gives 44px steps (people eating along, portions per recipe on the grocery list).
 - **Status messages** — `<Banner tone="error|warning|success" hint={…} action={…} onDismiss={…} density="md|sm">`. It picks `role="alert"` for errors and `role="status"` otherwise.
 
 **Styling idiom: Tailwind utility classes over HSL CSS-variable tokens — never invent a hex value.** Every color, radius, and spacing value traces back to a `hsl(var(--token))` or literal in `tokens.css`; author using the Tailwind class names that already resolve against those tokens, not raw colors:

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { BookOpen, ChevronRight, Plus, X } from 'lucide-react';
+import { BookOpen, ChevronRight, CookingPot, Plus, X } from 'lucide-react';
 import type { LogEntry } from '../../domain/meal-log';
 import { useRecipes } from '../../queries/use-recipes';
 import { useRemoveRecipeLog } from '../../queries/use-remove-recipe-log';
+import { useCookLaunch } from '../cooking-session/cook-launch';
 import { EntryRow } from './entry-row';
 import { LogIngredientDrawer, type BatchTarget } from '../log-ingredient/log-ingredient-drawer';
-import { CookedPortionsSheet } from './cooked-portions-sheet';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/cn';
 import { t } from '../../i18n';
@@ -98,8 +98,8 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
   const first = entries[0];
   const { data: recipes } = useRecipes();
   const removeMutation = useRemoveRecipeLog();
+  const startCooking = useCookLaunch();
   const [target, setTarget] = useState<BatchTarget | null>(null);
-  const [editingCooked, setEditingCooked] = useState(false);
   // Collapsed by default: a logged recipe reads as one meal; its ingredients are a tap away.
   const [expanded, setExpanded] = useState(false);
   if (!first) return null;
@@ -107,8 +107,6 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
   // Name resolves live via recipeId; a deleted recipe degrades to a generic label, the group stays.
   const recipeName = first.recipeId ? recipes?.find((r) => r.id === first.recipeId)?.name : undefined;
   const label = recipeName ?? t.entryList.fallbackRecipeName;
-  // Cooked portions only matter for the grocery list; unset means "cooked what was logged".
-  const cooked = first.cookedPortions ?? first.recipePortions ?? 1;
   const totals = batchTotals(entries);
 
   return (
@@ -131,20 +129,21 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
           <span className="min-w-0 flex-1 truncate text-xs font-semibold">{label}</span>
         </button>
         {first.recipePortions !== undefined && (
-          <button
-            type="button"
-            onClick={() => setEditingCooked(true)}
-            aria-label={t.entryList.cookedPortionsAria(label)}
-            className="-my-1 flex shrink-0 items-center gap-1 rounded-sm px-1 py-1 text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
+          <span className="shrink-0 px-1 text-[11px] text-muted-foreground tabular-nums">
+            {t.entryList.portions(first.recipePortions)}
+          </span>
+        )}
+        {startCooking && first.recipeId && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => startCooking(first.recipeId!)}
+            aria-label={t.cooking.actionAria(label)}
+            className="-my-1 h-9 shrink-0 px-2 font-semibold"
           >
-            <span>{t.entryList.portions(first.recipePortions)}</span>
-            {cooked !== first.recipePortions && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="font-medium text-primary">{t.entryList.cookedFor(cooked)}</span>
-              </>
-            )}
-          </button>
+            <CookingPot size={16} aria-hidden="true" />
+            {t.cooking.action}
+          </Button>
         )}
         <Button
           variant="ghost"
@@ -197,18 +196,6 @@ function BatchGroup({ batchId, entries }: { batchId: string; entries: LogEntry[]
             />
           ))}
       </div>
-
-      {editingCooked && first.recipePortions !== undefined && (
-        <CookedPortionsSheet
-          open
-          recipeBatchId={batchId}
-          date={first.date}
-          recipeName={label}
-          loggedPortions={first.recipePortions}
-          cookedPortions={cooked}
-          onClose={() => setEditingCooked(false)}
-        />
-      )}
 
       <LogIngredientDrawer
         open={target !== null}

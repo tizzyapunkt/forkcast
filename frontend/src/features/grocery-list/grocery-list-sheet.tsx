@@ -4,9 +4,10 @@ import { BottomSheet } from '../../components/app/bottom-sheet';
 import { ErrorBanner } from '../../components/app/error-banner';
 import { ListSkeleton } from '../../components/app/loading-skeleton';
 import { Button } from '../../components/ui/button';
+import { Stepper } from '../../components/ui/stepper';
 import { useGroceryList } from '../../queries/use-grocery-list';
 import { mintBringImportToken } from '../../api/bring-import-token';
-import { groceryItemKey, type GroceryItem } from '../../domain/grocery-list';
+import { groceryItemKey, type GroceryItem, type GroceryRecipe, type RecipePortions } from '../../domain/grocery-list';
 import { cn } from '../../lib/cn';
 import { t } from '../../i18n';
 
@@ -77,7 +78,8 @@ export function GroceryListSheet({
   writeClipboard = defaultWriteClipboard,
   openUrl = defaultOpenUrl,
 }: GroceryListSheetProps) {
-  const { data: list, isLoading, error } = useGroceryList(startDate);
+  const [portions, setPortions] = useState<RecipePortions>({});
+  const { data: list, isLoading, error } = useGroceryList(startDate, portions);
   const [atHome, setAtHome] = useState<Set<string>>(() => new Set());
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [bringState, setBringState] = useState<'idle' | 'pending' | 'failed'>('idle');
@@ -110,7 +112,11 @@ export function GroceryListSheet({
   async function sendToBring() {
     setBringState('pending');
     try {
-      const { token } = await mintBringImportToken({ startDate, excluded: [...atHome] });
+      const { token } = await mintBringImportToken({
+        startDate,
+        excluded: [...atHome],
+        ...(Object.keys(portions).length > 0 ? { portions } : {}),
+      });
       openUrl(bringDeeplink(token));
       setBringState('idle');
     } catch {
@@ -149,6 +155,32 @@ export function GroceryListSheet({
     );
   }
 
+  function renderRecipe(recipe: GroceryRecipe) {
+    const value = portions[recipe.recipeId] ?? recipe.portions;
+    const delta = value - recipe.loggedPortions;
+    return (
+      <li key={recipe.recipeId} className="flex items-center gap-3 py-1.5 pl-4 pr-1.5">
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className={cn('truncate text-sm', delta !== 0 && 'font-semibold')}>{recipe.name}</span>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {delta === 0
+              ? t.groceryList.planned(recipe.loggedPortions)
+              : t.groceryList.plannedChanged(recipe.loggedPortions, delta)}
+          </span>
+        </span>
+        <Stepper
+          size="touch"
+          value={value}
+          min={1}
+          onChange={(next) => setPortions((prev) => ({ ...prev, [recipe.recipeId]: next }))}
+          label={t.groceryList.portionsAria(recipe.name)}
+          decrementLabel={t.groceryList.portionsDecrement(recipe.name)}
+          incrementLabel={t.groceryList.portionsIncrement(recipe.name)}
+        />
+      </li>
+    );
+  }
+
   const title = t.groceryList.title(rangeLabel);
 
   return (
@@ -169,6 +201,17 @@ export function GroceryListSheet({
         {isLoading && <ListSkeleton />}
         {list && items.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">{t.groceryList.empty}</p>
+        )}
+        {list && list.recipes.length > 0 && (
+          <section aria-label={t.groceryList.recipesHeading} className="pb-3">
+            <div className="flex items-baseline justify-between gap-2 pb-2">
+              <h3 className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                {t.groceryList.recipesHeading}
+              </h3>
+              <span className="text-xs text-muted-foreground">{t.groceryList.recipesHint}</span>
+            </div>
+            <ul className="divide-y rounded-lg border bg-card">{list.recipes.map(renderRecipe)}</ul>
+          </section>
         )}
         {tracked.length > 0 && <ul className="divide-y">{tracked.map(renderItem)}</ul>}
         {untracked.length > 0 && (

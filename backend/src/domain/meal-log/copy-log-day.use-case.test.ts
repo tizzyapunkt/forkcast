@@ -32,6 +32,7 @@ function repoWith(source: LogEntry[]) {
     update: vi.fn<(e: LogEntry) => Promise<void>>(),
     remove,
     removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
+    replaceMany: vi.fn<(removeIds: string[], entries: LogEntry[]) => Promise<void>>(),
   };
   return { repo, saveMany, remove };
 }
@@ -116,14 +117,6 @@ describe('copyLogDay', () => {
 
       expect(clone!.recipeId).toBe('rec-b-1');
       expect(clone!.recipePortions).toBe(2);
-    });
-
-    it('keeps cooked portions on a copied batch', async () => {
-      const { repo } = repoWith([{ ...batch('a', 'b-1', 'dinner'), cookedPortions: 4 }]);
-
-      const [clone] = await copyLogDay(repo, { fromDate: '2026-06-08', toDate: '2026-06-09' });
-
-      expect(clone!.cookedPortions).toBe(4);
     });
 
     it('leaves ad-hoc clones without a batch id', async () => {

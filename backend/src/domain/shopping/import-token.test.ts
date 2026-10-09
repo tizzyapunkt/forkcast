@@ -15,6 +15,17 @@ describe('import token', () => {
     expect(await verifyImportToken(token, SECRET, minutesLater(5))).toEqual(grant);
   });
 
+  it('roundtrips the portions per recipe', async () => {
+    const withPortions = { ...grant, portions: { pasta: 4 } };
+    const token = await mintImportToken(withPortions, SECRET, t0);
+
+    expect(await verifyImportToken(token, SECRET, minutesLater(5))).toEqual(withPortions);
+  });
+
+  it('refuses to mint with portions that are not positive numbers', async () => {
+    await expect(mintImportToken({ ...grant, portions: { pasta: 0 } }, SECRET, t0)).rejects.toThrow(/portions/);
+  });
+
   it('is valid for an hour and no longer', async () => {
     const token = await mintImportToken(grant, SECRET, t0);
 

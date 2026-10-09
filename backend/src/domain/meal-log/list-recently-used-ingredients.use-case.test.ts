@@ -39,6 +39,7 @@ function makeRepo(entries: LogEntry[]): LogEntryRepository {
     update: vi.fn<(entry: LogEntry) => Promise<void>>().mockResolvedValue(undefined),
     remove: vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined),
     removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
+    replaceMany: vi.fn<(removeIds: string[], entries: LogEntry[]) => Promise<void>>(),
   };
 }
 

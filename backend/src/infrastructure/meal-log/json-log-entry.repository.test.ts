@@ -159,3 +159,44 @@ describe('JsonLogEntryRepository — recipe batch metadata', () => {
     expect(remaining.map((e) => e.id)).toEqual(['b']);
   });
 });
+
+describe('JsonLogEntryRepository — replaceMany', () => {
+  const entry = (id: string, amount: number) => ({
+    id,
+    date: '2026-10-12',
+    slot: 'dinner' as const,
+    loggedAt: '2026-10-09T10:00:00.000Z',
+    recipeBatchId: 'b1',
+    ingredient: {
+      type: 'full' as const,
+      name: id,
+      unit: 'g' as const,
+      macrosPerUnit: { calories: 1, protein: 0, carbs: 0, fat: 0 },
+      amount,
+    },
+  });
+
+  it('removes, replaces in place and appends in one write', async () => {
+    const path = freshFile();
+    const repo = new JsonLogEntryRepository(path);
+    await repo.saveMany([entry('a', 1), entry('b', 2), entry('c', 3)]);
+
+    await repo.replaceMany(['a', 'b'], [entry('b', 20), entry('d', 4)]);
+
+    const stored = await repo.findAll();
+    expect(stored.map((e) => [e.id, e.ingredient.type === 'full' ? e.ingredient.amount : 0])).toEqual([
+      ['b', 20],
+      ['c', 3],
+      ['d', 4],
+    ]);
+  });
+
+  it('writes nothing when there is nothing to change', async () => {
+    const path = freshFile();
+    const repo = new JsonLogEntryRepository(path);
+
+    await repo.replaceMany([], []);
+
+    expect(await repo.findAll()).toEqual([]);
+  });
+});

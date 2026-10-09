@@ -17,7 +17,7 @@ export function makeBringImportPageHandler(sources: GroceryListSources, jwtSecre
     if (!grant) return c.text('Link abgelaufen oder ungültig', 401);
 
     const excluded = new Set(grant.excluded.map((key) => key.toLowerCase()));
-    const list = await buildGroceryList(sources, grant.startDate);
+    const list = await buildGroceryList(sources, grant.startDate, grant.portions);
     const items = list.items.filter((item) => !excluded.has(ingredientIdentityKey(item.name, item.unit)));
     return c.html(renderBringImportPage(grant.startDate, items));
   };
@@ -28,7 +28,14 @@ export function makeMintBringImportTokenHandler(jwtSecret: string) {
   return async (c: Context) => {
     try {
       const body = await c.req.json();
-      const token = await mintImportToken({ startDate: body?.startDate, excluded: body?.excluded }, jwtSecret);
+      const token = await mintImportToken(
+        {
+          startDate: body?.startDate,
+          excluded: body?.excluded,
+          ...(body?.portions !== undefined ? { portions: body.portions } : {}),
+        },
+        jwtSecret,
+      );
       return c.json({ token });
     } catch (err) {
       return c.json({ error: err instanceof Error ? err.message : 'Invalid request' }, 400);

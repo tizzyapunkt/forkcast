@@ -6,6 +6,7 @@ import { useCopyLogDay } from '../../queries/use-copy-log-day';
 import { LogIngredientDrawer } from '../log-ingredient/log-ingredient-drawer';
 import { GroceryListSheet } from '../grocery-list/grocery-list-sheet';
 import { EntryList } from '../daily-log/entry-list';
+import { CookLaunchContext } from '../cooking-session/cook-launch';
 import { AppHeader } from '../../components/app/app-header';
 import { HeaderMacroCell } from '../../components/app/header-macro-cell';
 import { ErrorBanner } from '../../components/app/error-banner';
@@ -89,11 +90,18 @@ function barClass(tone: DayTone): string {
   }
 }
 
-export function PlannerScreen() {
+interface PlannerScreenProps {
+  /** The week to open on — the one a cooking session was started from; this week otherwise. */
+  initialWeekStart?: string;
+  /** Opens the cooking view for a recipe in the shown week. */
+  onCook?: (recipeId: string, weekStart: string) => void;
+}
+
+export function PlannerScreen({ initialWeekStart, onCook }: PlannerScreenProps = {}) {
   const todayStr = today();
-  const [weekStart, setWeekStart] = useState<string>(() => mondayOf(todayStr));
+  const [weekStart, setWeekStart] = useState<string>(() => initialWeekStart ?? mondayOf(todayStr));
   const [expanded, setExpanded] = useState<number>(() => {
-    const i = indexInWeek(todayStr, mondayOf(todayStr));
+    const i = indexInWeek(todayStr, initialWeekStart ?? mondayOf(todayStr));
     return i >= 0 && i < 7 ? i : 0;
   });
   const [target, setTarget] = useState<{ date: string; slot: MealSlot } | null>(null);
@@ -113,8 +121,10 @@ export function PlannerScreen() {
     setWeekStart((s) => addDays(s, 7));
   }
 
+  const startCooking = onCook ? (recipeId: string) => onCook(recipeId, weekStart) : null;
+
   return (
-    <>
+    <CookLaunchContext.Provider value={startCooking}>
       <AppHeader
         title={t.planner.title}
         bottom={
@@ -254,7 +264,7 @@ export function PlannerScreen() {
           onClose={() => setTarget(null)}
         />
       </div>
-    </>
+    </CookLaunchContext.Provider>
   );
 }
 

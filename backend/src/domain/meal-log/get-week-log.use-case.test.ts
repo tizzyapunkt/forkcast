@@ -32,6 +32,7 @@ function repoFor(byDate: Record<string, LogEntry[]>): LogEntryRepository {
     update: vi.fn<(entry: LogEntry) => Promise<void>>(),
     remove: vi.fn<(id: string) => Promise<void>>(),
     removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
+    replaceMany: vi.fn<(removeIds: string[], entries: LogEntry[]) => Promise<void>>(),
   };
 }
 

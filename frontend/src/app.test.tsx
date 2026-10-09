@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from './test/msw/server';
 import { App } from './app';
 import { renderWithProviders } from './test/harness';
-import { makeDailyLog, makeGoal } from './test/msw/fixtures';
+import { makeDailyLog, makeGoal, makeLogEntry, makeWeekLog } from './test/msw/fixtures';
 
 describe('App', () => {
   it('renders the app header', () => {
@@ -126,6 +126,124 @@ describe('App', () => {
       const headings = await screen.findAllByRole('heading', { name: 'Wochenplan' });
       expect(headings).toHaveLength(1);
       expect(headings[0]!.closest('header')).not.toBeNull();
+    });
+  });
+
+  describe('cooking session in the URL', () => {
+    const recipe = { id: 'pasta', name: 'Pasta', yield: 2, ingredients: [], steps: [], createdAt: '', updatedAt: '' };
+
+    function serveWeek() {
+      const ketchup = (date: string, batchId: string) =>
+        makeLogEntry({
+          id: batchId,
+          date,
+          slot: 'dinner',
+          recipeId: 'pasta',
+          recipeBatchId: batchId,
+          recipePortions: 1,
+          ingredient: {
+            type: 'full',
+            name: 'Ketchup',
+            unit: 'ml',
+            macrosPerUnit: { calories: 1, protein: 0, carbs: 0.25, fat: 0 },
+            amount: 50,
+          },
+        });
+      const days = makeWeekLog('2026-06-08').days.map((day) => {
+        const entries =
+          day.date === '2026-06-08'
+            ? [ketchup(day.date, 'mo')]
+            : day.date === '2026-06-10'
+              ? [ketchup(day.date, 'mi')]
+              : [];
+        return { ...day, slots: day.slots.map((s) => (s.slot === 'dinner' ? { ...s, entries } : s)) };
+      });
+      server.use(
+        http.get('/api/week-log/:startDate', ({ params }) =>
+          HttpResponse.json(makeWeekLog(params['startDate'] as string, days)),
+        ),
+        http.get('/api/recipes/:id', () => HttpResponse.json(recipe)),
+        http.get('/api/recipes', () => HttpResponse.json([recipe])),
+      );
+    }
+
+    afterEach(() => window.history.replaceState(null, '', '/'));
+
+    it('reopens the cooking view after a reload, with its meals and the people eating along', async () => {
+      serveWeek();
+      window.history.replaceState(null, '', '/?cook=pasta&week=2026-06-08&b=2026-06-10~mi&extra=2');
+
+      renderWithProviders(<App />);
+
+      expect(await screen.findByRole('heading', { name: 'Pasta' })).toBeInTheDocument();
+      expect(await screen.findByText('1 geplant + 2 essen mit')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^Menge von Ketchup ändern/ })).toHaveTextContent('150 ml');
+      expect(screen.queryByRole('navigation', { name: /Hauptnavigation/i })).not.toBeInTheDocument();
+    });
+
+    it('returns to the planner week and clears the URL when leaving', async () => {
+      serveWeek();
+      window.history.replaceState(null, '', '/?cook=pasta&week=2026-06-08&extra=1');
+      renderWithProviders(<App />);
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Zurück zum Planer' }));
+
+      expect(await screen.findByRole('navigation', { name: /Hauptnavigation/i })).toBeInTheDocument();
+      expect(window.location.search).toBe('');
+      expect((await screen.findAllByText(/8\. Juni/)).length).toBeGreaterThan(0);
+    });
+
+    it('opens from the Kochen action on a planner banner', async () => {
+      serveWeek();
+      // Whatever day the planner opens on holds a Pasta batch.
+      server.use(
+        http.get('/api/week-log/:startDate', ({ params }) => {
+          const week = makeWeekLog(params['startDate'] as string);
+          return HttpResponse.json({
+            ...week,
+            days: week.days.map((day) => ({
+              ...day,
+              slots: day.slots.map((s) =>
+                s.slot === 'dinner'
+                  ? {
+                      ...s,
+                      entries: [
+                        makeLogEntry({
+                          id: `b-${day.date}`,
+                          date: day.date,
+                          slot: 'dinner',
+                          recipeId: 'pasta',
+                          recipeBatchId: `b-${day.date}`,
+                          recipePortions: 1,
+                        }),
+                      ],
+                    }
+                  : s,
+              ),
+            })),
+          });
+        }),
+      );
+      renderWithProviders(<App />);
+
+      await userEvent.click(screen.getByRole('button', { name: /Planen/i }));
+      const [cook] = await screen.findAllByRole('button', { name: '„Pasta“ kochen' });
+      await userEvent.click(cook!);
+
+      expect(await screen.findByRole('button', { name: 'Zurück zum Planer' })).toBeInTheDocument();
+      await waitFor(() => expect(window.location.search).toMatch(/^\?cook=pasta&week=/));
+    });
+
+    it('mirrors the default selection into the URL', async () => {
+      serveWeek();
+      window.history.replaceState(null, '', '/?cook=pasta&week=2026-06-08');
+      renderWithProviders(<App />);
+
+      await screen.findByText('2 geplant');
+
+      await waitFor(() =>
+        expect(window.location.search).toBe('?cook=pasta&week=2026-06-08&b=2026-06-08%7Emo%2C2026-06-10%7Emi'),
+      );
     });
   });
 });

@@ -21,6 +21,7 @@ const week: GroceryList = {
     },
     { name: 'Salz', unit: 'g', amount: 5, untracked: true, dates: ['2026-09-29'] },
   ],
+  recipes: [],
   skippedQuickEntries: 2,
 };
 
@@ -137,7 +138,7 @@ describe('GroceryListSheet', () => {
   });
 
   it('shows an empty state with Kopieren disabled for an empty week', async () => {
-    serve({ startDate: '2026-09-28', items: [], skippedQuickEntries: 0 });
+    serve({ startDate: '2026-09-28', items: [], recipes: [], skippedQuickEntries: 0 });
     renderSheet();
 
     expect(await screen.findByText('Für diese Woche ist noch nichts geplant.')).toBeInTheDocument();
@@ -152,6 +153,100 @@ describe('GroceryListSheet', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Kopieren' }));
 
     await waitFor(() => expect(writeClipboard).toHaveBeenCalledWith('Pfeffer'));
+  });
+
+  describe('Rezepte der Woche', () => {
+    /** Pasta planned twice at 1 portion with Ketchup 50 ml each — the server scales by the portions asked for. */
+    function servePasta() {
+      const requests: (string | null)[] = [];
+      server.use(
+        http.get('/api/grocery-list/:startDate', ({ request }) => {
+          const asked = new URL(request.url).searchParams.get('portions');
+          requests.push(asked);
+          const portions = asked ? Number(asked.split(':')[1]) : 2;
+          return HttpResponse.json({
+            ...week,
+            items: [
+              ...week.items,
+              { name: 'Ketchup', unit: 'ml', amount: 50 * portions, untracked: false, dates: ['2026-09-28'] },
+            ],
+            recipes: [{ recipeId: 'pasta', name: 'Pasta', loggedPortions: 2, portions }],
+          } satisfies GroceryList);
+        }),
+      );
+      return requests;
+    }
+
+    it('starts each recipe at its logged portions', async () => {
+      servePasta();
+      renderSheet();
+
+      expect(await screen.findByLabelText('Portionen von Pasta')).toHaveValue(2);
+      expect(screen.getByText('2 geplant')).toBeInTheDocument();
+    });
+
+    it('reloads the list with the new portions', async () => {
+      const requests = servePasta();
+      renderSheet();
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Pasta: eine Portion mehr' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Pasta: eine Portion mehr' }));
+
+      expect(await screen.findByText('200 ml')).toBeInTheDocument();
+      expect(screen.getByLabelText('Portionen von Pasta')).toHaveValue(4);
+      expect(screen.getByText('2 geplant · +2')).toBeInTheDocument();
+      expect(requests[requests.length - 1]).toBe('pasta:4');
+    });
+
+    it('keeps the ticks when the portions change', async () => {
+      servePasta();
+      renderSheet();
+
+      await userEvent.click(await screen.findByRole('checkbox', { name: 'Olivenöl schon da' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Pasta: eine Portion mehr' }));
+
+      expect(await screen.findByText('150 ml')).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Olivenöl schon da' })).toBeChecked();
+    });
+
+    it('starts again at the logged portions when reopened', async () => {
+      servePasta();
+      const queryClient = createTestQueryClient();
+      const sheet = (
+        <GroceryListSheet
+          startDate="2026-09-28"
+          rangeLabel="KW 40"
+          onClose={() => {}}
+          writeClipboard={async () => {}}
+        />
+      );
+      const { unmount } = renderWithProviders(sheet, { queryClient });
+      await userEvent.click(await screen.findByRole('button', { name: 'Pasta: eine Portion mehr' }));
+      await waitFor(() => expect(screen.getByLabelText('Portionen von Pasta')).toHaveValue(3));
+      unmount();
+
+      renderWithProviders(sheet, { queryClient });
+
+      expect(await screen.findByLabelText('Portionen von Pasta')).toHaveValue(2);
+    });
+
+    it('sends the chosen portions to Bring!', async () => {
+      servePasta();
+      let minted: unknown;
+      server.use(
+        http.post('/api/bring-import-token', async ({ request }) => {
+          minted = await request.json();
+          return HttpResponse.json({ token: 'tok' });
+        }),
+      );
+      renderSheet();
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Pasta: eine Portion mehr' }));
+      await screen.findByText('150 ml');
+      await userEvent.click(screen.getByRole('button', { name: 'An Bring! senden' }));
+
+      await waitFor(() => expect(minted).toEqual({ startDate: '2026-09-28', excluded: [], portions: { pasta: 3 } }));
+    });
   });
 
   describe('An Bring! senden', () => {

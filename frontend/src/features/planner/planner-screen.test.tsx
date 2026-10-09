@@ -304,31 +304,31 @@ describe('PlannerScreen — daily-log parity in slot bodies', () => {
     expect(within(refreshed).queryByText('Rindertatar')).not.toBeInTheDocument();
     expect(await screen.findAllByText(/512/)).not.toHaveLength(0);
   });
-  it('offers the cooked-portions control on a planner batch and shows the cooked value', async () => {
-    let posted: Record<string, unknown> | undefined;
-    const days = weekWithEntries().map((day) => ({
-      ...day,
-      slots: day.slots.map((slot) => ({
-        ...slot,
-        entries: slot.entries.map((e) => (e.recipeBatchId ? { ...e, cookedPortions: 2 } : e)),
-      })),
-    }));
-    useWeekWithRecipes(days);
-    server.use(
-      http.post('/api/set-cooked-portions', async ({ request }) => {
-        posted = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json([]);
-      }),
-    );
-    renderWithProviders(<PlannerScreen />);
+
+  it('opens the cooking view for a batch from its banner, in the shown week', async () => {
+    useWeekWithRecipes(weekWithEntries());
+    const onCook = vi.fn<(recipeId: string, weekStart: string) => void>();
+    renderWithProviders(<PlannerScreen onCook={onCook} />);
 
     const group = await screen.findByTestId('recipe-batch-batch-1');
-    expect(within(group).getByText('für 2 gekocht')).toBeInTheDocument();
-    await userEvent.click(within(group).getByRole('button', { name: /gekochte portionen für/i }));
-    await userEvent.click(await screen.findByRole('button', { name: 'Eine Portion mehr' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Übernehmen' }));
+    await userEvent.click(await within(group).findByRole('button', { name: '„Bolognese“ kochen' }));
 
-    await waitFor(() => expect(posted).toEqual({ recipeBatchId: 'batch-1', date: '2026-06-10', cookedPortions: 3 }));
+    expect(onCook).toHaveBeenCalledWith('rec-1', '2026-06-08');
+  });
+
+  it('opens on the week it is given', async () => {
+    const requested: string[] = [];
+    server.use(
+      http.get('/api/week-log/:startDate', ({ params }) => {
+        requested.push(params['startDate'] as string);
+        return HttpResponse.json(makeWeekLog(params['startDate'] as string, weekWithEntries()));
+      }),
+      http.get('/api/recipes', () => HttpResponse.json([bolognese])),
+    );
+
+    renderWithProviders(<PlannerScreen initialWeekStart="2026-06-15" />);
+
+    await waitFor(() => expect(requested).toContain('2026-06-15'));
   });
 });
 
@@ -341,6 +341,7 @@ describe('PlannerScreen — Einkaufsliste', () => {
         return HttpResponse.json({
           startDate: params['startDate'],
           items: [{ name: 'Reis', unit: 'g', amount: 300, untracked: false, dates: [params['startDate']] }],
+          recipes: [],
           skippedQuickEntries: 0,
         });
       }),

@@ -28,7 +28,7 @@ import { makeLogRecipeHandler } from './http/meal-log/log-recipe.handler.ts';
 import { makeRemoveRecipeLogHandler } from './http/meal-log/remove-recipe-log.handler.ts';
 import { makeReplaceBatchIngredientHandler } from './http/meal-log/replace-batch-ingredient.handler.ts';
 import { makeAddToRecipeBatchHandler } from './http/meal-log/add-to-recipe-batch.handler.ts';
-import { makeSetCookedPortionsHandler } from './http/meal-log/set-cooked-portions.handler.ts';
+import { makeSetBatchIngredientsHandler } from './http/meal-log/set-batch-ingredients.handler.ts';
 import { makeSetNutritionGoalHandler, makeGetNutritionGoalHandler } from './http/nutrition/nutrition-goal.handler.ts';
 import {
   makeGetBodyProfileHandler,
@@ -200,7 +200,7 @@ app.post('/log-recipe', makeLogRecipeHandler(recipeRepo, logEntryRepo));
 app.post('/remove-recipe-log', makeRemoveRecipeLogHandler(logEntryRepo));
 app.post('/replace-batch-ingredient', makeReplaceBatchIngredientHandler(logEntryRepo));
 app.post('/add-to-recipe-batch', makeAddToRecipeBatchHandler(logEntryRepo));
-app.post('/set-cooked-portions', makeSetCookedPortionsHandler(logEntryRepo));
+app.post('/set-batch-ingredients', makeSetBatchIngredientsHandler(logEntryRepo));
 
 app.post('/confirm-ingredient-resolution', makeConfirmResolutionHandler({ catalog: catalogStore }));
 

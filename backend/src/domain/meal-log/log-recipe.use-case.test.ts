@@ -46,6 +46,7 @@ const makeLogRepo = (
       update: vi.fn<(e: LogEntry) => Promise<void>>(),
       remove: vi.fn<(id: string) => Promise<void>>(),
       removeMany: vi.fn<(ids: string[]) => Promise<void>>(),
+      replaceMany: vi.fn<(removeIds: string[], entries: LogEntry[]) => Promise<void>>(),
     },
   };
 };

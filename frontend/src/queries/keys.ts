@@ -5,7 +5,8 @@ export const queryKeys = {
   weekLog: (startDate: string) => ['week-log', startDate] as const,
   /** Prefix key for invalidating every mounted week-log query (any startDate). */
   weekLogAll: () => ['week-log'] as const,
-  groceryList: (startDate: string) => ['grocery-list', startDate] as const,
+  groceryList: (startDate: string, portions: Record<string, number> = {}) =>
+    ['grocery-list', startDate, portions] as const,
   /** Prefix key for invalidating every grocery list (any startDate). */
   groceryListAll: () => ['grocery-list'] as const,
   nutritionGoal: () => ['nutrition-goal'] as const,

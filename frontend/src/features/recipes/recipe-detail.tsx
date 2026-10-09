@@ -11,6 +11,7 @@ import { t } from '../../i18n';
 import type { RecipeIngredient } from '../../domain/recipes';
 import { formatMassAmount, formatPieceCount, scaleIngredient } from './scale-ingredient';
 import { Button } from '../../components/ui/button';
+import { Stepper } from '../../components/ui/stepper';
 
 /** The right-aligned quantity text for one ingredient row in the recipe view. */
 function formatIngredientQuantity(ing: RecipeIngredient, untracked: boolean): string {
@@ -134,32 +135,14 @@ export function RecipeDetail({ id, onBack, onDeleted }: Props) {
                   {t.recipes.servingsReset}
                 </button>
               )}
-              <div className="flex items-center gap-1 rounded-md border px-1 py-0.5">
-                <button
-                  type="button"
-                  onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) - 1))}
-                  aria-label={t.recipes.servingsDecrement}
-                  className="px-2 py-0.5 text-sm leading-none disabled:opacity-50"
-                  disabled={(servings ?? recipe.yield) <= 1}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  readOnly
-                  value={servings ?? recipe.yield}
-                  aria-label={t.recipes.servingsLabel}
-                  className="w-8 bg-transparent text-center text-sm focus:outline-hidden [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setServings((s) => Math.max(1, (s ?? recipe.yield) + 1))}
-                  aria-label={t.recipes.servingsIncrement}
-                  className="px-2 py-0.5 text-sm leading-none"
-                >
-                  +
-                </button>
-              </div>
+              <Stepper
+                value={servings ?? recipe.yield}
+                onChange={setServings}
+                min={1}
+                label={t.recipes.servingsLabel}
+                decrementLabel={t.recipes.servingsDecrement}
+                incrementLabel={t.recipes.servingsIncrement}
+              />
             </div>
           </div>
           <ul className="divide-y">

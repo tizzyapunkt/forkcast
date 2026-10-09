@@ -16,3 +16,9 @@ rezepte/
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# Claude Design handoff exports (reference only, never committed)
+design_handoff_*/
+
+# Impeccable critique snapshots (local archive, any workspace)
+.impeccable/critique/
