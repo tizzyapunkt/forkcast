@@ -3,7 +3,7 @@ import { cva } from 'class-variance-authority';
 import { Button } from './button';
 import { cn } from '../../lib/cn';
 
-const group = cva('flex shrink-0 items-center rounded-md border border-input bg-background', {
+const group = cva('inline-flex shrink-0 items-center rounded-md border border-input bg-background', {
   variants: {
     size: {
       /** Inline in a dense header or row, next to a label. */
@@ -30,9 +30,9 @@ export interface StepperProps {
 }
 
 /**
- * A whole-number count changed one step at a time: [−] value [+]. The value is a read-only number input,
- * so it reads as a labelled value to assistive tech and to tests. The minus step disables at `min`, the
- * plus step at `max`.
+ * A whole-number count changed one step at a time, with a minus and a plus step around the value. The value
+ * is a read-only number input, so it reads as a labelled value to assistive tech and to tests. The minus
+ * step disables at `min`, the plus step at `max`.
  */
 export function Stepper({
   value,
