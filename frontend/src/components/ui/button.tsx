@@ -42,6 +42,8 @@ const button = cva(
         icon: 'h-10 w-10 shrink-0',
         /** Icon-only in a dense row, where 40px would grow the row. The floor for a tap target. */
         iconSm: 'h-9 w-9 shrink-0',
+        /** Icon-only on a full-screen working surface used with busy hands (the cooking view): 44px. */
+        touch: 'h-11 w-11 shrink-0',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },

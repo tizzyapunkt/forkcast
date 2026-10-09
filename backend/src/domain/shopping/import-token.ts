@@ -5,6 +5,7 @@ import { SignJWT, jwtVerify } from 'jose';
 export interface ImportGrant {
   startDate: string;
   excluded: string[]; // grocery item identities (case-insensitive name + unit)
+  portions?: Record<string, number>; // portions cooked per recipe id, as chosen in the sheet
 }
 
 const AUDIENCE = 'bring-import';
@@ -27,15 +28,28 @@ function isGrant(value: unknown): value is ImportGrant {
     typeof g.startDate === 'string' &&
     ISO_DATE.test(g.startDate) &&
     Array.isArray(g.excluded) &&
-    g.excluded.every((key) => typeof key === 'string')
+    g.excluded.every((key) => typeof key === 'string') &&
+    (g.portions === undefined || isPortions(g.portions))
+  );
+}
+
+function isPortions(value: unknown): value is Record<string, number> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((n) => typeof n === 'number' && Number.isFinite(n) && n > 0)
   );
 }
 
 /** Mint a one-hour import link token for a week. Throws a validation error for a malformed grant. */
 export async function mintImportToken(grant: ImportGrant, secret: string, now: Date = new Date()): Promise<string> {
-  if (!isGrant(grant)) throw new Error('startDate (YYYY-MM-DD) and excluded (string[]) are required');
+  if (!isGrant(grant)) {
+    throw new Error('startDate (YYYY-MM-DD), excluded (string[]) and optional positive portions are required');
+  }
   const issuedAt = Math.floor(now.getTime() / 1000);
-  return new SignJWT({ startDate: grant.startDate, excluded: grant.excluded })
+  const { startDate, excluded, portions } = grant;
+  return new SignJWT({ startDate, excluded, ...(portions ? { portions } : {}) })
     .setProtectedHeader({ alg: 'HS256' })
     .setAudience(AUDIENCE)
     .setIssuedAt(issuedAt)
@@ -51,7 +65,11 @@ export async function verifyImportToken(
 ): Promise<ImportGrant | null> {
   try {
     const { payload } = await jwtVerify(token, importTokenKey(secret), { audience: AUDIENCE, currentDate: now });
-    const grant = { startDate: payload['startDate'], excluded: payload['excluded'] };
+    const grant = {
+      startDate: payload['startDate'],
+      excluded: payload['excluded'],
+      ...(payload['portions'] !== undefined ? { portions: payload['portions'] } : {}),
+    };
     return isGrant(grant) ? grant : null;
   } catch {
     return null;

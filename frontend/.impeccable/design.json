@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T06:40:28+00:00",
+  "generatedAt": "2026-10-09T11:04:18+00:00",
   "title": "Design System: forkcast",
   "extensions": {
     "colorMeta": {
@@ -473,6 +473,14 @@
       "description": "Native select on the Input base — the platform picker beats a custom listbox on a phone. Wires itself to a surrounding Field and forwards a ref for form libraries.",
       "html": "<select class=\"ds-select\" aria-label=\"Einheit\"><option>g</option><option>ml</option></select>",
       "css": ".ds-select { width: 100%; background: hsl(300 100% 99%); color: hsl(0 0% 20%); border: 1px solid hsl(240 9% 78%); border-radius: 6px; padding: 8px 12px; font-size: 0.875rem; min-width: 0; } .ds-select:focus-visible { outline: 2px solid hsl(249 72% 65%); outline-offset: 1px; }"
+    },
+    {
+      "name": "Stepper",
+      "kind": "custom",
+      "refersTo": "stepper",
+      "description": "A whole-number count changed one step at a time: quiet minus/plus around a read-only tabular value. `touch` size gives 44px steps for the cooking view and the grocery list.",
+      "html": "<div class=\"ds-stepper\"><button class=\"ds-stepper-step\" aria-label=\"Eine Portion weniger\">&minus;</button><span class=\"ds-stepper-value\">2</span><button class=\"ds-stepper-step\" aria-label=\"Eine Portion mehr\">+</button></div>",
+      "css": ".ds-stepper { display: inline-flex; align-items: center; border: 1px solid hsl(240 9% 78%); border-radius: 6px; background: hsl(300 100% 99%); } .ds-stepper-step { width: 44px; height: 44px; border: 0; background: transparent; color: hsl(0 0% 36%); border-radius: 6px; font-size: 1rem; } .ds-stepper-step:hover { background: hsl(240 33% 94%); color: hsl(0 0% 20%); } .ds-stepper-value { min-width: 32px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }"
     }
   ],
   "narrative": {

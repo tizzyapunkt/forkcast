@@ -252,7 +252,7 @@ Every component reads **precise and unhurried**: motion limited to the informati
 - **On Dark:** `white/90` with a `white/10` hover fill — chrome on the indigo header, the planner header, the date nav and the fullscreen photo viewer.
 - **Accent:** a Bright-Periwinkle-tinted plate (`accent/10`, hover `accent/20`) with a Training Indigo glyph — the repeating "add to this slot" affordance on the diary and planner. Louder than `quiet`, deliberately quieter than `primary`: a screen carries four to six of them at once, so it must never read as the screen's primary action (The One Indigo Rule).
 - **Scrim:** `bg-black/60` with a light backdrop blur (`backdrop-blur-xs`) and white glyph, hover `black/75` — controls over user photography (The Scrim-Over-Photo Rule).
-- **Sizes:** `md` (`px-4 py-2`), `sm` (`px-3 py-1`), `icon` (40px square), `iconSm` (36px square, the tap-target floor for dense rows).
+- **Sizes:** `md` (`px-4 py-2`), `sm` (`px-3 py-1`), `icon` (40px square), `iconSm` (36px square, the tap-target floor for dense rows), `touch` (44px square, for full-screen working surfaces operated with busy hands: the cooking view).
 - **Focus:** 2px Bright Periwinkle outline at 1px offset via `:focus-visible`, matching the input focus ring.
 - **Disabled:** `opacity-50` plus `pointer-events-none` — the control stays in place and legible rather than disappearing.
 
@@ -264,7 +264,7 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 - **Semantics:** always `aria-hidden="true"`; the surrounding button carries the `aria-label`. An icon-only control without a label is a bug.
 
 ### Touch Targets
-- **44px+** for controls inside a full-screen overlay, where nothing else competes for the space (photo viewer close and paging).
+- **44px+** for controls inside a full-screen overlay, where nothing else competes for the space (photo viewer close and paging), and for every control in the cooking view, which is read at arm's length and tapped with wet hands (`Button size="touch"`, `Stepper size="touch"`, `min-h-11` on text buttons).
 - **40px** (`h-10 w-10`) for icon buttons and any control overlaid on a photo thumbnail.
 - **36px** (`h-9 w-9`, often with `-my-1` so the row doesn't grow) is the floor for dense list and header rows.
 - Anything smaller must not be the only way to perform an action.
@@ -287,6 +287,10 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 ### Segmented Control
 - **Style:** Flex row of equal-width label-wrapped native radios (not buttons) so arrow-key group navigation is free. Unselected: `Lavender Border` outline. Selected: Training Indigo border + 10%-opacity Training Indigo fill + medium weight text.
 - **Use:** Picking exactly one of a handful of mutually exclusive, always-visible options. Beyond phone-width option counts, the system falls back to `<select>` instead of wrapping this component.
+
+### Stepper
+- **Style:** a bordered `rounded-md` group on Paper White: `quiet` minus and plus buttons around a read-only, tabular number. `sm` sits inline in a dense header (recipe servings); `touch` gives 44px steps (people eating along in the cooking view, portions per recipe on the grocery list). The minus step disables at `min`, the plus step at `max`.
+- **Use:** any small whole-number count changed one step at a time. Never hand-build a `[−] n [+]` group; a typed amount is a `DecimalInput`.
 
 ### Status Banners
 - **Style:** `rounded-md`, 1px status border at 50% opacity, status fill at 10% opacity, `p-3 text-sm` (`density="md"`) or `p-2 text-xs` (`density="sm"`, for dense surfaces like the photo grid). Three tones: `error` (destructive border/fill/text), `warning` (warning border/fill, ink body so long copy stays readable), `success` (success border/fill, `success-ink` text).
@@ -330,7 +334,7 @@ A hand-written `inline-flex h-9 w-9 items-center justify-center …` string is a
 - **Do** give a control over a photo a 40px target and a black scrim; give overlay chrome 44px.
 - **Do** pair an error message with what to do next, and put the recovery control inside the banner.
 - **Do** pick the radius from what the element is — control `md`, container `lg`, overlay `xl`, micro-element `sm` — and never write bare `rounded`.
-- **Do** reach for the primitive before the class string: `Button` (with `quiet` / `quietDestructive` / `onDark` / `scrim` / `accent` and `icon` / `iconSm`), `Banner`, `Select`, `Input`, `Field`, `Card`, `SegmentedControl`. If none fits, add a variant there rather than a one-off at the call site.
+- **Do** reach for the primitive before the class string: `Button` (with `quiet` / `quietDestructive` / `onDark` / `scrim` / `accent` and `icon` / `iconSm` / `touch`), `Banner`, `Select`, `Input`, `Field`, `Card`, `SegmentedControl`, `Stepper`. If none fits, add a variant there rather than a one-off at the call site.
 
 ### Don't:
 - **Don't** add a shadow to an element that isn't literally floating above the page (ordinary cards and buttons stay flat with a border).

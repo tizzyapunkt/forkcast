@@ -18,3 +18,4 @@ export { Field, useFieldControl } from './field';
 export { Input, type InputProps } from './input';
 export { SegmentedControl, type SegmentedControlOption, type SegmentedControlProps } from './segmented-control';
 export { Select, type SelectProps } from './select';
+export { Stepper, type StepperProps } from './stepper';

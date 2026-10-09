@@ -6,6 +6,7 @@ import { FakeLogEntryRepository } from '../../domain/meal-log/log-entry-reposito
 import { FakeCatalogStore } from '../../domain/food-catalog/catalog-store.fake.ts';
 import type { RecipeRepository } from '../../domain/recipes/recipe.repository.ts';
 import type { LogEntry } from '../../domain/meal-log/types.ts';
+import type { Recipe } from '../../domain/recipes/types.ts';
 
 const SECRET = 'test-jwt-secret-long-enough-for-hs256';
 
@@ -29,12 +30,13 @@ function adhoc(name: string, amount: number, unit: 'g' | 'ml' = 'g'): LogEntry {
 
 function makeApp(
   entries: LogEntry[] = [adhoc('Hähnchenbrust', 800), adhoc('Zwiebel', 380), adhoc('Olivenöl', 30, 'ml')],
+  recipes: RecipeRepository = noRecipes,
 ) {
   const logEntries = new FakeLogEntryRepository(entries);
   const app = new Hono();
   app.get(
     '/bring-import/:token',
-    makeBringImportPageHandler({ logEntries, recipes: noRecipes, catalog: new FakeCatalogStore() }, SECRET),
+    makeBringImportPageHandler({ logEntries, recipes, catalog: new FakeCatalogStore() }, SECRET),
   );
   app.post('/bring-import-token', makeMintBringImportTokenHandler(SECRET));
   return { app, logEntries };
@@ -61,6 +63,33 @@ describe('GET /bring-import/:token', () => {
     const res = await app.request(`/bring-import/${token}`);
 
     expect(ingredients(await res.text())).toEqual(['250 g Reis']);
+  });
+
+  it('applies the portions per recipe from the token', async () => {
+    const pasta: Recipe = {
+      id: 'pasta',
+      name: 'Pasta',
+      yield: 2,
+      ingredients: [],
+      steps: [],
+      createdAt: '',
+      updatedAt: '',
+    };
+    const ketchup = (id: string, date: string): LogEntry => ({
+      ...adhoc('Ketchup', 50, 'ml'),
+      id,
+      date,
+      recipeId: 'pasta',
+      recipeBatchId: id,
+      recipePortions: 1,
+    });
+    const recipes: RecipeRepository = { ...noRecipes, findById: async (id) => (id === 'pasta' ? pasta : null) };
+    const { app } = makeApp([ketchup('mo', '2026-09-28'), ketchup('mi', '2026-09-30')], recipes);
+    const token = await mintImportToken({ startDate: '2026-09-28', excluded: [], portions: { pasta: 4 } }, SECRET);
+
+    const res = await app.request(`/bring-import/${token}`);
+
+    expect(ingredients(await res.text())).toEqual(['200 ml Ketchup']);
   });
 
   it('is not cached or indexed', async () => {
@@ -116,6 +145,7 @@ describe('POST /bring-import-token', () => {
     ['a malformed date', { startDate: 'soon', excluded: [] }],
     ['missing excluded', { startDate: '2026-09-28' }],
     ['non-string excluded', { startDate: '2026-09-28', excluded: [1] }],
+    ['non-positive portions', { startDate: '2026-09-28', excluded: [], portions: { pasta: 0 } }],
     ['a malformed body', 'nope'],
   ])('returns 400 for %s', async (_label, body) => {
     const res = await post(makeApp().app, body);

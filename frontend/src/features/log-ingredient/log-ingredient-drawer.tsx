@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import type { FullIngredientEntry, LogEntry, MealSlot } from '../../domain/meal-log';
 import type { IngredientSearchResult } from '../../domain/ingredient-search';
@@ -30,7 +30,12 @@ type Step =
  */
 export type BatchTarget =
   | { kind: 'replace'; entry: LogEntry; recipeName: string }
-  | { kind: 'add'; recipeBatchId: string; recipeName: string };
+  | { kind: 'add'; recipeBatchId: string; recipeName: string }
+  /**
+   * Only picks the food: the caller renders its own amount step for it (the cooking view sets the amount
+   * for the whole pot and writes it to several batches). `done` closes the sheet.
+   */
+  | { kind: 'pick'; title: string; renderAmountStep: (food: IngredientSearchResult, done: () => void) => ReactNode };
 
 interface LogIngredientDrawerProps {
   open: boolean;
@@ -53,7 +58,9 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
     ? undefined
     : target.kind === 'replace'
       ? (ingredient) => replaceMutation.mutateAsync({ entryId: target.entry.id, date, ingredient })
-      : (ingredient) => addMutation.mutateAsync({ recipeBatchId: target.recipeBatchId, date, ingredient });
+      : target.kind === 'add'
+        ? (ingredient) => addMutation.mutateAsync({ recipeBatchId: target.recipeBatchId, date, ingredient })
+        : undefined;
 
   /** A replace keeps the replaced amount when the new food is measured the same way. */
   function amountFor(result: IngredientSearchResult, tabDefault?: number): number | undefined {
@@ -101,7 +108,9 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
     ? t.logIngredient.addToSlot(slotLabel)
     : target.kind === 'replace'
       ? t.logIngredient.replaceInRecipe(target.recipeName)
-      : t.logIngredient.addToRecipe(target.recipeName);
+      : target.kind === 'add'
+        ? t.logIngredient.addToRecipe(target.recipeName)
+        : target.title;
   const inSubStep = step.kind !== 'search';
 
   const drawerHeight = tab === 'quick' ? 'h-[55dvh]' : 'h-[82dvh]';
@@ -187,7 +196,8 @@ export function LogIngredientDrawer({ open, slot, date, onClose, target }: LogIn
         {tab === 'recent' && step.kind === 'search' && <RecentPanel onSelect={handleRecentSelect} />}
         {tab === 'recipes' && step.kind === 'search' && <RecipePanel onSelect={handleRecipeSelect} />}
 
-        {step.kind === 'confirm' && (
+        {step.kind === 'confirm' && target?.kind === 'pick' && target.renderAmountStep(step.result, handleClose)}
+        {step.kind === 'confirm' && target?.kind !== 'pick' && (
           <FullEntryConfirm
             result={step.result}
             date={date}

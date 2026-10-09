@@ -52,8 +52,19 @@ describe('GET /grocery-list/:startDate', () => {
     expect(await res.json()).toEqual({
       startDate: '2026-09-28',
       items: [{ name: 'Reis', unit: 'g', amount: 120, untracked: false, dates: ['2026-09-29'] }],
+      recipes: [],
       skippedQuickEntries: 1,
     });
+  });
+
+  it('accepts portions per recipe as a query parameter', async () => {
+    const res = await makeApp().request('/grocery-list/2026-09-28?portions=pasta:4,chili:2.5');
+    expect(res.status).toBe(200);
+  });
+
+  it.each(['pasta:0', 'pasta:abc', 'pasta', ':4', 'pasta:-1'])('returns 400 for portions=%s', async (value) => {
+    const res = await makeApp().request(`/grocery-list/2026-09-28?portions=${value}`);
+    expect(res.status).toBe(400);
   });
 
   it('returns 400 for a malformed date', async () => {

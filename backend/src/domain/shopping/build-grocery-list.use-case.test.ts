@@ -44,7 +44,7 @@ function batch(
   batchId: string,
   date: string,
   items: [string, number][],
-  portions: { logged: number; cooked?: number },
+  logged: number,
   slot: MealSlot = 'dinner',
 ): LogEntry[] {
   return items.map(([name, amount]) => ({
@@ -54,8 +54,7 @@ function batch(
     loggedAt: '2026-09-25T08:00:00.000Z',
     recipeId,
     recipeBatchId: batchId,
-    recipePortions: portions.logged,
-    ...(portions.cooked !== undefined ? { cookedPortions: portions.cooked } : {}),
+    recipePortions: logged,
     ingredient: { type: 'full', name, unit: 'g', macrosPerUnit: MACROS, amount },
   }));
 }
@@ -82,7 +81,10 @@ const zwiebel: FoodEntry = {
   ],
 };
 
-async function build(entries: LogEntry[], opts: { recipes?: Recipe[]; catalog?: FoodEntry[] } = {}) {
+async function build(
+  entries: LogEntry[],
+  opts: { recipes?: Recipe[]; catalog?: FoodEntry[]; portions?: Record<string, number> } = {},
+) {
   return buildGroceryList(
     {
       logEntries: new FakeLogEntryRepository(entries),
@@ -90,6 +92,7 @@ async function build(entries: LogEntry[], opts: { recipes?: Recipe[]; catalog?: 
       catalog: new FakeCatalogStore(opts.catalog ?? []),
     },
     WEEK,
+    opts.portions,
   );
 }
 
@@ -105,22 +108,60 @@ describe('buildGroceryList', () => {
     expect(list.items).toEqual([{ name: 'Haferflocken', unit: 'g', amount: 300, untracked: false, dates: days }]);
   });
 
-  it('scales a recipe batch by its cooked portions', async () => {
+  it('scales a recipe by the portions passed for it', async () => {
     const chili = recipe('chili', 4, [ing('Hackfleisch', 1000)]);
 
-    const list = await build(batch('chili', 'b1', '2026-09-29', [['Hackfleisch', 250]], { logged: 1, cooked: 2 }), {
+    const list = await build(batch('chili', 'b1', '2026-09-29', [['Hackfleisch', 250]], 1), {
       recipes: [chili],
+      portions: { chili: 2 },
     });
 
     expect(byName(list)).toEqual({ Hackfleisch: 500 });
   });
 
-  it('uses the logged portions when cooked portions were never set', async () => {
-    const list = await build(batch('chili', 'b1', '2026-09-29', [['Hackfleisch', 500]], { logged: 2 }), {
+  it("scales a recipe's batches across the week by portions over the logged portions", async () => {
+    const pasta = recipe('pasta', 2, [ing('Ketchup', 100)]);
+    const entries = [
+      ...batch('pasta', 'mo', '2026-09-28', [['Ketchup', 50]], 1),
+      ...batch('pasta', 'mi', '2026-09-30', [['Ketchup', 50]], 1),
+    ];
+
+    const list = await build(entries, { recipes: [pasta], portions: { pasta: 4 } });
+
+    expect(byName(list)).toEqual({ Ketchup: 200 });
+    expect(list.recipes).toEqual([{ recipeId: 'pasta', name: 'pasta', loggedPortions: 2, portions: 4 }]);
+  });
+
+  it('uses the logged portions when no portions were passed', async () => {
+    const list = await build(batch('chili', 'b1', '2026-09-29', [['Hackfleisch', 500]], 2), {
       recipes: [recipe('chili', 4, [ing('Hackfleisch', 1000)])],
     });
 
     expect(byName(list)).toEqual({ Hackfleisch: 500 });
+    expect(list.recipes).toEqual([{ recipeId: 'chili', name: 'chili', loggedPortions: 2, portions: 2 }]);
+  });
+
+  it("lists the week's recipes by name", async () => {
+    const entries = [
+      ...batch('z', 'b1', '2026-09-28', [['Reis', 100]], 1),
+      ...batch('a', 'b2', '2026-09-29', [['Reis', 100]], 1),
+    ];
+
+    const list = await build(entries, { recipes: [recipe('z', 1, []), recipe('a', 1, [])] });
+
+    expect(list.recipes.map((r) => r.recipeId)).toEqual(['a', 'z']);
+  });
+
+  it('ignores portions passed for a recipe that has no batch in the week', async () => {
+    const list = await build([adhoc('Reis', 100, '2026-09-28')], { portions: { elsewhere: 4 } });
+
+    expect(byName(list)).toEqual({ Reis: 100 });
+    expect(list.recipes).toEqual([]);
+  });
+
+  it('rejects a portion value that is not a positive number', async () => {
+    await expect(build([], { portions: { pasta: 0 } })).rejects.toThrow(/portions/i);
+    await expect(build([], { portions: { pasta: Number.NaN } })).rejects.toThrow(/portions/i);
   });
 
   it('scales replaced and added batch entries with the batch', async () => {
@@ -133,24 +174,29 @@ describe('buildGroceryList', () => {
         ['Tofu', 250],
         ['Spinat', 100],
       ],
-      { logged: 1, cooked: 2 },
+      1,
     );
 
-    const list = await build(entries, { recipes: [recipe('chili', 1, [ing('Hackfleisch', 250)])] });
+    const list = await build(entries, {
+      recipes: [recipe('chili', 1, [ing('Hackfleisch', 250)])],
+      portions: { chili: 2 },
+    });
 
     expect(byName(list)).toEqual({ Spinat: 200, Tofu: 500 });
   });
 
-  it("adds the recipe's untracked ingredients, scaled by cooked portions over the yield", async () => {
+  it("adds the recipe's untracked ingredients once per recipe, scaled by portions over the yield", async () => {
     const lachs = recipe('lachs', 2, [ing('Salz', 5, true), ing('Lachsfilet', 400)]);
+    const entries = [
+      ...batch('lachs', 'b1', '2026-09-28', [['Lachsfilet', 200]], 1),
+      ...batch('lachs', 'b2', '2026-09-30', [['Lachsfilet', 200]], 1),
+    ];
 
-    const list = await build(batch('lachs', 'b1', '2026-09-30', [['Lachsfilet', 200]], { logged: 1, cooked: 2 }), {
-      recipes: [lachs],
-    });
+    const list = await build(entries, { recipes: [lachs], portions: { lachs: 4 } });
 
     expect(list.items).toEqual([
-      { name: 'Lachsfilet', unit: 'g', amount: 400, untracked: false, dates: ['2026-09-30'] },
-      { name: 'Salz', unit: 'g', amount: 5, untracked: true, dates: ['2026-09-30'] },
+      { name: 'Lachsfilet', unit: 'g', amount: 800, untracked: false, dates: ['2026-09-28', '2026-09-30'] },
+      { name: 'Salz', unit: 'g', amount: 10, untracked: true, dates: ['2026-09-28', '2026-09-30'] },
     ]);
   });
 
@@ -166,7 +212,7 @@ describe('buildGroceryList', () => {
           ['Reis', 100],
           ['Huhn', 100],
         ],
-        { logged: 1 },
+        1,
       ),
       {
         recipes: [r],
@@ -179,8 +225,8 @@ describe('buildGroceryList', () => {
   it('counts batches sharing an id on different days separately (days copied before fresh ids)', async () => {
     const r = recipe('r', 1, [ing('Salz', 5, true), ing('Reis', 100)]);
     const entries = [
-      ...batch('r', 'shared', '2026-09-28', [['Reis', 100]], { logged: 1 }),
-      ...batch('r', 'shared', '2026-09-29', [['Reis', 100]], { logged: 1 }),
+      ...batch('r', 'shared', '2026-09-28', [['Reis', 100]], 1),
+      ...batch('r', 'shared', '2026-09-29', [['Reis', 100]], 1),
     ];
 
     const list = await build(entries, { recipes: [r] });
@@ -188,10 +234,11 @@ describe('buildGroceryList', () => {
     expect(byName(list)).toEqual({ Reis: 200, Salz: 10 });
   });
 
-  it('still counts the logged entries of a batch whose recipe was deleted, without an untracked tail', async () => {
-    const list = await build(batch('gone', 'b1', '2026-09-29', [['Reis', 100]], { logged: 1, cooked: 2 }));
+  it('counts the logged entries of a batch whose recipe was deleted unchanged, without an untracked tail', async () => {
+    const list = await build(batch('gone', 'b1', '2026-09-29', [['Reis', 100]], 1), { portions: { gone: 2 } });
 
-    expect(list.items).toEqual([{ name: 'Reis', unit: 'g', amount: 200, untracked: false, dates: ['2026-09-29'] }]);
+    expect(list.items).toEqual([{ name: 'Reis', unit: 'g', amount: 100, untracked: false, dates: ['2026-09-29'] }]);
+    expect(list.recipes).toEqual([]);
   });
 
   it('adds a piece hint from the catalog, matching names and synonyms case-insensitively', async () => {
@@ -287,7 +334,7 @@ describe('buildGroceryList', () => {
   });
 
   it('returns an empty list for an empty week', async () => {
-    expect(await build([])).toEqual({ startDate: WEEK, items: [], skippedQuickEntries: 0 });
+    expect(await build([])).toEqual({ startDate: WEEK, items: [], recipes: [], skippedQuickEntries: 0 });
   });
 
   it('rejects a malformed start date', async () => {

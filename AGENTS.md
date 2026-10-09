@@ -76,7 +76,7 @@ Public landing page at https://check-forkcast.tizzy.dev (EN at `/`, DE at `/de/`
 | `.impeccable/surfaces/<slug>.md`                          | Surface brief for one page (mode, direction contract), e.g. the landing page.                                                                                  | written by new work on that surface              |
 | `.impeccable/config.json`, `.impeccable/live/config.json` | Hook settings; which files `live` mode injects into.                                                                                                           | Impeccable                                       |
 
-Gitignored, never commit: `.impeccable/config.local.json`, `hook.cache.json`, `questions/`, `review/`.
+Gitignored, never commit: `.impeccable/config.local.json`, `hook.cache.json`, `questions/`, `review/`, `critique/`.
 
 Claude Design files: `.design-sync/config.json` (project and build command), `conventions.md` (the README Claude Design reads), `previews/*.tsx` (one preview per primitive), `NOTES.md` (sync gotchas; read before a re-sync). Build output is gitignored: `frontend/dist-ui/`, `ds-bundle/`, `.ds-sync/`.
 

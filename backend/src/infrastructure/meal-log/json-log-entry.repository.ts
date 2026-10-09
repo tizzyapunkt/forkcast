@@ -60,9 +60,35 @@ export class JsonLogEntryRepository implements LogEntryRepository {
     await writeFile(this.filePath, JSON.stringify(filtered, null, 2), 'utf-8');
   }
 
+  async replaceMany(removeIds: string[], entries: LogEntry[]): Promise<void> {
+    if (removeIds.length === 0 && entries.length === 0) return;
+    await writeFile(
+      this.filePath,
+      JSON.stringify(replaced(await this.readAll(), removeIds, entries), null, 2),
+      'utf-8',
+    );
+  }
+
   private async readAll(): Promise<LogEntry[]> {
     if (!existsSync(this.filePath)) return [];
     const raw = await readFile(this.filePath, 'utf-8');
     return JSON.parse(raw) as LogEntry[];
   }
+}
+
+/** `all` minus `removeIds`, with `entries` taking the place of a removed id or appended. */
+function replaced(all: LogEntry[], removeIds: string[], entries: LogEntry[]): LogEntry[] {
+  const drop = new Set(removeIds);
+  const incoming = new Map(entries.map((e) => [e.id, e]));
+  const result: LogEntry[] = [];
+  for (const e of all) {
+    const replacement = incoming.get(e.id);
+    if (replacement) {
+      result.push(replacement);
+      incoming.delete(e.id);
+    } else if (!drop.has(e.id)) {
+      result.push(e);
+    }
+  }
+  return [...result, ...incoming.values()];
 }

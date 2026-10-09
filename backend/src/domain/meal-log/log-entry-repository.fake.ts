@@ -48,4 +48,20 @@ export class FakeLogEntryRepository implements LogEntryRepository {
     const set = new Set(ids);
     this.entries = this.entries.filter((e) => !set.has(e.id));
   }
+
+  async replaceMany(removeIds: string[], entries: LogEntry[]): Promise<void> {
+    const drop = new Set(removeIds);
+    const incoming = new Map(entries.map((e) => [e.id, structuredClone(e)]));
+    const kept: LogEntry[] = [];
+    for (const e of this.entries) {
+      const replacement = incoming.get(e.id);
+      if (replacement) {
+        kept.push(replacement);
+        incoming.delete(e.id);
+      } else if (!drop.has(e.id)) {
+        kept.push(e);
+      }
+    }
+    this.entries = [...kept, ...incoming.values()];
+  }
 }
