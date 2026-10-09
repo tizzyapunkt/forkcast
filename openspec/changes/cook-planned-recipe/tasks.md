@@ -45,7 +45,7 @@
 
 - [x] 8.1 Run `make check`; verify it passes
 - [x] 8.2 Smoke test end to end on a phone: plan Pasta twice, open Einkaufsliste at 4 portions and send to Bring!, open Kochen, change Ketchup 200 → 400 ml, undo, redo, reload mid-session; verify planner and diary show 100 ml per portion and the screen stays on (note the iOS wake lock result in `design.md`)
-- [ ] 8.3 If a token, primitive or layout rule changed, run `/impeccable document target frontend` (merge); if `components/ui/` changed, run `build:ui` and `/design-sync`; verify `/impeccable doctor` reports no drift for `frontend`
+- [x] 8.3 If a token, primitive or layout rule changed, run `/impeccable document target frontend` (merge); if `components/ui/` changed, run `build:ui` and `/design-sync`; verify `/impeccable doctor` reports no drift for `frontend`
 
 ## Workflow follow-up
 

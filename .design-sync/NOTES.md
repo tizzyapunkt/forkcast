@@ -13,13 +13,16 @@
 
 ## Known render warns
 
-None outstanding — render check and grading are both clean (8/8 components, 0 bad, 0 thin, 0 variantsIdentical).
+None outstanding — render check and grading are both clean (9/9 components, 0 bad, 0 thin, 0 variantsIdentical).
 
 ## Re-sync risks
 
 - If the `@source` lines in `components/ui/styles.css` are ever narrowed back to just `src/components/ui/**`, every preview using a layout-only utility class (not used by a component itself) goes back to silently rendering broken — re-diff `dist-ui/forkcast-ui.css` class coverage against `.design-sync/previews/*.tsx` after any Tailwind config change in this repo.
 - `frontend/package.json`'s `types`/`module` fields are sync-only plumbing — don't remove them as "unused."
 - Preview copy uses real German strings pulled from `frontend/src/i18n/de.ts` (e.g. "Speichern", "Endgültig löschen", "Gewicht (kg)") — if those strings change, previews drift cosmetically but won't break; not worth chasing on every wording tweak.
-- 8 components today (small, hand-built primitive set) — re-syncs stay fast; if `components/ui/index.ts`'s barrel grows, new exports need the same author+grade treatment. The 2026-08-13 re-sync added `Banner` and `Select` this way: driver reported them as `added`, previews authored, graded, uploaded.
+- 9 components today (small, hand-built primitive set) — re-syncs stay fast; if `components/ui/index.ts`'s barrel grows, new exports need the same author+grade treatment. The 2026-08-13 re-sync added `Banner` and `Select` this way: driver reported them as `added`, previews authored, graded, uploaded.
 - **`text-warning-ink` is NOT compiled into the shipped CSS** even though the token exists — no `components/ui/` component uses it (`Banner`'s warning tone deliberately uses `text-foreground` for body copy; `text-warning-ink` is only used in app-level code outside the packaged DS). `conventions.md` says so explicitly; re-check that claim if `Banner` ever changes its warning text color.
 - `conventions.md`'s radius paragraph asserts `rounded-sm`/`rounded-xl`/`rounded-full` are absent from this bundle. That is true only while no packaged primitive uses them — the app itself does use all three (chips, sheets, dots) outside `components/ui/`. Re-grep the compiled CSS after any primitive gains a pill or overlay shape.
+- **A primitive's root must size itself standalone.** `Stepper` first shipped with a block-level `flex` root: inside the app's flex rows it looked right, but alone in a preview cell (and in the design agent's layouts) it stretched to the full width. The 2026-10-09 re-sync fixed it in the primitive (`inline-flex`), not in the preview. Check new primitives for this before authoring their preview.
+- **JSDoc feeds `.prompt.md` verbatim as markdown.** Bracket notation like `[−] value [+]` in a component's leading comment is parsed as link syntax and disappears from the README index the design agent reads. Describe controls in words.
+
