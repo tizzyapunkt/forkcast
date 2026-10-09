@@ -133,11 +133,6 @@ figure {
   margin: 0;
 }
 
-code {
-  font-family: var(--mono);
-  font-size: 0.88em;
-}
-
 .wrap {
   width: 100%;
   max-width: calc(var(--max) + 2 * var(--gutter));
@@ -239,12 +234,6 @@ code {
   height: 18px;
 }
 
-@media (max-width: 760px) {
-  .nav .nav-section {
-    display: none;
-  }
-}
-
 /* On touch screens, header and footer links get a 44px tall hit area without changing the look. */
 @media (pointer: coarse) {
   .nav a:not(.lang),
@@ -263,6 +252,13 @@ code {
     content: '';
     position: absolute;
     inset: -7px -4px;
+  }
+}
+
+/* After the touch block and as specific as its `.nav a:not(.lang)`, so phones hide the section links too. */
+@media (max-width: 760px) {
+  .nav a.nav-section {
+    display: none;
   }
 }
 
@@ -984,20 +980,6 @@ code {
 
 .data-flows span {
   color: var(--ink-2);
-}
-
-.stack {
-  max-width: 52rem;
-  margin-top: 28px;
-  font-size: var(--fs-small);
-  color: var(--ink-2);
-}
-
-.stack code {
-  padding: 1px 6px;
-  border-radius: 6px;
-  background: var(--ground-2);
-  color: var(--ink);
 }
 
 @media (max-width: 760px) {

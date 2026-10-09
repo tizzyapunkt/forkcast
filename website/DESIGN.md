@@ -82,7 +82,7 @@ typography:
     fontSize: "16px"
     fontWeight: 650
     lineHeight: 1.35
-  small: # --fs-small: nav, form notes and status, macro legend, stack line, screenshot placeholder, footer
+  small: # --fs-small: nav, form notes and status, macro legend, screenshot placeholder, footer
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "14px"
     fontWeight: 400
@@ -219,7 +219,7 @@ Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom p
 - **Large** (400, 1.125rem, 1.6): section intros, prose paragraphs, step copy and closing copy in Ink Soft; also feature terms (680) and FAQ summaries (650).
 - **Body** (400, 17px, 1.6): base text, data-flow rows (labels 650), legal prose; pretty wrapping; prose capped at 40rem.
 - **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
-- **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, stack line, screenshot placeholder, footer.
+- **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, screenshot placeholder, footer.
 - **Caption** (400, 13px, Ink Muted): screenshot captions, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
 - **Mono** (inline code at 0.88em; formula bar at Caption): inline code, the formula bar, the `#REF!` cell.
 
@@ -234,7 +234,7 @@ A single centred column of `max` (1120px) plus `gutter` (20px) each side. Sectio
 
 **Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint (origin plain, how-it-works tint, capture plain, features tint, built plain), then the one interruption: the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, after which the FAQ is plain and the closing tint. Plain sits on both sides of the band, so the alternation resumes around it. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
 
-**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr), step rows (equal). Step rows alternate text side on even rows. The features list is a two-column definition grid with 1px top rules per row. "How it's built" is one column: a full-width rule list (max 52rem) with a 13rem label column and 24px gap, then the stack line. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
+**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr), step rows (equal). Step rows alternate text side on even rows. The features list is a two-column definition grid with 1px top rules per row. "How it's built" is one column: a full-width rule list (max 52rem) with a 13rem label column and 24px gap. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
 
 **Legal pages.** Privacy and imprint share header and footer and set one prose column (40rem) with 72px top and 96px bottom padding; links in running legal text are Ink, underlined, so a page of links does not read as a page of actions.
 

@@ -606,7 +606,7 @@
       "small": {
         "displayName": "Small",
         "token": "--fs-small",
-        "purpose": "Nav, form notes (lead note in Ink Soft) and status, macro legend, stack line, screenshot placeholder, footer."
+        "purpose": "Nav, form notes (lead note in Ink Soft) and status, macro legend, screenshot placeholder, footer."
       },
       "caption": {
         "displayName": "Caption",
