@@ -72,3 +72,9 @@ updates:
       base-images:
         patterns:
           - "*"
+    ignore:
+      # Node 24 LTS is the runtime (AGENTS.md). Node 26 dropped corepack, which the
+      # Dockerfiles use to get pnpm — a major Node bump is a deliberate change, not a routine one.
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
