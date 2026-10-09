@@ -212,5 +212,5 @@ revert; values written before the change are still in the file and become effect
 
 ## Open Questions
 
-- Does Screen Wake Lock hold in the installed PWA on the owner's iPhone? Test on device; no design
-  change either way.
+- ~~Does Screen Wake Lock hold in the installed PWA on the owner's iPhone?~~ Yes (2026-10-09, Safari
+  PWA on iPhone): the screen stays on in the cooking view and dims normally again after leaving it.
