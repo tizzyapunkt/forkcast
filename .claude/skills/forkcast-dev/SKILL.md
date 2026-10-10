@@ -92,6 +92,31 @@ Avoid triggering native dialogs (`alert`/`confirm`) — they freeze the extensio
 This matches the standing instruction: disable HTTPS in Vite before browser smoke
 testing (now via `make dev-http`, no manual `vite.config.ts` edit needed).
 
+## Landing-page screenshots
+
+The website's app screenshots (`website/public/screenshots/<en|de>/`) come from the real app with seeded demo data: `scripts/demo/seed-demo-data.mts` seeds a week through the API, `scripts/demo/capture-screenshots.mjs` drives the frontend with Playwright. Both scripts document their env in their headers. Recipe, once per locale:
+
+```bash
+# 1. Throwaway backend: a scratch dir with only the catalog, so backend/data stays untouched.
+#    The backend resolves ./data relative to its cwd. Free :3000 first (make kill-port).
+D=$(mktemp -d) && mkdir $D/data && cp backend/data/catalog.json $D/data/
+(cd $D && AUTH_PASSWORD=demo AUTH_JWT_SECRET=demo-secret-0123456789abcdef \
+  node --experimental-transform-types "$OLDPWD/backend/src/index.ts") &
+# 2. Seed (refuses when recipes exist; a fresh dir per locale, because names are stored per language).
+LOCALE=en FORKCAST_PASSWORD=demo node scripts/demo/seed-demo-data.mts
+# 3. Capture against the frontend dev server (pnpm --filter @forkcast/frontend dev, proxies /api to :3000).
+LOCALE=en FORKCAST_PASSWORD=demo CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  npx -y -p playwright-core@1.63 node scripts/demo/capture-screenshots.mjs [shot]
+# 4. Copy <shot>.webp and <shot>-600.webp (phone) / <shot>-1440.webp (desktop) from scripts/demo/out/<locale>/
+#    into website/public/screenshots/<locale>/; og.jpg goes to website/public/og-<locale>.jpg.
+```
+
+What the page relies on:
+
+- Phone shots are 390x844 at 3x (1170x2532), no status bar. The website's phone frame (`.device`, drawn by `website/public/device-body.svg` + `device-bezel.svg`, 436x891 units) expects that ratio and has no Dynamic Island, since it would cover the app header.
+- The capture adds the iPhone's 34px home-indicator gutter under the bottom nav and sheets (headless Chrome reports no safe-area insets). Without it the tab labels run into the frame's rounded corners and under its home indicator bar. Tailwind `@theme inline` bakes `env()` into the `pb-safe-b` / `pb-nav-safe` utilities, so the script overrides those classes, not the tokens.
+- The daily-log shot shows the day the capture runs. The seeded week is the current week (`WEEK_START` overrides it), so capture on a day whose log shows what you want.
+
 ## Gotchas (don't re-diagnose these)
 
 - **`vp fmt` at the repo root touches markdown/openspec too** (hundreds of files). Only ever format the source dirs — use `make fmt`, never bare `vp fmt`.

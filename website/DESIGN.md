@@ -14,6 +14,7 @@ colors:
   line: "hsl(244 16% 90%)"
   selection: "hsl(244 60% 86%)"
   frame: "hsl(244 18% 16%)"
+  frame-rim: "hsl(244 8% 48%)"
   on-brand: "hsl(0 0% 100%)"
   error: "hsl(0 66% 44%)"
   macro-p: "hsl(146 52% 38%)"
@@ -31,6 +32,7 @@ colors:
   line-dark: "hsl(244 16% 22%)"
   selection-dark: "hsl(244 40% 32%)"
   frame-dark: "hsl(244 14% 4%)"
+  frame-rim-dark: "hsl(244 8% 30%)"
   on-brand-dark: "hsl(244 40% 10%)"
   error-dark: "hsl(0 80% 72%)"
   macro-p-dark: "hsl(145 60% 62%)"
@@ -100,7 +102,7 @@ rounded:
   control: "14px"
   browser: "12px"
   pill: "999px"
-  device: "16% / 7.4%"
+  device: "15.6% / 7.6%" # shadow box; the outline itself is drawn in the SVGs
   device-screen: "13% / 6%"
 spacing:
   gutter: "20px"
@@ -134,7 +136,7 @@ components:
     backgroundColor: "{colors.brand-soft}"
     textColor: "{colors.ink}"
   device-frame:
-    backgroundColor: "{colors.frame}"
+    backgroundColor: "{colors.frame}" # bezel; the rim is frame-rim
     rounded: "{rounded.device}"
     width: "280px"
   browser-frame:
@@ -191,6 +193,7 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 - **Selection** (`selection`): the `::selection` highlight behind Ink text; a mid lilac in light mode, a deep lilac in dark mode.
 - **Rule** (`line`): every hairline: header on scroll, control borders, spreadsheet grid and formula bar, feature and flow rows, FAQ dividers, footer top.
 - **Frame** (`frame`): device bezel; near-black indigo, darker still in dark mode.
+- **Frame Rim** (`frame-rim`): the phone's metal rim and side buttons around the bezel; a mid grey indigo, darker in dark mode so it stays a rim, not a halo.
 - **On Lilac** (`on-brand`): text and checkmark on lilac. White in light mode, deep indigo in dark mode because the dark lilac is light.
 - **Error** (`error`): form error text and the spreadsheet `#REF!` cell.
 
@@ -253,7 +256,7 @@ Flat surfaces, with depth reserved for the app itself. Device and browser frames
 
 ## Shapes
 
-Generous, soft corners. Controls share one radius (`control`, 14px). Device frames use elliptical radii proportional to the frame (`16% / 7.4%` outer, `13% / 6%` screen) so they scale like a phone at any width. The bezel is the screenshot's 5.6% margin inside the frame, so it scales with the frame's width. Browser frames 12px, the spreadsheet the control radius, inline code, the focus ring and the drawn checkbox 6px (`inline`), the language switch a full pill. Borders are 1px hairlines on structure and 1.5px on controls. Two pieces carry a slight tilt on desktop (back device -4deg, spreadsheet 1.2deg), straightened on narrow screens.
+Generous, soft corners. Controls share one radius (`control`, 14px). Device frames are drawn in SVG (436 x 891 units: 68 outer corner, 50 screen corner), stretched to the frame's box so they scale like a phone at any width; the screenshot's own corners are `13% / 6%`. Browser frames 12px, the spreadsheet the control radius, inline code, the focus ring and the drawn checkbox 6px (`inline`), the language switch a full pill. Borders are 1px hairlines on structure and 1.5px on controls. Two pieces carry a slight tilt on desktop (back device -4deg, spreadsheet 1.2deg), straightened on narrow screens.
 
 ## Components
 
@@ -282,7 +285,7 @@ The page has no text inputs: the interest check is the choice cards, a lead note
 - Sticky 64px header: wordmark (favicon plus lowercase "forkcast", Subtitle at 700, -0.03em), section links in Ink Soft at Small turning Ink on hover, a GitHub link with its mark, and a bordered pill language switch (Caption, 600). Section links hide under 760px. On touch screens nav links get 44px hit areas; the pill gets an invisible tap ring instead of growing.
 
 ### Device frame (signature)
-A drawn phone: Frame-coloured body with no padding (a flow root), elliptical radii, Device lift shadow; the 390:844 screenshot sits inside at 88.8% width with a 5.6% margin that forms the bezel, cropped from the top. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), captioned beneath. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
+A drawn iPhone in three layers on a 436:891 box with the Device lift shadow: the rim with its side buttons (`device-body.svg`, Frame Rim) under the screenshot, the bezel with the rounded screen opening and the home indicator bar (`device-bezel.svg`, Frame) over it. Both SVGs are CSS masks, so their colours stay tokens. The 390:844 screenshot is placed by percentages, reaches a little under the bezel on every side so rounding never shows an uneven edge, and is cropped from the top. No Dynamic Island: the screenshots carry no status bar, so it would sit on the app header. Phone shots are captured with the iPhone's 34px home-indicator gutter under the tab bar and sheets, so their labels clear the rounded screen corners. In a flex row the frame must not stretch (`align-items: flex-start`), or the stretch overrides its aspect ratio. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), captioned beneath. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
 
 ### Browser frame
 A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 2880w), paired with a small phone (22% width) at its lower edge. Hidden under 760px.

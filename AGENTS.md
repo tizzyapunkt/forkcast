@@ -50,6 +50,7 @@ Public landing page at https://check-forkcast.tizzy.dev (EN at `/`, DE at `/de/`
 - Production settings are committed in `website/.env.production` (not secret, they end up in the HTML): Umami script, website ID and `UMAMI_DOMAINS`, and one Tally form per language (`TALLY_FORM_ID_EN` / `_DE`). Dev builds without them never track; `.env.example` documents every key.
 - Ticking hosted / self-host counts the vote as a cookieless Umami event (`interest`). The button only opens the optional launch e-mail on Tally, prefilled with the choice. The page itself never asks for an e-mail; keep it that way, the privacy policy says so.
 - `.github/workflows/website.yml` deploys to GitHub Pages on pushes to `main` that touch `website/`.
+- App screenshots are real captures of the seeded demo app (`scripts/demo/`), not mockups. Recapture recipe and what the phone frame relies on: the `forkcast-dev` skill, _Landing-page screenshots_.
 
 ## Design workflow
 

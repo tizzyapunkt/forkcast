@@ -15,6 +15,7 @@
   --line: hsl(244 16% 90%);
   --selection: hsl(244 60% 86%);
   --frame: hsl(244 18% 16%);
+  --frame-rim: hsl(244 8% 48%);
   --on-brand: hsl(0 0% 100%);
   --error: hsl(0 66% 44%);
   --macro-p: hsl(146 52% 38%);
@@ -50,6 +51,7 @@
     --line: hsl(244 16% 22%);
     --selection: hsl(244 40% 32%);
     --frame: hsl(244 14% 4%);
+    --frame-rim: hsl(244 8% 30%);
     --on-brand: hsl(244 40% 10%);
     --error: hsl(0 80% 72%);
     --macro-p: hsl(145 60% 62%);
@@ -300,24 +302,46 @@ figure {
   min-height: 670px;
 }
 
-/* The bezel is the screenshot's margin, not the frame's padding: a percentage margin resolves
- * against the frame's own width, so the bezel scales with the device at every size. */
+/* A drawn iPhone in three layers, all stretched to the frame's box: the rim with its side buttons
+ * (device-body.svg) under the screenshot, the bezel (device-bezel.svg) over it. The SVGs are masks,
+ * so the colours stay tokens. The screenshot reaches a little under the bezel on every side, so
+ * subpixel rounding never shows as an uneven edge. Geometry is in the SVGs' 436 x 891 units. */
 .device {
-  display: flow-root; /* keeps the screenshot's margin inside the frame */
   position: relative;
+  isolation: isolate;
   width: 280px;
-  border-radius: 16% / 7.4%;
-  background: var(--frame);
+  aspect-ratio: 436 / 891;
+  border-radius: 15.6% / 7.6%;
   box-shadow: var(--shadow-device);
+}
+
+.device::before,
+.device::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat;
+  mask: var(--mask) 0 0 / 100% 100% no-repeat;
+}
+
+.device::before {
+  --mask: url('/device-body.svg');
+  z-index: -1;
+  background: var(--frame-rim);
+}
+
+.device::after {
+  --mask: url('/device-bezel.svg');
+  background: var(--frame);
 }
 
 .device img,
 .device .shot-missing {
-  display: block;
-  width: 88.8%;
-  margin: 5.6%;
-  height: auto;
-  aspect-ratio: 390 / 844;
+  position: absolute;
+  left: 4.243%; /* 18.5 */
+  top: 1.74%; /* 15.5 */
+  width: 91.514%; /* 399 */
+  height: 96.521%; /* 860 */
   border-radius: 13% / 6%;
   object-fit: cover;
   object-position: top;
@@ -380,6 +404,7 @@ figure {
     min-height: 0;
     display: flex;
     justify-content: center;
+    align-items: flex-start; /* stretching would override the frames' aspect ratio */
     gap: 16px;
     padding-bottom: 40px;
   }
