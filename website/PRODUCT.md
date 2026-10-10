@@ -35,6 +35,8 @@ forkcast was deliberately not built as a product. It started as a tool for exact
 
 forkcast is planning-first: the week is the primary unit, and ad-hoc daily tracking is the secondary, flexible path. Competing trackers take the opposite emphasis. It exists because planning a week of meals has to stay fast enough to actually happen every week.
 
+The site leads with the calorie and macro goals, not with meal planning in general. Macro trackers (fddb, yazio, MyFitnessPal, MacroFactor, Cronometer) don't plan the week; meal planners and recipe apps don't measure the week against goals. forkcast sits where the two meet, so the headline names both: plan the week, to your macros. Planning stays the verb and macros the measure; the site does not present forkcast as a fitness app or promise weight loss.
+
 ## Capabilities and Constraints
 
 What the app really does today (the site may describe only this):
