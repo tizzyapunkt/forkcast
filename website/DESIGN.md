@@ -235,7 +235,7 @@ Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom p
 
 A single centred column of `max` (1120px) plus `gutter` (20px) each side. Sections are full-bleed bands with `section` (112px) vertical padding; section intros sit above content with `section-head` (56px) below them.
 
-**Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint (origin plain, how-it-works tint, capture plain, features tint, built plain), then the one interruption: the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, after which the FAQ is plain and the closing tint. Plain sits on both sides of the band, so the alternation resumes around it. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
+**Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint (origin plain, then "What it does differently" also plain but opened by a full-width hairline top rule, how-it-works tint, capture plain, features tint, built plain), then the one interruption: the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, after which the FAQ is plain and the closing tint. Plain sits on both sides of the band, so the alternation resumes around it. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
 
 **Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr), step rows (equal). Step rows alternate text side on even rows. The features list is a two-column definition grid with 1px top rules per row. "How it's built" is one column: a full-width rule list (max 52rem) with a 13rem label column and 24px gap. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
 
@@ -292,6 +292,12 @@ A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 28
 
 ### Spreadsheet illustration
 The origin story's "before" picture: a small table with a hairline grid, control radius and Paper fill, tilted 1.2deg on desktop, with a mono formula bar on top (cell ref | italic fx | formula). Pointing at or focusing a cell shows its formula through CSS `:has()`, so it works without script; the broken `#REF!` cell (Error, mono) is selected by default. The selected cell carries a 2px lilac outline inset by 2px. It is one keyboard stop; arrow keys, Home and End move between cells. No caption.
+
+### Decisions list
+"What it does differently": one row per decision, separated by 1px Rule top borders and closed by a bottom rule, capped at 64rem. Each row is a two-column grid (up to 17rem, then the rest; 56px gap): left the decision title (Subtitle, 700) with the common pattern under it in Ink Muted Small ("Other trackers: …"), right forkcast's answer in Large, Ink Soft, capped at 36em. Under 760px the row stacks. Never name a competitor; the contrast is with the common pattern.
+
+### Recipe split illustration
+The focal picture of the decisions list ("One recipe, two jobs"), built in HTML from the demo data, not a screenshot: two hairline-bordered Paper panels at the control radius, Caption size with tabular numerals, joined by a lilac arrow. Left the full recipe (title, "Recipe · 4 servings", ingredient rows, then a "Spices & odds and ends" group in Ink Muted); right the logged serving (per-serving amounts, a dashed rule, which spices stay out, the 650 macro total). A Caption beneath says where it comes from. Under 520px the panels stack and the arrow turns down. Values must match the seeded recipe and catalog.
 
 ### Rule lists
 Features, data flows and FAQ are lists separated by 1px Rule top borders, no fills. Feature terms (Large, 680) carry a 22px lilac line icon (1.75 stroke). Data-flow rows (18px vertical padding, closed by a bottom rule) pair a 650 label with Ink Soft text; labels of what stays on your server are Lilac. FAQ summaries end in a muted plus that rotates 45deg when open (0.2s).

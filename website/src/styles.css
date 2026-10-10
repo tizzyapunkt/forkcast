@@ -806,6 +806,156 @@ figure {
   }
 }
 
+/* What it does differently: one row per decision, the common pattern under its title on the left,
+ * forkcast's answer on the right. Plain ground right after the plain origin section, so a hairline
+ * marks the start instead of a tint. */
+.section--ruled {
+  border-top: 1px solid var(--line);
+}
+
+.decisions {
+  max-width: 64rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.decision {
+  display: grid;
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+  gap: 12px 56px;
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+}
+
+.decision h3 {
+  font-size: var(--fs-subtitle);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.decision .usual {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  color: var(--ink-3);
+}
+
+.decision-body > p {
+  max-width: 36em;
+  font-size: var(--fs-large);
+  color: var(--ink-2);
+}
+
+/* One recipe, two jobs: the full recipe beside the serving it logs, drawn like the app's lists. */
+.recipe-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 14px 16px;
+  max-width: 40rem;
+  margin-top: 28px;
+}
+
+.rs-card {
+  padding: 14px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ground);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.rs-title {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  font-size: var(--fs-small);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.rs-title span {
+  font-size: var(--fs-caption);
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.rs-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rs-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+  color: var(--ink-2);
+}
+
+.rs-list li span:last-child {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.rs-sub {
+  margin: 10px 0 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.rs-list--untracked li,
+.rs-list--untracked li span:last-child {
+  color: var(--ink-3);
+}
+
+.rs-skipped {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  color: var(--ink-3);
+}
+
+.rs-total {
+  margin-top: 8px;
+  font-weight: 650;
+}
+
+.rs-arrow {
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  color: var(--brand);
+}
+
+.recipe-split figcaption {
+  grid-column: 1 / -1;
+  font-size: var(--fs-caption);
+  color: var(--ink-3);
+}
+
+@media (max-width: 760px) {
+  .decision {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 26px 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .recipe-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rs-arrow {
+    justify-self: center;
+    rotate: 90deg;
+  }
+}
+
 /* How it works: alternating step rows, phone + text */
 .steps {
   display: grid;
