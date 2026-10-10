@@ -112,6 +112,20 @@ async function session(viewport, deviceScaleFactor) {
   });
   // Pin the app's UI language for this device, as the Settings switch would.
   await ctx.addInitScript((l) => localStorage.setItem('forkcast:locale', l), LOCALE);
+  // Headless Chrome reports no safe-area insets. On a phone, give the bottom nav and sheets the
+  // iPhone's 34px home-indicator gutter, as on a real device; the page's phone frame relies on it
+  // to keep the tab labels clear of the rounded screen corners. The utilities inline env() (Tailwind
+  // `@theme inline`), so the classes are overridden rather than the tokens.
+  if (viewport.width < 768) {
+    await ctx.addInitScript(() => {
+      const css = '.pb-safe-b{padding-bottom:34px!important}.pb-nav-safe{padding-bottom:calc(4rem + 34px)!important}';
+      document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style');
+        style.textContent = css;
+        document.head.append(style);
+      });
+    });
+  }
   const page = await ctx.newPage();
   await page.goto(BASE + '/');
   await page.fill('#password', PASSWORD);

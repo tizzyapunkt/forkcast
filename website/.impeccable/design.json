@@ -196,6 +196,22 @@
         ],
         "scheme": "light"
       },
+      "frame-rim": {
+        "role": "neutral",
+        "displayName": "Frame Rim",
+        "canonical": "hsl(244 8% 48%)",
+        "tonalRamp": [
+          "hsl(244 8% 15%)",
+          "hsl(244 8% 26%)",
+          "hsl(244 8% 37%)",
+          "hsl(244 8% 48%)",
+          "hsl(244 8% 59%)",
+          "hsl(244 8% 70%)",
+          "hsl(244 8% 82%)",
+          "hsl(244 8% 95%)"
+        ],
+        "scheme": "light"
+      },
       "on-brand": {
         "role": "neutral",
         "displayName": "On Lilac",
@@ -480,6 +496,23 @@
         "scheme": "dark",
         "lightCounterpart": "frame"
       },
+      "frame-rim-dark": {
+        "role": "neutral",
+        "displayName": "Frame Rim (dark)",
+        "canonical": "hsl(244 8% 30%)",
+        "tonalRamp": [
+          "hsl(244 8% 15%)",
+          "hsl(244 8% 26%)",
+          "hsl(244 8% 37%)",
+          "hsl(244 8% 48%)",
+          "hsl(244 8% 59%)",
+          "hsl(244 8% 70%)",
+          "hsl(244 8% 82%)",
+          "hsl(244 8% 95%)"
+        ],
+        "scheme": "dark",
+        "lightCounterpart": "frame-rim"
+      },
       "on-brand-dark": {
         "role": "neutral",
         "displayName": "On Lilac (dark)",
@@ -747,9 +780,9 @@
       "name": "Device Frame",
       "kind": "custom",
       "refersTo": "device-frame",
-      "description": "Drawn phone holding a real 390:844 app screenshot; the bezel is the screenshot's 5.6% margin, so it scales with the frame.",
+      "description": "Drawn iPhone holding a real 390:844 app screenshot: an SVG rim with side buttons (Frame Rim) under the screenshot and an SVG bezel with the home indicator (Frame) over it, both CSS masks stretched to the frame's 436:891 box. The screenshot reaches under the bezel, so edges stay even at any size.",
       "html": "<div class=\"ds-root\"><div class=\"ds-device\"><div class=\"ds-screen\">Week plan screenshot</div></div></div>",
-      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-device { display: flow-root; width: 220px; border-radius: 16% / 7.4%; background: var(--frame); box-shadow: var(--shadow-device); } .ds-screen { display: grid; place-items: center; width: 88.8%; margin: 5.6%; aspect-ratio: 390 / 844; border-radius: 13% / 6%; background: var(--ground-2); color: var(--ink-3); font-size: var(--fs-small); text-align: center; }"
+      "css": ":host, .ds-root { --brand: hsl(244 36% 44%); --brand-strong: hsl(244 38% 36%); --brand-soft: hsl(244 60% 96%); --brand-line: hsl(244 30% 86%); --ink: hsl(244 20% 14%); --ink-2: hsl(244 10% 34%); --ink-3: hsl(244 8% 44%); --ground: hsl(0 0% 100%); --ground-2: hsl(244 40% 98%); --line: hsl(244 16% 90%); --selection: hsl(244 60% 86%); --frame: hsl(244 18% 16%); --frame-rim: hsl(244 8% 48%); --on-brand: hsl(0 0% 100%); --error: hsl(0 66% 44%); --radius: 14px; --fs-caption: 13px; --fs-small: 14px; --fs-label: 16px; --fs-body: 17px; --fs-large: 1.125rem; --fs-subtitle: 1.25rem; --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --shadow-device: 0 30px 60px -20px hsl(240 10% 10% / 0.28), 0 12px 24px -12px hsl(240 10% 10% / 0.18); font-family: var(--font); color: var(--ink); } .ds-device { position: relative; isolation: isolate; width: 220px; aspect-ratio: 436 / 891; border-radius: 15.6% / 7.6%; box-shadow: var(--shadow-device); } .ds-device::before, .ds-device::after { content: ''; position: absolute; inset: 0; -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat; mask: var(--mask) 0 0 / 100% 100% no-repeat; } .ds-device::before { --mask: url(\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 436 891' preserveAspectRatio='none'><path d='M71 0H365A68 68 0 0 1 433 68V823A68 68 0 0 1 365 891H71A68 68 0 0 1 3 823V68A68 68 0 0 1 71 0ZM2 178H4A2 2 0 0 1 6 180V208A2 2 0 0 1 4 210H2A2 2 0 0 1 0 208V180A2 2 0 0 1 2 178ZM2 248H4A2 2 0 0 1 6 250V306A2 2 0 0 1 4 308H2A2 2 0 0 1 0 306V250A2 2 0 0 1 2 248ZM2 322H4A2 2 0 0 1 6 324V380A2 2 0 0 1 4 382H2A2 2 0 0 1 0 380V324A2 2 0 0 1 2 322ZM432 278H434A2 2 0 0 1 436 280V372A2 2 0 0 1 434 374H432A2 2 0 0 1 430 372V280A2 2 0 0 1 432 278Z'/></svg>\"); z-index: -1; background: var(--frame-rim); } .ds-device::after { --mask: url(\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 436 891' preserveAspectRatio='none'><path fill-rule='evenodd' d='M71 3.5H365A64.5 64.5 0 0 1 429.5 68V823A64.5 64.5 0 0 1 365 887.5H71A64.5 64.5 0 0 1 6.5 823V68A64.5 64.5 0 0 1 71 3.5ZM70 17H366A50 50 0 0 1 416 67V824A50 50 0 0 1 366 874H70A50 50 0 0 1 20 824V67A50 50 0 0 1 70 17ZM152.5 861H283.5A2.5 2.5 0 0 1 286 863.5V863.5A2.5 2.5 0 0 1 283.5 866H152.5A2.5 2.5 0 0 1 150 863.5V863.5A2.5 2.5 0 0 1 152.5 861Z'/></svg>\"); background: var(--frame); } .ds-screen { position: absolute; left: 4.243%; top: 1.74%; width: 91.514%; height: 96.521%; display: grid; place-items: center; border-radius: 13% / 6%; background: var(--ground-2); color: var(--ink-3); font-size: var(--fs-small); text-align: center; }"
     },
     {
       "name": "Browser Frame",
