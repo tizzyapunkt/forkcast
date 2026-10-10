@@ -152,13 +152,33 @@ function pcs(name: string, count: number, label: string, extra: Partial<Ingredie
   });
 }
 
+/** A food that isn't in the catalog (a branded product, a takeaway), with its label's macros per 100. */
+function offCatalog(
+  de: string,
+  en: string,
+  unit: Unit,
+  per100: { calories: number; protein: number; carbs: number; fat: number },
+  amount: number,
+): Ingredient {
+  const m = per100;
+  return {
+    name: L(de, en),
+    unit,
+    macrosPerUnit: { calories: m.calories / 100, protein: m.protein / 100, carbs: m.carbs / 100, fat: m.fat / 100 },
+    amount,
+  };
+}
+
 /**
  * Salt, spices — on the recipe and grocery list, not in the nutrition totals. Without a unit the app
  * shows its own "to taste" / "nach Geschmack".
  */
 function untracked(name: string, unitLabel?: string, amount?: number): Ingredient {
   if (unitLabel === undefined) return ing(name, 0, { untracked: true });
-  return ing(name, 0, { untracked: true, displayQuantity: amount === undefined ? { unitLabel } : { amount, unitLabel } });
+  return ing(name, 0, {
+    untracked: true,
+    displayQuantity: amount === undefined ? { unitLabel } : { amount, unitLabel },
+  });
 }
 
 // ---- goal, body weight ----------------------------------------------------------------------
@@ -295,7 +315,13 @@ const salmon = await addRecipe(
 const quark = await addRecipe(
   L('Quark mit Beeren', 'Quark with Berries'),
   1,
-  [ing('Magerquark', 300), ing('Himbeere', 80), ing('Heidelbeere', 50), ing('Walnuss', 15), ing('Zuckerfreier Ahornsirup', 10)],
+  [
+    ing('Magerquark', 300),
+    ing('Himbeere', 80),
+    ing('Heidelbeere', 50),
+    ing('Walnuss', 15),
+    ing('Zuckerfreier Ahornsirup', 10),
+  ],
   [
     L(
       'Quark glatt rühren, Beeren und gehackte Walnüsse darüber, mit Ahornsirup beträufeln.',
@@ -319,6 +345,20 @@ const scrambledEggs = () => [
   pcs('Tomate', 1, 'mittel'),
 ];
 const greekYogurt = () => ing('Griechischer Joghurt (10 % Fett)', 150);
+
+// Nobody hits the goal every day: Wednesday's snack is skipped (under), Friday turns into pizza and beer
+// and Saturday gets a bag of crisps (both over), so the week plan shows every day tone.
+const frozenPizza = () =>
+  offCatalog(
+    'Tiefkühlpizza Margherita',
+    'Frozen pizza margherita',
+    'g',
+    { calories: 235, protein: 9.5, carbs: 29, fat: 8.5 },
+    350,
+  );
+const beer = (ml: number) => offCatalog('Pils', 'Lager', 'ml', { calories: 42, protein: 0.5, carbs: 3, fat: 0 }, ml);
+const crisps = (g: number) =>
+  offCatalog('Kartoffelchips', 'Potato crisps', 'g', { calories: 536, protein: 6.5, carbs: 50, fat: 34 }, g);
 
 const week: Partial<Record<Slot, Planned[]>>[] = [
   // Mon
@@ -347,7 +387,6 @@ const week: Partial<Record<Slot, Planned[]>>[] = [
       ing('Olivenöl', 10),
       ing('Parmesan', 15),
     ],
-    snack: [ing('Hüttenkäse', 250)],
   },
   // Thu
   {
@@ -360,7 +399,7 @@ const week: Partial<Record<Slot, Planned[]>>[] = [
   {
     breakfast: scrambledEggs(),
     lunch: [R(dal)],
-    dinner: [R(salmon)],
+    dinner: [frozenPizza(), beer(1000)],
     snack: [R(quark), ing('Hüttenkäse', 200)],
   },
   // Sat
@@ -374,13 +413,18 @@ const week: Partial<Record<Slot, Planned[]>>[] = [
     ],
     lunch: [R(dal), greekYogurt()],
     dinner: [ing('Schweinefilet', 250), ing('Kartoffel', 300), ing('Grüne Bohne', 200), ing('Butter', 10)],
-    snack: [ing('Hüttenkäse', 250), pcs('Banane', 1, 'mittel'), ing('Erdnussbutter', 15)],
+    snack: [ing('Hüttenkäse', 250), pcs('Banane', 1, 'mittel'), ing('Erdnussbutter', 15), crisps(75)],
   },
   // Sun
   {
     breakfast: [R(oats)],
     lunch: [R(bowl)],
-    dinner: [pcs('Kabeljau', 1, 'Filet gross'), ing('Basmatireis', 70), pcs('Zucchini', 1, 'mittel'), ing('Olivenöl', 10)],
+    dinner: [
+      pcs('Kabeljau', 1, 'Filet gross'),
+      ing('Basmatireis', 70),
+      pcs('Zucchini', 1, 'mittel'),
+      ing('Olivenöl', 10),
+    ],
     snack: [R(quark), pcs('Apfel', 1, 'mittel')],
   },
 ];
@@ -393,7 +437,11 @@ for (let i = 0; i < week.length; i++) {
         await call('POST', '/log-recipe', { recipeId: item.recipe.id, portions: item.portions ?? 1, date, slot });
       } else {
         const { name, unit, macrosPerUnit, amount } = item;
-        await call('POST', '/log-ingredient', { date, slot, ingredient: { type: 'full', name, unit, macrosPerUnit, amount } });
+        await call('POST', '/log-ingredient', {
+          date,
+          slot,
+          ingredient: { type: 'full', name, unit, macrosPerUnit, amount },
+        });
       }
     }
   }
