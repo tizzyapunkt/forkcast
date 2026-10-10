@@ -115,7 +115,7 @@ What the page relies on:
 
 - Phone shots are 390x844 at 3x (1170x2532), no status bar. The website's phone frame (`.device`, drawn by `website/public/device-body.svg` + `device-bezel.svg`, 436x891 units) expects that ratio and has no Dynamic Island, since it would cover the app header.
 - The capture adds the iPhone's 34px home-indicator gutter under the bottom nav and sheets (headless Chrome reports no safe-area insets). Without it the tab labels run into the frame's rounded corners and under its home indicator bar. Tailwind `@theme inline` bakes `env()` into the `pb-safe-b` / `pb-nav-safe` utilities, so the script overrides those classes, not the tokens.
-- The daily-log shot shows the day the capture runs. The seeded week is the current week (`WEEK_START` overrides it), so capture on a day whose log shows what you want.
+- The seed plans the current week (`WEEK_START` overrides it in both scripts) and is deliberately imperfect: Wednesday under goal, Friday and Saturday over (pizza, beer, crisps), the rest on target, so the week plan shows every day tone. The capture pins the browser clock into that week, so shots don't depend on the day you run it: Saturday for the daily log (the over day), Monday morning for the cooking view (all planned meals still ahead, so it selects them all).
 
 ## Gotchas (don't re-diagnose these)
 

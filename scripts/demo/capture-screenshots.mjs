@@ -4,7 +4,7 @@
  *   LOCALE=en npx -y -p playwright-core@1.63 node scripts/demo/capture-screenshots.mjs [name]
  *
  * playwright-core is not a repo dependency; `npx -p` provides it and this script resolves it from there.
- * Pass a shot name (week-plan, daily-log, grocery-list, recipe, food-search, week-plan-desktop) to
+ * Pass a shot name (week-plan, daily-log, grocery-list, recipe, food-search, cooking, week-plan-desktop) to
  * capture only that one. Each shot is written as PNG and, when `cwebp` is on PATH, as a q85 WebP plus a
  * smaller WebP for the page's srcset (`<name>-600.webp` for phone shots, `<name>-1440.webp` for the
  * desktop shot). With `ffmpeg` on PATH the desktop shot also yields `og.jpg` (1200x630, top crop), the
@@ -20,6 +20,11 @@
  *                       (install once with `npx -y playwright-core@1.63 install chromium-headless-shell`)
  *   RECIPE              recipe to open for the `recipe` shot (default: the chicken rice bowl)
  *   QUERY               food-search query, with Open Food Facts on (default "greek yogurt" / "skyr")
+ *   WEEK_START          YYYY-MM-DD Monday of the seeded week (default: the current week, as the seed)
+ *
+ * The browser clock is pinned to days of the seeded week, so the shots don't depend on the day you run
+ * this: the app's "today" is Saturday (the daily log shows that over-goal day), and Monday morning for
+ * the cooking view (all of the recipe's planned meals are still ahead, so the view selects them all).
  */
 
 import { execFileSync } from 'node:child_process';
@@ -33,6 +38,20 @@ if (LOCALE !== 'de' && LOCALE !== 'en') throw new Error(`LOCALE must be de or en
 const BASE = (process.env.FORKCAST_URL ?? 'https://localhost:5173').replace(/\/$/, '');
 const OUT = process.env.OUT ?? join(REPO, 'scripts/demo/out', LOCALE);
 const only = process.argv[2];
+
+function isoDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function addDays(iso, n) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return isoDate(d);
+}
+const WEEK_START = process.env.WEEK_START ?? addDays(isoDate(new Date()), -((new Date().getDay() + 6) % 7));
+/** Pins the app's clock to a day of the seeded week (0 = Monday); timers keep running. */
+async function pinDay(ctx, offset, time = '10:00') {
+  await ctx.clock.setFixedTime(new Date(`${addDays(WEEK_START, offset)}T${time}:00`));
+}
 
 function passwordFromEnvFile() {
   const file = process.env.FORKCAST_ENV_FILE ?? join(REPO, 'backend/.env');
@@ -59,6 +78,7 @@ const UI = {
     add: 'Hinzufügen',
     search: 'Zutaten suchen…',
     recipe: 'Hähnchen-Reis-Bowl',
+    cook: '„Hähnchen-Reis-Bowl“ kochen',
     query: 'skyr',
   },
   en: {
@@ -70,6 +90,7 @@ const UI = {
     add: 'Add',
     search: 'Search ingredients…',
     recipe: 'Chicken Rice Bowl',
+    cook: 'Cook “Chicken Rice Bowl”',
     query: 'greek yogurt',
   },
 }[LOCALE];
@@ -110,6 +131,7 @@ async function session(viewport, deviceScaleFactor) {
     locale: UI.browserLocale,
     reducedMotion: 'reduce',
   });
+  await pinDay(ctx, 5); // Saturday
   // Pin the app's UI language for this device, as the Settings switch would.
   await ctx.addInitScript((l) => localStorage.setItem('forkcast:locale', l), LOCALE);
   // Headless Chrome reports no safe-area insets. On a phone, give the bottom nav and sheets the
@@ -186,7 +208,7 @@ function ogImage(png) {
 const want = (n) => !only || only === n;
 
 // phone
-if (['daily-log', 'week-plan', 'grocery-list', 'recipe', 'food-search'].some(want)) {
+if (['daily-log', 'week-plan', 'grocery-list', 'recipe', 'food-search', 'cooking'].some(want)) {
   const { ctx, page } = await session({ width: 390, height: 844 }, 3);
   if (want('daily-log')) await shot(page, 'daily-log');
 
@@ -228,6 +250,17 @@ if (['daily-log', 'week-plan', 'grocery-list', 'recipe', 'food-search'].some(wan
     await page.waitForTimeout(2500);
     await page.evaluate(() => document.activeElement?.blur());
     await shot(page, 'food-search');
+  }
+
+  if (want('cooking')) {
+    // Monday morning: the bowl's four planned lunches are all ahead, today's day is open in the planner.
+    await pinDay(ctx, 0, '09:00');
+    await page.reload();
+    await nav(page, UI.plan).waitFor();
+    await nav(page, UI.plan).click();
+    await settle(page);
+    await page.getByRole('button', { name: UI.cook, exact: true }).first().click();
+    await shot(page, 'cooking');
   }
   await ctx.close();
 }
