@@ -39,12 +39,15 @@ forkcast is planning-first: the week is the primary unit, and ad-hoc daily track
 
 What the app really does today (the site may describe only this):
 
-- Weekly meal planning against user-defined calorie and macro goals (no fixed diet template)
-- Recipe and ingredient management, with an editable food catalog
-- Grocery list generated from the plan
+- Weekly meal planning against user-defined calorie and macro goals (no fixed diet template). The planner is a weekly view over the same meal log as the diary: planned meals are the log, nothing is entered twice. A day's plan can be copied to the next day.
+- Goals entered by hand or derived by the macro calculator (body metrics, activity, phase; Ten Haaf & Weijs 2014 formula)
+- Recipe and ingredient management, with an editable food catalog. A logged recipe becomes one log entry per ingredient, each swappable or extendable per meal without changing the recipe. Untracked recipe ingredients (salt, spices) stay on the recipe and grocery list but never enter the log.
+- Grocery list generated from the plan, untracked ingredients included, with the servings to cook settable per recipe, and a one-tap hand-off to the Bring! app
+- Cooking view for a planned recipe: pick which of its planned meals in the week to cook (fresh for one day or meal prep for several), add servings for people eating along (not logged), change or swap ingredient amounts and every selected meal's log follows; the screen stays on while cooking
+- Weight log with a trend shown next to the plan
 - Packaged foods via Open Food Facts: search includes Open Food Facts branded products (toggle in the search panel), and barcode scans look products up there. When a barcode is missing from Open Food Facts, the product can be captured from packaging photos via AI and is stored locally. Open Food Facts data is ODbL-licensed, so the site credits it.
 - Recipe import from photos (printed page, screenshot, recipe card) via AI, reviewed by the user before saving
-- Installable, offline-capable PWA, mobile-first with full desktop support
+- Installable PWA, mobile-first with full desktop support. Only the app shell is cached: data needs the server, there is no offline sync, so the site must not claim offline use.
 
 Constraints:
 

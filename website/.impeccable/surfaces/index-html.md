@@ -17,7 +17,7 @@ THESIS: A calm, honest product page in the Things tradition: the app does the pe
 
 OWN-WORLD: White and near-white lilac-tinted grounds, forkcast lilac (`244 36% 44%`) as the single brand colour on actions and the app header, macro identity colours (green P, amber C, blue F) only inside app imagery and one macro legend. System sans for UI-like clarity and speed, generous whitespace, large rounded device frames with soft offset shadows, no cards-as-structure, no icon tiles. Dark mode is a deep indigo-tinted ground.
 
-STORY: The visitor understands "planning-first meal planning" in one line, sees the real week view, learns it was built for one person and why a spreadsheet failed, checks what it does (including packaged foods via Open Food Facts), how it is built and where data goes, then tells us hosted or self-host.
+STORY: The visitor understands "planning-first meal planning" in one line, sees the real week view, learns it was built for one person and why a spreadsheet failed, sees the decisions that set it apart from diary-first trackers, checks what it does (including packaged foods via Open Food Facts), how it is built and where data goes, then tells us hosted or self-host.
 
 FIRST VIEWPORT: Left (desktop) / top (mobile): wordmark nav, a two-line headline, one sentence of subcopy, then the interest-check form: two toggle options, Hosted and Self-host, and a primary lilac button, with a short note that the choice counts without an e-mail. Right / below: a large phone frame showing the week plan, slightly overlapping a second frame with the grocery list.
 
