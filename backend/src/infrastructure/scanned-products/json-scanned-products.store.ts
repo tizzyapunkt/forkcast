@@ -1,35 +1,29 @@
-import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { ScannedProduct, ScannedProductStore } from '../../domain/barcode-product-capture/types.ts';
 import { validateScannedProduct } from '../../domain/barcode-product-capture/validate-scanned-product.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 /**
  * Runtime-writable JSON store for products captured from packaging photos,
  * keyed by barcode. Mirrors the other JSON-store adapters: serialised writes,
- * atomic rename, validate-and-skip on load.
+ * atomic document writes, validate-and-skip on load.
  */
 export class JsonScannedProductStore implements ScannedProductStore {
   private queue: Promise<unknown> = Promise.resolve();
 
-  constructor(private readonly filePath: string) {}
-
-  async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-  }
+  constructor(private readonly document: JsonDocument) {}
 
   async load(): Promise<ScannedProduct[]> {
-    if (!existsSync(this.filePath)) return [];
-    const raw = await readFile(this.filePath, 'utf-8');
+    const raw = await this.document.read();
+    if (raw === null) return [];
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      console.warn(`scanned-products: failed to parse ${this.filePath}; treating as empty`);
+      console.warn(`scanned-products: failed to parse ${this.document.location}; treating as empty`);
       return [];
     }
     if (!Array.isArray(parsed)) {
-      console.warn(`scanned-products: malformed top-level shape in ${this.filePath}; treating as empty`);
+      console.warn(`scanned-products: malformed top-level shape in ${this.document.location}; treating as empty`);
       return [];
     }
     const products: ScannedProduct[] = [];
@@ -70,8 +64,6 @@ export class JsonScannedProductStore implements ScannedProductStore {
 
   private async writeAtomic(products: ScannedProduct[]): Promise<void> {
     const sorted = [...products].sort((a, b) => a.barcode.localeCompare(b.barcode));
-    const tmpPath = `${this.filePath}.tmp`;
-    await writeFile(tmpPath, JSON.stringify(sorted, null, 2) + '\n', 'utf-8');
-    await rename(tmpPath, this.filePath);
+    await this.document.write(JSON.stringify(sorted, null, 2) + '\n');
   }
 }

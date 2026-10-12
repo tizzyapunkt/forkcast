@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonCatalogStore } from './json-catalog.store.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
 
 const entry = (overrides: Partial<FoodEntry> = {}): FoodEntry => ({
@@ -42,7 +43,7 @@ describe('JsonCatalogStore', () => {
   describe('loading', () => {
     it('loads well-formed entries into a searchable index', async () => {
       write([entry(), salz]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       expect(store.list()).toHaveLength(2);
@@ -51,7 +52,7 @@ describe('JsonCatalogStore', () => {
     });
 
     it('treats a missing file as an empty catalog when no seed is configured', async () => {
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
       expect(store.list()).toEqual([]);
     });
@@ -60,7 +61,7 @@ describe('JsonCatalogStore', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       write([entry(), { ...entry({ id: 'kaputt', name: 'Kaputt' }), macrosPer100: { calories: null } }]);
 
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       expect(store.list().map((e) => e.id)).toEqual(['moehre']);
@@ -73,7 +74,7 @@ describe('JsonCatalogStore', () => {
       // The shape a pre-rename catalog can hold: a hand-written id with an umlaut.
       write([{ ...entry({ id: 'speisestärke', name: 'Speisestärke', synonyms: ['cornstarch'] }), density: 0.55 }]);
 
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       expect(store.list().map((e) => e.id)).toEqual(['speisestaerke']);
@@ -86,7 +87,7 @@ describe('JsonCatalogStore', () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {});
       write([entry({ id: '!!!', name: '!!!' })]);
 
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       expect(store.list()).toEqual([]);
@@ -95,7 +96,7 @@ describe('JsonCatalogStore', () => {
     it('treats an unparseable file as empty rather than crashing', async () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {});
       writeFileSync(path, '{ not json', 'utf-8');
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
       expect(store.list()).toEqual([]);
     });
@@ -103,7 +104,7 @@ describe('JsonCatalogStore', () => {
 
   describe('add', () => {
     it('persists a new entry atomically and reads it back', async () => {
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.add(entry());
@@ -111,14 +112,14 @@ describe('JsonCatalogStore', () => {
       expect(readBack().map((e) => e.id)).toEqual(['moehre']);
       expect(existsSync(`${path}.tmp`)).toBe(false);
 
-      const reloaded = new JsonCatalogStore({ filePath: path });
+      const reloaded = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await reloaded.init();
       expect(reloaded.findById('moehre')?.name).toBe('Möhre');
     });
 
     it('rejects a duplicate id and leaves the catalog unchanged', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.add(entry({ name: 'Karotte gelb' }));
@@ -129,7 +130,7 @@ describe('JsonCatalogStore', () => {
 
     it('rejects an invalid entry without touching the file', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.add(entry({ id: 'Ungültig', name: 'Neu' }));
@@ -142,7 +143,7 @@ describe('JsonCatalogStore', () => {
   describe('update', () => {
     it('replaces an entry, revalidates, and persists', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const corrected = entry({ macrosPer100: { calories: 25, protein: 0.9, carbs: 9.6, fat: 0.2 } });
@@ -154,7 +155,7 @@ describe('JsonCatalogStore', () => {
     });
 
     it('reports not-found for an unknown id', async () => {
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
       const result = await store.update('gibtsnicht', entry({ id: 'gibtsnicht' }));
       expect(result).toEqual({ ok: false, kind: 'not-found', reason: expect.stringContaining('gibtsnicht') });
@@ -162,7 +163,7 @@ describe('JsonCatalogStore', () => {
 
     it('rejects an update that breaks validation and leaves the stored entry intact', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.update('moehre', entry({ untracked: true }));
@@ -174,7 +175,7 @@ describe('JsonCatalogStore', () => {
 
     it('allows renaming an entry to a name only it holds', async () => {
       write([entry(), salz]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       expect((await store.update('moehre', entry({ name: 'Möhre gelb' }))).ok).toBe(true);
@@ -183,7 +184,7 @@ describe('JsonCatalogStore', () => {
 
     it('rejects a rename onto another entry name', async () => {
       write([entry(), salz]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.update('moehre', entry({ name: 'Salz' }));
@@ -194,7 +195,7 @@ describe('JsonCatalogStore', () => {
   describe('remove', () => {
     it('deletes an entry from memory and from the file', async () => {
       write([entry(), salz]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.remove('moehre');
@@ -204,7 +205,7 @@ describe('JsonCatalogStore', () => {
     });
 
     it('reports not-found for an unknown id', async () => {
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
       expect(await store.remove('gibtsnicht')).toEqual({
         ok: false,
@@ -217,7 +218,7 @@ describe('JsonCatalogStore', () => {
   describe('addSynonym', () => {
     it('appends a synonym and persists it', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       const result = await store.addSynonym('moehre', 'Rübli');
@@ -228,7 +229,7 @@ describe('JsonCatalogStore', () => {
 
     it('deduplicates case- and diacritic-insensitively', async () => {
       write([entry()]);
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
 
       await store.addSynonym('moehre', 'karotte');
@@ -236,14 +237,14 @@ describe('JsonCatalogStore', () => {
     });
 
     it('reports not-found for an unknown id', async () => {
-      const store = new JsonCatalogStore({ filePath: path });
+      const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
       await store.init();
       expect((await store.addSynonym('gibtsnicht', 'egal')).ok).toBe(false);
     });
   });
 
   it('keeps the persisted file ordered by id so writes stay diffable', async () => {
-    const store = new JsonCatalogStore({ filePath: path });
+    const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
     await store.init();
     await store.add(salz);
     await store.add(entry());

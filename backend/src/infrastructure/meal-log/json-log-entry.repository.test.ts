@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonLogEntryRepository } from './json-log-entry.repository.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 
 const tmpDirs: string[] = [];
 
@@ -35,7 +36,7 @@ describe('JsonLogEntryRepository — recipeId compatibility', () => {
       ]),
     );
 
-    const repo = new JsonLogEntryRepository(path);
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
     const entries = await repo.findAll();
 
     expect(entries).toHaveLength(1);
@@ -45,8 +46,7 @@ describe('JsonLogEntryRepository — recipeId compatibility', () => {
 
   it('roundtrips recipeId on save and findAll', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
-    await repo.init();
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
 
     await repo.save({
       id: 'r-1',
@@ -69,8 +69,7 @@ describe('JsonLogEntryRepository — recipeId compatibility', () => {
 
   it('roundtrips entries without recipeId unchanged', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
-    await repo.init();
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
 
     await repo.save({
       id: 'p-1',
@@ -96,8 +95,7 @@ describe('JsonLogEntryRepository — recipe batch metadata', () => {
 
   it('roundtrips recipeBatchId and recipePortions on save and findAll', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
-    await repo.init();
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
 
     await repo.save({
       id: 'b-1',
@@ -131,7 +129,7 @@ describe('JsonLogEntryRepository — recipe batch metadata', () => {
       ]),
     );
 
-    const repo = new JsonLogEntryRepository(path);
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
     const entries = await repo.findAll();
 
     expect(entries[0]?.recipeId).toBe('rec-42');
@@ -141,8 +139,7 @@ describe('JsonLogEntryRepository — recipe batch metadata', () => {
 
   it('removeMany deletes exactly the given ids in one write and leaves the rest', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
-    await repo.init();
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
 
     const mk = (id: string) => ({
       id,
@@ -178,7 +175,7 @@ describe('JsonLogEntryRepository — replaceMany', () => {
 
   it('removes, replaces in place and appends in one write', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
     await repo.saveMany([entry('a', 1), entry('b', 2), entry('c', 3)]);
 
     await repo.replaceMany(['a', 'b'], [entry('b', 20), entry('d', 4)]);
@@ -193,7 +190,7 @@ describe('JsonLogEntryRepository — replaceMany', () => {
 
   it('writes nothing when there is nothing to change', async () => {
     const path = freshFile();
-    const repo = new JsonLogEntryRepository(path);
+    const repo = new JsonLogEntryRepository(new FileJsonDocument(path));
 
     await repo.replaceMany([], []);
 

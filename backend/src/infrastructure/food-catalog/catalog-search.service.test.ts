@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { JsonCatalogStore } from './json-catalog.store.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import { CatalogSearchService } from './catalog-search.service.ts';
 import type { FoodEntry } from '../../domain/foods/types.ts';
 
@@ -62,7 +63,7 @@ describe('CatalogSearchService', () => {
   async function serviceWith(entries: FoodEntry[]): Promise<{ search: CatalogSearchService; store: JsonCatalogStore }> {
     const path = join(dir, `catalog-${Math.random().toString(36).slice(2)}.json`);
     writeFileSync(path, JSON.stringify(entries), 'utf-8');
-    const store = new JsonCatalogStore({ filePath: path });
+    const store = new JsonCatalogStore({ document: new FileJsonDocument(path) });
     await store.init();
     return { search: new CatalogSearchService(store), store };
   }

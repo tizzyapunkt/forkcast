@@ -1,16 +1,10 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { FavoriteIngredientRepository } from '../../domain/favorite-ingredients/favorite-ingredient.repository.ts';
 import { favoriteIdentityKey } from '../../domain/favorite-ingredients/types.ts';
 import type { FavoriteIngredient } from '../../domain/favorite-ingredients/types.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 export class JsonFavoriteIngredientRepository implements FavoriteIngredientRepository {
-  constructor(private readonly filePath: string) {}
-
-  async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-  }
+  constructor(private readonly document: JsonDocument) {}
 
   async findAll(): Promise<FavoriteIngredient[]> {
     return this.readAll();
@@ -35,12 +29,12 @@ export class JsonFavoriteIngredientRepository implements FavoriteIngredientRepos
   }
 
   private async readAll(): Promise<FavoriteIngredient[]> {
-    if (!existsSync(this.filePath)) return [];
-    const raw = await readFile(this.filePath, 'utf-8');
+    const raw = await this.document.read();
+    if (raw === null) return [];
     return JSON.parse(raw) as FavoriteIngredient[];
   }
 
   private async write(favorites: FavoriteIngredient[]): Promise<void> {
-    await writeFile(this.filePath, JSON.stringify(favorites, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(favorites, null, 2));
   }
 }

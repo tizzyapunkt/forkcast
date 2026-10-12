@@ -6,10 +6,6 @@ export interface AppConfig {
     path: string;
     /** Starting-point catalog bundled with the image, installed only when `path` is absent. */
     seedPath: string;
-    /** Pre-rename catalog in an already-deployed data directory, adopted once if `path` is absent. */
-    legacyPath: string;
-    /** Retired user-foods overlay, folded into the catalog once and then deleted. */
-    legacyOverlayPath: string;
   };
   auth: {
     password: string;
@@ -30,8 +26,6 @@ export interface AppConfig {
 
 const DEFAULT_CATALOG_PATH = './data/catalog.json';
 const DEFAULT_CATALOG_SEED_PATH = './catalog.seed.json';
-const DEFAULT_LEGACY_CATALOG_PATH = './data/foods.json';
-const DEFAULT_LEGACY_OVERLAY_PATH = './data/user-foods.json';
 const DEFAULT_MODEL = 'claude-sonnet-4-6';
 const DEFAULT_MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const DEFAULT_MAX_TOTAL_BYTES = 20 * 1024 * 1024;
@@ -51,15 +45,11 @@ export function loadAppConfig(env: EnvSource): AppConfig {
 
   const catalogPath = readOptionalNonEmpty(env, 'CATALOG_PATH') ?? DEFAULT_CATALOG_PATH;
   const catalogSeedPath = readOptionalNonEmpty(env, 'CATALOG_SEED_PATH') ?? DEFAULT_CATALOG_SEED_PATH;
-  const legacyCatalogPath = readOptionalNonEmpty(env, 'LEGACY_CATALOG_PATH') ?? DEFAULT_LEGACY_CATALOG_PATH;
-  const legacyOverlayPath = readOptionalNonEmpty(env, 'LEGACY_OVERLAY_PATH') ?? DEFAULT_LEGACY_OVERLAY_PATH;
 
   return {
     catalog: {
       path: catalogPath,
       seedPath: catalogSeedPath,
-      legacyPath: legacyCatalogPath,
-      legacyOverlayPath,
     },
     auth: { password, jwtSecret },
     ai: {

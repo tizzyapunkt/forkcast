@@ -84,25 +84,6 @@ The backend image SHALL ship a starting-point catalog stored outside the data vo
 - **WHEN** the user deletes an entry that exists in the bundled starting point and the container restarts
 - **THEN** the entry is still absent from the catalog and from search results
 
-### Requirement: Existing user-foods overlay is migrated into the catalog once
-
-On first startup after this change, when a legacy user-foods overlay file is present, the system SHALL fold its contents into the catalog: each overlay food SHALL be appended as a catalog entry (skipped with a logged warning when its `id` already exists), and each learned `{ foodId, synonym }` pair SHALL be added to the `synonyms` of the catalog entry with that `id` (deduplicated case-insensitively, and skipped with a logged warning when no such entry exists). After a successful migration the legacy overlay file SHALL no longer be read, and the migration MUST NOT run again on subsequent startups.
-
-#### Scenario: Overlay foods and synonyms folded in
-
-- **WHEN** the backend starts with an overlay holding the food `balsamicoessig` and the pair `{ foodId: "cherrytomate", synonym: "Kirschtomaten" }`, and the catalog contains `cherrytomate`
-- **THEN** the catalog gains a `balsamicoessig` entry and the `cherrytomate` entry's `synonyms` include `Kirschtomaten`
-
-#### Scenario: Orphaned synonym skipped with a warning
-
-- **WHEN** the overlay holds a synonym whose `foodId` is absent from the catalog
-- **THEN** the backend starts normally, that synonym is not applied, and a warning naming the `foodId` is logged
-
-#### Scenario: Migration is not repeated
-
-- **WHEN** the backend has already migrated the overlay and is restarted
-- **THEN** no overlay content is re-applied and no duplicate entries or synonyms appear in the catalog
-
 ### Requirement: Catalog entries can be created, edited, and deleted at runtime
 
 The system SHALL expose authenticated operations to create a catalog entry, update an existing entry, and delete an entry by `id`. Create and update SHALL apply the same validation rules as load-time validation and MUST reject an invalid payload with a `400`, leaving the catalog unchanged. Create MUST reject an `id` that already exists. Update and delete MUST return `404` for an unknown `id`. Every accepted write SHALL be reflected in search results immediately, without a backend restart, and SHALL be durable across restarts. Unauthenticated calls MUST return `401` and leave the catalog unchanged.

@@ -3,6 +3,7 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonRecipeRepository } from './json-recipe.repository.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import type { Recipe } from '../../domain/recipes/types.ts';
 
 let dir: string;
@@ -10,8 +11,7 @@ let repo: JsonRecipeRepository;
 
 beforeEach(async () => {
   dir = await mkdtemp(join(tmpdir(), 'forkcast-recipe-repo-'));
-  repo = new JsonRecipeRepository(join(dir, 'recipes.json'));
-  await repo.init();
+  repo = new JsonRecipeRepository(new FileJsonDocument(join(dir, 'recipes.json')));
 });
 
 afterEach(async () => {
