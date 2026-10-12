@@ -698,12 +698,12 @@
       {
         "name": "stack-hero",
         "value": "900px",
-        "purpose": "Hero and origin stack; tilted devices and sheet straighten."
+        "purpose": "Hero and split stack; tilted devices, sheet and sketches straighten."
       },
       {
         "name": "stack-sections",
         "value": "760px",
-        "purpose": "Steps stack; section nav hides; browser frame removed."
+        "purpose": "Steps stack; sections tighten to 72px padding; section nav hides; browser frame removed; the lightbox keeps its top clear for the close button."
       },
       {
         "name": "full-width-controls",
