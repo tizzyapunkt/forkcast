@@ -37,7 +37,7 @@ function makeFetchStub(respond: (url: URL) => Response | Promise<Response>) {
 }
 
 describe('OpenFoodFactsService.searchByName', () => {
-  it('queries search-a-licious with German language and market filters', async () => {
+  it('queries search-a-licious in German with no market filter by default', async () => {
     const { fetchStub, requests } = makeFetchStub(() => jsonResponse({ hits: [] }));
     const service = new OpenFoodFactsService(fetchStub);
 
@@ -47,12 +47,24 @@ describe('OpenFoodFactsService.searchByName', () => {
     const url = requests[0];
     expect(url.origin).toBe('https://search.openfoodfacts.org');
     expect(url.pathname).toBe('/search');
-    expect(url.searchParams.get('q')).toBe('apfel lang:de countries_tags:"en:germany"');
+    expect(url.searchParams.get('q')).toBe('apfel');
     expect(url.searchParams.get('langs')).toBe('de');
     expect(url.searchParams.get('page_size')).toBe('20');
     expect(url.searchParams.get('fields')).toBe(
-      'code,product_name,product_name_de,brands,serving_size,serving_quantity,nutriments',
+      'code,product_name,product_name_de,product_name_en,brands,serving_size,serving_quantity,nutriments',
     );
+  });
+
+  it('queries in the given locale and names hits in it', async () => {
+    const skyr = { ...OFF_PRODUCT, product_name: 'Compote', product_name_en: 'Skyr Pur' };
+    const { fetchStub, requests } = makeFetchStub(() => jsonResponse({ hits: [skyr] }));
+    const service = new OpenFoodFactsService(fetchStub);
+
+    const results = await service.searchByName('skyr', undefined, 'en');
+
+    expect(requests[0].searchParams.get('q')).toBe('skyr');
+    expect(requests[0].searchParams.get('langs')).toBe('en');
+    expect(results.map((r) => r.name)).toEqual(['Skyr Pur']);
   });
 
   it('maps hits and drops products that cannot be mapped', async () => {

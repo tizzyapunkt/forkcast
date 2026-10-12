@@ -36,7 +36,7 @@ export class CompositeIngredientSearchService implements IngredientSearchService
       order.push('SCAN');
     }
     if (sources.has('OFF')) {
-      tasks.push(this.off.searchByName(query));
+      tasks.push(this.off.searchByName(query, undefined, locale));
       order.push('OFF');
     }
 

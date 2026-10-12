@@ -3,8 +3,9 @@ import type { IngredientSearchService } from '../../domain/ingredient-search/ing
 import type { IngredientSearchResult } from '../../domain/ingredient-search/types.ts';
 import type { DiagnosticsRecorder } from '../../domain/diagnostics/diagnostics-log.ts';
 import { mapOffProduct } from '../../domain/ingredient-search/map-off-product.ts';
+import type { CatalogLocale } from '../../domain/foods/types.ts';
 
-const FIELDS = 'code,product_name,product_name_de,brands,serving_size,serving_quantity,nutriments';
+const FIELDS = 'code,product_name,product_name_de,product_name_en,brands,serving_size,serving_quantity,nutriments';
 const REQUEST_TIMEOUT_MS = 8_000;
 const BODY_SNIPPET_MAX = 300;
 
@@ -44,12 +45,16 @@ export class OpenFoodFactsService implements IngredientSearchService {
     this.recorder?.record({ kind: 'off', message: `${operation} ${outcome} (${Date.now() - startedAt}ms)`, detail });
   }
 
-  async searchByName(query: string, _sources?: Set<string>): Promise<IngredientSearchResult[]> {
-    const q = `${query} lang:de countries_tags:"en:germany"`;
+  /** Searches every market in `locale`'s language; `langs` alone picks the name fields searched. */
+  async searchByName(
+    query: string,
+    _sources?: Set<string>,
+    locale: CatalogLocale = 'de',
+  ): Promise<IngredientSearchResult[]> {
     const startedAt = Date.now();
     let result: Awaited<ReturnType<SearchApi['searchGet']>>;
     try {
-      result = await this.search.searchGet({ q, langs: 'de', page_size: 20, fields: FIELDS });
+      result = await this.search.searchGet({ q: query, langs: locale, page_size: 20, fields: FIELDS });
     } catch (err) {
       const reason = failureReason(err);
       this.record('search', `failed: ${reason}`, startedAt);
@@ -64,7 +69,7 @@ export class OpenFoodFactsService implements IngredientSearchService {
     this.record('search', `ok ${response.status}`, startedAt);
     const hits = 'hits' in data ? data.hits : [];
     return hits.flatMap((p) => {
-      const mapped = mapOffProduct(p as Parameters<typeof mapOffProduct>[0]);
+      const mapped = mapOffProduct(p as Parameters<typeof mapOffProduct>[0], locale);
       return mapped ? [mapped] : [];
     });
   }
