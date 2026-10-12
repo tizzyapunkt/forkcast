@@ -35,7 +35,11 @@ forkcast was deliberately not built as a product. It started as a tool for exact
 
 forkcast is planning-first: the week is the primary unit, and ad-hoc daily tracking is the secondary, flexible path. Competing trackers take the opposite emphasis. It exists because planning a week of meals has to stay fast enough to actually happen every week.
 
-The site leads with the calorie and macro goals, not with meal planning in general. Macro trackers (fddb, yazio, MyFitnessPal, MacroFactor, Cronometer) don't plan the week; meal planners and recipe apps don't measure the week against goals. forkcast sits where the two meet, so the headline names both: plan the week, to your macros. Planning stays the verb and macros the measure; the site does not present forkcast as a fitness app or promise weight loss.
+The gap forkcast fills: macro trackers (fddb, yazio, MyFitnessPal, MacroFactor, Cronometer) don't plan the week, and meal planners don't measure the week against goals. Planning stays the verb and macros the measure; the site does not present forkcast as a fitness app or promise weight loss.
+
+## Voice
+
+The page is written by the author, in the first person, from an interview: it tells their week, their annoyances and their limits in their own words. Edits fix grammar only; they don't polish the voice, add slogans or turn "I" into "you". Casual words stay ("gonna", "tho", "interwebz", the emoticons). Headings are plain or taken from the author's own phrases. New copy goes through the author first; the German page is a faithful translation in the same register.
 
 ## Capabilities and Constraints
 
@@ -49,6 +53,7 @@ What the app really does today (the site may describe only this):
 - Weight log with a trend shown next to the plan
 - Packaged foods via Open Food Facts: search includes Open Food Facts branded products (toggle in the search panel), and barcode scans look products up there. When a barcode is missing from Open Food Facts, the product can be captured from packaging photos via AI and is stored locally. Open Food Facts data is ODbL-licensed, so the site credits it.
 - Recipe import from photos (printed page, screenshot, recipe card) via AI, reviewed by the user before saving
+- AI-drafted catalog entries for foods that are not in the catalog yet, as suggestions the user can adjust
 - Installable PWA, mobile-first with full desktop support. Only the app shell is cached: data needs the server, there is no offline sync, so the site must not claim offline use.
 
 Constraints:
@@ -60,7 +65,7 @@ Live at https://check-forkcast.tizzy.dev (GitHub Pages). The launch decisions ar
 
 ## Brand Commitments
 
-- Name is fixed: **forkcast**, always lowercase.
+- Name: **forkcast**, always lowercase. It may change: other calorie-tracking and meal-planning apps use the same name, and the page says so in the author's words ("About the name").
 - Primary brand color is fixed: light purple/lilac, `244 36% 44%` (HSL, `--primary` in `frontend/src/components/ui/tokens.css`). Binding for the website as well as the app.
 - No logo or other visual assets yet.
 - Visual direction is the category standard, played straight: a familiar product landing page executed at full craft, no novelty world. The bar is the craft level of Cultured Code's Things site (culturedcode.com): friendly, uncluttered, the app at the centre. Standing preference for every website surface.
@@ -78,4 +83,4 @@ Live at https://check-forkcast.tizzy.dev (GitHub Pages). The launch decisions ar
 2. **Time is the pitch.** The value is that planning a week takes minutes, so the site should be just as quick to understand.
 3. **Two audiences, one story.** Neither hosted nor self-hosted is the default path until the interest check says so.
 4. **Same truth in both languages.** EN and DE make identical claims.
-5. **Plain and checkable.** No marketing superlatives. Every claim can be verified in the repo, data flows are named and kept apart by where they happen — the app (photo import and packaging capture send images to the Anthropic API; product search and barcode lookups query Open Food Facts) versus this website (cookieless Umami analytics for visits and the interest check; the optional launch e-mail via Tally) — and nothing is required to read the page: no JS, no cookies, no e-mail.
+5. **Plain and checkable.** No marketing superlatives. Every claim can be verified in the repo, data flows are named and kept apart by where they happen — the app (photo import and packaging capture send images to the Anthropic API, catalog drafting sends food names there, all only with the user's own API key; product search and barcode lookups query Open Food Facts; the page says this in the author's words) versus this website (cookieless Umami analytics for visits and the interest check; the optional launch e-mail via Tally; both in the privacy policy) — and nothing is required to read the page: no JS, no cookies, no e-mail.

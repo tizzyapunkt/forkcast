@@ -3,17 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>forkcast — plane deine Woche nach deinen Makros. Hättest du es gern gehostet?</title>
+    <title>forkcast — meine Version von Essensplanung und Kalorientracking. Hättest du es gern gehostet?</title>
     <meta
       name="description"
-      content="Die Mahlzeiten der Woche gegen eigene Kalorien- und Makroziele planen und sehen, ob die Woche aufgeht, bevor du sie gegessen hast. Dann aus der Einkaufsliste einkaufen und mit den eigenen Rezepten kochen. Es läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
+      content="forkcast ist meine Version von Essensplanung und Meal Prep, spontanem Kalorientracking und Lo-Fi-Rezeptverwaltung. Es läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="forkcast" />
-    <meta property="og:title" content="forkcast — plane deine Woche nach deinen Makros. Hättest du es gern gehostet?" />
+    <meta
+      property="og:title"
+      content="forkcast — meine Version von Essensplanung und Kalorientracking. Hättest du es gern gehostet?"
+    />
     <meta
       property="og:description"
-      content="Die Mahlzeiten der Woche gegen eigene Kalorien- und Makroziele planen und sehen, ob die Woche aufgeht, bevor du sie gegessen hast. Dann aus der Einkaufsliste einkaufen und mit den eigenen Rezepten kochen. Es läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
+      content="forkcast ist meine Version von Essensplanung und Meal Prep, spontanem Kalorientracking und Lo-Fi-Rezeptverwaltung. Es läuft heute selbst gehostet; diese Seite prüft, ob sich eine gehostete Version lohnt."
     />
     <meta property="og:url" content="https://check-forkcast.tizzy.dev/de/" />
     <meta property="og:image" content="https://check-forkcast.tizzy.dev/og-de.jpg" />
@@ -44,9 +47,8 @@
           <img src="/favicon.svg" alt="" width="28" height="28" />forkcast
         </a>
         <nav class="nav" aria-label="Hauptnavigation">
-          <a class="nav-section" href="#how">So funktioniert's</a>
-          <a class="nav-section" href="#built">Technik &amp; Daten</a>
-          <a class="nav-section" href="#faq">Fragen</a>
+          <a class="nav-section" href="#week">Meine Woche</a>
+          <a class="nav-section" href="#try">Ausprobieren</a>
           <a class="nav-github" href="https://github.com/tizzyapunkt/forkcast">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
@@ -64,12 +66,17 @@
       <section class="hero">
         <div class="wrap">
           <div>
-            <h1>Plane deine Woche nach deinen Makros. Hättest du forkcast gern <span>gehostet</span>?</h1>
+            <h1>Meine Version von Essensplanung und Kalorientracking. Hättest du es gern <span>gehostet</span>?</h1>
             <p class="lede">
-              Die meisten Tracker protokollieren, was du schon gegessen hast. Mit forkcast planst du die Mahlzeiten der
-              Woche gegen deine eigenen Kalorien- und Makroziele und siehst, ob die Woche aufgeht, bevor du etwas davon
-              gegessen hast. Aus dem Plan wird die Einkaufsliste, und beim Kochen ist das Rezept parat. Es läuft heute
-              selbst gehostet, für eine Person. Diese Seite prüft, ob sich eine gehostete Version lohnt.
+              forkcast ist meine Version von Essensplanung und Meal Prep, spontanem Kalorientracking und
+              Lo-Fi-Rezeptverwaltung. Es hilft mir, auf dem richtigen Kurs zu bleiben, um meine Ernährungs-, Gewichts-
+              und Fitnessziele zu erreichen.
+            </p>
+            <p class="lede">
+              Da meine Sicht auf reibungsarme Essensplanung und Kalorientracking wohl nicht nur meine ist, gefallen
+              anderen vielleicht auch die Entscheidungen, die ich getroffen habe, um das Thema weniger nervig zu machen.
+              Wenn Leute, die es selbst hosten können, es nützlich finden, lohnt es sich vielleicht, es als gehostete
+              Version für Leute anzubieten, die weniger technikaffin sind.
             </p>
 
             <form
@@ -116,7 +123,7 @@
               </div>
               <p class="form-note">
                 Freiwillig. Öffnet ein Tally-Formular für deine E-Mail. Ich schreibe einmal: wenn die gehostete Version
-                zum Ausprobieren bereit ist, oder Ende 2026, falls nicht. Danach wird die Adresse gelöscht.
+                zum Ausprobieren bereit ist, oder im Januar 2027, falls nicht. Danach wird die Adresse gelöscht.
               </p>
               <p class="form-status" role="status" aria-live="polite"></p>
             </form>
@@ -155,21 +162,46 @@
         <div class="wrap">
           <div class="prose">
             <h2 id="origin-title">
-              Ich habe yazio, fddb, MyFitnessPal und Excel zu meinem eigenen Essensplaner zusammengeflickt.
+              Warum ich yazio, fddb, MyFitnessPal und Excel zusammen&shy;gefranken&shy;steint habe
             </h2>
             <p>
-              Ich habe einen Vollzeitjob, eine junge Familie und Fitnessziele, die ich ernst nehme. Jeder Tracker, den
-              ich probiert habe, fddb, yazio, MyFitnessPal, dreht sich ums Eintragen dessen, was man schon gegessen hat.
-              Ich wollte sonntags entscheiden, was ich die ganze Woche esse, und wissen, dass es aufgeht.
+              Das Bedürfnis, meine Mahlzeiten zu planen, vorzukochen und zu tracken, kam aus einer
+              90-Tage-Fitness-Challenge, mit der ich abnehmen und fitter werden wollte. In der Challenge wurde
+              empfohlen, diese Apps für die Essensplanung zu nutzen, um die Kalorien- und Makroziele sicher zu treffen,
+              und das Nachdenken übers Essen nicht über die Tage zu verteilen, sondern einmal vorzubereiten und dann die
+              ganze Woche vom Plan zu profitieren.
             </p>
             <p>
-              Eine Excel-Tabelle hat mich halb dorthin gebracht. Rechnen konnte sie, aber sie war nie ergonomisch genug,
-              um sie jede Woche durchzuhalten. Also habe ich das, was bei jedem funktioniert hat, zu forkcast
-              zusammengenäht, für mich, ohne Plan, ein Produkt daraus zu machen.
+              Ich bin Vater von zwei Kindern und arbeite Vollzeit, also war ich froh, dass es anscheinend Tools gab, die
+              mich in dieser 90-Tage-Phase unterstützen, und natürlich auch danach. Denn ein Ziel der 90-Tage-Challenge
+              war, im Grunde den Kurs für den Rest deines Lebens zu setzen, was, wenn du mich fragst, auch eine ziemlich
+              steile These ist.
             </p>
             <p>
-              Inzwischen ist es so weit gewachsen, dass es vielleicht auch andere nutzen wollen. Mit dieser Seite finde
-              ich heraus, ob das stimmt und ob du es lieber gehostet oder auf deinem eigenen Server hättest.
+              Am meisten genervt hat mich, dass sie nicht darauf ausgelegt sind, eine Woche im Voraus zu planen, sondern
+              darauf, zu tracken, was du gerade isst oder was du an einem bestimmten Tag essen willst. Das nächste große
+              Ärgernis war, wie sie mit Rezepten und Mahlzeiten und deren Tracking umgehen. Meistens wird ein Rezept als
+              ein Ganzes getrackt und nicht als die Zutaten, aus denen es besteht. Das macht es oft sehr mühsam, Zutaten
+              zu tauschen, weil du jedes Mal das Rezept bearbeiten musst und Zutaten nicht spontan tauschen kannst, zum
+              Beispiel während du gerade kochst.
+            </p>
+            <p>
+              Dazu kam die Inkonsistenz zwischen Mobil- und Desktop-Oberfläche, falls es überhaupt eine gab. Manche
+              Funktionen mancher Apps gab es mobil nicht, aber am Desktop, was überhaupt keinen Sinn ergab. Manchmal war
+              es auch umgekehrt. Sich an zwei verschiedene Oberflächen mit zwei verschiedenen Funktionsumfängen zu
+              gewöhnen, war also auch einfach nervig. Und natürlich hatten viele davon jede Menge Funktionen, die ich
+              schlicht nicht brauche, die mir aber im Alltag im Weg waren, weil sie Platz in der Oberfläche belegen, der
+              einfach für etwas anderes genutzt werden könnte.
+            </p>
+            <p>
+              Ich hatte von einigen dieser Apps die Bezahlversion, und selbst die hat nicht die Funktionen
+              freigeschaltet, die ich nützlich gefunden hätte.
+            </p>
+            <p>
+              Die Excel-Tabelle dagegen war technisch so simpel, wie es nur ging, weil sie die Rechnerei hinter Kalorien
+              und so erledigen konnte. Aber Rezepte tracken oder sie als Kochbegleiter nutzen war natürlich nicht schön,
+              und spontanes Tracking war natürlich schlicht unmöglich, weil es keine vernünftige mobile Oberfläche gab,
+              keinen Barcode-Scanner und so weiter und so fort.
             </p>
           </div>
 
@@ -239,178 +271,20 @@
         </div>
       </section>
 
-      <section class="section section--ruled" id="different" aria-labelledby="different-title">
+      <section class="section section--tint" id="week" aria-labelledby="week-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 id="different-title">Was es anders macht</h2>
-            <p>
-              Andere Tracker sind Tagebücher mit angebautem Planer. forkcast fängt bei der Woche an, und daraus folgen
-              ein paar Entscheidungen.
-            </p>
-          </div>
-
-          <ul class="decisions">
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Der Plan ist das Tagebuch</h3>
-                <p class="usual">Andere Tracker: ein Tagebuch für jeden Tag, die Essensplanung nebenher.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Du planst die Woche, und die geplanten Mahlzeiten sind dein Tagebuch. Läuft ein Tag anders, änderst du
-                  diesen Tag. Nichts wird doppelt eingetragen.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Deine Zahlen, keine Diätvorlage</h3>
-                <p class="usual">Andere Tracker: ein Diätplan legt deine Zahlen fest.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Trag Kalorien und Makros selbst ein, oder lass den Rechner sie aus Körper, Aktivität und Phase
-                  ermitteln, mit einer veröffentlichten Formel (Ten Haaf &amp; Weijs, 2014). Das Ergebnis kannst du
-                  jederzeit ändern.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Zutaten statt Gerichte</h3>
-                <p class="usual">Andere Tracker: eine Mahlzeit landet als ein Eintrag im Tagebuch.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Ein Rezept wird als seine Zutaten eingetragen. Reis gegen Kartoffeln tauschen ist am Dienstag eine
-                  Änderung am Dienstag, das Rezept bleibt, wie es ist.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Ein Rezept, zwei Aufgaben</h3>
-                <p class="usual">Andere Tracker: was im Rezept steht, steht auch im Tagebuch.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Das Rezept behält alles, was eine Kochbuchseite hat, bis zum Kreuzkümmel und den Schritten. Ins
-                  Tagebuch kommt nur, was zählt. Die Gewürze landen trotzdem auf der Einkaufsliste.
-                </p>
-                <figure class="recipe-split">
-                  <div class="rs-card">
-                    <p class="rs-title">Linsen-Dal<span>Rezept · 4 Portionen</span></p>
-                    <ul class="rs-list">
-                      <li><span>Rote Linsen</span><span>300 g</span></li>
-                      <li><span>Zwiebel</span><span>120 g</span></li>
-                      <li><span>Knoblauch</span><span>12 g</span></li>
-                      <li><span>Ingwer</span><span>16 g</span></li>
-                      <li><span>Tomate</span><span>3 mittel</span></li>
-                      <li><span>Kokosöl</span><span>20 ml</span></li>
-                      <li><span>Spinat</span><span>200 g</span></li>
-                      <li><span>Basmatireis</span><span>200 g</span></li>
-                    </ul>
-                    <p class="rs-sub">Gewürze &amp; Kleinkram</p>
-                    <ul class="rs-list rs-list--untracked">
-                      <li><span>Kurkuma</span><span>1 TL</span></li>
-                      <li><span>Kreuzkümmel</span><span>1 TL</span></li>
-                      <li><span>Salz</span><span>nach Geschmack</span></li>
-                    </ul>
-                  </div>
-                  <svg
-                    class="rs-arrow"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M4 12h15M13 6l6 6-6 6" />
-                  </svg>
-                  <div class="rs-card">
-                    <p class="rs-title">Mi · Mittag<span>Eingetragen · 1 Portion</span></p>
-                    <ul class="rs-list">
-                      <li><span>Rote Linsen</span><span>75 g</span></li>
-                      <li><span>Zwiebel</span><span>30 g</span></li>
-                      <li><span>Knoblauch</span><span>3 g</span></li>
-                      <li><span>Ingwer</span><span>4 g</span></li>
-                      <li><span>Tomate</span><span>90 g</span></li>
-                      <li><span>Kokosöl</span><span>5 ml</span></li>
-                      <li><span>Spinat</span><span>50 g</span></li>
-                      <li><span>Basmatireis</span><span>50 g</span></li>
-                    </ul>
-                    <p class="rs-skipped">Kurkuma, Kreuzkümmel und Salz bleiben draußen.</p>
-                    <p class="rs-total">518 kcal · 25 P · 88 KH · 7 F</p>
-                  </div>
-                  <figcaption>
-                    Ein Rezept aus den Demodaten: die volle Fassung zum Kochen, und was eine Portion ins Tagebuch
-                    schreibt.
-                  </figcaption>
-                </figure>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Kochen, wie du kochst</h3>
-                <p class="usual">Andere Tracker: gekocht wird außerhalb der App.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Koch ein Rezept frisch für einen Tag oder als Meal-Prep für mehrere: Du wählst, welche seiner
-                  geplanten Mahlzeiten du kochst, und gibst Portionen für Mitesser dazu, die nicht in deinem Tagebuch
-                  landen. Änderst du am Herd eine Menge oder tauschst eine Zutat, ziehen die geplanten Mahlzeiten mit.
-                  Der Bildschirm bleibt an.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Einkaufen nach Plan</h3>
-                <p class="usual">Andere Tracker: die Einkaufsliste schreibst du selbst.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Die Einkaufsliste rechnet die ganze Woche zusammen, Gewürze inklusive. Stell ein, wie viele Portionen
-                  du wirklich kochst, dann hak ab, was da ist, oder schick die Liste an Bring!.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Läuft bei dir</h3>
-                <p class="usual">Andere Tracker: ein Konto, und dein Tagebuch auf fremden Servern.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Heute ist forkcast eine selbst gehostete App für eine Person: Sie läuft auf deinem eigenen Server,
-                  speichert alles dort in einfachen Dateien und ist mit einem Passwort statt Konten geschützt. Open
-                  Source unter AGPL-3.0, keine Werbung.
-                </p>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="section section--tint" id="how" aria-labelledby="how-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 id="how-title">So funktioniert's</h2>
-            <p>
-              Die Woche ist die Einheit. Tägliches Eintragen gibt es weiterhin, als flexiblen Teil, nicht als
-              Hauptarbeit.
-            </p>
+            <h2 id="week-title">Meine Woche damit</h2>
           </div>
 
           <div class="steps">
             <div class="step step--wide">
               <div class="step-text">
-                <h3>Woche planen</h3>
                 <p>
-                  Leg Mahlzeiten auf jeden Tag der kommenden Woche und sieh Tages- und Wochendurchschnitt gegen deine
-                  Ziele, bevor du etwas gegessen hast. Beim Meal-Prep kopierst du einen Tag auf den nächsten.
+                  Meistens fange ich Donnerstag oder Freitag an, die nächste Woche zu planen, damit ich am Samstag
+                  einkaufen kann. Meal Prep für die kommende Woche mache ich am Sonntag. Meistens bereite ich Montag bis
+                  Mittwoch vor, und am Mittwoch dann nochmal bis Freitag. Je nachdem, was ich koche, ist das jede Woche
+                  ein bisschen anders. Beim Planen fange ich mit den Frühstücken an und dann kommt das Mittagessen.
                 </p>
                 <ul class="macro-legend" aria-label="Makrofarben">
                   <li><i style="background: var(--macro-p)"></i>Eiweiß</li>
@@ -451,10 +325,10 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Den Tag anpassen</h3>
                 <p>
-                  Pläne ändern sich. Tausch eine Mahlzeit oder trag Ungeplantes am Handy ein, die Makros rechnen schon
-                  beim Tippen der Menge mit.
+                  Weil ich zwei kleine Kinder habe, laufen Abende und Wochenenden meistens nicht nach Plan, also tracke
+                  ich die spontan. Ich versuche, nicht dogmatisch zu sein. Wenn ein, zwei Tage über meinen Makro- oder
+                  Kalorienzielen liegen, ist das okay. Für mich zählt der Kurs.
                 </p>
               </div>
               <div>
@@ -475,11 +349,10 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Einkaufen nach Plan</h3>
                 <p>
-                  Die Einkaufsliste rechnet zusammen, was die Woche braucht, mit Stückhinweisen wie „≈ 3“ bei Zwiebeln.
-                  Stell ein, wie viele Portionen du von jedem Rezept wirklich kochst, und die Mengen ziehen mit. Hak ab,
-                  was schon da ist, oder schick die Liste an Bring!.
+                  Da bei uns entweder meine Frau oder ich einkaufen und wir schon an Bring! als Einkaufslisten-App
+                  gewöhnt waren, hab ich mich sehr gefreut, dass Bring! einen sehr einfachen Weg hat, eine Einkaufsliste
+                  dorthin zu exportieren. Props an Bring! an dieser Stelle. :)
                 </p>
               </div>
               <div>
@@ -500,13 +373,67 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Einmal kochen für die Woche</h3>
                 <p>
-                  Koch ein geplantes Rezept in einem Rutsch für alle Mahlzeiten, in denen es diese Woche steht. Die
-                  Kochansicht zeigt die Mengen für den ganzen Topf, die Schritte und die Makros, die jede Portion
-                  einträgt. Die ganze Flasche genommen oder eine Zutat getauscht? Änder es beim Kochen, und jede
-                  geplante Mahlzeit zieht mit. Der Bildschirm bleibt an.
+                  Beim Einkaufen und Kochen ist mir aufgefallen, dass ich manchmal nicht die Packungsgrößen bekomme, die
+                  ich gern hätte, und weil ich nicht alle Reste einfrieren kann, musste ich beim Kochen hier und da
+                  Mengen ändern. Deshalb habe ich es einfach gemacht, beim Kochen Zutaten zu tauschen oder Mengen zu
+                  ändern, ohne das Rezept anzufassen. Weil das die geplante Woche verändern kann, muss auch das Ändern
+                  des Plans reibungsarm sein.
                 </p>
+                <figure class="recipe-split">
+                  <div class="rs-card">
+                    <p class="rs-title">Linsen-Dal<span>Rezept · 4 Portionen · unverändert</span></p>
+                    <ul class="rs-list">
+                      <li><span>Rote Linsen</span><span>300 g</span></li>
+                      <li><span>Zwiebel</span><span>120 g</span></li>
+                      <li><span>Knoblauch</span><span>12 g</span></li>
+                      <li><span>Ingwer</span><span>16 g</span></li>
+                      <li><span>Tomate</span><span>3 mittel</span></li>
+                      <li><span>Kokosöl</span><span>20 ml</span></li>
+                      <li><span>Spinat</span><span>200 g</span></li>
+                      <li><span>Basmatireis</span><span>200 g</span></li>
+                    </ul>
+                    <p class="rs-sub">Gewürze &amp; Kleinkram</p>
+                    <ul class="rs-list rs-list--untracked">
+                      <li><span>Kurkuma</span><span>1 TL</span></li>
+                      <li><span>Kreuzkümmel</span><span>1 TL</span></li>
+                      <li><span>Salz</span><span>nach Geschmack</span></li>
+                    </ul>
+                  </div>
+                  <svg
+                    class="rs-arrow"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 12h15M13 6l6 6-6 6" />
+                  </svg>
+                  <div class="rs-card">
+                    <p class="rs-title">Mi · Mittag<span>Eingetragen · 1 Portion</span></p>
+                    <ul class="rs-list">
+                      <li class="rs-changed">
+                        <span>Rote Linsen</span><span>100 g<small>vorher 75 g</small></span>
+                      </li>
+                      <li><span>Zwiebel</span><span>30 g</span></li>
+                      <li><span>Knoblauch</span><span>3 g</span></li>
+                      <li><span>Ingwer</span><span>4 g</span></li>
+                      <li><span>Tomate</span><span>90 g</span></li>
+                      <li><span>Kokosöl</span><span>5 ml</span></li>
+                      <li><span>Spinat</span><span>50 g</span></li>
+                      <li><span>Basmatireis</span><span>50 g</span></li>
+                    </ul>
+                    <p class="rs-skipped">Kurkuma, Kreuzkümmel und Salz bleiben draußen.</p>
+                    <p class="rs-total">604 kcal · 31 P · 102 KH · 7 F</p>
+                  </div>
+                  <figcaption>
+                    Ein Rezept aus den Demodaten, gekocht mit einer ganzen 400-g-Packung Linsen: Das Rezept bleibt bei
+                    300&nbsp;g, jede eingetragene Portion bekommt 100&nbsp;g.
+                  </figcaption>
+                </figure>
               </div>
               <div>
                 <div class="device">
@@ -524,24 +451,42 @@
               </div>
             </div>
           </div>
+
+          <div class="prose steps-after">
+            <p>
+              Weil die App aus einer 90-Tage-Fitness-Challenge entstanden ist, gehören einfaches Festlegen von
+              Fitnesszielen und Gewichtstracking auch dazu. Ich wiege mich jeden Morgen, um den Trend über die Woche und
+              den Monat zu sehen. Meine Kalorienziele habe ich mit dem eingebauten Rechner festgelegt, der die
+              Ten-Haaf-Formel nutzt. Für mich waren die Ergebnisse bisher ziemlich gut.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="capture-title">
+      <section class="section" id="apps" aria-labelledby="apps-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 id="capture-title">Zwei Dinge, die am meisten Tipparbeit sparen</h2>
-            <p>
-              Die meiste Zeit in einem Ernährungstracker geht ins Eintragen von Lebensmitteln. Diese zwei verkürzen das.
-            </p>
+            <h2 id="apps-title">Was ich mir von anderen Apps abgeschaut habe, und wo KI ins Spiel kommt</h2>
           </div>
           <div class="steps">
             <div class="step">
               <div class="step-text">
-                <h3>Abgepackte Lebensmittel über Open Food Facts</h3>
                 <p>
-                  Markenprodukte suchen oder Barcode scannen, die Nährwerte kommen von Open Food Facts. Fehlt ein
-                  Produkt dort, fotografierst du die Verpackung und es landet in deinem eigenen Katalog.
+                  Ein paar Dinge an anderen Apps mochte ich aber schon. Barcode-Scannen und die Suche nach verpackten
+                  Lebensmitteln zum Beispiel, weil das für spontanes Tracking fast Pflicht ist. Zum Glück bietet
+                  <a href="https://world.openfoodfacts.org">Open Food Facts</a> eine offene und kostenlose API mit
+                  Nährwerten für verpackte Lebensmittel, die man per Barcode oder Textsuche abfragen kann. Bisher hatte
+                  sie fast alles, wonach ich gesucht habe. Für die Fälle, in denen nichts gefunden wurde, habe ich
+                  KI-basierte Texterkennung (OCR) eingebaut, um Nährwerte selbst von der Verpackung abzulesen und in
+                  einem lokalen Katalog zu speichern.
+                </p>
+                <p>
+                  Während Open Food Facts gut für verpackte Lebensmittel ist, kommen 'generische', unverpackte
+                  Lebensmittel wie Gemüse, Eier und Ähnliches aus einem lokalen Katalog, der mit Nährwerten für gängige
+                  Sachen vorbefüllt ist. Der Katalog lässt sich in der Oberfläche bearbeiten, weil das manchmal
+                  praktisch war. Über den Katalog kannst du auch Zutaten suchen, wenn du Rezepte anlegst. Weil manche
+                  Zutaten in Rezepten nicht mit Gewicht, sondern in Stück angegeben sind, stehen im Katalog auch gängige
+                  Stückgewichte.
                 </p>
               </div>
               <div>
@@ -561,11 +506,19 @@
             </div>
             <div class="step">
               <div class="step-text">
-                <h3>Rezepte aus Fotos</h3>
                 <p>
-                  Kochbuchseite fotografieren, Screenshot machen oder Vorder- und Rückseite einer Rezeptkarte aufnehmen,
-                  und du bekommst einen Rezeptentwurf. Du prüfst jede Zutat, bevor etwas gespeichert wird, danach kennt
-                  das Rezept seine Makros pro Portion.
+                  Apropos KI-basierte Texterkennung: forkcast kann auch Rezepte aus Fotos oder Screenshots auslesen. Das
+                  war mir wichtig, weil ich keine Zeit investieren wollte, Rezepte, die ich mag, von Hand einzutippen.
+                  Die kommen meistens aus Büchern oder aus dem Interwebz.
+                </p>
+                <p>
+                  Weil ich KI hier erwähnt habe: Ich wollte keine KI-basierte Planung, keine KI-generierten Rezepte oder
+                  Ähnliches einbauen. Ich will die Kontrolle darüber haben, was ich esse, und ich will auch selbst
+                  darüber nachdenken. KI habe ich dort eingestreut, wo ich fand, dass sie als Unterstützung sinnvoll
+                  ist. Ich nutze Modelle von Anthropic für Texterkennung, das Auslesen von Rezepten und das Ermitteln
+                  von Nährwerten für Zutaten, die noch nicht im Katalog sind. Das passiert nur, wenn du deinen eigenen
+                  Anthropic-API-Key hinterlegst; ohne den blenden sich diese Funktionen aus. Alles lässt sich anpassen,
+                  die KI macht nur Vorschläge.
                 </p>
               </div>
               <div>
@@ -587,113 +540,79 @@
         </div>
       </section>
 
-      <section class="section section--tint" aria-labelledby="features-title">
+      <section class="section section--tint" aria-labelledby="limits-title">
         <div class="wrap">
-          <div class="section-head">
-            <h2 id="features-title">Und der Rest der Grundlagen</h2>
+          <div class="prose">
+            <h2 id="limits-title">Was es nicht kann</h2>
+            <p>
+              Was es gerade nicht kann, ist kochen. Klar, ich koche gern. Aber manchmal, an einem Sonntagabend, beim
+              Meal Prep, während die PS5 leise meinen Namen flüstert, oder die Familie... Kochen ist hart. ;)
+            </p>
+            <p>
+              Davon abgesehen fühlt es sich, was große Funktionen angeht, für mich gerade ziemlich vollständig an. Die
+              wichtige Nuance dabei: für MICH. Wenn DU es nutzen willst, kann das bei dir natürlich anders aussehen.
+            </p>
+            <p>
+              Weil sich in meiner Familie sonst niemand für Kalorientracking interessiert, gab es keinen Grund, es
+              mehrbenutzerfähig zu machen, eine solidere Datenbank zu haben (gerade sind es einfache JSON-Dateien) oder
+              was auch immer. Ich wollte Wartung und Erweiterung mit wenig Aufwand halten.
+            </p>
+            <p>
+              Wenn es Nachfrage gibt, dass andere die App nutzen, muss sich natürlich hier und da etwas ändern. Die
+              Grundidee und der Fokus bleiben aber gleich. Wenn mehr KI-Funktionen gewünscht werden, biete ich lieber
+              eine ordentliche CLI / MCP an, als sie über die ganze Oberfläche zu verteilen. Ich glaube auch nicht, dass
+              ich daraus eine native App mache; eine PWA reicht mir.
+            </p>
+            <p>
+              Noch ein KI-Disclaimer: Ich hab ja Familie, einen Vollzeitjob und Kinder erwähnt, die noch zu klein sind,
+              um allein klarzukommen. Deshalb ist diese App mit viel KI-Hilfe entstanden. Viel Review-Zeit geht in die
+              Specs, damit es so funktioniert, wie ich will. Code und Tests reviewe ich mit meinem 'gut genug'-Hut auf.
+              Weil es Open Source ist: Wenn andere mit dem Code spielen und Vorschläge machen wollen, sind Beiträge mehr
+              als willkommen.
+            </p>
           </div>
-          <dl class="features">
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z" />
-                  <path d="M5 17a3 3 0 0 1 3-3h11M9 8h6" />
-                </svg>
-                Dein eigener Lebensmittelkatalog
-              </dt>
-              <dd>
-                Eine kuratierte Basis alltäglicher Lebensmittel, die du korrigieren und erweitern kannst, mit
-                Stückgewichten wie „1 Ei“.
-              </dd>
-            </div>
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
-                  <path d="M11 18.5h2" />
-                </svg>
-                Fürs Handy gebaut, am Desktop genauso
-              </dt>
-              <dd>
-                Eine installierbare Web-App, die wie jede andere App auf dem Handy liegt, und am Schreibtisch genauso
-                gut.
-              </dd>
-            </div>
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" />
-                </svg>
-                Gewicht neben dem Plan
-              </dt>
-              <dd>Gewicht eintragen und den Verlauf neben dem sehen, was du geplant und gegessen hast.</dd>
-            </div>
-          </dl>
         </div>
       </section>
 
-      <section class="section" id="built" aria-labelledby="built-title">
+      <section class="section asking" aria-labelledby="asking-title">
         <div class="wrap">
-          <div class="section-head">
-            <h2 id="built-title">Wie es gebaut ist und wohin Daten gehen</h2>
-            <p>Im Moment läuft forkcast als eine Instanz für eine Person: mich. Das hier ist alles, was es berührt.</p>
+          <div class="prose">
+            <h2 id="asking-title">Warum ich frage</h2>
+            <p>
+              Wenn die Nachfrage da ist, besonders nach gehostet, überlege ich mir eine Roadmap und einen Weg, wie du
+              bis zu einem Release auf dem Laufenden bleibst. Dann setze ich auch meinen 'Production'-Hut auf, nutze
+              einen Teil meiner PS5-Zeit für forkcast und sorge dafür, dass es die Anforderungen an eine App erfüllt,
+              die andere nutzen. Ich würde auch schauen, ob ich das Selbst-Hosten irgendwie einfacher machen kann. Ich
+              freue mich grundsätzlich über jedes Feedback, auch wenn es 'wow, noch ein Kalorientracker, den keiner
+              braucht' ist.
+            </p>
+            <p>
+              Wie gesagt: Wenn dich interessiert, wie es weitergeht, hinterlass deine Mail. Ich schreibe einmal, und
+              dann wird die Adresse gelöscht.
+            </p>
           </div>
-
-          <ul class="data-flows">
-            <li class="is-local">
-              <b>Mahlzeiten, Rezepte, Ziele</b>
-              <span>Einfache JSON-Dateien auf dem Server, der es betreibt. Keine Datenbank, kein Account-System.</span>
-            </li>
-            <li class="is-local">
-              <b>Erfasste Produkte</b>
-              <span
-                >Aus Verpackungsfotos gelesene Produkte landen in deinem eigenen Lebensmittelkatalog, auf deinem
-                Server.</span
-              >
-            </li>
-            <li>
-              <b>Produktsuche</b>
-              <span>Fragt Open Food Facts ab, wenn du sie einschaltest oder einen Barcode scannst.</span>
-            </li>
-            <li>
-              <b>Foto-Import</b>
-              <span
-                >Rezept- und Verpackungsfotos gehen an die Anthropic API, nur wenn du einen eigenen API-Key hinterlegst.
-                Ohne Key blendet sich die Funktion aus.</span
-              >
-            </li>
-          </ul>
+          <a class="button" href="#interest">Zur Frage</a>
         </div>
       </section>
 
-      <aside class="try-now" aria-labelledby="try-now-title">
+      <section class="section section--tint" aria-labelledby="name-title">
+        <div class="wrap">
+          <div class="prose">
+            <h2 id="name-title">Zum Namen</h2>
+            <p>
+              Ich dachte, ich wäre mit dem Namen 'forkcast' richtig clever und kreativ. Weil es nur für mich war, habe
+              ich nicht recherchiert, ob der Name schon vergeben ist. Tja, es stellte sich heraus, dass es in der
+              Kategorie Kalorientracker und Essensplanung nicht nur ein Produkt mit diesem Namen gibt. Schade. Der Name
+              kann sich also noch ändern. Ideen willkommen ;)
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="try-now" id="try" aria-labelledby="try-now-title">
         <div class="wrap">
           <div>
-            <h2 id="try-now-title">Selbst betreiben geht schon heute</h2>
+            <h2 id="try-now-title">Willst du es ausprobieren?</h2>
             <p>
               Du kannst es jetzt auf deinem eigenen Server laufen lassen. Die Anleitung steht in der README auf GitHub.
             </p>
@@ -701,140 +620,6 @@
           <a class="button" href="https://github.com/tizzyapunkt/forkcast#self-hosting">Auf GitHub einrichten</a>
         </div>
       </aside>
-
-      <section class="section" id="faq" aria-labelledby="faq-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 id="faq-title">Fragen</h2>
-          </div>
-          <div class="faq">
-            <details>
-              <summary>
-                Warum nicht einfach eine Tabelle?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Hab ich versucht, in Excel. Rechnen ging, aber eine Woche Mahlzeiten eintragen, Makros nachschlagen und
-                die Einkaufsliste neu bauen war nie ergonomisch genug, um es wirklich jede Woche zu machen. forkcast
-                gibt es, weil die Tabelle immer wieder ausgefallen ist.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Gibt es eine gehostete Version?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Noch nicht. Ob es eine geben wird, hängt von den Antworten auf die Frage oben auf dieser Seite ab. Wenn
-                du deine E-Mail im Tally-Formular dagelassen hast, erfährst du es zuerst.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Wird es etwas kosten?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Der Code ist öffentlich und du kannst ihn selbst betreiben. Ob eine gehostete Version etwas kosten
-                würde, ist nicht entschieden. Es gibt noch nichts zu verkaufen.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Wo liegen meine Daten?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Beim Selbsthosten: in JSON-Dateien auf deinem Server. Produktabfragen gehen an Open Food Facts, Fotos an
-                die Anthropic API, nur wenn du einen Key hinterlegst. Die vollständige Liste steht oben unter „Wie es
-                gebaut ist“.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Gibt es die App auf Englisch?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Ja. Die App gibt es auf Deutsch und Englisch: Sie folgt der Sprache deines Browsers, umstellen lässt sie
-                sich in den Einstellungen. Auch der Lebensmittelkatalog hat englische Namen.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Wer steckt dahinter?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Eine Person, die es in der Freizeit für die eigene Küche baut. Keine Firma, keine Investoren, kein
-                Growth-Team.
-              </p>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section class="section section--tint closing" aria-labelledby="closing-title">
-        <div class="wrap">
-          <h2 id="closing-title">Würdest du deine Woche damit planen?</h2>
-          <p>Gehostet oder auf deinem eigenen Server: Ein Klick sagt mir, was sich als Nächstes zu bauen lohnt.</p>
-          <a class="button" href="#interest">Zur Frage</a>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
