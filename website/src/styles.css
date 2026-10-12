@@ -131,6 +131,12 @@ p {
   text-wrap: pretty;
 }
 
+/* German runs long compounds; let running text break them at syllables. Headings keep their words. */
+:lang(de) p {
+  hyphens: auto;
+  hyphenate-limit-chars: 8 4 3;
+}
+
 figure {
   margin: 0;
 }
@@ -626,8 +632,10 @@ figure {
 
 .section-head h2,
 .prose h2 {
-  font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem);
+  max-width: 22em;
+  font-size: clamp(1.6rem, 1.25rem + 1.3vw, 2.25rem);
   font-weight: 720;
+  line-height: 1.15;
 }
 
 .section-head p {
@@ -869,7 +877,7 @@ figure {
 }
 
 .rs-changed small {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--ink-3);
 }
@@ -931,11 +939,6 @@ figure {
   margin: 0 auto;
 }
 
-.step h3 {
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-  font-weight: 700;
-}
-
 .step-text > p {
   margin-top: 14px;
   max-width: 30em;
@@ -945,6 +948,10 @@ figure {
 
 .step-text > p:first-child {
   margin-top: 0;
+}
+
+.step-text > p + p {
+  margin-top: 18px;
 }
 
 @media (max-width: 760px) {

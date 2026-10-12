@@ -608,10 +608,6 @@
         "displayName": "Headline",
         "purpose": "Section titles and prose h2; legal h1 capped at 2.6rem."
       },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Step titles."
-      },
       "lede": {
         "displayName": "Lede",
         "purpose": "Hero subcopy, capped at 34em."

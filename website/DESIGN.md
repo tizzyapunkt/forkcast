@@ -46,17 +46,11 @@ typography:
     fontWeight: 750
     lineHeight: 1.12
     letterSpacing: "-0.035em"
-  headline: # section-head h2, prose h2 (legal h1 caps at 2.6rem)
+  headline: # section-head h2, prose h2
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(1.9rem, 1.3rem + 2vw, 2.8rem)"
+    fontSize: "clamp(1.6rem, 1.25rem + 1.3vw, 2.25rem)"
     fontWeight: 720
-    lineHeight: 1.12
-    letterSpacing: "-0.022em"
-  title: # step h3
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 1.2rem + 1vw, 2rem)"
-    fontWeight: 700
-    lineHeight: 1.12
+    lineHeight: 1.15
     letterSpacing: "-0.022em"
   lede: # hero .lede
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
@@ -213,14 +207,13 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 **Character:** One family, chosen per the direction contract for UI-like clarity, zero font payload and the Things-site register. The page should feel continuous with the native app screenshots it shows.
 
 ### Hierarchy
-Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these (the legal-page title is the Headline step capped at 2.6rem).
+Three fluid steps (display, headline, lede); six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these, with two exceptions: the legal-page title runs a step larger (fluid 1.9 to 2.6rem, it is the page's only heading of that rank), and the recipe illustration's old-amount note is 12px, as in the app.
 - **Display** (750, fluid 2.1 to 3.3rem, 1.12, -0.035em): the hero headline only, balanced wrapping, one word in lilac. Sized to sit beside the interest check, not to dominate it.
-- **Headline** (720, fluid 1.9 to 2.8rem, 1.12, -0.022em): section titles, legal-page titles.
-- **Title** (700, fluid 1.5 to 2rem): step titles.
+- **Headline** (720, fluid 1.6 to 2.25rem, 1.15, -0.022em, capped at 22em): section titles, legal-page titles.
 - **Lede** (400, fluid 1.06 to 1.2rem, 1.6): hero subcopy, capped at 34em, in Ink Soft.
 - **Subtitle** (700, 1.25rem): the wordmark (-0.03em), the try-now heading, legal-page section heads (650).
 - **Large** (400, 1.125rem, 1.6): prose paragraphs and step copy in Ink Soft.
-- **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem.
+- **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem. German running text hyphenates (`:lang(de) p`); headings never do.
 - **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
 - **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, screenshot placeholder, footer.
 - **Caption** (400, 13px, Ink Muted): the recipe illustration and its caption, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
