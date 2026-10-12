@@ -89,7 +89,7 @@ typography:
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.6
-  caption: # --fs-caption: screenshot captions, language pill, choice hints, spreadsheet table and formula bar
+  caption: # --fs-caption: recipe illustration, language pill, choice hints, spreadsheet table and formula bar
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "13px"
     fontWeight: 400
@@ -223,7 +223,7 @@ Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom p
 - **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem.
 - **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
 - **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, screenshot placeholder, footer.
-- **Caption** (400, 13px, Ink Muted): screenshot captions, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
+- **Caption** (400, 13px, Ink Muted): the recipe illustration and its caption, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
 - **Mono** (inline code at 0.88em; formula bar at Caption): inline code, the formula bar, the `#REF!` cell.
 
 ### Named Rules
@@ -285,7 +285,7 @@ The page has no text inputs: the interest check is the choice cards, a lead note
 - Sticky 64px header: wordmark (favicon plus lowercase "forkcast", Subtitle at 700, -0.03em), section links in Ink Soft at Small turning Ink on hover, a GitHub link with its mark, and a bordered pill language switch (Caption, 600). Section links hide under 760px. On touch screens nav links get 44px hit areas; the pill gets an invisible tap ring instead of growing.
 
 ### Device frame (signature)
-A drawn iPhone in three layers on a 436:891 box with the Device lift shadow: the rim with its side buttons (`device-body.svg`, Frame Rim) under the screenshot, the bezel with the rounded screen opening and the home indicator bar (`device-bezel.svg`, Frame) over it. Both SVGs are CSS masks, so their colours stay tokens. The 390:844 screenshot is placed by percentages, reaches a little under the bezel on every side so rounding never shows an uneven edge, and is cropped from the top. No Dynamic Island: the screenshots carry no status bar, so it would sit on the app header. Phone shots are captured with the iPhone's 34px home-indicator gutter under the tab bar and sheets, so their labels clear the rounded screen corners. In a flex row the frame must not stretch (`align-items: flex-start`), or the stretch overrides its aspect ratio. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), captioned beneath. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
+A drawn iPhone in three layers on a 436:891 box with the Device lift shadow: the rim with its side buttons (`device-body.svg`, Frame Rim) under the screenshot, the bezel with the rounded screen opening and the home indicator bar (`device-bezel.svg`, Frame) over it. Both SVGs are CSS masks, so their colours stay tokens. The 390:844 screenshot is placed by percentages, reaches a little under the bezel on every side so rounding never shows an uneven edge, and is cropped from the top. No Dynamic Island: the screenshots carry no status bar, so it would sit on the app header. Phone shots are captured with the iPhone's 34px home-indicator gutter under the tab bar and sheets, so their labels clear the rounded screen corners. In a flex row the frame must not stretch (`align-items: flex-start`), or the stretch overrides its aspect ratio. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), with no caption. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
 
 ### Browser frame
 A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 2880w), paired with a small phone (22% width) at its lower edge. Hidden under 760px.
@@ -310,7 +310,7 @@ The one authored motion. On load, hero devices rise 28px and un-blur from 6px ov
 ### Do:
 - **Do** use the brand lilac (`244 36% 44%`) for every action, link and focus state, and its dark counterpart in dark mode.
 - **Do** define every new colour in both the light `:root` and the `prefers-color-scheme: dark` block.
-- **Do** show the product through real screenshots in the device or browser frame, with a plain caption about what is shown.
+- **Do** show the product through real screenshots in the device or browser frame; the screenshots speak for themselves, without captions.
 - **Do** alternate plain and tinted section bands and divide content with 1px rules; the try-now band is the one Lilac Wash interruption.
 - **Do** keep controls at 48px tall with the shared 14px radius.
 - **Do** gate any new motion behind `prefers-reduced-motion: no-preference` with content visible by default.
