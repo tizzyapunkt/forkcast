@@ -51,7 +51,7 @@ Recipes can be imported from one or more photos of a single recipe (a printed pa
 
 ## Self-hosting
 
-forkcast runs as two public container images on Docker Hub, built from `main`: [`tizzyapunkt/forkcast-backend`](https://hub.docker.com/r/tizzyapunkt/forkcast-backend) (API, data in a volume) and [`tizzyapunkt/forkcast-frontend`](https://hub.docker.com/r/tizzyapunkt/forkcast-frontend) (nginx serving the app and proxying `/api` to the backend). Neither image contains secrets or personal data; the only data shipped is the starting food catalog. Images are `linux/amd64` only for now.
+forkcast runs as two public container images on Docker Hub, built from `main`: [`tizzyapunkt/forkcast-backend`](https://hub.docker.com/r/tizzyapunkt/forkcast-backend) (API, data in a volume) and [`tizzyapunkt/forkcast-frontend`](https://hub.docker.com/r/tizzyapunkt/forkcast-frontend) (nginx serving the app and proxying `/api` to the backend). Neither image contains secrets or personal data; the only data shipped is the starting food catalog.
 
 It is built for **one person**: a single password, no sign-up, no sharing.
 

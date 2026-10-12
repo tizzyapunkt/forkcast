@@ -1,4 +1,5 @@
-FROM node:24-alpine AS build
+# Static output is the same on every architecture: build once natively, never under emulation.
+FROM --platform=$BUILDPLATFORM node:24-alpine AS build
 
 RUN corepack enable
 
