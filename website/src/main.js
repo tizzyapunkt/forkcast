@@ -98,3 +98,31 @@ if (sheet) {
     next.focus();
   });
 }
+
+// Screenshots open full size. Without script (or <dialog>) the link opens the image itself; with
+// it, a modal dialog shows the image over the page. Esc, a click anywhere or the button close it.
+const zoomLinks = document.querySelectorAll('a.zoom');
+if (zoomLinks.length && typeof HTMLDialogElement === 'function') {
+  const de = document.documentElement.lang === 'de';
+  const dialog = document.createElement('dialog');
+  dialog.className = 'lightbox';
+  dialog.setAttribute('aria-label', de ? 'Screenshot in voller Größe' : 'Screenshot at full size');
+  dialog.innerHTML =
+    '<img alt="" />' +
+    `<button class="lightbox-close" type="button" aria-label="${de ? 'Schließen' : 'Close'}">` +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>' +
+    '</button>';
+  document.body.append(dialog);
+  const big = dialog.querySelector('img');
+  dialog.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => big.removeAttribute('src'));
+  for (const link of zoomLinks) {
+    link.setAttribute('aria-haspopup', 'dialog');
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      big.src = link.href;
+      big.alt = link.querySelector('img')?.alt ?? '';
+      dialog.showModal();
+    });
+  }
+}

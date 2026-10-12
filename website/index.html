@@ -128,27 +128,29 @@
 
           <div class="hero-shots">
             <div class="device device--back">
-              <img
-                src="/screenshots/en/grocery-list.webp"
-                srcset="/screenshots/en/grocery-list-600.webp 600w, /screenshots/en/grocery-list.webp 1170w"
-                sizes="300px"
-                alt="The grocery list for the week, grouped and summed from the meal plan."
-                data-missing="Grocery list screenshot"
-                width="1170"
-                height="2532"
-              />
+              <a class="zoom" href="/screenshots/en/grocery-list.webp"
+                ><img
+                  src="/screenshots/en/grocery-list.webp"
+                  srcset="/screenshots/en/grocery-list-600.webp 600w, /screenshots/en/grocery-list.webp 1170w"
+                  sizes="300px"
+                  alt="The grocery list for the week, grouped and summed from the meal plan."
+                  data-missing="Grocery list screenshot"
+                  width="1170"
+                  height="2532"
+              /></a>
             </div>
             <div class="device device--front">
-              <img
-                src="/screenshots/en/week-plan.webp"
-                srcset="/screenshots/en/week-plan-600.webp 600w, /screenshots/en/week-plan.webp 1170w"
-                sizes="300px"
-                alt="The week plan: seven days of meals with average calories and macro bars against the goal."
-                data-missing="Week plan screenshot"
-                width="1170"
-                height="2532"
-                fetchpriority="high"
-              />
+              <a class="zoom" href="/screenshots/en/week-plan.webp"
+                ><img
+                  src="/screenshots/en/week-plan.webp"
+                  srcset="/screenshots/en/week-plan-600.webp 600w, /screenshots/en/week-plan.webp 1170w"
+                  sizes="300px"
+                  alt="The week plan: seven days of meals with average calories and macro bars against the goal."
+                  data-missing="Week plan screenshot"
+                  width="1170"
+                  height="2532"
+                  fetchpriority="high"
+              /></a>
             </div>
           </div>
         </div>
@@ -156,110 +158,240 @@
 
       <section class="section origin" aria-labelledby="origin-title">
         <div class="wrap">
-          <div class="prose">
+          <div class="split">
             <h2 id="origin-title">Why I frankensteined yazio, fddb, MyFitnessPal and Excel together</h2>
-            <p>
-              The need for planning, prepping and tracking my meals came from me doing a 90-day fitness challenge to
-              lose weight and get fitter. During the challenge, they suggested using these apps for meal planning to
-              make sure to hit calorie and macro goals, and to not spread thinking about what to eat across days, but to
-              prepare it once and then benefit from the plan for the whole week.
-            </p>
-            <p>
-              I am a father of two, with a full-time job, so I was happy that there seemed to be tools to support me
-              during that phase of 90 days, and of course afterwards, since one goal of the 90-day challenge was to
-              basically set the trajectory for the rest of your life, which is also quite a bold claim if you ask me.
-            </p>
-            <p>
-              What annoyed me the most was that they are not built around planning a week ahead, but rather around
-              tracking what you're currently eating or what you plan to eat on a certain day. The next major issue that
-              annoyed me was how they deal with recipes and meals and the tracking of them. Mostly a recipe is tracked
-              as one entity and not as the ingredients that make the recipe, which often makes switching ingredients
-              very hard, because you always have to edit the recipe and you can't switch ingredients ad hoc, maybe as
-              you are cooking in the moment.
-            </p>
-            <p>
-              Another thing was the inconsistency between the mobile and desktop UI, if they had one. Some features of
-              some apps didn't exist in the mobile UI but did on desktop, which made no sense at all. Sometimes it was
-              the other way around. So getting used to two different interfaces and two different sets of features was
-              just annoying as well. And of course, a lot of them had a lot of features that I simply don't need, but
-              that would get in my way during the day, because they use space on the UI that could simply be used by
-              something else.
-            </p>
-            <p>
-              I had the paid versions of some of these apps, and even they didn't unlock the features that I would have
-              found useful.
-            </p>
-            <p>
-              The Excel sheet, on the other hand, was as low-key as I could go from a technical standpoint, because it
-              was able to do the math behind calories and such. But recipe tracking or using it as a cooking companion
-              was of course not nice, and of course the ad hoc tracking was simply impossible, because there was no nice
-              mobile UI, no barcode scanner, and so on and so forth.
-            </p>
+            <div class="prose">
+              <p>
+                The need for planning, prepping and tracking my meals came from me doing a 90-day fitness challenge to
+                lose weight and get fitter. During the challenge, they suggested using these apps for meal planning to
+                make sure to hit calorie and macro goals, and to not spread thinking about what to eat across days, but
+                to prepare it once and then benefit from the plan for the whole week.
+              </p>
+              <p>
+                I am a father of two, with a full-time job, so I was happy that there seemed to be tools to support me
+                during that phase of 90 days, and of course afterwards, since one goal of the 90-day challenge was to
+                basically set the trajectory for the rest of your life, which is also quite a bold claim if you ask me.
+              </p>
+            </div>
           </div>
 
-          <figure class="sheet sheet--live" aria-label="Illustration of the old spreadsheet">
-            <div class="fx" aria-hidden="true">
-              <span class="fx-ref"
-                ><span data-f="B2">B2</span><span data-f="C2">C2</span><span data-f="D2">D2</span
-                ><span data-f="E2">E2</span><span data-f="B3">B3</span><span data-f="C3">C3</span
-                ><span data-f="D3">D3</span><span data-f="E3">E3</span><span data-f="B4">B4</span
-                ><span data-f="C4">C4</span><span data-f="D4">D4</span><span data-f="E4">E4</span
-                ><span data-f="B5">B5</span><span data-f="C5">C5</span><span data-f="D5">D5</span></span
-              >
-              <span class="fx-sign">fx</span>
-              <span class="fx-formula"
-                ><span data-f="B2">Oats</span><span data-f="C2">Oats</span><span data-f="D2">Skyr</span
-                ><span data-f="E2">=SUM(VLOOKUP(B2:D2, Foods!A:C, 3, 0))</span><span data-f="B3">Bowl</span
-                ><span data-f="C3">Dal</span><span data-f="D3">Bowl</span
-                ><span data-f="E3">=SUM(VLOOKUP(B3:D3, Foods!A:C, 3, 0))</span><span data-f="B4">Salmon</span
-                ><span data-f="C4">? (decide later)</span><span data-f="D4">Leftovers (of what?)</span
-                ><span data-f="E4">=SUM(VLOOKUP(B4:D4, Foods_old!A:C, 3, 0))</span
-                ><span data-f="B5">=SUMIF(Mon!A:A, "*", Mon!G:G)</span><span data-f="C5">=IFERROR(Tue!G9, "—")</span
-                ><span data-f="D5">=SUMIF(Wed!A:A, "*", Wed!G:G)</span></span
-              >
+          <div class="steps origin-rows">
+            <div class="step">
+              <div class="step-text">
+                <p>
+                  What annoyed me the most was that they are not built around planning a week ahead, but rather around
+                  tracking what you're currently eating or what you plan to eat on a certain day. The next major issue
+                  that annoyed me was how they deal with recipes and meals and the tracking of them. Mostly a recipe is
+                  tracked as one entity and not as the ingredients that make the recipe, which often makes switching
+                  ingredients very hard, because you always have to edit the recipe and you can't switch ingredients ad
+                  hoc, maybe as you are cooking in the moment.
+                </p>
+              </div>
+              <div class="mock-slot">
+                <figure
+                  class="mock mock--day"
+                  role="img"
+                  aria-label="Illustration: a typical tracker's diary. It shows one day at a time, and a recipe is a single entry you can only change by editing the recipe."
+                >
+                  <p class="mk-bar">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m15 18-6-6 6-6" /></svg
+                    ><span>Today</span
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </p>
+                  <div class="mk-meal">
+                    <p class="mk-head"><span>Breakfast</span><span>420 kcal</span></p>
+                    <p class="mk-entry">
+                      <span>Overnight oats<small>1 serving</small></span
+                      ><span>420</span>
+                    </p>
+                  </div>
+                  <div class="mk-meal">
+                    <p class="mk-head"><span>Lunch</span><span>640 kcal</span></p>
+                    <p class="mk-entry">
+                      <span>Chicken curry<small>1 serving · ingredients hidden</small></span
+                      ><span>640</span>
+                    </p>
+                    <p class="mk-note">Less rice today? Edit the recipe first.</p>
+                  </div>
+                  <div class="mk-meal">
+                    <p class="mk-head"><span>Dinner</span></p>
+                    <p class="mk-add">+ Add food</p>
+                  </div>
+                  <p class="mk-foot">Planning the week? One day at a time.</p>
+                </figure>
+              </div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Mon</th>
-                  <th>Tue</th>
-                  <th>Wed</th>
-                  <th>kcal</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>Breakfast</th>
-                  <td data-c="B2" tabindex="-1">Oats</td>
-                  <td data-c="C2" tabindex="-1">Oats</td>
-                  <td data-c="D2" tabindex="-1">Skyr</td>
-                  <td class="num" data-c="E2" tabindex="-1">1,420</td>
-                </tr>
-                <tr>
-                  <th>Lunch</th>
-                  <td data-c="B3" tabindex="-1">Bowl</td>
-                  <td data-c="C3" tabindex="-1">Dal</td>
-                  <td data-c="D3" tabindex="-1">Bowl</td>
-                  <td class="num" data-c="E3" tabindex="-1">2,310</td>
-                </tr>
-                <tr>
-                  <th>Dinner</th>
-                  <td data-c="B4" tabindex="-1">Salmon</td>
-                  <td data-c="C4" tabindex="-1">?</td>
-                  <td data-c="D4" tabindex="-1">Leftovers</td>
-                  <td class="num err" data-c="E4" tabindex="0">#REF!</td>
-                </tr>
-                <tr>
-                  <th>Protein</th>
-                  <td class="num" data-c="B5" tabindex="-1">171</td>
-                  <td class="num" data-c="C5" tabindex="-1">—</td>
-                  <td class="num" data-c="D5" tabindex="-1">158</td>
-                  <td class="num" data-c="E5" tabindex="-1"></td>
-                </tr>
-              </tbody>
-            </table>
-          </figure>
+            <div class="step">
+              <div class="step-text">
+                <p>
+                  Another thing was the inconsistency between the mobile and desktop UI, if they had one. Some features
+                  of some apps didn't exist in the mobile UI but did on desktop, which made no sense at all. Sometimes
+                  it was the other way around. So getting used to two different interfaces and two different sets of
+                  features was just annoying as well. And of course, a lot of them had a lot of features that I simply
+                  don't need, but that would get in my way during the day, because they use space on the UI that could
+                  simply be used by something else.
+                </p>
+              </div>
+              <div class="mock-slot">
+                <figure
+                  class="mock-pair"
+                  role="img"
+                  aria-label="Illustration: the same tracker on phone and desktop, with different features on each."
+                >
+                  <div class="mock mock--phone">
+                    <p class="mk-label">Phone</p>
+                    <ul class="mk-menu">
+                      <li>Diary</li>
+                      <li>Barcode scan</li>
+                      <li>Recipes</li>
+                      <li class="mk-missing"><span>Meal planner</span><small>desktop only</small></li>
+                    </ul>
+                  </div>
+                  <div class="mock mock--desk">
+                    <p class="mk-label">Desktop</p>
+                    <ul class="mk-menu">
+                      <li>Diary</li>
+                      <li>Recipes</li>
+                      <li>Meal planner</li>
+                      <li class="mk-missing"><span>Barcode scan</span><small>phone only</small></li>
+                      <li class="mk-clutter">Challenges</li>
+                      <li class="mk-clutter">Community</li>
+                      <li class="mk-clutter">Articles</li>
+                      <li class="mk-clutter">Shop</li>
+                    </ul>
+                  </div>
+                </figure>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-text">
+                <p>
+                  I had the paid versions of some of these apps, and even they didn't unlock the features that I would
+                  have found useful.
+                </p>
+              </div>
+              <div class="mock-slot">
+                <figure
+                  class="mock mock--paywall"
+                  role="img"
+                  aria-label="Illustration: the meal planner is locked behind a higher tier than the paid plan you already have."
+                >
+                  <p class="mk-plan"><span>Your plan</span><span>Premium, active</span></p>
+                  <div class="mk-lock">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="5" y="11" width="14" height="10" rx="2" />
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                    <p><strong>Meal planner</strong><span>Only in Premium+</span></p>
+                  </div>
+                  <p class="mk-upgrade">Upgrade</p>
+                </figure>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-text">
+                <p>
+                  The Excel sheet, on the other hand, was as low-key as I could go from a technical standpoint, because
+                  it was able to do the math behind calories and such. But recipe tracking or using it as a cooking
+                  companion was of course not nice, and of course the ad hoc tracking was simply impossible, because
+                  there was no nice mobile UI, no barcode scanner, and so on and so forth.
+                </p>
+              </div>
+              <div class="mock-slot">
+                <figure class="sheet sheet--live" aria-label="Illustration of the old spreadsheet">
+                  <div class="fx" aria-hidden="true">
+                    <span class="fx-ref"
+                      ><span data-f="B2">B2</span><span data-f="C2">C2</span><span data-f="D2">D2</span
+                      ><span data-f="E2">E2</span><span data-f="B3">B3</span><span data-f="C3">C3</span
+                      ><span data-f="D3">D3</span><span data-f="E3">E3</span><span data-f="B4">B4</span
+                      ><span data-f="C4">C4</span><span data-f="D4">D4</span><span data-f="E4">E4</span
+                      ><span data-f="B5">B5</span><span data-f="C5">C5</span><span data-f="D5">D5</span></span
+                    >
+                    <span class="fx-sign">fx</span>
+                    <span class="fx-formula"
+                      ><span data-f="B2">Oats</span><span data-f="C2">Oats</span><span data-f="D2">Skyr</span
+                      ><span data-f="E2">=SUM(VLOOKUP(B2:D2, Foods!A:C, 3, 0))</span><span data-f="B3">Bowl</span
+                      ><span data-f="C3">Dal</span><span data-f="D3">Bowl</span
+                      ><span data-f="E3">=SUM(VLOOKUP(B3:D3, Foods!A:C, 3, 0))</span><span data-f="B4">Salmon</span
+                      ><span data-f="C4">? (decide later)</span><span data-f="D4">Leftovers (of what?)</span
+                      ><span data-f="E4">=SUM(VLOOKUP(B4:D4, Foods_old!A:C, 3, 0))</span
+                      ><span data-f="B5">=SUMIF(Mon!A:A, "*", Mon!G:G)</span
+                      ><span data-f="C5">=IFERROR(Tue!G9, "—")</span
+                      ><span data-f="D5">=SUMIF(Wed!A:A, "*", Wed!G:G)</span></span
+                    >
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>kcal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>Breakfast</th>
+                        <td data-c="B2" tabindex="-1">Oats</td>
+                        <td data-c="C2" tabindex="-1">Oats</td>
+                        <td data-c="D2" tabindex="-1">Skyr</td>
+                        <td class="num" data-c="E2" tabindex="-1">1,420</td>
+                      </tr>
+                      <tr>
+                        <th>Lunch</th>
+                        <td data-c="B3" tabindex="-1">Bowl</td>
+                        <td data-c="C3" tabindex="-1">Dal</td>
+                        <td data-c="D3" tabindex="-1">Bowl</td>
+                        <td class="num" data-c="E3" tabindex="-1">2,310</td>
+                      </tr>
+                      <tr>
+                        <th>Dinner</th>
+                        <td data-c="B4" tabindex="-1">Salmon</td>
+                        <td data-c="C4" tabindex="-1">?</td>
+                        <td data-c="D4" tabindex="-1">Leftovers</td>
+                        <td class="num err" data-c="E4" tabindex="0">#REF!</td>
+                      </tr>
+                      <tr>
+                        <th>Protein</th>
+                        <td class="num" data-c="B5" tabindex="-1">171</td>
+                        <td class="num" data-c="C5" tabindex="-1">—</td>
+                        <td class="num" data-c="D5" tabindex="-1">158</td>
+                        <td class="num" data-c="E5" tabindex="-1"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </figure>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -286,31 +418,33 @@
               </div>
               <div class="duo">
                 <div class="browser">
-                  <img
-                    src="/screenshots/en/week-plan-desktop.webp"
-                    srcset="
-                      /screenshots/en/week-plan-desktop-1440.webp 1440w,
-                      /screenshots/en/week-plan-desktop.webp      2880w
-                    "
-                    sizes="860px"
-                    alt="The week planner on a desktop browser."
-                    data-missing="Desktop week plan screenshot"
-                    width="2880"
-                    height="1800"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/week-plan-desktop.webp"
+                    ><img
+                      src="/screenshots/en/week-plan-desktop.webp"
+                      srcset="
+                        /screenshots/en/week-plan-desktop-1440.webp 1440w,
+                        /screenshots/en/week-plan-desktop.webp      2880w
+                      "
+                      sizes="860px"
+                      alt="The week planner on a desktop browser."
+                      data-missing="Desktop week plan screenshot"
+                      width="2880"
+                      height="1800"
+                      loading="lazy"
+                  /></a>
                 </div>
                 <div class="device device--small">
-                  <img
-                    src="/screenshots/en/week-plan.webp"
-                    srcset="/screenshots/en/week-plan-600.webp 600w, /screenshots/en/week-plan.webp 1170w"
-                    sizes="300px"
-                    alt="Week plan with planned meals and macro progress."
-                    data-missing="Week plan screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/week-plan.webp"
+                    ><img
+                      src="/screenshots/en/week-plan.webp"
+                      srcset="/screenshots/en/week-plan-600.webp 600w, /screenshots/en/week-plan.webp 1170w"
+                      sizes="300px"
+                      alt="Week plan with planned meals and macro progress."
+                      data-missing="Week plan screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
@@ -325,16 +459,17 @@
               </div>
               <div>
                 <div class="device">
-                  <img
-                    src="/screenshots/en/daily-log.webp"
-                    srcset="/screenshots/en/daily-log-600.webp 600w, /screenshots/en/daily-log.webp 1170w"
-                    sizes="300px"
-                    alt="Daily log with breakfast, lunch, dinner and snacks and their macros."
-                    data-missing="Daily log screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/daily-log.webp"
+                    ><img
+                      src="/screenshots/en/daily-log.webp"
+                      srcset="/screenshots/en/daily-log-600.webp 600w, /screenshots/en/daily-log.webp 1170w"
+                      sizes="300px"
+                      alt="Daily log with breakfast, lunch, dinner and snacks and their macros."
+                      data-missing="Daily log screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
@@ -349,16 +484,17 @@
               </div>
               <div>
                 <div class="device">
-                  <img
-                    src="/screenshots/en/grocery-list.webp"
-                    srcset="/screenshots/en/grocery-list-600.webp 600w, /screenshots/en/grocery-list.webp 1170w"
-                    sizes="300px"
-                    alt="Grocery list generated from the week plan, with the servings to cook per recipe."
-                    data-missing="Grocery list screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/grocery-list.webp"
+                    ><img
+                      src="/screenshots/en/grocery-list.webp"
+                      srcset="/screenshots/en/grocery-list-600.webp 600w, /screenshots/en/grocery-list.webp 1170w"
+                      sizes="300px"
+                      alt="Grocery list generated from the week plan, with the servings to cook per recipe."
+                      data-missing="Grocery list screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
@@ -429,28 +565,31 @@
               </div>
               <div>
                 <div class="device">
-                  <img
-                    src="/screenshots/en/cooking.webp"
-                    srcset="/screenshots/en/cooking-600.webp 600w, /screenshots/en/cooking.webp 1170w"
-                    sizes="300px"
-                    alt="Cooking view for the Chicken Rice Bowl: four planned servings, macros per serving and the amounts for the pot."
-                    data-missing="Cooking view screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/cooking.webp"
+                    ><img
+                      src="/screenshots/en/cooking.webp"
+                      srcset="/screenshots/en/cooking-600.webp 600w, /screenshots/en/cooking.webp 1170w"
+                      sizes="300px"
+                      alt="Cooking view for the Chicken Rice Bowl: four planned servings, macros per serving and the amounts for the pot."
+                      data-missing="Cooking view screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="prose steps-after">
-            <p>
-              Since this app was born out of a 90-day fitness challenge, easily setting fitness goals and tracking
-              weight is also part of it. I weigh myself each morning to see the trend across the week and month. Calorie
-              goals have been set using the built-in calculator, which uses the Ten Haaf formula. For me, results have
-              been pretty good so far.
-            </p>
+          <div class="split steps-after">
+            <div class="prose">
+              <p>
+                Since this app was born out of a 90-day fitness challenge, easily setting fitness goals and tracking
+                weight is also part of it. I weigh myself each morning to see the trend across the week and month.
+                Calorie goals have been set using the built-in calculator, which uses the Ten Haaf formula. For me,
+                results have been pretty good so far.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -481,16 +620,17 @@
               </div>
               <div>
                 <div class="device">
-                  <img
-                    src="/screenshots/en/food-search.webp"
-                    srcset="/screenshots/en/food-search-600.webp 600w, /screenshots/en/food-search.webp 1170w"
-                    sizes="300px"
-                    alt="Adding a snack: searching “skyr” with Open Food Facts results switched on."
-                    data-missing="Food search screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/food-search.webp"
+                    ><img
+                      src="/screenshots/en/food-search.webp"
+                      srcset="/screenshots/en/food-search-600.webp 600w, /screenshots/en/food-search.webp 1170w"
+                      sizes="300px"
+                      alt="Adding a snack: searching “skyr” with Open Food Facts results switched on."
+                      data-missing="Food search screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
@@ -512,16 +652,17 @@
               </div>
               <div>
                 <div class="device">
-                  <img
-                    src="/screenshots/en/recipe.webp"
-                    srcset="/screenshots/en/recipe-600.webp 600w, /screenshots/en/recipe.webp 1170w"
-                    sizes="300px"
-                    alt="A saved recipe with ingredients and macros per portion."
-                    data-missing="Recipe screenshot"
-                    width="1170"
-                    height="2532"
-                    loading="lazy"
-                  />
+                  <a class="zoom" href="/screenshots/en/recipe.webp"
+                    ><img
+                      src="/screenshots/en/recipe.webp"
+                      srcset="/screenshots/en/recipe-600.webp 600w, /screenshots/en/recipe.webp 1170w"
+                      sizes="300px"
+                      alt="A saved recipe with ingredients and macros per portion."
+                      data-missing="Recipe screenshot"
+                      width="1170"
+                      height="2532"
+                      loading="lazy"
+                  /></a>
                 </div>
               </div>
             </div>
@@ -531,68 +672,74 @@
 
       <section class="section section--tint" aria-labelledby="limits-title">
         <div class="wrap">
-          <div class="prose">
+          <div class="split">
             <h2 id="limits-title">What it can't do</h2>
-            <p>
-              What it can't do right now is cooking. Sure, I love cooking. But sometimes, on a Sunday evening, doing
-              meal prep while the PS5 silently whispers my name, or family... cooking is tough. ;)
-            </p>
-            <p>
-              Other than that, regarding big features, it feels quite complete for me now. The important nuance here is:
-              for ME. If YOU are about to use it, your mileage may vary, of course.
-            </p>
-            <p>
-              Since in my family nobody else is interested in calorie tracking, there was no need for making it
-              multi-user, having a more solid database (it's plain JSON files right now) or whatsoever. I wanted to keep
-              maintenance and extension low-effort.
-            </p>
-            <p>
-              If there is demand for this app to be used by others, things have to change here and there, of course. The
-              core idea and focus won't change tho. If more AI features are being requested, I'd rather offer a proper
-              CLI / MCP than spread it across the UI. I also don't think that I will turn this into a native app; a PWA
-              is fine for me.
-            </p>
-            <p>
-              Another AI disclaimer: I mentioned family, a full-time job and kids that are still too young to manage
-              themselves autonomously, so this app has been created with a lot of AI help. A lot of review time goes
-              into reviewing specs to make sure it works the way I want. Code and tests are reviewed with my 'good
-              enough' hat on. Since it's open source, if others want to play with the code and make recommendations,
-              contributions are more than welcome.
-            </p>
+            <div class="prose">
+              <p>
+                What it can't do right now is cooking. Sure, I love cooking. But sometimes, on a Sunday evening, doing
+                meal prep while the PS5 silently whispers my name, or family... cooking is tough. ;)
+              </p>
+              <p>
+                Other than that, regarding big features, it feels quite complete for me now. The important nuance here
+                is: for ME. If YOU are about to use it, your mileage may vary, of course.
+              </p>
+              <p>
+                Since in my family nobody else is interested in calorie tracking, there was no need for making it
+                multi-user, having a more solid database (it's plain JSON files right now) or whatsoever. I wanted to
+                keep maintenance and extension low-effort.
+              </p>
+              <p>
+                If there is demand for this app to be used by others, things have to change here and there, of course.
+                The core idea and focus won't change tho. If more AI features are being requested, I'd rather offer a
+                proper CLI / MCP than spread it across the UI. I also don't think that I will turn this into a native
+                app; a PWA is fine for me.
+              </p>
+              <p>
+                Another AI disclaimer: I mentioned family, a full-time job and kids that are still too young to manage
+                themselves autonomously, so this app has been created with a lot of AI help. A lot of review time goes
+                into reviewing specs to make sure it works the way I want. Code and tests are reviewed with my 'good
+                enough' hat on. Since it's open source, if others want to play with the code and make recommendations,
+                contributions are more than welcome.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       <section class="section asking" aria-labelledby="asking-title">
         <div class="wrap">
-          <div class="prose">
+          <div class="split">
             <h2 id="asking-title">Why I'm asking</h2>
-            <p>
-              If the demand for this app is there, especially for hosted, I'll come up with a roadmap and a way to stay
-              in the loop for a release. I'll also put my 'production' hat on then and use some of my PS5 time to work
-              on forkcast and make sure it meets the requirements of an app that is used by others. I'd also see if I
-              can make self-hosting easier in any way. I'm generally interested in any feedback, also if it is 'wow,
-              another calorie tracker that nobody needs'.
-            </p>
-            <p>
-              As stated, if you're interested in how this turns out, leave your mail. I'll write once, and then the
-              email is deleted.
-            </p>
+            <div class="prose">
+              <p>
+                If the demand for this app is there, especially for hosted, I'll come up with a roadmap and a way to
+                stay in the loop for a release. I'll also put my 'production' hat on then and use some of my PS5 time to
+                work on forkcast and make sure it meets the requirements of an app that is used by others. I'd also see
+                if I can make self-hosting easier in any way. I'm generally interested in any feedback, also if it is
+                'wow, another calorie tracker that nobody needs'.
+              </p>
+              <p>
+                As stated, if you're interested in how this turns out, leave your mail. I'll write once, and then the
+                email is deleted.
+              </p>
+              <a class="button" href="#interest">Answer the question</a>
+            </div>
           </div>
-          <a class="button" href="#interest">Answer the question</a>
         </div>
       </section>
 
       <section class="section section--tint" aria-labelledby="name-title">
         <div class="wrap">
-          <div class="prose">
+          <div class="split">
             <h2 id="name-title">About the name</h2>
-            <p>
-              I thought I was very clever and creative with the name 'forkcast'. Since it was only for me, I didn't do
-              any research on whether this name had been taken. Well, it turned out there is not only one product in the
-              calorie tracker and meal planning category with this name. A pity. So the name might be subject to change.
-              Ideas welcome ;)
-            </p>
+            <div class="prose">
+              <p>
+                I thought I was very clever and creative with the name 'forkcast'. Since it was only for me, I didn't do
+                any research on whether this name had been taken. Well, it turned out there is not only one product in
+                the calorie tracker and meal planning category with this name. A pity. So the name might be subject to
+                change. Ideas welcome ;)
+              </p>
+            </div>
           </div>
         </div>
       </section>

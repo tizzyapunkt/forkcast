@@ -96,6 +96,8 @@ rounded:
   control: "14px"
   browser: "12px"
   pill: "999px"
+  sketch-phone: "22px" # phone panel in the tracker sketches
+  sketch-small: "8px" # desktop panel and Upgrade bar in the tracker sketches
   device: "15.6% / 7.6%" # shadow box; the outline itself is drawn in the SVGs
   device-screen: "13% / 6%"
 spacing:
@@ -230,11 +232,11 @@ A single centred column of `max` (1120px) plus `gutter` (20px) each side. Sectio
 
 **Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint: origin plain, "My week with it" tint, "What I took from other apps" plain, "What it can't do" tint, "Why I'm asking" plain, "About the name" tint. The page closes with the one interruption, the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, right above the footer. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
 
-**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr, the spreadsheet aligned to the end of the story, beside the Excel paragraph), step rows (equal). Step rows alternate text side on even rows; step text is the author's paragraphs with no step titles. A paragraph without a picture of its own sits under the step rows as prose, 96px below. Sections without pictures ("What it can't do", "Why I'm asking", "About the name") are one prose column capped at 40rem. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
+**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), step rows (equal). Step rows alternate text side on even rows; step text is the author's paragraphs with no step titles. Text without pictures uses the split: the heading in the left column (sticky 96px from the top while the text scrolls), the text in the right column at its 40rem reading width, so no section leaves half the page empty. That covers the origin's opening, "What it can't do", "Why I'm asking", "About the name", and the paragraph under the week's step rows (right column only). The origin continues with step rows, one per complaint, each beside a drawn sketch. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
 
 **Legal pages.** Privacy and imprint share header and footer and set one prose column (40rem) with 72px top and 96px bottom padding; links in running legal text are Ink, underlined, so a page of links does not read as a page of actions.
 
-**Breakpoints.** 900px: hero and origin stack to one column; the tilted devices and sheet straighten, and the sheet scrolls sideways if it must. 760px: steps stack; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 520px: the recipe illustration's panels stack. 480px: choices go one column and every button goes full width. Touch (`pointer: coarse`): header and footer nav links get 44px tall hit areas without changing the look; the language pill keeps its size and takes taps through an invisible ring around it.
+**Breakpoints.** 900px: hero and split stack to one column (the heading stops being sticky); the tilted devices, sheet and sketches straighten. 760px: steps stack; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 520px: the recipe illustration's panels stack. 480px: choices go one column and every button goes full width. Touch (`pointer: coarse`): header and footer nav links get 44px tall hit areas without changing the look; the language pill keeps its size and takes taps through an invisible ring around it.
 
 ## Elevation & Depth
 
@@ -285,6 +287,12 @@ A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 28
 
 ### Spreadsheet illustration
 The origin story's "before" picture: a small table with a hairline grid, control radius and Paper fill, tilted 1.2deg on desktop, with a mono formula bar on top (cell ref | italic fx | formula). Pointing at or focusing a cell shows its formula through CSS `:has()`, so it works without script; the broken `#REF!` cell (Error, mono) is selected by default. The selected cell carries a 2px lilac outline inset by 2px. It is one keyboard stop; arrow keys, Home and End move between cells. No caption.
+
+### Tracker sketches
+The origin's "before" pictures, one per complaint, drawn in HTML like the spreadsheet: hairline panels on Paper at the control radius, Caption type with tabular numerals, Ink tones only and no brand colours, logos or names, so they show the common pattern rather than a real product. What hurt is set in Error, like the `#REF!` cell. A one-day diary (day switcher, a recipe as a single entry with its ingredients hidden), a phone and a desktop panel with mismatched menus (the missing feature struck through) and the clutter in Ink Muted, and a paywall card (the planner locked behind a higher tier, a dark Upgrade bar). Slightly tilted on desktop (-1.5 to 1.2deg), straight under 900px. Each is one `role="img"` figure with a sentence-long label.
+
+### Screenshot zoom
+Every device and browser screenshot is a link to its full-size image (`cursor: zoom-in`); without script that link simply opens the image. With script it opens a modal `<dialog>`: the image fitted to the viewport at the browser radius with the Device lift shadow, over a deep indigo backdrop at 86%, a round close button top right (44px, white X on 14% white). Esc, a click anywhere or the button close it; the page doesn't scroll while it is open. No animation.
 
 ### Recipe illustration
 Recipe vs. log, beside the cooking paragraph in "My week with it", built in HTML from the demo data, not a screenshot: two hairline-bordered Paper panels at the control radius, Caption size with tabular numerals, joined by a lilac arrow. Left the full recipe (title, "Recipe · 4 servings · unchanged", ingredient rows, then a "Spices & odds and ends" group in Ink Muted); right the logged serving (per-serving amounts, a dashed rule, which spices stay out, the 650 macro total). A row changed while cooking carries the app's marker: a small lilac dot before the name, the new amount in 650 and the old one ("was 75 g") in Ink Muted beneath. A Caption under the panels says what happened. Under 520px the panels stack and the arrow turns down. Values must match the seeded recipe and catalog.

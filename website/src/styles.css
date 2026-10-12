@@ -326,6 +326,7 @@ figure {
   content: '';
   position: absolute;
   inset: 0;
+  pointer-events: none;
   -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat;
   mask: var(--mask) 0 0 / 100% 100% no-repeat;
 }
@@ -631,7 +632,8 @@ figure {
 }
 
 .section-head h2,
-.prose h2 {
+.prose h2,
+.split h2 {
   max-width: 22em;
   font-size: clamp(1.6rem, 1.25rem + 1.3vw, 2.25rem);
   font-weight: 720;
@@ -658,12 +660,207 @@ figure {
   margin-top: 22px;
 }
 
-/* Origin: the story, with the old spreadsheet beside its last paragraph (the one about Excel) */
-.origin .wrap {
+/* Text without pictures: the heading holds the left column (and stays in view while the text
+ * scrolls), the text keeps its reading width on the right, so the section fills the page. */
+.split {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 64px;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 40rem);
+  gap: 24px 64px;
+  align-items: start;
+}
+
+.split h2 {
+  position: sticky;
+  top: 96px;
+}
+
+.split .prose {
+  grid-column: 2;
+}
+
+.split .prose > :first-child {
+  margin-top: 0;
+}
+
+/* Origin: the story, then one row per complaint, each beside a drawing of what it looked like. */
+.origin-rows {
+  margin-top: 96px;
+}
+
+.mock-slot {
+  display: flex;
+  justify-content: center;
+}
+
+/* Drawn "before" pictures of the usual trackers, built like the spreadsheet: hairline panels on
+ * Paper, Caption type, no brand colours. What hurt is set in Error, like the #REF! cell. */
+.mock {
+  width: 100%;
+  max-width: 22rem;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ground);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.mock--day {
+  transform: rotate(-1.2deg);
+}
+
+.mock--paywall {
+  max-width: 18rem;
+  transform: rotate(1deg);
+}
+
+.mk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.mk-bar svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-3);
+}
+
+.mk-meal {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.mk-head,
+.mk-entry,
+.mk-plan {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mk-head {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mk-entry {
+  margin-top: 6px;
+}
+
+.mk-entry small,
+.mk-menu small {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mk-note {
+  margin-top: 6px;
+  color: var(--error);
+}
+
+.mk-add {
+  margin-top: 6px;
+  color: var(--ink-3);
+}
+
+.mk-foot {
+  margin-top: 10px;
+  color: var(--ink-3);
+}
+
+.mock-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.mock--phone {
+  border-radius: 22px;
+  transform: rotate(-1.5deg);
+}
+
+.mock--desk {
+  border-radius: 8px;
+  transform: rotate(1deg);
+}
+
+.mk-label {
+  margin-bottom: 8px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.mk-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-menu li {
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+}
+
+.mk-missing span {
+  color: var(--error);
+  text-decoration: line-through;
+}
+
+.mk-clutter {
+  color: var(--ink-3);
+}
+
+.mk-plan {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mk-plan span:last-child {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.mk-lock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.mk-lock svg {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  color: var(--error);
+}
+
+.mk-lock strong {
+  display: block;
+  font-size: var(--fs-small);
+  color: var(--ink);
+}
+
+.mk-lock span {
+  color: var(--error);
+}
+
+.mk-upgrade {
+  padding: 8px 0;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--ground);
+  font-weight: 650;
+  text-align: center;
 }
 
 .sheet {
@@ -780,11 +977,19 @@ figure {
 }
 
 @media (max-width: 900px) {
-  .origin .wrap {
+  .split {
     grid-template-columns: minmax(0, 1fr);
-    gap: 40px;
   }
 
+  .split h2 {
+    position: static;
+  }
+
+  .split .prose {
+    grid-column: auto;
+  }
+
+  .mock,
   .sheet {
     transform: none;
     overflow-x: auto;
@@ -1082,6 +1287,75 @@ figure {
 /* Why I'm asking: prose with the way back up to the question. */
 .asking .button {
   margin-top: 28px;
+}
+
+/* Screenshots open full size: a plain link to the image without script, a dialog with it. */
+.zoom {
+  cursor: zoom-in;
+}
+
+.device .zoom {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.browser .zoom {
+  display: block;
+}
+
+.lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  background: transparent;
+  cursor: zoom-out;
+}
+
+.lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+
+.lightbox::backdrop {
+  background: hsl(244 24% 9% / 0.86);
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: calc(100dvh - 48px);
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: var(--shadow-device);
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: hsl(0 0% 100% / 0.14);
+  color: #fff;
+  cursor: pointer;
+}
+
+.lightbox-close svg {
+  width: 22px;
+  height: 22px;
+}
+
+html:has(.lightbox[open]) {
+  overflow: hidden;
 }
 
 /* Footer */
