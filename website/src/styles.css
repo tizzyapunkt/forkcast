@@ -661,10 +661,11 @@ figure {
 }
 
 /* Text without pictures: the heading holds the left column (and stays in view while the text
- * scrolls), the text keeps its reading width on the right, so the section fills the page. */
+ * scrolls), the text the right one. Same columns as the step rows, so all running text on the
+ * right starts on one line down the page. */
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 40rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px 64px;
   align-items: start;
 }
@@ -684,6 +685,11 @@ figure {
 
 /* Origin: the story, then one row per complaint, each beside a drawing of what it looked like. */
 .origin-rows {
+  margin-top: 96px;
+}
+
+/* A closing paragraph under the step rows, without a picture of its own. */
+.steps-after {
   margin-top: 96px;
 }
 
@@ -1176,6 +1182,24 @@ figure {
   .step .device {
     width: min(72vw, 280px);
   }
+
+  /* A phone screen is short: the desktop spacing would leave screenfuls of empty band. */
+  .section {
+    padding: 72px 0;
+  }
+
+  .hero {
+    padding-bottom: 64px;
+  }
+
+  .section-head {
+    margin-bottom: 40px;
+  }
+
+  .origin-rows,
+  .steps-after {
+    margin-top: 72px;
+  }
 }
 
 .macro-legend {
@@ -1199,11 +1223,6 @@ figure {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-}
-
-/* A closing paragraph under the step rows, without a picture of its own. */
-.steps-after {
-  margin-top: 96px;
 }
 
 /* Wide step: copy above, desktop browser shot with the phone overlapping its corner */
@@ -1347,11 +1366,32 @@ figure {
   background: hsl(0 0% 100% / 0.14);
   color: #fff;
   cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.lightbox-close:hover {
+  background: hsl(0 0% 100% / 0.24);
+}
+
+/* The lilac ring disappears on the dark backdrop in light mode. */
+.lightbox-close:focus-visible {
+  outline-color: #fff;
 }
 
 .lightbox-close svg {
   width: 22px;
   height: 22px;
+}
+
+/* On a phone the image takes the full width: keep the close button above it, not on it. */
+@media (max-width: 760px) {
+  .lightbox {
+    padding: 72px 16px 16px;
+  }
+
+  .lightbox img {
+    max-height: calc(100dvh - 88px);
+  }
 }
 
 html:has(.lightbox[open]) {
