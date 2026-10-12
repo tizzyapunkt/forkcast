@@ -673,12 +673,12 @@ figure {
   margin-top: 22px;
 }
 
-/* Origin: text next to a quiet before/after of spreadsheet vs. app */
+/* Origin: the story, with the old spreadsheet beside its last paragraph (the one about Excel) */
 .origin .wrap {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 64px;
-  align-items: center;
+  align-items: end;
 }
 
 .sheet {
@@ -806,48 +806,8 @@ figure {
   }
 }
 
-/* What it does differently: one row per decision, the common pattern under its title on the left,
- * forkcast's answer on the right. Plain ground right after the plain origin section, so a hairline
- * marks the start instead of a tint. */
-.section--ruled {
-  border-top: 1px solid var(--line);
-}
-
-.decisions {
-  max-width: 64rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid var(--line);
-}
-
-.decision {
-  display: grid;
-  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
-  gap: 12px 56px;
-  padding: 30px 0;
-  border-top: 1px solid var(--line);
-}
-
-.decision h3 {
-  font-size: var(--fs-subtitle);
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.decision .usual {
-  margin-top: 8px;
-  font-size: var(--fs-small);
-  color: var(--ink-3);
-}
-
-.decision-body > p {
-  max-width: 36em;
-  font-size: var(--fs-large);
-  color: var(--ink-2);
-}
-
-/* One recipe, two jobs: the full recipe beside the serving it logs, drawn like the app's lists. */
+/* Recipe vs. log: the full recipe beside the serving it logs, drawn like the app's lists. A row changed
+ * while cooking carries the app's marker: a dot before the name and the old amount under the new one. */
 .recipe-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -913,6 +873,30 @@ figure {
   color: var(--ink-3);
 }
 
+.rs-changed span:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  vertical-align: 0.1em;
+}
+
+.rs-changed span:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-weight: 650;
+}
+
+.rs-changed small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
 .rs-skipped {
   margin-top: 10px;
   padding-top: 8px;
@@ -936,13 +920,6 @@ figure {
   grid-column: 1 / -1;
   font-size: var(--fs-caption);
   color: var(--ink-3);
-}
-
-@media (max-width: 760px) {
-  .decision {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 26px 0;
-  }
 }
 
 @media (max-width: 520px) {
@@ -982,11 +959,15 @@ figure {
   font-weight: 700;
 }
 
-.step p {
+.step-text > p {
   margin-top: 14px;
   max-width: 30em;
   font-size: var(--fs-large);
   color: var(--ink-2);
+}
+
+.step-text > p:first-child {
+  margin-top: 0;
 }
 
 .step .shot-caption {
@@ -1033,6 +1014,11 @@ figure {
   width: 9px;
   height: 9px;
   border-radius: 50%;
+}
+
+/* A closing paragraph under the step rows, without a picture of its own. */
+.steps-after {
+  margin-top: 96px;
 }
 
 /* Wide step: copy above, desktop browser shot with the phone overlapping its corner */
@@ -1088,83 +1074,7 @@ figure {
   }
 }
 
-/* Feature list: two-column definition grid, rules between rows, no cards */
-.features {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 64px;
-  margin: 0;
-}
-
-.feature {
-  padding: 28px 0;
-  border-top: 1px solid var(--line);
-}
-
-.feature dt {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 680;
-  font-size: var(--fs-large);
-}
-
-.feature dt svg {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  color: var(--brand);
-}
-
-.feature dd {
-  margin: 8px 0 0 34px;
-  color: var(--ink-2);
-}
-
-@media (max-width: 760px) {
-  .features {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* How it's built */
-.data-flows {
-  max-width: 52rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid var(--line);
-}
-
-.data-flows li {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
-  gap: 24px;
-  padding: 18px 0;
-  border-top: 1px solid var(--line);
-}
-
-.data-flows b {
-  font-weight: 650;
-}
-
-/* What stays on your server carries the brand colour. */
-.data-flows .is-local b {
-  color: var(--brand);
-}
-
-.data-flows span {
-  color: var(--ink-2);
-}
-
-@media (max-width: 760px) {
-  .data-flows li {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-  }
-}
-
-/* Try it today: a lilac band between "How it's built" and the FAQ. */
+/* Try it: the lilac band that closes the page, right above the footer. */
 .try-now {
   padding: 40px 0;
   border-top: 1px solid var(--brand-line);
@@ -1189,78 +1099,8 @@ figure {
   color: var(--ink-2);
 }
 
-/* FAQ */
-.faq {
-  max-width: 46rem;
-}
-
-.faq details {
-  border-top: 1px solid var(--line);
-}
-
-.faq details:last-child {
-  border-bottom: 1px solid var(--line);
-}
-
-.faq summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 22px 0;
-  font-weight: 650;
-  font-size: var(--fs-large);
-  cursor: pointer;
-  list-style: none;
-}
-
-.faq summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq summary svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  color: var(--ink-3);
-  transition: transform 0.2s ease-out;
-}
-
-.faq details[open] summary svg {
-  transform: rotate(45deg);
-}
-
-.faq details p {
-  padding: 0 0 24px;
-  max-width: 40em;
-  color: var(--ink-2);
-}
-
-/* Closing */
-.closing {
-  text-align: center;
-}
-
-.closing .wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.closing h2 {
-  max-width: 18em;
-  font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem);
-  font-weight: 720;
-}
-
-.closing p {
-  margin-top: 16px;
-  max-width: 34em;
-  font-size: var(--fs-large);
-  color: var(--ink-2);
-}
-
-.closing .button {
+/* Why I'm asking: prose with the way back up to the question. */
+.asking .button {
   margin-top: 28px;
 }
 

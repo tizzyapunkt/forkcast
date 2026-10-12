@@ -46,7 +46,7 @@ typography:
     fontWeight: 750
     lineHeight: 1.12
     letterSpacing: "-0.035em"
-  headline: # section-head h2, prose h2, closing h2 (legal h1 caps at 2.6rem)
+  headline: # section-head h2, prose h2 (legal h1 caps at 2.6rem)
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "clamp(1.9rem, 1.3rem + 2vw, 2.8rem)"
     fontWeight: 720
@@ -69,12 +69,12 @@ typography:
     fontSize: "1.25rem"
     fontWeight: 700
     lineHeight: 1.12
-  large: # --fs-large: section intros, prose, step copy, closing copy, feature terms (680), FAQ summaries (650)
+  large: # --fs-large: prose, step copy
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "1.125rem"
     fontWeight: 400
     lineHeight: 1.6
-  body: # --fs-body: body base text, data-flow rows, legal prose
+  body: # --fs-body: body base text, legal prose
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "17px"
     fontWeight: 400
@@ -176,7 +176,7 @@ Everything reads without JavaScript. Script only adds the scrolled-header hairli
 A near-monochrome lilac-tinted neutral scale carrying a single saturated brand lilac, with three macro colours held back for app context.
 
 ### Primary
-- **forkcast Lilac** (`brand`): the binding brand colour. Primary button fill, link colour, focus outline, the selected spreadsheet cell's outline, checked choice border and box, feature-list icon stroke, the labels of data-flow rows that stay on your server, and the one highlighted word in the hero headline. In dark mode it lifts to a lighter, more saturated lilac (`brand-dark`) so it holds contrast on indigo.
+- **forkcast Lilac** (`brand`): the binding brand colour. Primary button fill, link colour, focus outline, the selected spreadsheet cell's outline, checked choice border and box, the changed-row dot in the recipe illustration, and the one highlighted word in the hero headline. In dark mode it lifts to a lighter, more saturated lilac (`brand-dark`) so it holds contrast on indigo.
 - **Deep Lilac** (`brand-strong`): hover state for buttons and links.
 - **Lilac Wash** (`brand-soft`): fill of a checked interest-check choice and the ground of the try-now band.
 - **Lilac Hairline** (`brand-line`): hover border of an unchecked choice and the top rule of the try-now band.
@@ -187,11 +187,11 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 ### Neutral
 - **Ink** (`ink`): headings, strong labels, input text.
 - **Ink Soft** (`ink-2`): body copy in sections, ledes, nav links, list detail, the interest check's lead note, the formula bar.
-- **Ink Muted** (`ink-3`): captions, form notes, placeholders, unchecked checkbox stroke, FAQ toggle icon, footer text.
+- **Ink Muted** (`ink-3`): captions, form notes, placeholders, unchecked checkbox stroke, footer text.
 - **Paper** (`ground`): page ground, control fill.
 - **Lilac Paper** (`ground-2`): tinted section ground, hero gradient end, spreadsheet header cells, inline code, screenshot placeholder.
 - **Selection** (`selection`): the `::selection` highlight behind Ink text; a mid lilac in light mode, a deep lilac in dark mode.
-- **Rule** (`line`): every hairline: header on scroll, control borders, spreadsheet grid and formula bar, feature and flow rows, FAQ dividers, footer top.
+- **Rule** (`line`): every hairline: header on scroll, control borders, spreadsheet grid and formula bar, recipe illustration panels, footer top.
 - **Frame** (`frame`): device bezel; near-black indigo, darker still in dark mode.
 - **Frame Rim** (`frame-rim`): the phone's metal rim and side buttons around the bezel; a mid grey indigo, darker in dark mode so it stays a rim, not a halo.
 - **On Lilac** (`on-brand`): text and checkmark on lilac. White in light mode, deep indigo in dark mode because the dark lilac is light.
@@ -215,12 +215,12 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 ### Hierarchy
 Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these (the legal-page title is the Headline step capped at 2.6rem).
 - **Display** (750, fluid 2.1 to 3.3rem, 1.12, -0.035em): the hero headline only, balanced wrapping, one word in lilac. Sized to sit beside the interest check, not to dominate it.
-- **Headline** (720, fluid 1.9 to 2.8rem, 1.12, -0.022em): section titles, the closing question, legal-page titles.
+- **Headline** (720, fluid 1.9 to 2.8rem, 1.12, -0.022em): section titles, legal-page titles.
 - **Title** (700, fluid 1.5 to 2rem): step titles.
 - **Lede** (400, fluid 1.06 to 1.2rem, 1.6): hero subcopy, capped at 34em, in Ink Soft.
 - **Subtitle** (700, 1.25rem): the wordmark (-0.03em), the try-now heading, legal-page section heads (650).
-- **Large** (400, 1.125rem, 1.6): section intros, prose paragraphs, step copy and closing copy in Ink Soft; also feature terms (680) and FAQ summaries (650).
-- **Body** (400, 17px, 1.6): base text, data-flow rows (labels 650), legal prose; pretty wrapping; prose capped at 40rem.
+- **Large** (400, 1.125rem, 1.6): prose paragraphs and step copy in Ink Soft.
+- **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem.
 - **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
 - **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, screenshot placeholder, footer.
 - **Caption** (400, 13px, Ink Muted): screenshot captions, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
@@ -235,13 +235,13 @@ Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom p
 
 A single centred column of `max` (1120px) plus `gutter` (20px) each side. Sections are full-bleed bands with `section` (112px) vertical padding; section intros sit above content with `section-head` (56px) below them.
 
-**Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint (origin plain, then "What it does differently" also plain but opened by a full-width hairline top rule, how-it-works tint, capture plain, features tint, built plain), then the one interruption: the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, after which the FAQ is plain and the closing tint. Plain sits on both sides of the band, so the alternation resumes around it. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
+**Section rhythm.** After the hero, sections alternate plain ground and Lilac Paper tint: origin plain, "My week with it" tint, "What I took from other apps" plain, "What it can't do" tint, "Why I'm asking" plain, "About the name" tint. The page closes with the one interruption, the try-now band in Lilac Wash with a Lilac Hairline top rule and `band` (40px) padding, right above the footer. The hero carries its own vertical gradient from Paper to Lilac Paper so the first band hands off softly.
 
-**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr), step rows (equal). Step rows alternate text side on even rows. The features list is a two-column definition grid with 1px top rules per row. "How it's built" is one column: a full-width rule list (max 52rem) with a 13rem label column and 24px gap. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
+**Grids.** Two-column grids with `columns` (64px) gaps: hero (equal, 48px gap), origin (1.1fr / 0.9fr, the spreadsheet aligned to the end of the story, beside the Excel paragraph), step rows (equal). Step rows alternate text side on even rows; step text is the author's paragraphs with no step titles. A paragraph without a picture of its own sits under the step rows as prose, 96px below. Sections without pictures ("What it can't do", "Why I'm asking", "About the name") are one prose column capped at 40rem. The wide plan step stacks copy above a browser frame with a small phone overlapping at its bottom edge. The try-now band is a wrapping row: heading and one line left, the button right (24px / 48px gaps).
 
 **Legal pages.** Privacy and imprint share header and footer and set one prose column (40rem) with 72px top and 96px bottom padding; links in running legal text are Ink, underlined, so a page of links does not read as a page of actions.
 
-**Breakpoints.** 900px: hero and origin stack to one column; the tilted devices and sheet straighten, and the sheet scrolls sideways if it must. 760px: steps and features stack; data-flow labels sit above their text; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 480px: choices go one column and every button goes full width. Touch (`pointer: coarse`): header and footer nav links get 44px tall hit areas without changing the look; the language pill keeps its size and takes taps through an invisible ring around it.
+**Breakpoints.** 900px: hero and origin stack to one column; the tilted devices and sheet straighten, and the sheet scrolls sideways if it must. 760px: steps stack; section nav links hide; the browser frame is removed because a desktop shot is unreadable at that width. 520px: the recipe illustration's panels stack. 480px: choices go one column and every button goes full width. Touch (`pointer: coarse`): header and footer nav links get 44px tall hit areas without changing the look; the language pill keeps its size and takes taps through an invisible ring around it.
 
 ## Elevation & Depth
 
@@ -263,7 +263,7 @@ Generous, soft corners. Controls share one radius (`control`, 14px). Device fram
 ### Buttons
 Confident and single.
 - **Shape:** gently rounded (14px), 48px tall.
-- **Where:** the interest check ("Get the launch e-mail"), the try-now band and the closing call to action.
+- **Where:** the interest check ("Get the launch e-mail"), the way back up to it at the end of "Why I'm asking", and the try-now band.
 - **Primary:** Lilac fill, On Lilac text, 650 weight, 22px side padding, soft drop.
 - **Hover / Focus / Active:** fill darkens to Deep Lilac over 0.15s; global 2px lilac focus outline at 3px offset; 1px press-down on active.
 - **Busy:** `aria-disabled="true"` drops to 60% opacity with a progress cursor.
@@ -293,17 +293,11 @@ A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 28
 ### Spreadsheet illustration
 The origin story's "before" picture: a small table with a hairline grid, control radius and Paper fill, tilted 1.2deg on desktop, with a mono formula bar on top (cell ref | italic fx | formula). Pointing at or focusing a cell shows its formula through CSS `:has()`, so it works without script; the broken `#REF!` cell (Error, mono) is selected by default. The selected cell carries a 2px lilac outline inset by 2px. It is one keyboard stop; arrow keys, Home and End move between cells. No caption.
 
-### Decisions list
-"What it does differently": one row per decision, separated by 1px Rule top borders and closed by a bottom rule, capped at 64rem. Each row is a two-column grid (up to 17rem, then the rest; 56px gap): left the decision title (Subtitle, 700) with the common pattern under it in Ink Muted Small ("Other trackers: …"), right forkcast's answer in Large, Ink Soft, capped at 36em. Under 760px the row stacks. Never name a competitor; the contrast is with the common pattern.
-
-### Recipe split illustration
-The focal picture of the decisions list ("One recipe, two jobs"), built in HTML from the demo data, not a screenshot: two hairline-bordered Paper panels at the control radius, Caption size with tabular numerals, joined by a lilac arrow. Left the full recipe (title, "Recipe · 4 servings", ingredient rows, then a "Spices & odds and ends" group in Ink Muted); right the logged serving (per-serving amounts, a dashed rule, which spices stay out, the 650 macro total). A Caption beneath says where it comes from. Under 520px the panels stack and the arrow turns down. Values must match the seeded recipe and catalog.
-
-### Rule lists
-Features, data flows and FAQ are lists separated by 1px Rule top borders, no fills. Feature terms (Large, 680) carry a 22px lilac line icon (1.75 stroke). Data-flow rows (18px vertical padding, closed by a bottom rule) pair a 650 label with Ink Soft text; labels of what stays on your server are Lilac. FAQ summaries end in a muted plus that rotates 45deg when open (0.2s).
+### Recipe illustration
+Recipe vs. log, beside the cooking paragraph in "My week with it", built in HTML from the demo data, not a screenshot: two hairline-bordered Paper panels at the control radius, Caption size with tabular numerals, joined by a lilac arrow. Left the full recipe (title, "Recipe · 4 servings · unchanged", ingredient rows, then a "Spices & odds and ends" group in Ink Muted); right the logged serving (per-serving amounts, a dashed rule, which spices stay out, the 650 macro total). A row changed while cooking carries the app's marker: a small lilac dot before the name, the new amount in 650 and the old one ("was 75 g") in Ink Muted beneath. A Caption under the panels says what happened. Under 520px the panels stack and the arrow turns down. Values must match the seeded recipe and catalog.
 
 ### Try-now band
-A full-bleed Lilac Wash strip with a Lilac Hairline top rule and 40px padding: a Subtitle heading and one Ink Soft line on the left, the primary button on the right, wrapping on narrow screens. It sits between "How it's built" and the FAQ and is the only Lilac Wash band on the page.
+A full-bleed Lilac Wash strip with a Lilac Hairline top rule and 40px padding: a Subtitle heading and one Ink Soft line on the left, the primary button on the right, wrapping on narrow screens. It closes the page ("Want to give it a try?") right above the footer and is the only Lilac Wash band on the page.
 
 ### Link previews
 Per-language Open Graph images (`og-en.jpg`, `og-de.jpg`, 1200x630) are generated from the real app by `scripts/demo/capture-screenshots.mjs`, like the screenshots; no hand-drawn preview art.

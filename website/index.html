@@ -3,17 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>forkcast — plan your week to your macros. Would you want it hosted?</title>
+    <title>forkcast — my take on meal planning and calorie tracking. Would you want it hosted?</title>
     <meta
       name="description"
-      content="Plan the week's meals against your own calorie and macro goals and see whether the week adds up before you've eaten it. Then shop from the grocery list and cook from your recipes. It runs self-hosted today; this page checks whether a hosted version is worth building."
+      content="forkcast is my take on meal planning and meal prep, ad hoc calorie tracking and lo-fi recipe storage. It runs self-hosted today; this page checks whether a hosted version is worth building."
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="forkcast" />
-    <meta property="og:title" content="forkcast — plan your week to your macros. Would you want it hosted?" />
+    <meta
+      property="og:title"
+      content="forkcast — my take on meal planning and calorie tracking. Would you want it hosted?"
+    />
     <meta
       property="og:description"
-      content="Plan the week's meals against your own calorie and macro goals and see whether the week adds up before you've eaten it. Then shop from the grocery list and cook from your recipes. It runs self-hosted today; this page checks whether a hosted version is worth building."
+      content="forkcast is my take on meal planning and meal prep, ad hoc calorie tracking and lo-fi recipe storage. It runs self-hosted today; this page checks whether a hosted version is worth building."
     />
     <meta property="og:url" content="https://check-forkcast.tizzy.dev/" />
     <meta property="og:image" content="https://check-forkcast.tizzy.dev/og-en.jpg" />
@@ -44,9 +47,8 @@
           <img src="/favicon.svg" alt="" width="28" height="28" />forkcast
         </a>
         <nav class="nav" aria-label="Main">
-          <a class="nav-section" href="#how">How it works</a>
-          <a class="nav-section" href="#built">How it's built</a>
-          <a class="nav-section" href="#faq">FAQ</a>
+          <a class="nav-section" href="#week">My week</a>
+          <a class="nav-section" href="#try">Try it</a>
           <a class="nav-github" href="https://github.com/tizzyapunkt/forkcast">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
@@ -64,12 +66,15 @@
       <section class="hero">
         <div class="wrap">
           <div>
-            <h1>Plan your week to your macros. Would you want forkcast <span>hosted</span>?</h1>
+            <h1>My take on meal planning and calorie tracking. Would you want it <span>hosted</span>?</h1>
             <p class="lede">
-              Most trackers log what you already ate. With forkcast you plan the week's meals against your own calorie
-              and macro goals, and see whether the week adds up before you've eaten any of it. It turns the plan into a
-              grocery list and keeps the recipe at hand when you cook. It runs self-hosted today, for one person. This
-              page checks whether a hosted version is worth building.
+              forkcast is my take on meal planning and meal prep, ad hoc calorie tracking and lo-fi recipe storage. It
+              helps me stay on the right trajectory to achieve my nutrition, weight and fitness goals.
+            </p>
+            <p class="lede">
+              Since my view on low-friction meal planning and calorie tracking might not be unique to me, others might
+              also like the decisions I took to make this topic less annoying. If people who can self-host it find it
+              useful, it might be worth making it available as a hosted version for people who are less tech-savvy.
             </p>
 
             <form
@@ -114,8 +119,8 @@
                 <button class="button" type="submit">Get the launch e-mail</button>
               </div>
               <p class="form-note">
-                Optional. Opens a Tally form for your e-mail. I'll write once: when hosted is ready to try, or at the
-                end of 2026 if it isn't. Then the address is deleted.
+                Optional. Opens a Tally form for your e-mail. I'll write once: when hosted is ready to try, or in
+                January 2027 if it isn't. Then the address is deleted.
               </p>
               <p class="form-status" role="status" aria-live="polite"></p>
             </form>
@@ -153,20 +158,43 @@
       <section class="section origin" aria-labelledby="origin-title">
         <div class="wrap">
           <div class="prose">
-            <h2 id="origin-title">I frankensteined yazio, fddb, MyFitnessPal and Excel into my own meal planner.</h2>
+            <h2 id="origin-title">Why I frankensteined yazio, fddb, MyFitnessPal and Excel together</h2>
             <p>
-              I have a full-time job, a young family and fitness goals I take seriously. Every tracker I tried, fddb,
-              yazio, MyFitnessPal, is built around logging what you already ate. I wanted to decide on Sunday what I eat
-              all week, and know it adds up.
+              The need for planning, prepping and tracking my meals came from me doing a 90-day fitness challenge to
+              lose weight and get fitter. During the challenge, they suggested using these apps for meal planning to
+              make sure to hit calorie and macro goals, and to not spread thinking about what to eat across days, but to
+              prepare it once and then benefit from the plan for the whole week.
             </p>
             <p>
-              A spreadsheet got me halfway. It did the maths, but it was never ergonomic enough to keep up every week.
-              So I took what worked in each and stitched it into forkcast, for myself, with no plan to turn it into a
-              product.
+              I am a father of two, with a full-time job, so I was happy that there seemed to be tools to support me
+              during that phase of 90 days, and of course afterwards, since one goal of the 90-day challenge was to
+              basically set the trajectory for the rest of your life, which is also quite a bold claim if you ask me.
             </p>
             <p>
-              It has grown to the point where other people might want it too. This page is how I find out whether that's
-              true, and whether you'd want it hosted or on your own server.
+              What annoyed me the most was that they are not built around planning a week ahead, but rather around
+              tracking what you're currently eating or what you plan to eat on a certain day. The next major issue that
+              annoyed me was how they deal with recipes and meals and the tracking of them. Mostly a recipe is tracked
+              as one entity and not as the ingredients that make the recipe, which often makes switching ingredients
+              very hard, because you always have to edit the recipe and you can't switch ingredients ad hoc, maybe as
+              you are cooking in the moment.
+            </p>
+            <p>
+              Another thing was the inconsistency between the mobile and desktop UI, if they had one. Some features of
+              some apps didn't exist in the mobile UI but did on desktop, which made no sense at all. Sometimes it was
+              the other way around. So getting used to two different interfaces and two different sets of features was
+              just annoying as well. And of course, a lot of them had a lot of features that I simply don't need, but
+              that would get in my way during the day, because they use space on the UI that could simply be used by
+              something else.
+            </p>
+            <p>
+              I had the paid versions of some of these apps, and even they didn't unlock the features that I would have
+              found useful.
+            </p>
+            <p>
+              The Excel sheet, on the other hand, was as low-key as I could go from a technical standpoint, because it
+              was able to do the math behind calories and such. But recipe tracking or using it as a cooking companion
+              was of course not nice, and of course the ad hoc tracking was simply impossible, because there was no nice
+              mobile UI, no barcode scanner, and so on and so forth.
             </p>
           </div>
 
@@ -236,172 +264,20 @@
         </div>
       </section>
 
-      <section class="section section--ruled" id="different" aria-labelledby="different-title">
+      <section class="section section--tint" id="week" aria-labelledby="week-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 id="different-title">What it does differently</h2>
-            <p>
-              Other trackers are diaries with a planner added on. forkcast starts from the week, and a few decisions
-              follow from that.
-            </p>
-          </div>
-
-          <ul class="decisions">
-            <li class="decision">
-              <div class="decision-head">
-                <h3>The plan is the log</h3>
-                <p class="usual">Other trackers: a daily diary, with meal planning on the side.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  You plan the week, and the planned meals are your log. When a day goes differently, you change that
-                  day. Nothing is entered twice.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Your numbers, no diet template</h3>
-                <p class="usual">Other trackers: a diet plan sets your numbers.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Enter your own calories and macros, or let the calculator work them out from your body, activity and
-                  phase, with a published formula (Ten Haaf &amp; Weijs, 2014). The result stays yours to change.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Ingredients are logged, not dishes</h3>
-                <p class="usual">Other trackers: a meal goes into the diary as one entry.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  A recipe is logged as its ingredients. Swapping the rice for potatoes on Tuesday is one edit to
-                  Tuesday, and the recipe stays as it is.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>One recipe, two jobs</h3>
-                <p class="usual">Other trackers: what's in the recipe is what's in the diary.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  The recipe keeps everything a cookbook page has, down to the cumin and the steps. Only what counts
-                  goes into the log. The spices still end up on the grocery list.
-                </p>
-                <figure class="recipe-split">
-                  <div class="rs-card">
-                    <p class="rs-title">Red Lentil Dal<span>Recipe · 4 servings</span></p>
-                    <ul class="rs-list">
-                      <li><span>Red lentils</span><span>300 g</span></li>
-                      <li><span>Onion</span><span>120 g</span></li>
-                      <li><span>Garlic</span><span>12 g</span></li>
-                      <li><span>Ginger</span><span>16 g</span></li>
-                      <li><span>Tomato</span><span>3 medium</span></li>
-                      <li><span>Coconut oil</span><span>20 ml</span></li>
-                      <li><span>Spinach</span><span>200 g</span></li>
-                      <li><span>Basmati rice</span><span>200 g</span></li>
-                    </ul>
-                    <p class="rs-sub">Spices &amp; odds and ends</p>
-                    <ul class="rs-list rs-list--untracked">
-                      <li><span>Turmeric</span><span>1 tsp</span></li>
-                      <li><span>Cumin</span><span>1 tsp</span></li>
-                      <li><span>Salt</span><span>to taste</span></li>
-                    </ul>
-                  </div>
-                  <svg
-                    class="rs-arrow"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M4 12h15M13 6l6 6-6 6" />
-                  </svg>
-                  <div class="rs-card">
-                    <p class="rs-title">Wed · Lunch<span>Logged · 1 serving</span></p>
-                    <ul class="rs-list">
-                      <li><span>Red lentils</span><span>75 g</span></li>
-                      <li><span>Onion</span><span>30 g</span></li>
-                      <li><span>Garlic</span><span>3 g</span></li>
-                      <li><span>Ginger</span><span>4 g</span></li>
-                      <li><span>Tomato</span><span>90 g</span></li>
-                      <li><span>Coconut oil</span><span>5 ml</span></li>
-                      <li><span>Spinach</span><span>50 g</span></li>
-                      <li><span>Basmati rice</span><span>50 g</span></li>
-                    </ul>
-                    <p class="rs-skipped">Turmeric, cumin and salt stay out.</p>
-                    <p class="rs-total">518 kcal · 25 P · 88 C · 7 F</p>
-                  </div>
-                  <figcaption>
-                    One recipe from the demo data: the full version to cook from, and what a serving puts in the log.
-                  </figcaption>
-                </figure>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Cook the way you cook</h3>
-                <p class="usual">Other trackers: cooking happens outside the app.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Cook a recipe fresh for one day or meal-prep it for several: pick which of its planned meals you are
-                  cooking, and add servings for people eating along, which stay out of your log. Change an amount or
-                  swap an ingredient at the stove, and the planned meals follow. The screen stays on.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Shop from the plan</h3>
-                <p class="usual">Other trackers: the shopping list is yours to write.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  The grocery list adds up the whole week, spices included. Set how many servings you'll really cook,
-                  then tick off what's at home or send the list to Bring!.
-                </p>
-              </div>
-            </li>
-            <li class="decision">
-              <div class="decision-head">
-                <h3>Yours to run</h3>
-                <p class="usual">Other trackers: an account, and your diary on someone else's servers.</p>
-              </div>
-              <div class="decision-body">
-                <p>
-                  Today forkcast is a single-user, self-hosted app: it runs on your own server, keeps everything in
-                  plain files there and sits behind one password instead of accounts. Open source under AGPL-3.0, no
-                  ads.
-                </p>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="section section--tint" id="how" aria-labelledby="how-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 id="how-title">How it works</h2>
-            <p>The week is the unit. Daily logging is still there, as the flexible part, not the main job.</p>
+            <h2 id="week-title">My week with it</h2>
           </div>
 
           <div class="steps">
             <div class="step step--wide">
               <div class="step-text">
-                <h3>Plan the week</h3>
                 <p>
-                  Put meals on each day of the coming week and see the daily and weekly averages against your goals
-                  before you've eaten anything. Copy a day to the next when you meal-prep.
+                  Usually I start by planning the week ahead on Thursday or Friday, so I can do the groceries on
+                  Saturday. Meal prep for the week ahead is done on Sunday. I most likely prep Monday to Wednesday, and
+                  on Wednesday I prep until Friday again. Depending on what I'm gonna cook, it varies from week to week.
+                  When planning, I start with breakfasts and then lunch.
                 </p>
                 <ul class="macro-legend" aria-label="Macro colours">
                   <li><i style="background: var(--macro-p)"></i>Protein</li>
@@ -442,10 +318,10 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Adjust the day</h3>
                 <p>
-                  Plans change. Swap a meal or log something unplanned on your phone, and the macros update while you
-                  type the amount.
+                  Since I have two little kids, evenings and weekends mostly don't go according to plan, so I track them
+                  ad hoc. I try not to be dogmatic. If a day or two go past my macro or calorie goals, I'm fine. The
+                  trajectory is what matters to me.
                 </p>
               </div>
               <div>
@@ -466,11 +342,10 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Shop from the plan</h3>
                 <p>
-                  The grocery list adds up everything the week needs, with piece hints like "≈ 3" for onions. Set how
-                  many servings of each recipe you'll actually cook, and the amounts follow. Tick off what's already at
-                  home, or send the list to Bring!.
+                  Since groceries are done either by my wife or me, and we were already used to Bring! as a shopping
+                  list app, I was very happy to discover that Bring! has a very low-effort way to export a shopping list
+                  into it, props to Bring! here. :)
                 </p>
               </div>
               <div>
@@ -491,12 +366,67 @@
 
             <div class="step">
               <div class="step-text">
-                <h3>Cook once for the week</h3>
                 <p>
-                  Cook a planned recipe in one go for every meal it has that week. The cooking view shows the amounts
-                  for the whole pot, the steps and the macros each serving logs. Used the whole bottle, or swapped an
-                  ingredient? Change it while you cook, and every planned meal follows. The screen stays on.
+                  What I noticed during shopping and cooking is that sometimes I don't get the package sizes I'd like,
+                  and since I can't freeze all leftovers, I had to change ingredient amounts during cooking sessions
+                  here and there. This is why I made it easy to swap ingredients or change amounts during cooking
+                  sessions without having to change the recipe. Since this could change the planned week, changing the
+                  plan also has to be low-friction.
                 </p>
+                <figure class="recipe-split">
+                  <div class="rs-card">
+                    <p class="rs-title">Red Lentil Dal<span>Recipe · 4 servings · unchanged</span></p>
+                    <ul class="rs-list">
+                      <li><span>Red lentils</span><span>300 g</span></li>
+                      <li><span>Onion</span><span>120 g</span></li>
+                      <li><span>Garlic</span><span>12 g</span></li>
+                      <li><span>Ginger</span><span>16 g</span></li>
+                      <li><span>Tomato</span><span>3 medium</span></li>
+                      <li><span>Coconut oil</span><span>20 ml</span></li>
+                      <li><span>Spinach</span><span>200 g</span></li>
+                      <li><span>Basmati rice</span><span>200 g</span></li>
+                    </ul>
+                    <p class="rs-sub">Spices &amp; odds and ends</p>
+                    <ul class="rs-list rs-list--untracked">
+                      <li><span>Turmeric</span><span>1 tsp</span></li>
+                      <li><span>Cumin</span><span>1 tsp</span></li>
+                      <li><span>Salt</span><span>to taste</span></li>
+                    </ul>
+                  </div>
+                  <svg
+                    class="rs-arrow"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 12h15M13 6l6 6-6 6" />
+                  </svg>
+                  <div class="rs-card">
+                    <p class="rs-title">Wed · Lunch<span>Logged · 1 serving</span></p>
+                    <ul class="rs-list">
+                      <li class="rs-changed">
+                        <span>Red lentils</span><span>100 g<small>was 75 g</small></span>
+                      </li>
+                      <li><span>Onion</span><span>30 g</span></li>
+                      <li><span>Garlic</span><span>3 g</span></li>
+                      <li><span>Ginger</span><span>4 g</span></li>
+                      <li><span>Tomato</span><span>90 g</span></li>
+                      <li><span>Coconut oil</span><span>5 ml</span></li>
+                      <li><span>Spinach</span><span>50 g</span></li>
+                      <li><span>Basmati rice</span><span>50 g</span></li>
+                    </ul>
+                    <p class="rs-skipped">Turmeric, cumin and salt stay out.</p>
+                    <p class="rs-total">604 kcal · 31 P · 102 C · 7 F</p>
+                  </div>
+                  <figcaption>
+                    One recipe from the demo data, cooked with a whole 400&nbsp;g pack of lentils: the recipe stays at
+                    300&nbsp;g, each logged serving gets 100&nbsp;g.
+                  </figcaption>
+                </figure>
               </div>
               <div>
                 <div class="device">
@@ -514,22 +444,40 @@
               </div>
             </div>
           </div>
+
+          <div class="prose steps-after">
+            <p>
+              Since this app was born out of a 90-day fitness challenge, easily setting fitness goals and tracking
+              weight is also part of it. I weigh myself each morning to see the trend across the week and month. Calorie
+              goals have been set using the built-in calculator, which uses the Ten Haaf formula. For me, results have
+              been pretty good so far.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="capture-title">
+      <section class="section" id="apps" aria-labelledby="apps-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 id="capture-title">Two things that save the most typing</h2>
-            <p>Most of the time in a food tracker goes into entering food. These two cut it down.</p>
+            <h2 id="apps-title">What I took from other apps, and where AI comes in</h2>
           </div>
           <div class="steps">
             <div class="step">
               <div class="step-text">
-                <h3>Packaged foods via Open Food Facts</h3>
                 <p>
-                  Search branded products or scan a barcode, and the nutrition values come from Open Food Facts. If a
-                  product isn't there, photograph the packaging and it's read into your own catalog.
+                  There were things from other apps that I liked tho. Barcode scanning and searching for packaged foods,
+                  for example, since this is almost a must-have for ad hoc tracking. Luckily,
+                  <a href="https://world.openfoodfacts.org">Open Food Facts</a> offers an open and free API for
+                  nutrition info for packaged foods, which can be queried with the barcode or a text search. It has had
+                  almost everything I searched for so far. For cases where it did not find anything, I integrated
+                  AI-based OCR to extract nutrition info from packages myself and save it into a local catalog.
+                </p>
+                <p>
+                  While Open Food Facts is good for packaged foods, 'generic', non-packaged foods like veggies, eggs or
+                  the like come from a local catalog that has been seeded with nutrition info for common stuff. The
+                  catalog can be edited through the UI, as this was nice to have sometimes. The catalog can also be used
+                  to search for ingredients when adding recipes. Since some ingredients in recipes don't come with
+                  weights but with pieces, common piece-to-weight info is also part of the catalog.
                 </p>
               </div>
               <div>
@@ -549,11 +497,18 @@
             </div>
             <div class="step">
               <div class="step-text">
-                <h3>Recipes from photos</h3>
                 <p>
-                  Photograph a cookbook page, take a screenshot or shoot both sides of a recipe card, and you get a
-                  draft recipe. You check every ingredient before anything is saved, and the recipe then carries its
-                  macros per portion.
+                  Mentioning AI-based OCR: forkcast is also able to extract recipes from photos or screenshots, which
+                  was important for me, since I didn't want to invest the time manually adding recipes I like, which
+                  usually come from books or the interwebz.
+                </p>
+                <p>
+                  Since I mentioned AI here: I did not want to include AI-based planning or AI-based recipe generation
+                  or whatever here. I want to be in control of what I eat, and I also want to think about it. I
+                  sprinkled AI stuff in where I felt it makes sense as support. I use Anthropic models for OCR, recipe
+                  extraction and nutrition information retrieval for ingredients that are not in the catalog yet. This
+                  only happens if you configure your own Anthropic API key; without one, these features hide themselves.
+                  Everything can be adjusted; AI just offers suggestions.
                 </p>
               </div>
               <div>
@@ -575,244 +530,83 @@
         </div>
       </section>
 
-      <section class="section section--tint" aria-labelledby="features-title">
+      <section class="section section--tint" aria-labelledby="limits-title">
         <div class="wrap">
-          <div class="section-head">
-            <h2 id="features-title">And the rest of the basics</h2>
+          <div class="prose">
+            <h2 id="limits-title">What it can't do</h2>
+            <p>
+              What it can't do right now is cooking. Sure, I love cooking. But sometimes, on a Sunday evening, doing
+              meal prep while the PS5 silently whispers my name, or family... cooking is tough. ;)
+            </p>
+            <p>
+              Other than that, regarding big features, it feels quite complete for me now. The important nuance here is:
+              for ME. If YOU are about to use it, your mileage may vary, of course.
+            </p>
+            <p>
+              Since in my family nobody else is interested in calorie tracking, there was no need for making it
+              multi-user, having a more solid database (it's plain JSON files right now) or whatsoever. I wanted to keep
+              maintenance and extension low-effort.
+            </p>
+            <p>
+              If there is demand for this app to be used by others, things have to change here and there, of course. The
+              core idea and focus won't change tho. If more AI features are being requested, I'd rather offer a proper
+              CLI / MCP than spread it across the UI. I also don't think that I will turn this into a native app; a PWA
+              is fine for me.
+            </p>
+            <p>
+              Another AI disclaimer: I mentioned family, a full-time job and kids that are still too young to manage
+              themselves autonomously, so this app has been created with a lot of AI help. A lot of review time goes
+              into reviewing specs to make sure it works the way I want. Code and tests are reviewed with my 'good
+              enough' hat on. Since it's open source, if others want to play with the code and make recommendations,
+              contributions are more than welcome.
+            </p>
           </div>
-          <dl class="features">
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z" />
-                  <path d="M5 17a3 3 0 0 1 3-3h11M9 8h6" />
-                </svg>
-                Your own food catalog
-              </dt>
-              <dd>A curated base of everyday foods you can correct and extend, with piece weights like "1 egg".</dd>
-            </div>
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
-                  <path d="M11 18.5h2" />
-                </svg>
-                Phone first, desktop too
-              </dt>
-              <dd>
-                An installable web app that sits on your phone like any other app, and is just as usable at a desk.
-              </dd>
-            </div>
-            <div class="feature">
-              <dt>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" />
-                </svg>
-                Weight alongside the plan
-              </dt>
-              <dd>Log your weight and see the trend next to what you actually planned and ate.</dd>
-            </div>
-          </dl>
         </div>
       </section>
 
-      <section class="section" id="built" aria-labelledby="built-title">
+      <section class="section asking" aria-labelledby="asking-title">
         <div class="wrap">
-          <div class="section-head">
-            <h2 id="built-title">How it's built, and where data goes</h2>
-            <p>Right now forkcast runs as one instance for one person: me. Here is everything it touches.</p>
+          <div class="prose">
+            <h2 id="asking-title">Why I'm asking</h2>
+            <p>
+              If the demand for this app is there, especially for hosted, I'll come up with a roadmap and a way to stay
+              in the loop for a release. I'll also put my 'production' hat on then and use some of my PS5 time to work
+              on forkcast and make sure it meets the requirements of an app that is used by others. I'd also see if I
+              can make self-hosting easier in any way. I'm generally interested in any feedback, also if it is 'wow,
+              another calorie tracker that nobody needs'.
+            </p>
+            <p>
+              As stated, if you're interested in how this turns out, leave your mail. I'll write once, and then the
+              email is deleted.
+            </p>
           </div>
-
-          <ul class="data-flows">
-            <li class="is-local">
-              <b>Meals, recipes, goals</b>
-              <span>Plain JSON files on the server that runs it. No database, no account system.</span>
-            </li>
-            <li class="is-local">
-              <b>Captured products</b>
-              <span>Products read from packaging photos are stored in your own food catalog, on your server.</span>
-            </li>
-            <li>
-              <b>Product search</b>
-              <span>Queries Open Food Facts when you switch it on or scan a barcode.</span>
-            </li>
-            <li>
-              <b>Photo import</b>
-              <span
-                >Recipe and packaging photos go to the Anthropic API, only if you configure your own API key. Without
-                one, the feature hides itself.</span
-              >
-            </li>
-          </ul>
+          <a class="button" href="#interest">Answer the question</a>
         </div>
       </section>
 
-      <aside class="try-now" aria-labelledby="try-now-title">
+      <section class="section section--tint" aria-labelledby="name-title">
+        <div class="wrap">
+          <div class="prose">
+            <h2 id="name-title">About the name</h2>
+            <p>
+              I thought I was very clever and creative with the name 'forkcast'. Since it was only for me, I didn't do
+              any research on whether this name had been taken. Well, it turned out there is not only one product in the
+              calorie tracker and meal planning category with this name. A pity. So the name might be subject to change.
+              Ideas welcome ;)
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="try-now" id="try" aria-labelledby="try-now-title">
         <div class="wrap">
           <div>
-            <h2 id="try-now-title">Self-hosting works today</h2>
+            <h2 id="try-now-title">Want to give it a try?</h2>
             <p>Run it on your own server now. The README on GitHub has the setup.</p>
           </div>
           <a class="button" href="https://github.com/tizzyapunkt/forkcast#self-hosting">Set it up from GitHub</a>
         </div>
       </aside>
-
-      <section class="section" id="faq" aria-labelledby="faq-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 id="faq-title">Questions</h2>
-          </div>
-          <div class="faq">
-            <details>
-              <summary>
-                Why not just use a spreadsheet?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                I tried, in Excel. It handled the maths, but entering a week of meals, looking up macros and rebuilding
-                the grocery list was never ergonomic enough to do every single week. forkcast exists because the
-                spreadsheet kept getting skipped.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Is there a hosted version?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Not yet. Whether there will be one depends on the answers to the question at the top of this page. If
-                you left your e-mail on the Tally form, you'll hear about it first.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Will it cost money?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                The code is public and you can run it yourself. Whether a hosted version would cost something isn't
-                decided. There's nothing to sell yet.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Where is my data?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                When you self-host: in JSON files on your server. Product lookups go to Open Food Facts, and photos go
-                to the Anthropic API only if you add a key. See "How it's built" above for the full list.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Is the app available in English?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                Yes. The app speaks English and German: it follows your browser's language, and you can switch it in the
-                settings. The food catalog has English names too.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Who's behind this?
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p>
-                One developer, building it in spare time for their own kitchen. No company, no investors, no growth
-                team.
-              </p>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section class="section section--tint closing" aria-labelledby="closing-title">
-        <div class="wrap">
-          <h2 id="closing-title">Would you plan your week with it?</h2>
-          <p>Hosted or on your own server: one click tells me which one is worth building next.</p>
-          <a class="button" href="#interest">Answer the question</a>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
