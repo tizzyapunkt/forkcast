@@ -68,6 +68,14 @@ describe('CompositeIngredientSearchService', () => {
     expect((await svc.searchByName('apfel')).map((r) => r.name)).toEqual(['Apfel']);
   });
 
+  it('searches OFF in the requested locale', async () => {
+    const off = makeMockService([offResult]);
+    const svc = new CompositeIngredientSearchService(off, makeMockService([]));
+
+    await svc.searchByName('peanut butter', new Set(['OFF']), 'en');
+    expect(off.searchByName).toHaveBeenCalledWith('peanut butter', undefined, 'en');
+  });
+
   it('merges results: catalog hits come before OFF hits when both sources requested', async () => {
     const catalog = makeMockService([catalogResult]);
     const off = makeMockService([offResult]);

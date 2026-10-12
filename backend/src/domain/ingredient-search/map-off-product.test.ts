@@ -59,6 +59,52 @@ describe('mapOffProduct', () => {
     expect(result).toBeNull();
   });
 
+  describe('naming for a locale', () => {
+    const skyr = {
+      ...baseProduct,
+      product_name: 'Compote',
+      product_name_en: 'Skyr Pur',
+      product_name_de: 'Skyr Natur',
+    };
+
+    it('prefers the name in the active locale over the generic one', () => {
+      expect(mapOffProduct(skyr, 'en')!.name).toBe('Skyr Pur');
+      expect(mapOffProduct(skyr, 'de')!.name).toBe('Skyr Natur');
+    });
+
+    it('falls back to the generic name, then the other locale', () => {
+      expect(mapOffProduct({ ...skyr, product_name_de: undefined }, 'de')!.name).toBe('Compote');
+      expect(mapOffProduct({ ...skyr, product_name_en: undefined }, 'en')!.name).toBe('Compote');
+      expect(mapOffProduct({ ...skyr, product_name: undefined, product_name_de: undefined }, 'de')!.name).toBe(
+        'Skyr Pur',
+      );
+      expect(mapOffProduct({ ...skyr, product_name: undefined, product_name_en: undefined }, 'en')!.name).toBe(
+        'Skyr Natur',
+      );
+    });
+
+    it('skips blank names', () => {
+      expect(mapOffProduct({ ...skyr, product_name_en: '  ' }, 'en')!.name).toBe('Compote');
+    });
+
+    it('keeps the generic name first when no locale is given', () => {
+      expect(mapOffProduct(skyr)!.name).toBe('Compote');
+      expect(mapOffProduct({ ...skyr, product_name: undefined })!.name).toBe('Skyr Natur');
+    });
+
+    it('keeps a product named only in English', () => {
+      const englishOnly = { ...baseProduct, product_name: undefined, product_name_en: 'Skyr Mandarin Pie' };
+
+      expect(mapOffProduct(englishOnly, 'en')!.name).toBe('Skyr Mandarin Pie');
+      expect(mapOffProduct(englishOnly, 'de')!.name).toBe('Skyr Mandarin Pie');
+      expect(mapOffProduct(englishOnly)!.name).toBe('Skyr Mandarin Pie');
+    });
+
+    it('returns null when no name field has a value', () => {
+      expect(mapOffProduct({ ...baseProduct, product_name: undefined }, 'en')).toBeNull();
+    });
+  });
+
   it('returns null when the product has no nutritional data', () => {
     const result = mapOffProduct({
       code: 'abc',
