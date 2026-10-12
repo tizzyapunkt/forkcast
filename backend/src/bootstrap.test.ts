@@ -1,66 +1,33 @@
-import { describe, it, expect, afterEach } from 'vite-plus/test';
-import { mkdtempSync, existsSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { bootstrap } from './bootstrap.ts';
-import { JsonLogEntryRepository } from './infrastructure/meal-log/json-log-entry.repository.ts';
-import { JsonNutritionGoalRepository } from './infrastructure/nutrition/json-nutrition-goal.repository.ts';
+import { describe, it, expect } from 'vite-plus/test';
+import { bootstrap, type Initializable } from './bootstrap.ts';
 
-const tmpDirs: string[] = [];
-
-afterEach(() => {
-  while (tmpDirs.length) {
-    const dir = tmpDirs.pop();
-    if (dir) rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-function freshDataDir(): string {
-  const parent = mkdtempSync(join(tmpdir(), 'forkcast-bootstrap-'));
-  tmpDirs.push(parent);
-  return join(parent, 'data');
+function countingPart(): Initializable & { calls: number } {
+  return {
+    calls: 0,
+    async init() {
+      this.calls++;
+    },
+  };
 }
 
 describe('bootstrap', () => {
-  it('creates the data directory and unblocks writes for all persistence adapters', async () => {
-    const dataDir = freshDataDir();
-    const logRepo = new JsonLogEntryRepository(join(dataDir, 'log-entries.json'));
-    const goalRepo = new JsonNutritionGoalRepository(join(dataDir, 'nutrition-goal.json'));
+  it('initialises every part', async () => {
+    const a = countingPart();
+    const b = countingPart();
 
-    expect(existsSync(dataDir)).toBe(false);
+    await bootstrap([a, b]);
 
-    await bootstrap([logRepo, goalRepo]);
-
-    expect(existsSync(dataDir)).toBe(true);
-
-    await logRepo.save({
-      id: 'entry-1',
-      date: '2026-04-23',
-      slot: 'breakfast',
-      ingredient: { type: 'quick', label: 'Coffee', calories: 5 },
-      loggedAt: '2026-04-23T07:00:00.000Z',
-    });
-    await goalRepo.save({ calories: 2200, protein: 160, carbs: 220, fat: 70 });
-
-    expect(await logRepo.findByDate('2026-04-23')).toHaveLength(1);
-    expect(await goalRepo.get()).toEqual({ calories: 2200, protein: 160, carbs: 220, fat: 70 });
+    expect(a.calls).toBe(1);
+    expect(b.calls).toBe(1);
   });
 
-  it('is idempotent — running it twice on the same paths is a no-op', async () => {
-    const dataDir = freshDataDir();
-    const logRepo = new JsonLogEntryRepository(join(dataDir, 'log-entries.json'));
+  it('fails when a part fails to initialise', async () => {
+    const failing: Initializable = {
+      async init() {
+        throw new Error('catalog: cannot seed an empty catalog');
+      },
+    };
 
-    await bootstrap([logRepo]);
-    await logRepo.save({
-      id: 'entry-1',
-      date: '2026-04-23',
-      slot: 'breakfast',
-      ingredient: { type: 'quick', label: 'Coffee', calories: 5 },
-      loggedAt: '2026-04-23T07:00:00.000Z',
-    });
-
-    await bootstrap([logRepo]);
-
-    expect(await logRepo.findByDate('2026-04-23')).toHaveLength(1);
+    await expect(bootstrap([countingPart(), failing])).rejects.toThrow('cannot seed an empty catalog');
   });
 });

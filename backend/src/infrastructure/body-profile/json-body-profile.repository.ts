@@ -1,23 +1,17 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { BodyProfile } from '../../domain/body-profile/types.ts';
 import type { BodyProfileRepository } from '../../domain/body-profile/body-profile.repository.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 export class JsonBodyProfileRepository implements BodyProfileRepository {
-  constructor(private readonly filePath: string) {}
-
-  async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-  }
+  constructor(private readonly document: JsonDocument) {}
 
   async save(profile: BodyProfile): Promise<void> {
-    await writeFile(this.filePath, JSON.stringify(profile, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(profile, null, 2));
   }
 
   async get(): Promise<BodyProfile | null> {
-    if (!existsSync(this.filePath)) return null;
-    const raw = await readFile(this.filePath, 'utf-8');
+    const raw = await this.document.read();
+    if (raw === null) return null;
     return JSON.parse(raw) as BodyProfile;
   }
 }

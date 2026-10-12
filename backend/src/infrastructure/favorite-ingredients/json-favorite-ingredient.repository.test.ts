@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonFavoriteIngredientRepository } from './json-favorite-ingredient.repository.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import type { FavoriteIngredient } from '../../domain/favorite-ingredients/types.ts';
 
 const tmpDirs: string[] = [];
@@ -28,14 +29,13 @@ function favorite(name: string, unit: FavoriteIngredient['unit'] = 'g'): Favorit
 
 describe('JsonFavoriteIngredientRepository', () => {
   it('reads a missing file as an empty list', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
 
     expect(await repo.findAll()).toEqual([]);
   });
 
   it('appends a favorite whose identity is new', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
 
     await repo.upsert(favorite('Skyr'));
     await repo.upsert(favorite('Haferflocken'));
@@ -44,8 +44,7 @@ describe('JsonFavoriteIngredientRepository', () => {
   });
 
   it('replaces in place when the identity already exists', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
     await repo.upsert(favorite('Skyr'));
     await repo.upsert(favorite('Haferflocken'));
 
@@ -58,8 +57,7 @@ describe('JsonFavoriteIngredientRepository', () => {
   });
 
   it('keeps the same name under a different unit separate', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
 
     await repo.upsert(favorite('Milch', 'ml'));
     await repo.upsert(favorite('Milch', 'g'));
@@ -68,8 +66,7 @@ describe('JsonFavoriteIngredientRepository', () => {
   });
 
   it('removes by case-insensitive name and unit', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
     await repo.upsert(favorite('Skyr'));
 
     await repo.remove('sKyR', 'g');
@@ -78,8 +75,7 @@ describe('JsonFavoriteIngredientRepository', () => {
   });
 
   it('is a no-op when removing an absent identity', async () => {
-    const repo = new JsonFavoriteIngredientRepository(freshFile());
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(freshFile()));
     await repo.upsert(favorite('Skyr'));
 
     await repo.remove('Quark', 'g');
@@ -89,11 +85,10 @@ describe('JsonFavoriteIngredientRepository', () => {
 
   it('survives a reload from disk', async () => {
     const path = freshFile();
-    const repo = new JsonFavoriteIngredientRepository(path);
-    await repo.init();
+    const repo = new JsonFavoriteIngredientRepository(new FileJsonDocument(path));
     await repo.upsert({ ...favorite('Salz'), untracked: true });
 
-    const reloaded = await new JsonFavoriteIngredientRepository(path).findAll();
+    const reloaded = await new JsonFavoriteIngredientRepository(new FileJsonDocument(path)).findAll();
 
     expect(reloaded).toEqual([{ ...favorite('Salz'), untracked: true }]);
   });

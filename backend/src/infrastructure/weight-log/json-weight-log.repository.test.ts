@@ -3,6 +3,7 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonWeightLogRepository } from './json-weight-log.repository.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import type { WeightEntry } from '../../domain/weight-log/types.ts';
 
 describe('JsonWeightLogRepository', () => {
@@ -13,8 +14,7 @@ describe('JsonWeightLogRepository', () => {
   beforeEach(async () => {
     dir = await mkdtemp(join(tmpdir(), 'weight-log-test-'));
     filePath = join(dir, 'nested', 'weight-log.json');
-    repo = new JsonWeightLogRepository(filePath);
-    await repo.init();
+    repo = new JsonWeightLogRepository(new FileJsonDocument(filePath));
   });
 
   afterEach(async () => {
@@ -25,14 +25,13 @@ describe('JsonWeightLogRepository', () => {
     expect(await repo.list()).toEqual([]);
   });
 
-  it('creates the parent directory on init', async () => {
-    // init() ran in beforeEach; writing should now succeed without ENOENT.
+  it('writes into a parent directory that does not exist yet', async () => {
     await expect(repo.upsert({ date: '2026-05-14', weightKg: 78.4 })).resolves.toBeUndefined();
   });
 
   it('persists across re-instantiation', async () => {
     await repo.upsert({ date: '2026-05-14', weightKg: 78.4 });
-    const fresh = new JsonWeightLogRepository(filePath);
+    const fresh = new JsonWeightLogRepository(new FileJsonDocument(filePath));
     expect(await fresh.list()).toEqual([{ date: '2026-05-14', weightKg: 78.4 }]);
   });
 

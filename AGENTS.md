@@ -25,7 +25,7 @@ make help                                 # all targets; `make check` is the gat
 
 ## Backend
 
-Hono + `@hono/node-server`, TypeScript, ESM, Vite+ (`vp test` / `vp lint` / `vp fmt`), `node --watch` (no bundler). Persistence is JSON files in `backend/data/` — no DB until needed.
+Hono + `@hono/node-server`, TypeScript, ESM, Vite+ (`vp test` / `vp lint` / `vp fmt`), `node --watch` (no bundler). Persistence is JSON files in `backend/data/` — no DB until needed. `src/app.ts` (`createApp(deps)`) wires routes from ready-built ports; `src/index.ts` only builds the file-backed deps and serves. Adapters persist only through the `JsonDocument` port (`infrastructure/json-document/`), never `node:fs` directly.
 
 - **Hexagonal:** domain core has no framework/HTTP/persistence imports; ports are interfaces, adapters implement them.
 - **CQRS** for clarity: commands express intent (`PlanMeal`, `AddRecipe`); queries are shaped for the UI and may cross boundaries; no shared read/write models; no event sourcing.

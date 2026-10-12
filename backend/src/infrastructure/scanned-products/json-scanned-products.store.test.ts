@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JsonScannedProductStore } from './json-scanned-products.store.ts';
+import { FileJsonDocument } from '../json-document/file-json-document.ts';
 import type { ScannedProduct } from '../../domain/barcode-product-capture/types.ts';
 
 const sample = (overrides: Partial<ScannedProduct> = {}): ScannedProduct => ({
@@ -28,7 +29,7 @@ describe('JsonScannedProductStore', () => {
   });
 
   it('loads a missing file as empty', async () => {
-    const store = new JsonScannedProductStore(path);
+    const store = new JsonScannedProductStore(new FileJsonDocument(path));
     expect(await store.load()).toEqual([]);
     expect(await store.findByBarcode('x')).toBeNull();
   });
@@ -43,14 +44,14 @@ describe('JsonScannedProductStore', () => {
       ]),
       'utf-8',
     );
-    const store = new JsonScannedProductStore(path);
+    const store = new JsonScannedProductStore(new FileJsonDocument(path));
     const loaded = await store.load();
     expect(loaded).toHaveLength(1);
     expect(loaded[0]!.barcode).toBe('4337256176103');
   });
 
   it('upserts a product, writing pretty JSON atomically', async () => {
-    const store = new JsonScannedProductStore(path);
+    const store = new JsonScannedProductStore(new FileJsonDocument(path));
     await store.upsert(sample());
     expect(existsSync(path)).toBe(true);
     const onDisk = readFileSync(path, 'utf-8');
@@ -60,7 +61,7 @@ describe('JsonScannedProductStore', () => {
   });
 
   it('overwrites an existing barcode rather than duplicating it', async () => {
-    const store = new JsonScannedProductStore(path);
+    const store = new JsonScannedProductStore(new FileJsonDocument(path));
     await store.upsert(sample({ macrosPer100: { calories: 54, protein: 0.9, carbs: 8.4, fat: 0.7 } }));
     await store.upsert(sample({ macrosPer100: { calories: 52, protein: 1, carbs: 8, fat: 0.6 } }));
     const loaded = await store.load();
@@ -69,7 +70,7 @@ describe('JsonScannedProductStore', () => {
   });
 
   it('returns null for an unknown barcode', async () => {
-    const store = new JsonScannedProductStore(path);
+    const store = new JsonScannedProductStore(new FileJsonDocument(path));
     await store.upsert(sample());
     expect(await store.findByBarcode('0000000000000')).toBeNull();
   });

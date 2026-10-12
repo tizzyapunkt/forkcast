@@ -1,15 +1,9 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { Recipe } from '../../domain/recipes/types.ts';
 import type { RecipeRepository } from '../../domain/recipes/recipe.repository.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 export class JsonRecipeRepository implements RecipeRepository {
-  constructor(private readonly filePath: string) {}
-
-  async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-  }
+  constructor(private readonly document: JsonDocument) {}
 
   async save(recipe: Recipe): Promise<void> {
     const all = await this.readAll();
@@ -41,12 +35,12 @@ export class JsonRecipeRepository implements RecipeRepository {
   }
 
   private async readAll(): Promise<Recipe[]> {
-    if (!existsSync(this.filePath)) return [];
-    const raw = await readFile(this.filePath, 'utf-8');
+    const raw = await this.document.read();
+    if (raw === null) return [];
     return JSON.parse(raw) as Recipe[];
   }
 
   private async writeAll(recipes: Recipe[]): Promise<void> {
-    await writeFile(this.filePath, JSON.stringify(recipes, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(recipes, null, 2));
   }
 }

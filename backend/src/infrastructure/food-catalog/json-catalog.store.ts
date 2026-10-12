@@ -1,6 +1,3 @@
-import { readFile, writeFile, rename, mkdir, copyFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { FoodEntry, FoodIndexedEntry } from '../../domain/foods/types.ts';
 import type { CatalogStore, CatalogWriteResult } from '../../domain/food-catalog/types.ts';
 import {
@@ -11,6 +8,7 @@ import {
 import { slugifyName } from '../../domain/food-catalog/slugify-name.ts';
 import { indexFoodEntry } from '../../domain/foods/index-food-entry.ts';
 import { fold } from '../../domain/ingredient-search/fold.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 /**
  * Re-derive an id that predates the catalog's ASCII kebab-case rule (e.g. the
@@ -28,64 +26,53 @@ function repairId(entry: FoodEntry): FoodEntry {
 }
 
 export interface JsonCatalogStoreOptions {
-  /** The runtime catalog inside the data directory. */
-  filePath: string;
+  /** The runtime catalog (inside the data directory, for the file-backed store). */
+  document: JsonDocument;
   /**
-   * Starting-point catalog bundled with the image, installed only when
-   * `filePath` is absent. Omitted in tests that start from an empty catalog.
+   * Starting-point catalog, installed only when `document` is empty. Omitted in
+   * tests that start from an empty catalog.
    */
-  seedPath?: string;
-  /**
-   * The pre-rename catalog (`foods.json`) as it exists in an already-deployed data
-   * directory. Adopted as the catalog on the first boot after the rename, in
-   * preference to the bundled seed — the volume's own data is the newer truth.
-   */
-  legacyPath?: string;
+  seed?: JsonDocument;
 }
 
 /**
  * Runtime-writable JSON store for the single food catalog. Holds the whole
  * catalog in memory (reads are synchronous), persists every accepted write
  * atomically, and rebuilds the search index from the persisted entries so the
- * index and the file can never disagree.
+ * index and the stored document can never disagree.
  */
 export class JsonCatalogStore implements CatalogStore {
   private queue: Promise<unknown> = Promise.resolve();
   private entries: FoodEntry[] = [];
   private indexedEntries: FoodIndexedEntry[] = [];
 
-  private readonly filePath: string;
-  private readonly seedPath?: string;
-  private readonly legacyPath?: string;
+  private readonly document: JsonDocument;
+  private readonly seed?: JsonDocument;
 
   constructor(options: JsonCatalogStoreOptions) {
-    this.filePath = options.filePath;
-    this.seedPath = options.seedPath;
-    this.legacyPath = options.legacyPath;
+    this.document = options.document;
+    this.seed = options.seed;
   }
 
   /**
-   * Prepare the data directory, then resolve the catalog in order of authority:
-   * an existing catalog (used unchanged), the pre-rename `foods.json` from an
-   * already-deployed volume, and only then the bundled starting point. An
-   * existing catalog is never read against, merged with, or overwritten.
+   * Use the existing catalog unchanged, or install the starting point when there
+   * is none. An existing catalog is never read against, merged with, or
+   * overwritten by the starting point.
    */
   async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-    if (!existsSync(this.filePath) && this.legacyPath !== undefined && existsSync(this.legacyPath)) {
-      await rename(this.legacyPath, this.filePath);
-      console.log(`catalog: adopted ${this.legacyPath} as ${this.filePath}`);
-    }
-    if (!existsSync(this.filePath) && this.seedPath !== undefined) {
-      if (!existsSync(this.seedPath)) {
+    let raw = await this.document.read();
+    if (raw === null && this.seed !== undefined) {
+      const seed = await this.seed.read();
+      if (seed === null) {
         throw new Error(
-          `catalog: no catalog at ${this.filePath} and no starting point at ${this.seedPath} — cannot seed an empty catalog`,
+          `catalog: no catalog at ${this.document.location} and no starting point at ${this.seed.location} — cannot seed an empty catalog`,
         );
       }
-      await copyFile(this.seedPath, this.filePath);
-      console.log(`catalog: seeded ${this.filePath} from ${this.seedPath}`);
+      await this.document.write(seed);
+      raw = seed;
+      console.log(`catalog: seeded ${this.document.location} from ${this.seed.location}`);
     }
-    this.setEntries(await this.readFromDisk());
+    this.setEntries(this.parse(raw));
   }
 
   list(): FoodEntry[] {
@@ -148,25 +135,17 @@ export class JsonCatalogStore implements CatalogStore {
     });
   }
 
-  /** Replace the whole catalog in one atomic write (used by the one-time overlay migration). */
-  async replaceAll(entries: FoodEntry[]): Promise<void> {
-    await this.enqueue(async () => {
-      await this.commit(entries);
-    });
-  }
-
-  private async readFromDisk(): Promise<FoodEntry[]> {
-    if (!existsSync(this.filePath)) return [];
-    const raw = await readFile(this.filePath, 'utf-8');
+  private parse(raw: string | null): FoodEntry[] {
+    if (raw === null) return [];
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      console.warn(`catalog: failed to parse ${this.filePath}; treating as empty`);
+      console.warn(`catalog: failed to parse ${this.document.location}; treating as empty`);
       return [];
     }
     if (!Array.isArray(parsed)) {
-      console.warn(`catalog: malformed top-level shape in ${this.filePath}; treating as empty`);
+      console.warn(`catalog: malformed top-level shape in ${this.document.location}; treating as empty`);
       return [];
     }
     const loaded: FoodEntry[] = [];
@@ -192,9 +171,7 @@ export class JsonCatalogStore implements CatalogStore {
 
   private async commit(entries: FoodEntry[]): Promise<void> {
     this.setEntries(entries);
-    const tmpPath = `${this.filePath}.tmp`;
-    await writeFile(tmpPath, JSON.stringify(this.entries, null, 2) + '\n', 'utf-8');
-    await rename(tmpPath, this.filePath);
+    await this.document.write(JSON.stringify(this.entries, null, 2) + '\n');
   }
 
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {

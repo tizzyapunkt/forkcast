@@ -1,27 +1,21 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
 import type { LogEntry } from '../../domain/meal-log/types.ts';
 import type { LogEntryRepository } from '../../domain/meal-log/log-entry.repository.ts';
+import type { JsonDocument } from '../json-document/json-document.ts';
 
 export class JsonLogEntryRepository implements LogEntryRepository {
-  constructor(private readonly filePath: string) {}
-
-  async init(): Promise<void> {
-    await mkdir(dirname(this.filePath), { recursive: true });
-  }
+  constructor(private readonly document: JsonDocument) {}
 
   async save(entry: LogEntry): Promise<void> {
     const entries = await this.readAll();
     entries.push(entry);
-    await writeFile(this.filePath, JSON.stringify(entries, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(entries, null, 2));
   }
 
   async saveMany(toSave: LogEntry[]): Promise<void> {
     if (toSave.length === 0) return;
     const entries = await this.readAll();
     entries.push(...toSave);
-    await writeFile(this.filePath, JSON.stringify(entries, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(entries, null, 2));
   }
 
   async findAll(): Promise<LogEntry[]> {
@@ -43,13 +37,13 @@ export class JsonLogEntryRepository implements LogEntryRepository {
     const index = all.findIndex((e) => e.id === entry.id);
     if (index === -1) throw new Error(`Log entry not found: ${entry.id}`);
     all[index] = entry;
-    await writeFile(this.filePath, JSON.stringify(all, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(all, null, 2));
   }
 
   async remove(id: string): Promise<void> {
     const all = await this.readAll();
     const filtered = all.filter((e) => e.id !== id);
-    await writeFile(this.filePath, JSON.stringify(filtered, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(filtered, null, 2));
   }
 
   async removeMany(ids: string[]): Promise<void> {
@@ -57,21 +51,17 @@ export class JsonLogEntryRepository implements LogEntryRepository {
     const drop = new Set(ids);
     const all = await this.readAll();
     const filtered = all.filter((e) => !drop.has(e.id));
-    await writeFile(this.filePath, JSON.stringify(filtered, null, 2), 'utf-8');
+    await this.document.write(JSON.stringify(filtered, null, 2));
   }
 
   async replaceMany(removeIds: string[], entries: LogEntry[]): Promise<void> {
     if (removeIds.length === 0 && entries.length === 0) return;
-    await writeFile(
-      this.filePath,
-      JSON.stringify(replaced(await this.readAll(), removeIds, entries), null, 2),
-      'utf-8',
-    );
+    await this.document.write(JSON.stringify(replaced(await this.readAll(), removeIds, entries), null, 2));
   }
 
   private async readAll(): Promise<LogEntry[]> {
-    if (!existsSync(this.filePath)) return [];
-    const raw = await readFile(this.filePath, 'utf-8');
+    const raw = await this.document.read();
+    if (raw === null) return [];
     return JSON.parse(raw) as LogEntry[];
   }
 }
