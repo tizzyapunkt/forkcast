@@ -608,10 +608,6 @@
         "displayName": "Headline",
         "purpose": "Section titles and prose h2; legal h1 capped at 2.6rem."
       },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Step titles."
-      },
       "lede": {
         "displayName": "Lede",
         "purpose": "Hero subcopy, capped at 34em."
@@ -644,7 +640,7 @@
       "caption": {
         "displayName": "Caption",
         "token": "--fs-caption",
-        "purpose": "Screenshot captions, choice hints, language pill, spreadsheet table and formula bar, in Ink Muted."
+        "purpose": "Recipe illustration, choice hints, language pill, spreadsheet table and formula bar, in Ink Muted."
       },
       "mono": {
         "displayName": "Mono",
@@ -854,7 +850,7 @@
     "dos": [
       "**Do** use the brand lilac (`244 36% 44%`) for every action, link and focus state, and its dark counterpart in dark mode.",
       "**Do** define every new colour in both the light `:root` and the `prefers-color-scheme: dark` block.",
-      "**Do** show the product through real screenshots in the device or browser frame, with a plain caption about what is shown.",
+      "**Do** show the product through real screenshots in the device or browser frame; the screenshots speak for themselves, without captions.",
       "**Do** alternate plain and tinted section bands and divide content with 1px rules; the try-now band is the one Lilac Wash interruption.",
       "**Do** keep controls at 48px tall with the shared 14px radius.",
       "**Do** gate any new motion behind `prefers-reduced-motion: no-preference` with content visible by default."

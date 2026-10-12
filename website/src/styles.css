@@ -131,6 +131,12 @@ p {
   text-wrap: pretty;
 }
 
+/* German runs long compounds; let running text break them at syllables. Headings keep their words. */
+:lang(de) p {
+  hyphens: auto;
+  hyphenate-limit-chars: 8 4 3;
+}
+
 figure {
   margin: 0;
 }
@@ -299,7 +305,7 @@ figure {
 
 .hero-shots {
   position: relative;
-  min-height: 670px;
+  min-height: 600px;
 }
 
 /* A drawn iPhone in three layers, all stretched to the frame's box: the rim with its side buttons
@@ -374,22 +380,6 @@ figure {
   transform: rotate(-4deg);
 }
 
-.shot-caption {
-  margin-top: 12px;
-  font-size: var(--fs-caption);
-  color: var(--ink-3);
-}
-
-.hero-shots .shot-caption {
-  position: absolute;
-  z-index: 3;
-  bottom: 0;
-  right: 12%;
-  width: 280px;
-  margin: 0;
-  text-align: center;
-}
-
 @media (max-width: 900px) {
   .hero {
     padding-top: 32px;
@@ -406,7 +396,6 @@ figure {
     justify-content: center;
     align-items: flex-start; /* stretching would override the frames' aspect ratio */
     gap: 16px;
-    padding-bottom: 40px;
   }
 
   .hero-shots .device {
@@ -418,12 +407,6 @@ figure {
   .hero-shots .device--back {
     transform: none;
     margin-top: 40px;
-  }
-
-  .hero-shots .shot-caption {
-    left: 0;
-    right: 0;
-    width: auto;
   }
 }
 
@@ -649,8 +632,10 @@ figure {
 
 .section-head h2,
 .prose h2 {
-  font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem);
+  max-width: 22em;
+  font-size: clamp(1.6rem, 1.25rem + 1.3vw, 2.25rem);
   font-weight: 720;
+  line-height: 1.15;
 }
 
 .section-head p {
@@ -892,7 +877,7 @@ figure {
 }
 
 .rs-changed small {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--ink-3);
 }
@@ -954,11 +939,6 @@ figure {
   margin: 0 auto;
 }
 
-.step h3 {
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-  font-weight: 700;
-}
-
 .step-text > p {
   margin-top: 14px;
   max-width: 30em;
@@ -970,8 +950,8 @@ figure {
   margin-top: 0;
 }
 
-.step .shot-caption {
-  text-align: center;
+.step-text > p + p {
+  margin-top: 18px;
 }
 
 @media (max-width: 760px) {

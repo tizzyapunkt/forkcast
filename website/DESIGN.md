@@ -46,17 +46,11 @@ typography:
     fontWeight: 750
     lineHeight: 1.12
     letterSpacing: "-0.035em"
-  headline: # section-head h2, prose h2 (legal h1 caps at 2.6rem)
+  headline: # section-head h2, prose h2
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(1.9rem, 1.3rem + 2vw, 2.8rem)"
+    fontSize: "clamp(1.6rem, 1.25rem + 1.3vw, 2.25rem)"
     fontWeight: 720
-    lineHeight: 1.12
-    letterSpacing: "-0.022em"
-  title: # step h3
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 1.2rem + 1vw, 2rem)"
-    fontWeight: 700
-    lineHeight: 1.12
+    lineHeight: 1.15
     letterSpacing: "-0.022em"
   lede: # hero .lede
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
@@ -89,7 +83,7 @@ typography:
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.6
-  caption: # --fs-caption: screenshot captions, language pill, choice hints, spreadsheet table and formula bar
+  caption: # --fs-caption: recipe illustration, language pill, choice hints, spreadsheet table and formula bar
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
     fontSize: "13px"
     fontWeight: 400
@@ -213,17 +207,16 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 **Character:** One family, chosen per the direction contract for UI-like clarity, zero font payload and the Things-site register. The page should feel continuous with the native app screenshots it shows.
 
 ### Hierarchy
-Four fluid steps for headings and the lede; six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these (the legal-page title is the Headline step capped at 2.6rem).
+Three fluid steps (display, headline, lede); six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these, with two exceptions: the legal-page title runs a step larger (fluid 1.9 to 2.6rem, it is the page's only heading of that rank), and the recipe illustration's old-amount note is 12px, as in the app.
 - **Display** (750, fluid 2.1 to 3.3rem, 1.12, -0.035em): the hero headline only, balanced wrapping, one word in lilac. Sized to sit beside the interest check, not to dominate it.
-- **Headline** (720, fluid 1.9 to 2.8rem, 1.12, -0.022em): section titles, legal-page titles.
-- **Title** (700, fluid 1.5 to 2rem): step titles.
+- **Headline** (720, fluid 1.6 to 2.25rem, 1.15, -0.022em, capped at 22em): section titles, legal-page titles.
 - **Lede** (400, fluid 1.06 to 1.2rem, 1.6): hero subcopy, capped at 34em, in Ink Soft.
 - **Subtitle** (700, 1.25rem): the wordmark (-0.03em), the try-now heading, legal-page section heads (650).
 - **Large** (400, 1.125rem, 1.6): prose paragraphs and step copy in Ink Soft.
-- **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem.
+- **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem. German running text hyphenates (`:lang(de) p`); headings never do.
 - **Label** (650, 16px, 1.35): button text, choice titles, the interest legend.
 - **Small** (400, 14px): nav links, form notes (lead note in Ink Soft, the rest Ink Muted) and status (550), macro legend, screenshot placeholder, footer.
-- **Caption** (400, 13px, Ink Muted): screenshot captions, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
+- **Caption** (400, 13px, Ink Muted): the recipe illustration and its caption, choice hints (1.4), the language pill (600, 0.02em), spreadsheet table (tabular numerals) and formula bar.
 - **Mono** (inline code at 0.88em; formula bar at Caption): inline code, the formula bar, the `#REF!` cell.
 
 ### Named Rules
@@ -285,7 +278,7 @@ The page has no text inputs: the interest check is the choice cards, a lead note
 - Sticky 64px header: wordmark (favicon plus lowercase "forkcast", Subtitle at 700, -0.03em), section links in Ink Soft at Small turning Ink on hover, a GitHub link with its mark, and a bordered pill language switch (Caption, 600). Section links hide under 760px. On touch screens nav links get 44px hit areas; the pill gets an invisible tap ring instead of growing.
 
 ### Device frame (signature)
-A drawn iPhone in three layers on a 436:891 box with the Device lift shadow: the rim with its side buttons (`device-body.svg`, Frame Rim) under the screenshot, the bezel with the rounded screen opening and the home indicator bar (`device-bezel.svg`, Frame) over it. Both SVGs are CSS masks, so their colours stay tokens. The 390:844 screenshot is placed by percentages, reaches a little under the bezel on every side so rounding never shows an uneven edge, and is cropped from the top. No Dynamic Island: the screenshots carry no status bar, so it would sit on the app header. Phone shots are captured with the iPhone's 34px home-indicator gutter under the tab bar and sheets, so their labels clear the rounded screen corners. In a flex row the frame must not stretch (`align-items: flex-start`), or the stretch overrides its aspect ratio. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), captioned beneath. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
+A drawn iPhone in three layers on a 436:891 box with the Device lift shadow: the rim with its side buttons (`device-body.svg`, Frame Rim) under the screenshot, the bezel with the rounded screen opening and the home indicator bar (`device-bezel.svg`, Frame) over it. Both SVGs are CSS masks, so their colours stay tokens. The 390:844 screenshot is placed by percentages, reaches a little under the bezel on every side so rounding never shows an uneven edge, and is cropped from the top. No Dynamic Island: the screenshots carry no status bar, so it would sit on the app header. Phone shots are captured with the iPhone's 34px home-indicator gutter under the tab bar and sheets, so their labels clear the rounded screen corners. In a flex row the frame must not stretch (`align-items: flex-start`), or the stretch overrides its aspect ratio. 280px default; in the hero a front phone (week plan) overlaps a smaller tilted back phone (grocery list), with no caption. Screenshots ship with `srcset` (a 600w phone variant beside the full 1170w). Missing rasters are replaced by a labelled Lilac Paper placeholder, never a broken image.
 
 ### Browser frame
 A 12px-rounded, shadow-lifted 16:10 crop of the desktop app (`srcset` 1440w / 2880w), paired with a small phone (22% width) at its lower edge. Hidden under 760px.
@@ -310,7 +303,7 @@ The one authored motion. On load, hero devices rise 28px and un-blur from 6px ov
 ### Do:
 - **Do** use the brand lilac (`244 36% 44%`) for every action, link and focus state, and its dark counterpart in dark mode.
 - **Do** define every new colour in both the light `:root` and the `prefers-color-scheme: dark` block.
-- **Do** show the product through real screenshots in the device or browser frame, with a plain caption about what is shown.
+- **Do** show the product through real screenshots in the device or browser frame; the screenshots speak for themselves, without captions.
 - **Do** alternate plain and tinted section bands and divide content with 1px rules; the try-now band is the one Lilac Wash interruption.
 - **Do** keep controls at 48px tall with the shared 14px radius.
 - **Do** gate any new motion behind `prefers-reduced-motion: no-preference` with content visible by default.
