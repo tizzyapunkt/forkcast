@@ -12,7 +12,7 @@
 ## 3. Integration check
 
 - [x] 3.1 Run `make check` and verify it passes (nothing in it builds images, but the Dockerfile and docs changes must not break lint or format)
-- [ ] 3.2 After the merge to `main`, verify that the `deploy` run succeeds and that `docker buildx imagetools inspect tizzyapunkt/forkcast-backend:latest` and `…/forkcast-frontend:latest` list both `linux/amd64` and `linux/arm64` (or the Docker Hub tag pages show both)
+- [x] 3.2 After the merge to `main`, verify that the `deploy` run succeeds and that `docker buildx imagetools inspect tizzyapunkt/forkcast-backend:latest` and `…/forkcast-frontend:latest` list both `linux/amd64` and `linux/arm64` (or the Docker Hub tag pages show both)
 
 ## Workflow follow-up
 
