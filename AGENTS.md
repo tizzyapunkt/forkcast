@@ -20,7 +20,7 @@ pnpm dev                                  # backend + frontend in parallel
 pnpm dev:website                          # landing page
 pnpm --filter @forkcast/<backend|frontend|website> <command|add pkg>
 pnpm add -Dw <pkg>                        # root dev dependency
-make help                                 # all targets; `make check` is the gate (incl. website build)
+make help                                 # all targets; `make check` is the gate (incl. website and demo builds)
 ```
 
 ## Backend
@@ -49,7 +49,8 @@ Public landing page at https://check-forkcast.tizzy.dev (EN at `/`, DE at `/de/`
 
 - Production settings are committed in `website/.env.production` (not secret, they end up in the HTML): Umami script, website ID and `UMAMI_DOMAINS`, and one Tally form per language (`TALLY_FORM_ID_EN` / `_DE`). Dev builds without them never track; `.env.example` documents every key.
 - Ticking hosted / self-host counts the vote as a cookieless Umami event (`interest`). The button only opens the optional launch e-mail on Tally, prefilled with the choice. The page itself never asks for an e-mail; keep it that way, the privacy policy says so.
-- `.github/workflows/website.yml` deploys to GitHub Pages on pushes to `main` that touch `website/`.
+- `.github/workflows/website.yml` deploys to GitHub Pages on pushes to `main` that touch `website/` or anything the demo is built from.
+- **Demo** at `/demo/`: the frontend built with `--mode demo` (`make demo-build`, into `frontend/dist-demo/`), which the workflow copies into `website/dist/demo/`. The real backend (`createApp` without auth or AI) runs in the page over IndexedDB, seeded by `frontend/src/demo/seed-demo-week.ts` (shared with `scripts/demo/`). `isDemo` (`src/demo/is-demo.ts`) hides what needs a server: Bring!, diagnostics, logout, AI fill. Code `createApp` imports must therefore stay browser-safe: no `node:` imports, no `Buffer`. Try it locally with `make website-build demo-build && cp -R frontend/dist-demo website/dist/demo && pnpm --filter @forkcast/website preview`, then open `/demo/`.
 - App screenshots are real captures of the seeded demo app (`scripts/demo/`), not mockups. Recapture recipe and what the phone frame relies on: the `forkcast-dev` skill, _Landing-page screenshots_.
 
 ## Design workflow

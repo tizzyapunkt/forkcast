@@ -105,6 +105,32 @@ describe('createApp', () => {
     expect(results[0]).toMatchObject({ name: 'Carrot', source: 'CATALOG' });
   });
 
+  describe('without auth (the in-browser demo)', () => {
+    async function appWithoutAuth() {
+      const { auth: _auth, ...deps } = await inMemoryDeps();
+      return createApp(deps);
+    }
+
+    it('serves protected routes without a session', async () => {
+      const app = await appWithoutAuth();
+      const res = await app.request('/recipes');
+      expect(res.status).toBe(200);
+    });
+
+    it('serves no login, session or Bring! routes', async () => {
+      const app = await appWithoutAuth();
+      const json = { 'Content-Type': 'application/json' };
+
+      expect((await app.request('/auth/login', { method: 'POST', headers: json, body: '{}' })).status).toBe(404);
+      expect((await app.request('/auth/me')).status).toBe(404);
+      expect((await app.request('/auth/logout', { method: 'POST' })).status).toBe(404);
+      expect((await app.request('/bring-import-token', { method: 'POST', headers: json, body: '{}' })).status).toBe(
+        404,
+      );
+      expect((await app.request('/bring-import/some-token')).status).toBe(404);
+    });
+  });
+
   it('answers the AI routes as not configured when no AI is wired', async () => {
     const app = createApp(await inMemoryDeps());
     const cookie = await logIn(app);

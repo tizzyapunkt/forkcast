@@ -68,8 +68,19 @@ describe('import token', () => {
       .setProtectedHeader({ alg: 'HS256' })
       .setAudience('something-else')
       .setExpirationTime('1h')
-      .sign(importTokenKey(SECRET));
+      .sign(await importTokenKey(SECRET));
 
     expect(await verifyImportToken(wrongAudience, SECRET)).toBeNull();
+  });
+  it('still verifies a token minted before the key derivation moved to Web Crypto', async () => {
+    // Minted by the node:crypto implementation for this secret and time.
+    const legacy =
+      'eyJhbGciOiJIUzI1NiJ9.eyJzdGFydERhdGUiOiIyMDI2LTEwLTEyIiwiZXhjbHVkZWQiOlsibWlsY2h8bWwiXSwicG9ydGlvbnMiOnsicjEiOjJ9LCJhdWQiOiJicmluZy1pbXBvcnQiLCJpYXQiOjE3OTE4Nzg0MDAsImV4cCI6MTc5MTg4MjAwMH0.ntmrBSYVUd_R_8hVFdtYFEpp8yMbug4jLfziyV1IA1Q';
+
+    expect(await verifyImportToken(legacy, 'fixture-secret-0123456789', new Date('2026-10-13T08:30:00Z'))).toEqual({
+      startDate: '2026-10-12',
+      excluded: ['milch|ml'],
+      portions: { r1: 2 },
+    });
   });
 });

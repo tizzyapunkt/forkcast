@@ -9,42 +9,49 @@ import tailwindcss from '@tailwindcss/vite';
 // click through, and the Chrome automation tools don't choke on the self-signed cert).
 const disableHttps = process.env.FORKCAST_NO_HTTPS === '1' || process.env.FORKCAST_NO_HTTPS === 'true';
 
-export default defineConfig({
-  plugins: lazyPlugins(() => [
-    ...(disableHttps ? [] : [basicSsl()]),
-    react(),
-    tailwindcss(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      manifest: {
-        name: 'forkcast',
-        short_name: 'forkcast',
-        description: 'Wochenplanung und Ernährungstagebuch',
-        display: 'standalone',
-        background_color: '#fff9ff',
-        theme_color: '#4e489a',
-        icons: [
-          { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
-        navigateFallbackDenylist: [/^\/api\//],
-      },
-    }),
-  ]),
-  server: {
-    host: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        rewrite: (path) => path.replace(/^\/api/, ''),
+// `vp build --mode demo` builds the in-browser demo (src/demo/) into dist-demo/, served under /demo/ on
+// the website. It is not installable, so the PWA plugin generates no service worker or manifest there.
+export default defineConfig(({ mode }) => {
+  const demo = mode === 'demo';
+  return {
+    ...(demo ? { base: '/demo/', build: { outDir: 'dist-demo' } } : {}),
+    plugins: lazyPlugins(() => [
+      ...(disableHttps ? [] : [basicSsl()]),
+      react(),
+      tailwindcss(),
+      VitePWA({
+        disable: demo,
+        registerType: 'autoUpdate',
+        manifest: {
+          name: 'forkcast',
+          short_name: 'forkcast',
+          description: 'Wochenplanung und Ernährungstagebuch',
+          display: 'standalone',
+          background_color: '#fff9ff',
+          theme_color: '#4e489a',
+          icons: [
+            { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
+          navigateFallbackDenylist: [/^\/api\//],
+        },
+      }),
+    ]),
+    server: {
+      host: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
       },
     },
-  },
+  };
 });

@@ -1,4 +1,3 @@
-import { createHmac } from 'node:crypto';
 import { SignJWT, jwtVerify } from 'jose';
 
 /** What a Bring! import link may read: one week's grocery list, minus the items ticked off as already at home. */
@@ -17,8 +16,12 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
  * session verification checks only signature and expiry, so a link signed with that key would work
  * as a login.
  */
-export function importTokenKey(secret: string): Uint8Array {
-  return new Uint8Array(createHmac('sha256', secret).update(AUDIENCE).digest());
+export async function importTokenKey(secret: string): Promise<Uint8Array> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'sign',
+  ]);
+  return new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(AUDIENCE)));
 }
 
 function isGrant(value: unknown): value is ImportGrant {
@@ -54,7 +57,7 @@ export async function mintImportToken(grant: ImportGrant, secret: string, now: D
     .setAudience(AUDIENCE)
     .setIssuedAt(issuedAt)
     .setExpirationTime(issuedAt + LIFETIME_SECONDS)
-    .sign(importTokenKey(secret));
+    .sign(await importTokenKey(secret));
 }
 
 /** The grant behind a valid, unexpired import token; `null` for anything else. */
@@ -64,7 +67,7 @@ export async function verifyImportToken(
   now: Date = new Date(),
 ): Promise<ImportGrant | null> {
   try {
-    const { payload } = await jwtVerify(token, importTokenKey(secret), { audience: AUDIENCE, currentDate: now });
+    const { payload } = await jwtVerify(token, await importTokenKey(secret), { audience: AUDIENCE, currentDate: now });
     const grant = {
       startDate: payload['startDate'],
       excluded: payload['excluded'],

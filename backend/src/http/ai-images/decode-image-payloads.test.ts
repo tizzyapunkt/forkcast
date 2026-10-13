@@ -57,8 +57,16 @@ describe('decodeImagePayloads', () => {
     });
   });
 
-  it('rejects an image that decodes to zero bytes with its index', () => {
+  it('rejects data outside the base64 alphabet with its index', () => {
     expect(decodeImagePayloads([{ data: '!', mediaType: 'image/jpeg' }], LIMITS)).toMatchObject({
+      ok: false,
+      status: 400,
+      body: { imageIndex: 0, error: expect.stringMatching(/not valid base64/i) },
+    });
+  });
+
+  it('rejects an image that decodes to zero bytes with its index', () => {
+    expect(decodeImagePayloads([{ data: '  ', mediaType: 'image/jpeg' }], LIMITS)).toMatchObject({
       ok: false,
       status: 400,
       body: { imageIndex: 0, error: expect.stringMatching(/empty/i) },

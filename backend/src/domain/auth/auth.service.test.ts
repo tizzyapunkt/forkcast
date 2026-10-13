@@ -4,16 +4,16 @@ import { verifyPassword, signSession, verifySession } from './auth.service.ts';
 const SECRET = 'test-secret-that-is-long-enough-for-hmac';
 
 describe('verifyPassword', () => {
-  it('returns true for correct password', () => {
-    expect(verifyPassword('hunter2', 'hunter2')).toBe(true);
+  it('returns true for correct password', async () => {
+    expect(await verifyPassword('hunter2', 'hunter2')).toBe(true);
   });
 
-  it('returns false for wrong password', () => {
-    expect(verifyPassword('wrong', 'hunter2')).toBe(false);
+  it('returns false for wrong password', async () => {
+    expect(await verifyPassword('wrong', 'hunter2')).toBe(false);
   });
 
-  it('returns false for empty input', () => {
-    expect(verifyPassword('', 'hunter2')).toBe(false);
+  it('returns false for empty input', async () => {
+    expect(await verifyPassword('', 'hunter2')).toBe(false);
   });
 });
 

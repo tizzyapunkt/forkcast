@@ -15,6 +15,7 @@ import {
 import type { MacrosPerUnit } from '../../domain/meal-log';
 import { useDraftCatalogEntry } from '../../queries/use-catalog';
 import { fold } from '../../lib/fold';
+import { isDemo } from '../../demo/is-demo';
 
 const copy = t.catalog;
 
@@ -147,17 +148,20 @@ export function CatalogEntryEditor({
         />
       </Field>
 
-      <div className="flex flex-col gap-1">
-        <Button
-          variant="outline"
-          onClick={runFill}
-          disabled={fill.isPending}
-          className="self-start border-dashed border-primary/60 py-1.5 px-3 text-primary"
-        >
-          {fill.isPending ? copy.aiFilling : copy.aiFill}
-        </Button>
-        <span className="text-[11px] text-muted-foreground">{copy.aiFillHint}</span>
-      </div>
+      {/* AI fill needs an API key on a server; the demo has neither. */}
+      {!isDemo && (
+        <div className="flex flex-col gap-1">
+          <Button
+            variant="outline"
+            onClick={runFill}
+            disabled={fill.isPending}
+            className="self-start border-dashed border-primary/60 py-1.5 px-3 text-primary"
+          >
+            {fill.isPending ? copy.aiFilling : copy.aiFill}
+          </Button>
+          <span className="text-[11px] text-muted-foreground">{copy.aiFillHint}</span>
+        </div>
+      )}
 
       <Field label={copy.synonymsLabel} hint={copy.synonymsHint}>
         <Input
