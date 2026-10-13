@@ -82,7 +82,7 @@ The system SHALL refuse to start if `AUTH_PASSWORD` or `AUTH_JWT_SECRET` are abs
 - **THEN** it logs an error and exits immediately before accepting connections
 
 ### Requirement: Frontend guards all views behind authentication
-The frontend SHALL check authentication state on load. If the session is invalid or absent, it SHALL render only the login page. All app views (log, recipes, settings) SHALL be inaccessible without a valid session.
+The frontend SHALL check authentication state on load. If the session is invalid or absent, it SHALL render only the login page. All app views (log, recipes, settings) SHALL be inaccessible without a valid session. The demo build is the exception: it has no login and renders the app directly (per `demo-mode`).
 
 #### Scenario: Unauthenticated page load
 - **WHEN** a user opens the app without a valid session
@@ -95,6 +95,10 @@ The frontend SHALL check authentication state on load. If the session is invalid
 #### Scenario: Session expiry during use
 - **WHEN** an API request returns `401` during an active session (e.g. token expired)
 - **THEN** the app transitions to the login page without requiring a full page reload
+
+#### Scenario: Demo build
+- **WHEN** a visitor opens the demo build
+- **THEN** the app shell is rendered without a login page
 
 ### Requirement: Frontend provides login form
 The frontend SHALL render a login form with a password field and a submit action. On successful authentication it SHALL display the full app. On failure it SHALL display an error message.

@@ -934,4 +934,23 @@ export const en: Messages = {
     copyError: 'Copy failed',
     entryCount: (n: number) => (n === 1 ? '1 entry' : `${n} entries`),
   },
+
+  demo: {
+    banner: 'Demo – your data stays in this browser.',
+    reset: 'Reset demo',
+    seededInOtherLanguage: 'The sample data is in German.',
+    resetInActiveLanguage: 'Reset demo in English',
+    introTitle: 'This is a demo',
+    introLocal: 'forkcast runs entirely in your browser here. Nothing goes to a forkcast server.',
+    introData: 'Your data stays in this browser. “Reset demo” starts over.',
+    introOffTitle: 'Turned off because they need a server or an API key:',
+    introOff: [
+      'Recipe import from photos',
+      'Product capture from photos',
+      'AI fill and AI matching of ingredients',
+      'Sending to Bring!',
+      'Diagnostics',
+    ],
+    introDismiss: 'Got it',
+  },
 };

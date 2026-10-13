@@ -99,7 +99,8 @@ export interface AiDeps {
 
 /** Everything the HTTP app needs, built by the caller: file-backed for the server, in-memory in tests. */
 export interface AppDeps {
-  auth: { password: string; jwtSecret: string };
+  /** Absent in the in-browser demo: no login, no session check, no Bring! links (they need a public server). */
+  auth?: { password: string; jwtSecret: string };
   logEntries: LogEntryRepository;
   favoriteIngredients: FavoriteIngredientRepository;
   nutritionGoal: NutritionGoalRepository;
@@ -128,15 +129,20 @@ export function createApp(deps: AppDeps): Hono {
 
   app.use('*', makeRequestLogMiddleware(deps.diagnostics));
 
-  app.post('/auth/login', makeLoginHandler(deps.auth.password, deps.auth.jwtSecret));
-  app.post('/auth/logout', makeLogoutHandler());
-  app.get('/auth/me', makeMeHandler(deps.auth.jwtSecret));
-
-  // Public: Bring!'s servers fetch the import page without a session; its path token is the authorisation.
   const grocerySources = { logEntries: deps.logEntries, recipes: deps.recipes, catalog: deps.catalog };
-  app.get('/bring-import/:token', makeBringImportPageHandler(grocerySources, deps.auth.jwtSecret));
 
-  app.use('*', makeAuthMiddleware(deps.auth.jwtSecret));
+  if (deps.auth) {
+    const { password, jwtSecret } = deps.auth;
+    app.post('/auth/login', makeLoginHandler(password, jwtSecret));
+    app.post('/auth/logout', makeLogoutHandler());
+    app.get('/auth/me', makeMeHandler(jwtSecret));
+
+    // Public: Bring!'s servers fetch the import page without a session; its path token is the authorisation.
+    app.get('/bring-import/:token', makeBringImportPageHandler(grocerySources, jwtSecret));
+
+    app.use('*', makeAuthMiddleware(jwtSecret));
+    app.post('/bring-import-token', makeMintBringImportTokenHandler(jwtSecret));
+  }
 
   app.get('/debug/logs', makeGetDebugLogsHandler(deps.diagnostics));
 
@@ -144,7 +150,6 @@ export function createApp(deps: AppDeps): Hono {
   app.get('/daily-log/:date', makeGetDailyLogHandler(deps.logEntries));
   app.get('/week-log/:startDate', makeGetWeekLogHandler(deps.logEntries));
   app.get('/grocery-list/:startDate', makeGetGroceryListHandler(grocerySources));
-  app.post('/bring-import-token', makeMintBringImportTokenHandler(deps.auth.jwtSecret));
   app.post('/copy-log-day', makeCopyLogDayHandler(deps.logEntries));
   app.patch('/log-entry/:id', makeEditLogEntryHandler(deps.logEntries));
   app.delete('/log-entry/:id', makeRemoveLogEntryHandler(deps.logEntries));

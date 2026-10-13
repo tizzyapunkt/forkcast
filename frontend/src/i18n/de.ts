@@ -939,4 +939,23 @@ export const de = {
     copyError: 'Kopieren fehlgeschlagen',
     entryCount: (n: number) => (n === 1 ? '1 Eintrag' : `${n} Einträge`),
   },
+
+  demo: {
+    banner: 'Demo – deine Daten bleiben in diesem Browser.',
+    reset: 'Demo zurücksetzen',
+    seededInOtherLanguage: 'Die Beispieldaten sind auf Englisch.',
+    resetInActiveLanguage: 'Demo auf Deutsch zurücksetzen',
+    introTitle: 'Das ist eine Demo',
+    introLocal: 'forkcast läuft hier komplett in deinem Browser. Nichts geht an einen forkcast-Server.',
+    introData: 'Deine Daten bleiben in diesem Browser. Mit „Demo zurücksetzen“ fängst du neu an.',
+    introOffTitle: 'Ausgeschaltet, weil sie einen Server oder einen API-Schlüssel brauchen:',
+    introOff: [
+      'Rezept-Import aus Fotos',
+      'Produkt-Erfassung aus Fotos',
+      'KI-Ausfüllen und KI-Zuordnung von Zutaten',
+      'Senden an Bring!',
+      'Diagnose',
+    ],
+    introDismiss: 'Verstanden',
+  },
 } as const;

@@ -3,6 +3,7 @@ dist
 .DS_Store
 .env
 dist-ui
+dist-demo
 
 # design-sync
 .ds-sync/

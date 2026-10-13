@@ -1,8 +1,8 @@
 name: website
 
-# Builds the public landing page (website/) and publishes it to GitHub Pages, served at
-# check-forkcast.tizzy.dev. Production settings (Umami, Tally) come from the committed
-# website/.env.production, so no secrets are needed.
+# Builds the public landing page (website/) and the in-browser demo (frontend/ in demo mode, served
+# at /demo/) and publishes both to GitHub Pages at check-forkcast.tizzy.dev. Production settings
+# (Umami, Tally) come from the committed website/.env.production, so no secrets are needed.
 
 on:
   push:
@@ -10,6 +10,11 @@ on:
       - main
     paths:
       - website/**
+      # The demo runs the frontend and the backend in the browser.
+      - frontend/**
+      - backend/src/**
+      - backend/data/catalog.json
+      - scripts/demo/**
       - pnpm-lock.yaml
       - .github/workflows/website.yml
   workflow_dispatch:
@@ -45,6 +50,11 @@ jobs:
 
       - name: Build website
         run: pnpm --filter @forkcast/website build
+
+      - name: Build demo
+        run: |
+          pnpm --filter @forkcast/frontend build:demo
+          cp -R frontend/dist-demo website/dist/demo
 
       - name: Configure Pages
         uses: actions/configure-pages@v6

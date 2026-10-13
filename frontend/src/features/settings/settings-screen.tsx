@@ -10,6 +10,7 @@ import { DiagnosticsScreen } from '../diagnostics/diagnostics-screen';
 import { useAuth } from '../auth/use-auth';
 import { t } from '../../i18n';
 import { Button } from '../../components/ui/button';
+import { isDemo } from '../../demo/is-demo';
 
 // Lazy: recharts (weight-chart) only downloads once the user opens the tracker,
 // instead of shipping in every settings-screen bundle.
@@ -65,22 +66,27 @@ export function SettingsScreen({ initialView = 'main' }: SettingsScreenProps = {
           </span>
           <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
-        <button
-          type="button"
-          onClick={() => setView('diagnostics')}
-          className="flex w-full items-center justify-between rounded-md border border-input bg-card px-4 py-3 text-left text-sm hover:bg-accent"
-        >
-          <span>
-            <span className="font-medium">{t.diagnostics.settingsLink}</span>
-            <span className="ml-2 text-xs text-muted-foreground">{t.diagnostics.settingsLinkHint}</span>
-          </span>
-          <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
-        </button>
-        <div className="pt-4">
-          <Button variant="destructiveOutline" onClick={() => logout()} className="w-full">
-            {t.auth.logout}
-          </Button>
-        </div>
+        {!isDemo && (
+          <button
+            type="button"
+            onClick={() => setView('diagnostics')}
+            className="flex w-full items-center justify-between rounded-md border border-input bg-card px-4 py-3 text-left text-sm hover:bg-accent"
+          >
+            <span>
+              <span className="font-medium">{t.diagnostics.settingsLink}</span>
+              <span className="ml-2 text-xs text-muted-foreground">{t.diagnostics.settingsLinkHint}</span>
+            </span>
+            <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
+          </button>
+        )}
+        {/* The demo has no login, so nothing to log out of. */}
+        {!isDemo && (
+          <div className="pt-4">
+            <Button variant="destructiveOutline" onClick={() => logout()} className="w-full">
+              {t.auth.logout}
+            </Button>
+          </div>
+        )}
         {/* The AGPL's "Appropriate Legal Notices": modified versions run as a service must keep showing them. */}
         <p className="text-center text-xs text-muted-foreground">
           forkcast © Tizian Adam ·{' '}

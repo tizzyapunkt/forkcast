@@ -10,6 +10,7 @@ import { mintBringImportToken } from '../../api/bring-import-token';
 import { groceryItemKey, type GroceryItem, type GroceryRecipe, type RecipePortions } from '../../domain/grocery-list';
 import { cn } from '../../lib/cn';
 import { t } from '../../i18n';
+import { isDemo } from '../../demo/is-demo';
 
 interface GroceryListSheetProps {
   startDate: string;
@@ -245,18 +246,26 @@ export function GroceryListSheet({
           </p>
         )}
         <div className="flex gap-2">
-          <Button variant="outline" onClick={copy} disabled={toBuy.length === 0} className="shrink-0">
+          <Button
+            variant="outline"
+            onClick={copy}
+            disabled={toBuy.length === 0}
+            className={isDemo ? 'flex-1' : 'shrink-0'}
+          >
             <Copy size={16} aria-hidden="true" />
             {t.groceryList.copy}
           </Button>
-          <Button
-            onClick={sendToBring}
-            disabled={toBuy.length === 0 || bringState === 'pending'}
-            className="min-w-0 flex-1"
-          >
-            <ShoppingBasket size={16} aria-hidden="true" />
-            {bringState === 'pending' ? t.groceryList.sendingToBring : t.groceryList.sendToBring}
-          </Button>
+          {/* Bring! fetches the list from a public server, which the in-browser demo does not have. */}
+          {!isDemo && (
+            <Button
+              onClick={sendToBring}
+              disabled={toBuy.length === 0 || bringState === 'pending'}
+              className="min-w-0 flex-1"
+            >
+              <ShoppingBasket size={16} aria-hidden="true" />
+              {bringState === 'pending' ? t.groceryList.sendingToBring : t.groceryList.sendToBring}
+            </Button>
+          )}
         </div>
       </div>
     </BottomSheet>

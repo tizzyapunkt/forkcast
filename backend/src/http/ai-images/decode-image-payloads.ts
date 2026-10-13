@@ -1,5 +1,9 @@
-import { Buffer } from 'node:buffer';
 import type { RecipeImage, SupportedImageMediaType } from '../../domain/ai-recipe-import/types.ts';
+
+/** `atob` runs on Node and in browsers alike; it throws on characters outside the base64 alphabet. */
+function decodeBase64(data: string): Uint8Array {
+  return Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+}
 
 const SUPPORTED_MEDIA_TYPES: SupportedImageMediaType[] = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -59,7 +63,7 @@ export function decodeImagePayloads(images: unknown, limits: ImageDecodeLimits):
     }
     let bytes: Uint8Array;
     try {
-      bytes = new Uint8Array(Buffer.from(item.data, 'base64'));
+      bytes = decodeBase64(item.data);
     } catch {
       return { ok: false, status: 400, body: { error: 'Image "data" is not valid base64', imageIndex: i } };
     }

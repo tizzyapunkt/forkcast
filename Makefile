@@ -7,7 +7,7 @@
 FMT_DIRS := backend/src frontend/src website/src website/vite.config.ts
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port website-dev website-build website-preview
+.PHONY: help install dev dev-http check test test-backend test-frontend typecheck lint fmt fmt-check smoke kill-port website-dev website-build demo-build website-preview
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -21,7 +21,7 @@ dev: ## Run backend + frontend in parallel (frontend over HTTPS, self-signed)
 dev-http: ## Run the app over plain HTTP for browser smoke testing (no SSL warning); see the forkcast-dev skill
 	FORKCAST_NO_HTTPS=1 pnpm dev
 
-check: lint typecheck fmt-check test website-build ## Full green gate: lint + typecheck + format + tests + website build
+check: lint typecheck fmt-check test website-build demo-build ## Full green gate: lint + typecheck + format + tests + website and demo builds
 	@echo "✅ all checks passed"
 
 test: ## Run all tests (both workspaces)
@@ -50,6 +50,9 @@ website-dev: ## Run the landing page dev server (port 5174)
 
 website-build: ## Build the landing page into website/dist (production settings from website/.env.production)
 	pnpm --filter @forkcast/website build
+
+demo-build: ## Build the in-browser demo into frontend/dist-demo (served under /demo/ on the website)
+	pnpm --filter @forkcast/frontend build:demo
 
 website-preview: website-build ## Serve the built landing page locally (port 4173); Umami does not count it
 	pnpm --filter @forkcast/website preview

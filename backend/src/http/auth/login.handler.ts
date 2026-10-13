@@ -15,7 +15,7 @@ export function makeLoginHandler(password: string, jwtSecret: string) {
       return c.json({ error: 'password is required' }, 400);
     }
 
-    if (!verifyPassword(body.password, password)) {
+    if (!(await verifyPassword(body.password, password))) {
       return c.json({ error: 'Unauthorized' }, 401);
     }
 
