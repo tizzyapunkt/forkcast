@@ -303,6 +303,13 @@ figure {
   color: var(--ink-2);
 }
 
+/* The demo as a plain lilac link under the lede: a secondary path beside the interest check, never a second button. */
+.hero-demo {
+  margin-top: 16px;
+  font-size: clamp(1.06rem, 1rem + 0.3vw, 1.2rem);
+  font-weight: 600;
+}
+
 .hero-shots {
   position: relative;
   min-height: 600px;
@@ -562,6 +569,19 @@ figure {
 
 .button:active {
   transform: translateY(1px);
+}
+
+/* The try-now band's second choice (self-hosting): an outline beside the primary, never on its own. */
+.button--secondary {
+  background: transparent;
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+
+.button--secondary:hover {
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--brand-strong);
+  box-shadow: inset 0 0 0 1.5px var(--brand-strong);
 }
 
 .button[aria-disabled='true'] {
@@ -1301,6 +1321,19 @@ figure {
 .try-now p {
   margin-top: 4px;
   color: var(--ink-2);
+}
+
+.try-now-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Phones: the buttons go full width (see .button), stacked with the demo on top. */
+@media (max-width: 480px) {
+  .try-now-actions {
+    width: 100%;
+  }
 }
 
 /* Why I'm asking: prose with the way back up to the question. */
