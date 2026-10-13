@@ -2,12 +2,14 @@ import { InMemoryJsonDocument } from '../../../backend/src/infrastructure/json-d
 import { buildDemoApp, seedCallFor } from './demo-app';
 import { seedDemoWeek } from './seed-demo-week';
 
+const noOpenFoodFacts = { searchByName: async () => [], searchByBarcode: async () => null };
+
 interface WeekLog {
   days: { date: string; totals: { calories: number } }[];
 }
 
 async function seededApp(locale: 'de' | 'en') {
-  const app = await buildDemoApp((name) => new InMemoryJsonDocument(null, name));
+  const app = await buildDemoApp((name) => new InMemoryJsonDocument(null, name), noOpenFoodFacts);
   const { weekStart } = await seedDemoWeek(seedCallFor(app), { locale });
   return { app, weekStart };
 }

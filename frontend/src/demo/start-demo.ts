@@ -2,6 +2,9 @@ import type { Locale } from '../i18n/locale';
 import { buildDemoApp, seedCallFor } from './demo-app';
 import { installDemoApi } from './demo-api';
 import { demoOffFetch } from './demo-off-fetch';
+import { SnapshotOffSearch, type OffSnapshot } from './snapshot-off-search';
+import { OpenFoodFactsService } from '../../../backend/src/infrastructure/ingredient-search/open-food-facts.service.ts';
+import type { IngredientSearchService } from '../../../backend/src/domain/ingredient-search/ingredient-search.service.ts';
 import { IndexedDbJsonDocument, resetDemoStore } from './indexeddb-json-document';
 import { seedDemoWeek } from './seed-demo-week';
 
@@ -28,21 +31,34 @@ export interface StartedDemo extends DemoMeta {
 }
 
 /**
+ * Names come from the bundled snapshot, loaded on the first search (its own chunk); barcodes go to
+ * Open Food Facts live, which allows any origin.
+ */
+function demoOpenFoodFacts(): IngredientSearchService {
+  return new SnapshotOffSearch(
+    () => import('./off-snapshot.json').then((m) => m.default as OffSnapshot),
+    new OpenFoodFactsService(demoOffFetch),
+  );
+}
+
+/**
  * Starts the in-page backend over IndexedDB and routes `/api` to it. A store without a complete seed
  * is cleared and seeded in `locale`.
  */
 export async function startDemo({
   locale,
   factory = indexedDB,
+  openFoodFacts = demoOpenFoodFacts(),
 }: {
   locale: Locale;
   factory?: IDBFactory;
+  openFoodFacts?: IngredientSearchService;
 }): Promise<StartedDemo> {
   const documentFor = (name: string) => new IndexedDbJsonDocument(name, factory);
   let meta = parseMeta(await documentFor(META_DOCUMENT).read());
   if (!meta) await resetDemoStore(factory);
 
-  const app = await buildDemoApp(documentFor, demoOffFetch);
+  const app = await buildDemoApp(documentFor, openFoodFacts);
   const stop = installDemoApi(app);
 
   if (!meta) {

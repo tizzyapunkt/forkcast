@@ -45,6 +45,17 @@ export function DemoIntro() {
             ))}
           </ul>
         </div>
+        <p className="text-xs text-muted-foreground">
+          {t.demo.introSnapshot}{' '}
+          <a href="https://world.openfoodfacts.org" className="underline underline-offset-2">
+            Open Food Facts
+          </a>{' '}
+          (
+          <a href="https://opendatacommons.org/licenses/odbl/1-0/" className="underline underline-offset-2">
+            ODbL
+          </a>
+          ).
+        </p>
         <Button onClick={dismiss} className="w-full">
           {t.demo.introDismiss}
         </Button>

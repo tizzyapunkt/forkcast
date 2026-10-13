@@ -956,6 +956,8 @@ export const de = {
       'Senden an Bring!',
       'Diagnose',
     ],
+    /** Followed by the linked "Open Food Facts (ODbL)." */
+    introSnapshot: 'Die Produktsuche nutzt einen Schnappschuss von',
     introDismiss: 'Verstanden',
   },
 } as const;
