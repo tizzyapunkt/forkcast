@@ -35,6 +35,7 @@ make website-dev          # dev server on :5174 (no tracking, form not live)
 make website-build        # production build into website/dist (settings from website/.env.production)
 make website-preview      # build + serve on :4173; Umami ignores it (UMAMI_DOMAINS)
 make demo-build           # in-browser demo into frontend/dist-demo (vp build --mode demo, base /demo/)
+node --experimental-transform-types scripts/demo/build-off-snapshot.mts   # refresh the demo OFF snapshot (~1 min, needs network); commit the JSON
 # Demo locally, as the website workflow publishes it:
 make website-build demo-build && cp -R frontend/dist-demo website/dist/demo && pnpm --filter @forkcast/website preview   # open :4173/demo/
 ```

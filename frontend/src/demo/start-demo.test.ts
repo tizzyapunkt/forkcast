@@ -18,8 +18,11 @@ describe('startDemo', () => {
 
   afterEach(() => stop?.());
 
-  async function start(locale: 'de' | 'en') {
-    const started = await startDemo({ locale, factory });
+  const noOpenFoodFacts = { searchByName: async () => [], searchByBarcode: async () => null };
+
+  /** `demoOff` keeps the demo's own Open Food Facts wiring: the bundled snapshot, live barcodes. */
+  async function start(locale: 'de' | 'en', { demoOff = false } = {}) {
+    const started = await startDemo({ locale, factory, ...(demoOff ? {} : { openFoodFacts: noOpenFoodFacts }) });
     stop = started.stop;
     return started;
   }
@@ -55,5 +58,22 @@ describe('startDemo', () => {
     await start('en');
 
     expect(await recipeNames()).toHaveLength(5);
+  });
+  it('answers Open Food Facts name searches from the bundled snapshot, without the network', async () => {
+    const realFetch = globalThis.fetch;
+    const network = vi.fn<typeof fetch>(async () => new Response('{}'));
+    globalThis.fetch = network;
+    try {
+      await start('en', { demoOff: true });
+      const results = (await (
+        await fetch('/api/search-ingredients?q=peanut%20butter&sources=catalog,off&locale=en')
+      ).json()) as { source: string; name: string }[];
+
+      expect(results.filter((r) => r.source === 'OFF').length).toBeGreaterThan(5);
+      expect(results.filter((r) => r.source === 'OFF').every((r) => /peanut butter/i.test(r.name))).toBe(true);
+      expect(network).not.toHaveBeenCalled();
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 });

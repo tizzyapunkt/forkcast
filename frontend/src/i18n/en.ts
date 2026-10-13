@@ -951,6 +951,8 @@ export const en: Messages = {
       'Sending to Bring!',
       'Diagnostics',
     ],
+    /** Followed by the linked "Open Food Facts (ODbL)." */
+    introSnapshot: 'Product search uses a snapshot of',
     introDismiss: 'Got it',
   },
 };

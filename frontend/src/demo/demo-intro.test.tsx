@@ -19,6 +19,20 @@ describe('DemoIntro', () => {
     expect(dialog).toHaveTextContent('Senden an Bring!');
   });
 
+  it('credits Open Food Facts and the ODbL for the product search', () => {
+    render(<DemoIntro />);
+
+    expect(screen.getByText(/Die Produktsuche nutzt einen Schnappschuss von/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open Food Facts' })).toHaveAttribute(
+      'href',
+      'https://world.openfoodfacts.org',
+    );
+    expect(screen.getByRole('link', { name: 'ODbL' })).toHaveAttribute(
+      'href',
+      'https://opendatacommons.org/licenses/odbl/1-0/',
+    );
+  });
+
   it('closes on "Verstanden" and stays closed on the next visit', async () => {
     const { unmount } = render(<DemoIntro />);
     await userEvent.click(screen.getByRole('button', { name: 'Verstanden' }));

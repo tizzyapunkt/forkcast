@@ -9,18 +9,19 @@ import { JsonWeightLogRepository } from '../../../backend/src/infrastructure/wei
 import { JsonRecipeRepository } from '../../../backend/src/infrastructure/recipes/json-recipe.repository.ts';
 import { JsonScannedProductStore } from '../../../backend/src/infrastructure/scanned-products/json-scanned-products.store.ts';
 import { JsonCatalogStore } from '../../../backend/src/infrastructure/food-catalog/json-catalog.store.ts';
-import { OpenFoodFactsService } from '../../../backend/src/infrastructure/ingredient-search/open-food-facts.service.ts';
+import type { IngredientSearchService } from '../../../backend/src/domain/ingredient-search/ingredient-search.service.ts';
 import { DiagnosticsLog } from '../../../backend/src/domain/diagnostics/diagnostics-log.ts';
 import type { SeedCall } from './seed-demo-week';
 import catalogSeed from '../../../backend/data/catalog.json?raw';
 
 /**
  * The real backend app for the demo: every document comes from `documentFor`, the catalog starts
- * from the same seed a fresh server installs, and there is no auth and no AI.
+ * from the same seed a fresh server installs, Open Food Facts is `openFoodFacts`, and there is no auth
+ * and no AI.
  */
 export async function buildDemoApp(
   documentFor: (name: string) => JsonDocument,
-  offFetch: typeof fetch = globalThis.fetch,
+  openFoodFacts: IngredientSearchService,
 ): Promise<ReturnType<typeof createApp>> {
   const catalog = new JsonCatalogStore({
     document: documentFor('catalog'),
@@ -36,7 +37,7 @@ export async function buildDemoApp(
     recipes: new JsonRecipeRepository(documentFor('recipes')),
     scannedProducts: new JsonScannedProductStore(documentFor('scanned-products')),
     catalog,
-    openFoodFacts: new OpenFoodFactsService(offFetch),
+    openFoodFacts,
     diagnostics: new DiagnosticsLog(),
     ai: null,
   });
