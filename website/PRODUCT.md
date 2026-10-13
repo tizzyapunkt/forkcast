@@ -21,7 +21,7 @@ The site is bilingual: English and German carry the same content. English leads.
 
 ## Launch Channel
 
-The page may be shared on Hacker News as a regular submission, not as a Show HN: it is a waitlist, not something people can try. Expect a technical, sceptical audience that distrusts marketing language, tracking, mandatory sign-ups and unbacked claims, and asks about stack, architecture and where data goes. Expect a traffic spike: the page must stay fast and static.
+The page is shared on Hacker News as a Show HN: people can try forkcast right away in the browser demo (`/demo/`) or self-host it, while the hosted version is still a question the interest check asks. Expect a technical, sceptical audience that distrusts marketing language, tracking, mandatory sign-ups and unbacked claims, and asks about stack, architecture and where data goes. Expect a traffic spike: the page must stay fast and static.
 
 ## Product Purpose
 
@@ -54,6 +54,7 @@ What the app really does today (the site may describe only this):
 - Packaged foods via Open Food Facts: search includes Open Food Facts branded products (toggle in the search panel), and barcode scans look products up there. When a barcode is missing from Open Food Facts, the product can be captured from packaging photos via AI and is stored locally. Open Food Facts data is ODbL-licensed, so the site credits it.
 - Recipe import from photos (printed page, screenshot, recipe card) via AI, reviewed by the user before saving
 - AI-drafted catalog entries for foods that are not in the catalog yet, as suggestions the user can adjust
+- A browser demo at `/demo/` on this site: the real app runs entirely in the visitor's browser on seeded sample data (EN/DE), stored only in that browser and resettable. AI features, Bring! export and diagnostics are off there; product search uses a bundled Open Food Facts snapshot, barcode lookups go to Open Food Facts from the browser.
 - Installable PWA, mobile-first with full desktop support. Only the app shell is cached: data needs the server, there is no offline sync, so the site must not claim offline use.
 
 Constraints:
@@ -74,12 +75,12 @@ Live at https://check-forkcast.tizzy.dev (GitHub Pages). The launch decisions ar
 
 - Public source repository: https://github.com/tizzyapunkt/forkcast
 - Real screenshots of the running app may be used. The app ships English and German (#69); the EN page shows English screenshots, the DE page German ones, both from seeded demo data (`scripts/demo/`).
-- `docker-compose.yml` at the repo root runs prebuilt backend and frontend images. The root README's "no containerization" line is outdated.
+- `docker-compose.yml` at the repo root runs prebuilt backend and frontend images (amd64 and arm64); the root README documents self-hosting.
 - None of the following exist and must not be fabricated: testimonials, user counts, press, benchmarks, pricing, launch dates.
 
 ## Product Principles
 
-1. **Honest about being early.** Say plainly that hosted is not available yet; the waitlist is the offer.
+1. **Honest about being early.** Say plainly that hosted is not available yet. What people can do today is try the demo in their browser or self-host it; the interest check asks whether hosted should exist.
 2. **Time is the pitch.** The value is that planning a week takes minutes, so the site should be just as quick to understand.
 3. **Two audiences, one story.** Neither hosted nor self-hosted is the default path until the interest check says so.
 4. **Same truth in both languages.** EN and DE make identical claims.

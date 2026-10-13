@@ -1,59 +1,31 @@
 # forkcast
 
-A personal meal planning and nutrition tracking PWA — built because existing apps (fddb, yazio, myfitnesspal) make advance meal planning too tedious.
+My take on meal planning and calorie tracking: I plan the week ahead against my calorie and macro goals, then cook and shop from that plan.
 
-## The Problem
+**[Try the demo](https://check-forkcast.tizzy.dev/demo/)** · [Why I built it](https://check-forkcast.tizzy.dev) · [Self-host it](#self-hosting)
 
-Calorie and macro tracking apps exist, but planning meals a week ahead while hitting specific nutrition goals is clunky in all of them. forkcast is built around that planning-first workflow.
+<img src="website/public/screenshots/en/week-plan.webp" alt="The week plan: each day's calories and macros against the goal" width="320">
 
-## Core Idea
+## What it does
 
-- Plan meals up to a week in advance
-- Track calories and macros against personal goals (user-defined, no fixed diet approach)
-- Manage recipes and ingredients
-- Generate grocery lists from the weekly plan
-- Minimal friction — every interaction should be fast and obvious
+- **Plan the week** against your own calorie and macro goals, and see at a glance which days are over or under.
+- **Recipes cook into ingredients.** Log a batch, eat it over several days, and the macros follow the portions.
+- **Cook from the plan.** The cooking view lists what goes into the pot today; swap an ingredient for what you actually have and the plan updates.
+- **Grocery list** for the week, with the things you already have ticked off, copied or sent to Bring!.
+- **Packaged foods:** scan a barcode or search Open Food Facts next to your own food catalog.
+- **Weight trend** with a 7-day average, and a calculator that suggests goals from your body data.
+- **Optional AI** (bring your own Anthropic key): import a recipe from photos, capture a product from its packaging, match unknown ingredients to your catalog.
+- **English and German**, as an installable PWA that works on the phone and on the desktop.
 
-## Context
+It's built for one person: a single password, no sign-up, no sharing.
 
-Built for someone with a full-time job, a young family, and serious fitness goals — meaning low time, high standards. Mobile-first PWA so it works on the go (grocery store, meal prep), full desktop support too.
+## The demo
 
-Built for personal use first; designed with future product potential in mind.
-
-## Architecture
-
-### Domain-Driven Design
-Pragmatic DDD — the domain model uses the language of nutrition and meal planning (`MealPlan`, `Recipe`, `NutritionGoal`, etc.), organized into bounded contexts. Aggregates and value objects used where they genuinely add clarity, skipped where they don't. Modularization over ceremony.
-
-### Hexagonal Architecture
-Domain logic is framework-agnostic and infrastructure-free. Ports define what the domain needs; adapters wire in the database, HTTP layer, and any external services. Nothing flows inward — infrastructure depends on the domain, not the other way around.
-
-### CQRS
-Commands express business intent (`PlanMeal`, `AddRecipe`); queries are purpose-built for the UI. Separation of concerns is the goal, not performance optimization. No Event Sourcing.
-
-### API Design
-The API speaks the domain language — operations describe business intent (`/plan-meal`, `/add-to-grocery-list`), not database operations.
-
-### Build only what's needed
-No speculative infrastructure or abstractions. Things get added when there's a concrete reason.
-
-**Current baseline:** JSON files for persistence, no database. Upgraded when the need arises.
-
-## Data
-
-The food catalog is a single runtime-writable store at `backend/data/catalog.json`, editable from inside the app (Einstellungen → Katalog verwalten): entries can be created, corrected, and deleted, and confirming an unmatched ingredient during a photo import writes straight into it.
-
-The tracked `backend/data/catalog.json` doubles as the starting point shipped in the backend image. On boot the backend installs it into the data directory **only when no catalog is there yet** — an existing catalog is never overwritten, so a deploy cannot destroy edits. Settings offers a snapshot download (a copy; it does not drain the catalog) that can be committed back as the repo's starting point.
-
-## AI recipe import
-
-Recipes can be imported from one or more photos of a single recipe (a printed page, an Instagram screenshot carousel, front + back of a recipe card). The backend forwards the images to Claude vision in a single call, matches each extracted ingredient against the existing catalog, and returns a draft for user review — no recipe is persisted until the user confirms. Configure on the server via `ANTHROPIC_API_KEY` (required), `ANTHROPIC_MODEL` (optional, defaults to a current Claude Sonnet vision model), and the optional caps `RECIPE_IMPORT_MAX_IMAGE_BYTES` (5 MB), `RECIPE_IMPORT_MAX_TOTAL_BYTES` (20 MB), `RECIPE_IMPORT_MAX_IMAGES` (8). Without `ANTHROPIC_API_KEY` the endpoint returns `503 ai-import-not-configured` and the frontend hides the import entry — the rest of the app keeps working.
+The [demo](https://check-forkcast.tizzy.dev/demo/) runs the whole app in your browser, on a week of sample data in your language. Nothing goes to a server, and your changes stay in your browser until you reset them. Features that need a server or an API key are switched off there: the AI features, Bring! export and the diagnostics screen. Product search uses a snapshot of popular Open Food Facts products.
 
 ## Self-hosting
 
-forkcast runs as two public container images on Docker Hub, built from `main`: [`tizzyapunkt/forkcast-backend`](https://hub.docker.com/r/tizzyapunkt/forkcast-backend) (API, data in a volume) and [`tizzyapunkt/forkcast-frontend`](https://hub.docker.com/r/tizzyapunkt/forkcast-frontend) (nginx serving the app and proxying `/api` to the backend). Neither image contains secrets or personal data; the only data shipped is the starting food catalog.
-
-It is built for **one person**: a single password, no sign-up, no sharing.
+forkcast runs as two public container images on Docker Hub, built from `main` for amd64 and arm64: [`tizzyapunkt/forkcast-backend`](https://hub.docker.com/r/tizzyapunkt/forkcast-backend) (API, data in a volume) and [`tizzyapunkt/forkcast-frontend`](https://hub.docker.com/r/tizzyapunkt/forkcast-frontend) (nginx serving the app and proxying `/api` to the backend). Neither image contains secrets or personal data; the only data shipped is the starting food catalog.
 
 ```bash
 mkdir forkcast && cd forkcast
@@ -63,13 +35,26 @@ echo "AUTH_JWT_SECRET=$(openssl rand -hex 32)" >> .env
 docker compose up -d
 ```
 
-Then open `http://<host>:8080` and log in with the password. [`docker-compose.yml`](docker-compose.yml) runs both images with one data volume; [`backend/.env.example`](backend/.env.example) lists every setting, e.g. `ANTHROPIC_API_KEY` for photo import and packaging capture.
+Then open `http://<host>:8080` and log in with the password. [`docker-compose.yml`](docker-compose.yml) runs both images with one data volume. [`backend/.env.example`](backend/.env.example) lists every setting; for the AI features set `ANTHROPIC_API_KEY` (the model defaults to Claude Sonnet). Without a key, the AI features stay hidden and everything else works.
 
 **HTTPS:** installing the app to the home screen and the barcode scanner need a secure context, so put forkcast behind a reverse proxy with TLS (Caddy, Traefik, nginx, your NAS's built-in one) for anything beyond `localhost`.
 
 **Updates:** `docker compose pull && docker compose up -d`. The data volume is kept, and an existing food catalog is never overwritten.
 
-**Backups:** everything (log, recipes, goals, weight, catalog) lives in the `forkcast_data` volume as JSON files, so back up the volume. Settings also offers a download of the food catalog alone.
+**Backups:** everything (log, recipes, goals, weight, catalog) lives in the `forkcast_data` volume as JSON files, so back up the volume. Settings → My foods → Download backup saves the food catalog alone.
+
+## How it's built
+
+A Hono API and a Vite + React PWA in one pnpm workspace. The backend is hexagonal: the domain speaks meal planning, and adapters persist it as plain JSON files (no database until one is needed). Every behaviour change starts as an [OpenSpec](https://openspec.dev) change, and [`openspec/specs/`](openspec/specs/) describes what the app does today. [`AGENTS.md`](AGENTS.md) has the conventions.
+
+## Development
+
+```bash
+corepack enable && pnpm install
+cp backend/.env.example backend/.env   # set AUTH_PASSWORD and AUTH_JWT_SECRET
+pnpm dev                                # backend on :3000, frontend on :5173
+make check                              # lint, typecheck, format, tests, builds
+```
 
 ## License
 

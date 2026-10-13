@@ -123,6 +123,14 @@ components:
   button-primary-hover:
     backgroundColor: "{colors.brand-strong}"
     textColor: "{colors.on-brand}"
+  button-secondary:
+    textColor: "{colors.brand}"
+    typography: "{typography.label}"
+    rounded: "{rounded.control}"
+    padding: "0 22px"
+    height: "48px"
+  button-secondary-hover:
+    textColor: "{colors.brand-strong}"
   choice:
     backgroundColor: "{colors.ground}"
     textColor: "{colors.ink}"
@@ -212,7 +220,7 @@ A near-monochrome lilac-tinted neutral scale carrying a single saturated brand l
 Three fluid steps (display, headline, lede); six fixed steps as `--fs-*` custom properties. Every font size in the stylesheet is one of these, with two exceptions: the legal-page title runs a step larger (fluid 1.9 to 2.6rem, it is the page's only heading of that rank), and the recipe illustration's old-amount note is 12px, as in the app.
 - **Display** (750, fluid 2.1 to 3.3rem, 1.12, -0.035em): the hero headline only, balanced wrapping, one word in lilac. Sized to sit beside the interest check, not to dominate it.
 - **Headline** (720, fluid 1.6 to 2.25rem, 1.15, -0.022em, capped at 22em): section titles, legal-page titles.
-- **Lede** (400, fluid 1.06 to 1.2rem, 1.6): hero subcopy, capped at 34em, in Ink Soft.
+- **Lede** (400, fluid 1.06 to 1.2rem, 1.6): hero subcopy, capped at 34em, in Ink Soft. The demo link right under it ("Or try the demo in your browser") takes the same size at 600 in Lilac, a plain link above the interest check.
 - **Subtitle** (700, 1.25rem): the wordmark (-0.03em), the try-now heading, legal-page section heads (650).
 - **Large** (400, 1.125rem, 1.6): prose paragraphs and step copy in Ink Soft.
 - **Body** (400, 17px, 1.6): base text, legal prose; pretty wrapping; prose capped at 40rem. German running text hyphenates (`:lang(de) p`); headings never do.
@@ -258,11 +266,13 @@ Generous, soft corners. Controls share one radius (`control`, 14px). Device fram
 ### Buttons
 Confident and single.
 - **Shape:** gently rounded (14px), 48px tall.
-- **Where:** the interest check ("Get the launch e-mail"), the way back up to it at the end of "Why I'm asking", and the try-now band.
+- **Where:** the interest check ("Get the launch e-mail"), the way back up to it at the end of "Why I'm asking", and the try-now band ("Try the demo", with "Self-host it" as its secondary).
 - **Primary:** Lilac fill, On Lilac text, 650 weight, 22px side padding, soft drop.
 - **Hover / Focus / Active:** fill darkens to Deep Lilac over 0.15s; global 2px lilac focus outline at 3px offset; 1px press-down on active.
 - **Busy:** `aria-disabled="true"` drops to 60% opacity with a progress cursor.
-- There is one button style. Secondary actions are plain lilac links.
+- **Secondary (try-now band only):** no fill and no shadow, a 1.5px inset Lilac ring and Lilac text, same shape, size and weight. Hover tints the fill with 10% Lilac and moves ring and text to Deep Lilac. Stacks under the primary, full width, below 480px.
+
+**The One Outline Rule.** Secondary actions are plain lilac links, like the hero's demo link. The try-now band is the single exception: its two buttons are equal ways to start (the demo, self-hosting), so the second gets the outline. A second outline button anywhere else means the rule was not followed.
 
 ### Interest-check choices
 Large, tappable checkbox cards (the only bordered boxes on the page, because they are controls).
@@ -298,7 +308,7 @@ Every device and browser screenshot is a link to its full-size image (`cursor: z
 Recipe vs. log, beside the cooking paragraph in "My week with it", built in HTML from the demo data, not a screenshot: two hairline-bordered Paper panels at the control radius, Caption size with tabular numerals, joined by a lilac arrow. Left the full recipe (title, "Recipe · 4 servings · unchanged", ingredient rows, then a "Spices & odds and ends" group in Ink Muted); right the logged serving (per-serving amounts, a dashed rule, which spices stay out, the 650 macro total). A row changed while cooking carries the app's marker: a small lilac dot before the name, the new amount in 650 and the old one ("was 75 g") in Ink Muted beneath. A Caption under the panels says what happened. Under 520px the panels stack and the arrow turns down. Values must match the seeded recipe and catalog.
 
 ### Try-now band
-A full-bleed Lilac Wash strip with a Lilac Hairline top rule and 40px padding: a Subtitle heading and one Ink Soft line on the left, the primary button on the right, wrapping on narrow screens. It closes the page ("Want to give it a try?") right above the footer and is the only Lilac Wash band on the page.
+A full-bleed Lilac Wash strip with a Lilac Hairline top rule and 40px padding: a Subtitle heading and one Ink Soft line on the left, the button pair on the right (primary "Try the demo" to `/demo/`, secondary "Self-host it" to the README, 12px apart), wrapping on narrow screens; below 480px both buttons go full width, primary on top. It closes the page ("Want to give it a try?") right above the footer and is the only Lilac Wash band on the page.
 
 ### Link previews
 Per-language Open Graph images (`og-en.jpg`, `og-de.jpg`, 1200x630) are generated from the real app by `scripts/demo/capture-screenshots.mjs`, like the screenshots; no hand-drawn preview art.
